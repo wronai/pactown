@@ -5,16 +5,15 @@ from pathlib import Path
 from typing import Optional
 
 import click
+import yaml
 from rich.console import Console
 from rich.panel import Panel
-import yaml
 
 from . import __version__
-from .config import EcosystemConfig, load_config
-from .orchestrator import Orchestrator, run_ecosystem
+from .config import load_config
+from .generator import generate_config, print_scan_results
+from .orchestrator import Orchestrator
 from .resolver import DependencyResolver
-from .generator import scan_folder, generate_config, print_scan_results
-
 
 console = Console()
 
@@ -38,12 +37,12 @@ def up(config_path: str, dry_run: bool, no_health: bool, quiet: bool, sequential
     try:
         config = load_config(config_path)
         orch = Orchestrator(config, base_path=Path(config_path).parent, verbose=not quiet)
-        
+
         if dry_run:
             console.print(f"[bold]Dry run: {config.name}[/bold]\n")
             resolver = DependencyResolver(config)
             order = resolver.get_startup_order()
-            
+
             console.print("Would start services in order:")
             for i, name in enumerate(order, 1):
                 svc = config.services[name]
@@ -51,16 +50,16 @@ def up(config_path: str, dry_run: bool, no_health: bool, quiet: bool, sequential
                 deps_str = f" (deps: {', '.join(deps)})" if deps else ""
                 console.print(f"  {i}. {name}:{svc.port}{deps_str}")
             return
-        
+
         if not orch.validate():
             sys.exit(1)
-        
+
         orch.start_all(
             wait_for_health=not no_health,
             parallel=not sequential,
             max_workers=workers,
         )
-        
+
         console.print("\n[dim]Press Ctrl+C to stop all services[/dim]\n")
         try:
             while True:
@@ -69,7 +68,7 @@ def up(config_path: str, dry_run: bool, no_health: bool, quiet: bool, sequential
         except KeyboardInterrupt:
             console.print("\n[yellow]Shutting down...[/yellow]")
             orch.stop_all()
-    
+
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         sys.exit(1)
@@ -109,7 +108,7 @@ def validate(config_path: str):
     try:
         config = load_config(config_path)
         orch = Orchestrator(config, base_path=Path(config_path).parent)
-        
+
         if orch.validate():
             sys.exit(0)
         else:
@@ -165,11 +164,11 @@ def init(name: str, output: str):
             },
         },
     }
-    
+
     output_path = Path(output)
     with open(output_path, "w") as f:
         yaml.dump(config, f, default_flow_style=False, sort_keys=False)
-    
+
     console.print(f"[green]Created {output_path}[/green]")
     console.print("\nNext steps:")
     console.print("  1. Create service README.md files")
@@ -184,10 +183,10 @@ def publish(config_path: str, registry: str):
     """Publish all modules to registry."""
     try:
         from .registry.client import RegistryClient
-        
+
         config = load_config(config_path)
         client = RegistryClient(registry)
-        
+
         for name, service in config.services.items():
             readme_path = Path(config_path).parent / service.readme
             if readme_path.exists():
@@ -213,10 +212,10 @@ def pull(config_path: str, registry: str):
     """Pull dependencies from registry."""
     try:
         from .registry.client import RegistryClient
-        
+
         config = load_config(config_path)
         client = RegistryClient(registry)
-        
+
         for name, service in config.services.items():
             for dep in service.depends_on:
                 if dep.name not in config.services:
@@ -244,17 +243,17 @@ def scan(folder: str):
 @click.option("--base-port", "-p", default=8000, type=int, help="Starting port")
 def generate(folder: str, name: Optional[str], output: str, base_port: int):
     """Generate pactown config from a folder of README.md files.
-    
+
     Example:
         pactown generate ./examples -o my-ecosystem.pactown.yaml
     """
     try:
         folder_path = Path(folder)
         output_path = Path(output)
-        
+
         console.print(f"[bold]Scanning {folder_path}...[/bold]\n")
         print_scan_results(folder_path)
-        
+
         console.print()
         config = generate_config(
             folder=folder_path,
@@ -262,13 +261,13 @@ def generate(folder: str, name: Optional[str], output: str, base_port: int):
             base_port=base_port,
             output=output_path,
         )
-        
+
         console.print(f"\n[green]✓ Generated {output_path}[/green]")
         console.print(f"  Services: {len(config['services'])}")
-        console.print(f"\nNext steps:")
+        console.print("\nNext steps:")
         console.print(f"  pactown validate {output}")
         console.print(f"  pactown up {output}")
-        
+
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         sys.exit(1)
@@ -282,24 +281,24 @@ def generate(folder: str, name: Optional[str], output: str, base_port: int):
 def deploy(config_path: str, output: str, production: bool, kubernetes: bool):
     """Generate deployment files (Docker Compose, Kubernetes)."""
     try:
+        from .deploy.base import DeploymentConfig
         from .deploy.compose import generate_compose_from_config
         from .deploy.kubernetes import KubernetesBackend
-        from .deploy.base import DeploymentConfig
-        
+
         config_path = Path(config_path)
         output_dir = Path(output)
         output_dir.mkdir(parents=True, exist_ok=True)
-        
+
         if kubernetes:
             # Generate Kubernetes manifests
             from .config import load_config
             ecosystem = load_config(config_path)
             deploy_config = DeploymentConfig.for_production() if production else DeploymentConfig.for_development()
             k8s = KubernetesBackend(deploy_config)
-            
+
             k8s_dir = output_dir / "kubernetes"
             k8s_dir.mkdir(exist_ok=True)
-            
+
             for name, service in ecosystem.services.items():
                 image = f"{deploy_config.image_prefix}/{name}:latest"
                 manifests = k8s.generate_manifests(
@@ -311,9 +310,9 @@ def deploy(config_path: str, output: str, production: bool, kubernetes: bool):
                 )
                 k8s.save_manifests(name, manifests, k8s_dir)
                 console.print(f"  [green]✓[/green] {k8s_dir}/{name}.yaml")
-            
+
             console.print(f"\n[green]Generated Kubernetes manifests in {k8s_dir}[/green]")
-            console.print(f"\nDeploy with:")
+            console.print("\nDeploy with:")
             console.print(f"  kubectl apply -f {k8s_dir}/")
         else:
             # Generate Docker Compose
@@ -322,15 +321,15 @@ def deploy(config_path: str, output: str, production: bool, kubernetes: bool):
                 output_dir=output_dir,
                 production=production,
             )
-            
+
             console.print(f"\n[green]Generated Docker Compose files in {output_dir}[/green]")
-            console.print(f"\nRun with:")
+            console.print("\nRun with:")
             if production:
-                console.print(f"  docker compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d")
+                console.print("  docker compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d")
             else:
-                console.print(f"  docker compose up -d")
-                console.print(f"  # or: podman-compose up -d")
-    
+                console.print("  docker compose up -d")
+                console.print("  # or: podman-compose up -d")
+
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         import traceback
@@ -350,7 +349,7 @@ def quadlet():
 @click.option("--system", is_flag=True, help="Use system-wide systemd (requires root)")
 def quadlet_shell(tenant: str, domain: str, system: bool):
     """Start interactive Quadlet deployment shell.
-    
+
     Example:
         pactown quadlet shell --domain pactown.com --tenant user01
     """
@@ -365,12 +364,12 @@ def quadlet_shell(tenant: str, domain: str, system: bool):
 @click.option("--tenant", "-t", default="default", help="Default tenant")
 def quadlet_api(host: str, port: int, domain: str, tenant: str):
     """Start Quadlet API server for programmatic deployments.
-    
+
     Example:
         pactown quadlet api --port 8800 --domain pactown.com
     """
     from .deploy.quadlet_api import run_api
-    console.print(f"[bold]Starting Quadlet API server...[/bold]")
+    console.print("[bold]Starting Quadlet API server...[/bold]")
     console.print(f"  Host: {host}:{port}")
     console.print(f"  Domain: {domain}")
     console.print(f"  Docs: http://{host}:{port}/docs")
@@ -386,35 +385,35 @@ def quadlet_api(host: str, port: int, domain: str, tenant: str):
 @click.option("--tls/--no-tls", default=False, help="Enable TLS")
 def quadlet_generate(markdown_path: str, output: str, domain: str, subdomain: str, tenant: str, tls: bool):
     """Generate Quadlet files for a Markdown service.
-    
+
     Example:
         pactown quadlet generate ./README.md --domain pactown.com --subdomain docs
     """
     from .deploy.quadlet import QuadletConfig, generate_markdown_service_quadlet
-    
+
     config = QuadletConfig(
         tenant_id=tenant,
         domain=domain,
         subdomain=subdomain,
         tls_enabled=tls,
     )
-    
+
     units = generate_markdown_service_quadlet(
         markdown_path=Path(markdown_path).resolve(),
         config=config,
     )
-    
+
     output_dir = Path(output)
     output_dir.mkdir(parents=True, exist_ok=True)
-    
+
     for unit in units:
         path = output_dir / unit.filename
         path.write_text(unit.content)
         console.print(f"[green]✓ Generated: {path}[/green]")
-    
-    console.print(f"\n[bold]Deploy with:[/bold]")
+
+    console.print("\n[bold]Deploy with:[/bold]")
     console.print(f"  cp {output}/*.container ~/.config/containers/systemd/tenant-{tenant}/")
-    console.print(f"  systemctl --user daemon-reload")
+    console.print("  systemctl --user daemon-reload")
     console.print(f"  systemctl --user enable --now {units[0].name}.service")
 
 
@@ -424,31 +423,31 @@ def quadlet_generate(markdown_path: str, output: str, domain: str, subdomain: st
 @click.option("--system", is_flag=True, help="Use system-wide systemd")
 def quadlet_init(domain: str, email: str, system: bool):
     """Initialize Quadlet environment with Traefik.
-    
+
     Example:
         pactown quadlet init --domain pactown.com --email admin@pactown.com
     """
     from .deploy.quadlet import QuadletConfig, generate_traefik_quadlet
-    
+
     config = QuadletConfig(domain=domain, user_mode=not system)
-    
+
     # Create directories
     config.systemd_path.mkdir(parents=True, exist_ok=True)
     console.print(f"[green]✓ Created: {config.systemd_path}[/green]")
-    
+
     # Generate Traefik
     units = generate_traefik_quadlet(config)
-    
+
     for unit in units:
         content = unit.content
         if email:
             content = content.replace(f"admin@{domain}", email)
-        
+
         path = config.systemd_path / unit.filename
         path.write_text(content)
         console.print(f"[green]✓ Generated: {path}[/green]")
-    
-    console.print(f"\n[bold]Start Traefik:[/bold]")
+
+    console.print("\n[bold]Start Traefik:[/bold]")
     mode = "" if system else " --user"
     console.print(f"  systemctl{mode} daemon-reload")
     console.print(f"  systemctl{mode} enable --now traefik.service")
@@ -463,51 +462,51 @@ def quadlet_init(domain: str, email: str, system: bool):
 @click.option("--image", default="ghcr.io/pactown/markdown-server:latest", help="Container image")
 def quadlet_deploy(markdown_path: str, domain: str, subdomain: str, tenant: str, tls: bool, image: str):
     """Deploy a Markdown file to VPS using Quadlet.
-    
+
     Example:
         pactown quadlet deploy ./README.md --domain pactown.com --subdomain docs --tls
     """
-    from .deploy.quadlet import QuadletConfig, QuadletBackend, generate_markdown_service_quadlet
     from .deploy.base import DeploymentConfig
-    
+    from .deploy.quadlet import QuadletBackend, QuadletConfig, generate_markdown_service_quadlet
+
     config = QuadletConfig(
         tenant_id=tenant,
         domain=domain,
         subdomain=subdomain,
         tls_enabled=tls,
     )
-    
+
     deploy_config = DeploymentConfig.for_production()
     backend = QuadletBackend(deploy_config, config)
-    
+
     if not backend.is_available():
         console.print("[red]✗ Podman 4.4+ with Quadlet support not available[/red]")
         sys.exit(1)
-    
+
     md_path = Path(markdown_path).resolve()
     console.print(f"[bold]Deploying: {md_path.name}[/bold]")
     console.print(f"  Domain: {config.full_domain}")
     console.print(f"  Tenant: {tenant}")
     console.print(f"  TLS: {tls}")
-    
+
     # Generate units
     units = generate_markdown_service_quadlet(md_path, config, image)
-    
+
     # Save to tenant path
     config.tenant_path.mkdir(parents=True, exist_ok=True)
     for unit in units:
         unit.save(config.tenant_path)
         console.print(f"[dim]Created: {unit.filename}[/dim]")
-    
+
     # Reload and start
     backend._systemctl("daemon-reload")
     service = f"{units[0].name}.service"
     backend._systemctl("enable", service)
     result = backend._systemctl("start", service)
-    
+
     if result.returncode == 0:
         url = f"https://{config.full_domain}" if tls else f"http://{config.full_domain}"
-        console.print(f"\n[green]✓ Deployed successfully![/green]")
+        console.print("\n[green]✓ Deployed successfully![/green]")
         console.print(f"  URL: {url}")
     else:
         console.print(f"\n[red]✗ Deployment failed: {result.stderr}[/red]")
@@ -518,33 +517,34 @@ def quadlet_deploy(markdown_path: str, domain: str, subdomain: str, tenant: str,
 @click.option("--tenant", "-t", default="default", help="Tenant ID")
 def quadlet_list(tenant: str):
     """List all Quadlet services for a tenant.
-    
+
     Example:
         pactown quadlet list --tenant user01
     """
-    from .deploy.quadlet import QuadletConfig, QuadletBackend
-    from .deploy.base import DeploymentConfig
     from rich.table import Table
-    
+
+    from .deploy.base import DeploymentConfig
+    from .deploy.quadlet import QuadletBackend, QuadletConfig
+
     config = QuadletConfig(tenant_id=tenant)
     backend = QuadletBackend(DeploymentConfig.for_production(), config)
-    
+
     services = backend.list_services()
-    
+
     if not services:
         console.print(f"[yellow]No services found for tenant: {tenant}[/yellow]")
         return
-    
+
     table = Table(title=f"Services (tenant: {tenant})")
     table.add_column("Name", style="cyan")
     table.add_column("Status", style="green")
     table.add_column("State")
-    
+
     for svc in services:
         status = svc["status"]
         running = "🟢 running" if status.get("running") else "🔴 stopped"
         table.add_row(svc["name"], running, status.get("state", "-"))
-    
+
     console.print(table)
 
 
@@ -554,16 +554,16 @@ def quadlet_list(tenant: str):
 @click.option("--lines", "-n", default=50, type=int, help="Number of lines")
 def quadlet_logs(service_name: str, tenant: str, lines: int):
     """Show logs for a Quadlet service.
-    
+
     Example:
         pactown quadlet logs my-service --lines 100
     """
-    from .deploy.quadlet import QuadletConfig, QuadletBackend
     from .deploy.base import DeploymentConfig
-    
+    from .deploy.quadlet import QuadletBackend, QuadletConfig
+
     config = QuadletConfig(tenant_id=tenant)
     backend = QuadletBackend(DeploymentConfig.for_production(), config)
-    
+
     output = backend.logs(service_name, tail=lines)
     console.print(output or "[dim]No logs available[/dim]")
 

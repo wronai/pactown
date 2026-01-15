@@ -1,15 +1,16 @@
-# pactown | 34f 5950L | python:34
+# pactown | 38f 9014L | python:38
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
-M[34]:
+M[38]:
   tests/test_deploy_dockerfile.py,29
   tests/test_resolver.py,109
   tests/__init__.py,1
   tests/test_parallel.py,108
   tests/test_config.py,111
+  tests/test_quadlet_security.py,505
   tests/test_network.py,88
   tests/test_registry.py,112
   src/pactown/config.py,137
-  src/pactown/cli.py,287
+  src/pactown/cli.py,462
   src/pactown/generator.py,164
   src/pactown/parallel.py,211
   src/pactown/__init__.py,20
@@ -18,12 +19,15 @@ M[34]:
   src/pactown/resolver.py,122
   src/pactown/sandbox_manager.py,275
   src/pactown/network.py,194
+  src/pactown/deploy/quadlet_shell.py,436
   src/pactown/deploy/base.py,198
   src/pactown/deploy/docker.py,246
-  src/pactown/deploy/__init__.py,15
+  src/pactown/deploy/__init__.py,29
   src/pactown/deploy/kubernetes.py,396
+  src/pactown/deploy/quadlet.py,738
   src/pactown/deploy/compose.py,279
   src/pactown/deploy/podman.py,324
+  src/pactown/deploy/quadlet_api.py,424
   src/pactown/registry/server.py,167
   src/pactown/registry/__init__.py,10
   src/pactown/registry/client.py,218
@@ -72,6 +76,16 @@ D:
     test_ecosystem_config_from_yaml()->None
     test_ecosystem_config_to_dict()->None
     test_load_config_file_not_found()->None
+  tests/test_quadlet_security.py:
+    i: pytest,re,os,tempfile,sys,pactown.deploy.quadlet.{QuadletConfig,QuadletTemplates},pathlib.Path,unittest.mock.{MagicMock,patch}
+    e: TestContainerNameInjection,TestEnvironmentVariableInjection,TestVolumeMountInjection,TestTraefikLabelInjection,TestSystemdUnitInjection,TestTenantIsolation,TestCommandInjection,TestAPISecurityInjection
+    TestContainerNameInjection: test_container_name_sanitization(0),test_filename_sanitization(0)  # Test container name sanitization agai...
+    TestEnvironmentVariableInjection: test_env_value_sanitization(0),test_env_key_sanitization(0)  # Test environment variable injection a...
+    TestVolumeMountInjection: test_volume_path_validation(0),test_volume_options_injection(0)  # Test volume mount path traversal and...
+    TestTraefikLabelInjection: test_domain_injection(0),test_middleware_injection(0)  # Test Traefik routing label injection...
+    TestSystemdUnitInjection: test_section_injection(0),test_directive_injection(0)  # Test systemd unit file injection atta...
+    temp_dir()->None
+    mock_systemctl()->None
   tests/test_network.py:
     i: tempfile,pytest,pactown.network.{PortAllocator,ServiceEndpoint,ServiceRegistry,check_port,find_free_port},pathlib.Path
     e: test_port_allocator_allocate,test_port_allocator_preferred_port,test_port_allocator_release,test_service_endpoint,test_service_registry_register,test_service_registry_get,test_service_registry_get_url,test_service_registry_environment
@@ -158,6 +172,11 @@ D:
     ServiceRegistry: __init__(2),_load(0),_save(0),register(3),unregister(1)  # Local service registry for name-based...
     find_free_port(start:int=10000;end:int=65000)->int
     check_port(port:int)->bool
+  src/pactown/deploy/quadlet_shell.py:
+    i: cmd,os,sys,shutil,pathlib.Path,rich.console.Console,rich.panel.Panel,rich.syntax.Syntax,rich.table.Table,typing.Optional
+    e: QuadletShell,run_shell
+    QuadletShell: __init__(3),do_status(1),do_config(1),do_generate(1),do_generate_container(1)  # Interactive shell for Quadlet deploym...
+    run_shell(tenant_id:str='default';domain:str='localhost';user_mode:bool=True)->None
   src/pactown/deploy/base.py:
     i: abc.{ABC,abstractmethod},dataclasses.{dataclass,field},enum.Enum,pathlib.Path,typing.{Any,Optional}
     e: RuntimeType,DeploymentMode,DeploymentConfig,DeploymentResult,DeploymentBackend
@@ -174,6 +193,21 @@ D:
     i: subprocess,json,yaml,base.{DeploymentBackend,DeploymentConfig,DeploymentResult,RuntimeType},pathlib.Path,typing.{Any,Optional}
     e: KubernetesBackend
     KubernetesBackend: __init__(2),runtime_type(0),_kubectl(0),is_available(0),build_image(4)  # Kubernetes deployment backend for pro...
+  src/pactown/deploy/quadlet.py:
+    i: os,re,subprocess,shutil,dataclasses.{dataclass,field},pathlib.Path,string.Template,typing.{Any,Optional}
+    e: SAFE_NAME_PATTERN,DANGEROUS_PATTERNS,BLOCKED_VOLUME_PATHS,sanitize_name,sanitize_env_value,sanitize_env_key,sanitize_path,sanitize_domain
+    QuadletConfig: full_domain(0),systemd_path(0),tenant_path(0)  # Configuration for Quadlet deployment.
+    QuadletUnit: filename(0),save(1)  # Represents a Quadlet unit file.
+    QuadletTemplates: container(7),pod(4),network(5),volume(2)  # Template generator for Quadlet unit f...
+    QuadletBackend: __init__(2),runtime_type(0),is_available(0),get_quadlet_version(0),build_image(4)  # Podman Quadlet deployment backend.
+    sanitize_name(name:str)->str
+    sanitize_env_value(value:str)->str
+    sanitize_env_key(key:str)->str
+    sanitize_path(path:str)->str
+    sanitize_domain(domain:str)->str
+    sanitize_image(image:str)->str
+    sanitize_health_check(endpoint:str)->str
+    validate_volume(volume:str)->tuple[bool, str]
   src/pactown/deploy/compose.py:
     i: yaml,base.{DeploymentConfig,DeploymentMode},config.{EcosystemConfig,ServiceConfig},dataclasses.dataclass,pathlib.Path,typing.Optional
     e: ComposeService,ComposeGenerator,generate_compose_from_config
@@ -184,6 +218,16 @@ D:
     i: subprocess,json,base.{DeploymentBackend,DeploymentConfig,DeploymentResult,RuntimeType},pathlib.Path,typing.{Any,Optional}
     e: PodmanBackend
     PodmanBackend: runtime_type(0),is_available(0),build_image(4),push_image(2),deploy(5)  # Podman container runtime backend.
+  src/pactown/deploy/quadlet_api.py:
+    i: os,tempfile,hashlib,datetime,fastapi.{BackgroundTasks,FastAPI,HTTPException},pathlib.Path,typing.{Literal,Optional}
+    e: DeploymentRequest,ContainerRequest,TraefikRequest,DeploymentResponse,QuadletFileResponse,ServiceStatus,ListServicesResponse,create_quadlet_api
+    DeploymentRequest:   # Request to deploy a Markdown service.
+    ContainerRequest:   # Request to generate a container Quadl...
+    TraefikRequest:   # Request to generate Traefik Quadlet f...
+    DeploymentResponse:   # Response from deployment operation.
+    QuadletFileResponse:   # Response containing generated Quadlet...
+    create_quadlet_api(default_domain:str='localhost';default_tenant:str='default';user_mode:bool=True)->FastAPI
+    run_api(host:str='0.0.0.0';port:int=8800;domain:str='localhost';tenant:str='default')->None
   src/pactown/registry/server.py:
     i: hashlib,click,uvicorn,fastapi.{FastAPI,HTTPException,Query},fastapi.middleware.cors.CORSMiddleware,pathlib.Path,pydantic.BaseModel,typing.Optional
     e: PublishRequest,PublishResponse,ArtifactInfo,VersionInfo,create_app,main

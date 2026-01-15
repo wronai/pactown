@@ -2,7 +2,8 @@
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, Any
+from typing import Optional
+
 import yaml
 
 
@@ -14,7 +15,7 @@ class DependencyConfig:
     registry: str = "local"
     endpoint: Optional[str] = None
     env_var: Optional[str] = None
-    
+
     @classmethod
     def from_dict(cls, data: dict | str) -> "DependencyConfig":
         if isinstance(data, str):
@@ -38,13 +39,13 @@ class ServiceConfig:
     sandbox_path: Optional[str] = None
     auto_restart: bool = True
     timeout: int = 60
-    
+
     @classmethod
     def from_dict(cls, name: str, data: dict) -> "ServiceConfig":
         deps = []
         for dep in data.get("depends_on", []):
             deps.append(DependencyConfig.from_dict(dep))
-        
+
         return cls(
             name=name,
             readme=data.get("readme", f"{name}/README.md"),
@@ -78,32 +79,32 @@ class EcosystemConfig:
     base_port: int = 8000
     sandbox_root: str = "./.pactown-sandboxes"
     network: str = "pactown-net"
-    
+
     @classmethod
     def from_yaml(cls, path: Path) -> "EcosystemConfig":
         """Load ecosystem configuration from YAML file."""
         with open(path) as f:
             data = yaml.safe_load(f)
         return cls.from_dict(data, base_path=path.parent)
-    
+
     @classmethod
     def from_dict(cls, data: dict, base_path: Optional[Path] = None) -> "EcosystemConfig":
         """Create configuration from dictionary."""
         services = {}
         base_port = data.get("base_port", 8000)
-        
+
         for i, (name, svc_data) in enumerate(data.get("services", {}).items()):
             if svc_data.get("port") is None:
                 svc_data["port"] = base_port + i
             services[name] = ServiceConfig.from_dict(name, svc_data)
-        
+
         registry_data = data.get("registry", {})
         registry = RegistryConfig(
             url=registry_data.get("url", "http://localhost:8800"),
             auth_token=registry_data.get("auth_token"),
             namespace=registry_data.get("namespace", "default"),
         )
-        
+
         return cls(
             name=data.get("name", "unnamed-ecosystem"),
             version=data.get("version", "0.1.0"),
@@ -114,7 +115,7 @@ class EcosystemConfig:
             sandbox_root=data.get("sandbox_root", "./.pactown-sandboxes"),
             network=data.get("network", "pactown-net"),
         )
-    
+
     def to_dict(self) -> dict:
         """Convert configuration to dictionary."""
         return {
@@ -143,7 +144,7 @@ class EcosystemConfig:
                 for name, svc in self.services.items()
             },
         }
-    
+
     def to_yaml(self, path: Path) -> None:
         """Save configuration to YAML file."""
         with open(path, "w") as f:

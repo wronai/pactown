@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Optional, Any
+from typing import Any, Optional
 
 
 class RuntimeType(Enum):
@@ -28,44 +28,44 @@ class DeploymentMode(Enum):
 @dataclass
 class DeploymentConfig:
     """Configuration for deployment."""
-    
+
     # Runtime settings
     runtime: RuntimeType = RuntimeType.LOCAL
     mode: DeploymentMode = DeploymentMode.DEVELOPMENT
-    
+
     # Container settings
     registry: str = ""                    # Container registry URL
     namespace: str = "default"            # K8s namespace or project name
     image_prefix: str = "pactown"         # Image name prefix
-    
+
     # Network settings
     network_name: str = "pactown-net"     # Container network name
     expose_ports: bool = True             # Expose ports to host
     use_internal_dns: bool = True         # Use container DNS for service discovery
-    
+
     # Security settings
     rootless: bool = True                 # Use rootless containers (Podman)
     read_only_fs: bool = False            # Read-only filesystem
     no_new_privileges: bool = True        # No new privileges
     drop_capabilities: list[str] = field(default_factory=lambda: ["ALL"])
     add_capabilities: list[str] = field(default_factory=list)
-    
+
     # Resource limits
     memory_limit: str = "512m"            # Memory limit per service
     cpu_limit: str = "0.5"                # CPU limit per service
-    
+
     # Health check settings
     health_check_interval: str = "30s"
     health_check_timeout: str = "10s"
     health_check_retries: int = 3
-    
+
     # Persistence
     volumes_path: Optional[Path] = None   # Path for persistent volumes
-    
+
     # Labels and annotations
     labels: dict[str, str] = field(default_factory=dict)
     annotations: dict[str, str] = field(default_factory=dict)
-    
+
     @classmethod
     def for_production(cls) -> "DeploymentConfig":
         """Create production-ready configuration."""
@@ -80,7 +80,7 @@ class DeploymentConfig:
             health_check_interval="10s",
             health_check_retries=5,
         )
-    
+
     @classmethod
     def for_development(cls) -> "DeploymentConfig":
         """Create development configuration."""
@@ -107,21 +107,21 @@ class DeploymentResult:
 
 class DeploymentBackend(ABC):
     """Abstract base class for deployment backends."""
-    
+
     def __init__(self, config: DeploymentConfig):
         self.config = config
-    
+
     @property
     @abstractmethod
     def runtime_type(self) -> RuntimeType:
         """Return the runtime type."""
         pass
-    
+
     @abstractmethod
     def is_available(self) -> bool:
         """Check if the runtime is available."""
         pass
-    
+
     @abstractmethod
     def build_image(
         self,
@@ -132,7 +132,7 @@ class DeploymentBackend(ABC):
     ) -> DeploymentResult:
         """Build a container image."""
         pass
-    
+
     @abstractmethod
     def push_image(
         self,
@@ -141,7 +141,7 @@ class DeploymentBackend(ABC):
     ) -> DeploymentResult:
         """Push image to registry."""
         pass
-    
+
     @abstractmethod
     def deploy(
         self,
@@ -153,22 +153,22 @@ class DeploymentBackend(ABC):
     ) -> DeploymentResult:
         """Deploy a service."""
         pass
-    
+
     @abstractmethod
     def stop(self, service_name: str) -> DeploymentResult:
         """Stop a deployed service."""
         pass
-    
+
     @abstractmethod
     def logs(self, service_name: str, tail: int = 100) -> str:
         """Get logs from a service."""
         pass
-    
+
     @abstractmethod
     def status(self, service_name: str) -> dict[str, Any]:
         """Get status of a service."""
         pass
-    
+
     def generate_dockerfile(
         self,
         service_name: str,
@@ -179,11 +179,11 @@ class DeploymentBackend(ABC):
         dockerfile_content = self._create_dockerfile(
             sandbox_path, base_image
         )
-        
+
         dockerfile_path = sandbox_path / "Dockerfile"
         dockerfile_path.write_text(dockerfile_content)
         return dockerfile_path
-    
+
     def _create_dockerfile(
         self,
         sandbox_path: Path,
@@ -192,13 +192,13 @@ class DeploymentBackend(ABC):
         """Create Dockerfile content."""
         # Check for requirements.txt
         has_requirements = (sandbox_path / "requirements.txt").exists()
-        
+
         # Check for package.json (Node.js)
         has_package_json = (sandbox_path / "package.json").exists()
-        
+
         if has_package_json:
             return self._create_node_dockerfile(sandbox_path)
-        
+
         # Default Python Dockerfile
         lines = [
             f"FROM {base_image}",
@@ -209,7 +209,7 @@ class DeploymentBackend(ABC):
             "RUN useradd -m -u 1000 appuser",
             "",
         ]
-        
+
         if has_requirements:
             lines.extend([
                 "# Install dependencies",
@@ -217,7 +217,7 @@ class DeploymentBackend(ABC):
                 "RUN pip install --no-cache-dir -r requirements.txt",
                 "",
             ])
-        
+
         lines.extend([
             "# Copy application",
             "COPY . .",
@@ -226,15 +226,17 @@ class DeploymentBackend(ABC):
             "USER appuser",
             "",
             "# Health check",
-            'HEALTHCHECK --interval=30s --timeout=10s --retries=3 \\\\',
-            "    CMD python -c \"import os,urllib.request; port=os.environ.get('MARKPACT_PORT','8000'); urllib.request.urlopen('http://localhost:%s/health' % port, timeout=5).read()\"",
+            'HEALTHCHECK --interval=30s --timeout=10s --retries=3 \\',
+            '    CMD python -c "import os,urllib.request; ' +
+            "port=os.environ.get('PORT','8000'); " +
+            "urllib.request.urlopen('http://localhost:%s/health' % port, timeout=5)\"",
             "",
             "# Default command",
             'CMD ["python", "main.py"]',
         ])
-        
+
         return "\n".join(lines)
-    
+
     def _create_node_dockerfile(self, sandbox_path: Path) -> str:
         """Create Dockerfile for Node.js service."""
         return """FROM node:20-slim

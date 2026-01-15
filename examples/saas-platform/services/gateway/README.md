@@ -18,13 +18,13 @@ Reverse proxy and API gateway for the SaaS platform. Routes requests to appropri
 
 ---
 
-```markpact:deps python
+```python markpact:deps
 fastapi
 uvicorn
 httpx
 ```
 
-```markpact:file python path=gateway.py
+```python markpact:file path=gateway.py
 import os
 import asyncio
 from typing import Optional
@@ -175,12 +175,11 @@ if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=port)
 ```
 
-```markpact:run python
+```bash markpact:run
 uvicorn gateway:app --host 0.0.0.0 --port ${MARKPACT_PORT:-8000} --reload
 ```
 
-```markpact:test http
+```http markpact:test
 GET /health EXPECT 200
 GET /gateway/health EXPECT 200
 GET /gateway/routes EXPECT 200
-```

@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional, Any
 from pathlib import Path
-import json
+from typing import Any, Optional
 
 
 @dataclass
@@ -17,7 +17,7 @@ class ArtifactVersion:
     checksum: str
     published_at: datetime = field(default_factory=datetime.utcnow)
     metadata: dict[str, Any] = field(default_factory=dict)
-    
+
     def to_dict(self) -> dict:
         return {
             "version": self.version,
@@ -26,7 +26,7 @@ class ArtifactVersion:
             "published_at": self.published_at.isoformat(),
             "metadata": self.metadata,
         }
-    
+
     @classmethod
     def from_dict(cls, data: dict) -> "ArtifactVersion":
         return cls(
@@ -49,21 +49,21 @@ class Artifact:
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
     tags: list[str] = field(default_factory=list)
-    
+
     @property
     def full_name(self) -> str:
         return f"{self.namespace}/{self.name}"
-    
+
     def add_version(self, version: ArtifactVersion) -> None:
         self.versions[version.version] = version
         self.latest_version = version.version
         self.updated_at = datetime.utcnow()
-    
+
     def get_version(self, version: str = "latest") -> Optional[ArtifactVersion]:
         if version == "latest" or version == "*":
             version = self.latest_version
         return self.versions.get(version)
-    
+
     def to_dict(self) -> dict:
         return {
             "name": self.name,
@@ -75,11 +75,11 @@ class Artifact:
             "updated_at": self.updated_at.isoformat(),
             "tags": self.tags,
         }
-    
+
     @classmethod
     def from_dict(cls, data: dict) -> "Artifact":
         versions = {
-            k: ArtifactVersion.from_dict(v) 
+            k: ArtifactVersion.from_dict(v)
             for k, v in data.get("versions", {}).items()
         }
         return cls(
@@ -96,21 +96,21 @@ class Artifact:
 
 class RegistryStorage:
     """File-based storage for registry artifacts."""
-    
+
     def __init__(self, storage_path: Path):
         self.storage_path = Path(storage_path)
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self._index_path = self.storage_path / "index.json"
         self._artifacts: dict[str, Artifact] = {}
         self._load()
-    
+
     def _load(self) -> None:
         if self._index_path.exists():
             with open(self._index_path) as f:
                 data = json.load(f)
                 for full_name, artifact_data in data.get("artifacts", {}).items():
                     self._artifacts[full_name] = Artifact.from_dict(artifact_data)
-    
+
     def _save(self) -> None:
         data = {
             "artifacts": {k: v.to_dict() for k, v in self._artifacts.items()},
@@ -118,19 +118,19 @@ class RegistryStorage:
         }
         with open(self._index_path, "w") as f:
             json.dump(data, f, indent=2)
-    
+
     def get(self, namespace: str, name: str) -> Optional[Artifact]:
         return self._artifacts.get(f"{namespace}/{name}")
-    
+
     def list(self, namespace: Optional[str] = None) -> list[Artifact]:
         if namespace:
             return [a for a in self._artifacts.values() if a.namespace == namespace]
         return list(self._artifacts.values())
-    
+
     def save_artifact(self, artifact: Artifact) -> None:
         self._artifacts[artifact.full_name] = artifact
         self._save()
-    
+
     def delete(self, namespace: str, name: str) -> bool:
         key = f"{namespace}/{name}"
         if key in self._artifacts:
@@ -138,12 +138,12 @@ class RegistryStorage:
             self._save()
             return True
         return False
-    
+
     def search(self, query: str) -> list[Artifact]:
         query = query.lower()
         results = []
         for artifact in self._artifacts.values():
-            if (query in artifact.name.lower() or 
+            if (query in artifact.name.lower() or
                 query in artifact.description.lower() or
                 any(query in tag.lower() for tag in artifact.tags)):
                 results.append(artifact)

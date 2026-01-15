@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-import yaml
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
-from dataclasses import dataclass
+
+import yaml
 
 from ..config import EcosystemConfig, ServiceConfig
 from .base import DeploymentConfig, DeploymentMode
@@ -30,13 +31,13 @@ class ComposeService:
 class ComposeGenerator:
     """
     Generate Docker Compose / Podman Compose files for pactown ecosystems.
-    
+
     Supports:
     - Docker Compose v3.8+
     - Podman Compose
     - Docker Swarm mode
     """
-    
+
     def __init__(
         self,
         ecosystem: EcosystemConfig,
@@ -46,7 +47,7 @@ class ComposeGenerator:
         self.ecosystem = ecosystem
         self.deploy_config = deploy_config
         self.base_path = Path(base_path)
-    
+
     def generate(
         self,
         output_path: Optional[Path] = None,
@@ -54,11 +55,11 @@ class ComposeGenerator:
     ) -> dict:
         """
         Generate docker-compose.yaml content.
-        
+
         Args:
             output_path: Optional path to write the file
             include_registry: Include pactown registry service
-        
+
         Returns:
             Compose file as dict
         """
@@ -72,39 +73,39 @@ class ComposeGenerator:
                 },
             },
         }
-        
+
         # Add volumes section if needed
         volumes = {}
-        
+
         for name, service in self.ecosystem.services.items():
             compose_service = self._create_service(name, service)
             compose["services"][name] = compose_service
-            
+
             # Check for volume mounts
             if self.deploy_config.volumes_path:
                 volume_name = f"{name}-data"
                 volumes[volume_name] = {"driver": "local"}
-        
+
         if volumes:
             compose["volumes"] = volumes
-        
+
         # Add registry service if requested
         if include_registry:
             compose["services"]["registry"] = self._create_registry_service()
-        
+
         # Write to file if path provided
         if output_path:
             output_path = Path(output_path)
             with open(output_path, "w") as f:
                 yaml.dump(compose, f, default_flow_style=False, sort_keys=False)
-        
+
         return compose
-    
+
     def _create_service(self, name: str, service: ServiceConfig) -> dict:
         """Create compose service definition."""
-        readme_path = self.base_path / service.readme
+        self.base_path / service.readme
         sandbox_path = self.base_path / self.ecosystem.sandbox_root / name
-        
+
         svc = {
             "build": {
                 "context": str(sandbox_path),
@@ -115,16 +116,16 @@ class ComposeGenerator:
             "restart": "unless-stopped",
             "networks": [self.deploy_config.network_name],
         }
-        
+
         # Ports
         if service.port and self.deploy_config.expose_ports:
             svc["ports"] = [f"{service.port}:{service.port}"]
-        
+
         # Environment
         env = {"SERVICE_NAME": name}
         if service.port:
             env["MARKPACT_PORT"] = str(service.port)
-        
+
         # Add dependency URLs
         for dep in service.depends_on:
             dep_service = self.ecosystem.services.get(dep.name)
@@ -132,19 +133,19 @@ class ComposeGenerator:
                 env_key = dep.name.upper().replace("-", "_")
                 # Use container DNS name
                 env[f"{env_key}_URL"] = f"http://{dep.name}:{dep_service.port}"
-        
+
         env.update(service.env)
         svc["environment"] = env
-        
+
         # Dependencies
         if service.depends_on:
             svc["depends_on"] = {}
             for dep in service.depends_on:
                 if dep.name in self.ecosystem.services:
-                    svc["depends_on"][dep.name] = {
-                        "condition": "service_healthy" if self.ecosystem.services[dep.name].health_check else "service_started"
-                    }
-        
+                    dep_svc = self.ecosystem.services[dep.name]
+                    condition = "service_healthy" if dep_svc.health_check else "service_started"
+                    svc["depends_on"][dep.name] = {"condition": condition}
+
         # Health check
         if service.health_check:
             svc["healthcheck"] = {
@@ -154,7 +155,7 @@ class ComposeGenerator:
                 "retries": self.deploy_config.health_check_retries,
                 "start_period": "10s",
             }
-        
+
         # Production settings
         if self.deploy_config.mode == DeploymentMode.PRODUCTION:
             svc["deploy"] = {
@@ -175,28 +176,28 @@ class ComposeGenerator:
                     "window": "120s",
                 },
             }
-            
+
             # Security options
             svc["security_opt"] = ["no-new-privileges:true"]
-            
+
             if self.deploy_config.read_only_fs:
                 svc["read_only"] = True
                 svc["tmpfs"] = ["/tmp"]
-            
+
             svc["cap_drop"] = self.deploy_config.drop_capabilities
-            
+
             if self.deploy_config.add_capabilities:
                 svc["cap_add"] = self.deploy_config.add_capabilities
-        
+
         # Labels
         svc["labels"] = {
             "pactown.ecosystem": self.ecosystem.name,
             "pactown.service": name,
             **self.deploy_config.labels,
         }
-        
+
         return svc
-    
+
     def _create_registry_service(self) -> dict:
         """Create pactown registry service."""
         return {
@@ -217,7 +218,7 @@ class ComposeGenerator:
                 "retries": 3,
             },
         }
-    
+
     def generate_override(
         self,
         output_path: Optional[Path] = None,
@@ -225,7 +226,7 @@ class ComposeGenerator:
     ) -> dict:
         """
         Generate docker-compose.override.yaml for development.
-        
+
         This file is automatically merged with docker-compose.yaml
         and provides development-specific settings.
         """
@@ -233,37 +234,37 @@ class ComposeGenerator:
             "version": "3.8",
             "services": {},
         }
-        
+
         for name, service in self.ecosystem.services.items():
             sandbox_path = self.base_path / self.ecosystem.sandbox_root / name
-            
+
             svc = {}
-            
+
             if dev_mode:
                 # Mount source code for hot reload
                 svc["volumes"] = [
                     f"{sandbox_path}:/app:z",
                 ]
-                
+
                 # Enable debug mode
                 svc["environment"] = {
                     "DEBUG": "true",
                     "LOG_LEVEL": "debug",
                 }
-                
+
                 # Remove resource limits for development
                 svc["deploy"] = None
-            
+
             if svc:
                 override["services"][name] = svc
-        
+
         if output_path:
             output_path = Path(output_path)
             with open(output_path, "w") as f:
                 yaml.dump(override, f, default_flow_style=False, sort_keys=False)
-        
+
         return override
-    
+
     def generate_production(
         self,
         output_path: Optional[Path] = None,
@@ -273,10 +274,10 @@ class ComposeGenerator:
         Generate docker-compose.prod.yaml for production/swarm deployment.
         """
         compose = self.generate()
-        
+
         for name in compose["services"]:
             svc = compose["services"][name]
-            
+
             # Add swarm-specific deploy config
             svc["deploy"] = {
                 "mode": "replicated",
@@ -298,12 +299,12 @@ class ComposeGenerator:
                     },
                 },
             }
-        
+
         if output_path:
             output_path = Path(output_path)
             with open(output_path, "w") as f:
                 yaml.dump(compose, f, default_flow_style=False, sort_keys=False)
-        
+
         return compose
 
 
@@ -314,38 +315,38 @@ def generate_compose_from_config(
 ) -> dict:
     """
     Convenience function to generate compose files from pactown config.
-    
+
     Args:
         config_path: Path to saas.pactown.yaml
         output_dir: Directory to write compose files
         production: Generate production configuration
-    
+
     Returns:
         Generated compose dict
     """
     from ..config import load_config
-    
+
     config_path = Path(config_path)
     ecosystem = load_config(config_path)
-    
+
     deploy_config = (
         DeploymentConfig.for_production() if production
         else DeploymentConfig.for_development()
     )
-    
+
     generator = ComposeGenerator(
         ecosystem=ecosystem,
         deploy_config=deploy_config,
         base_path=config_path.parent,
     )
-    
+
     output_dir = output_dir or config_path.parent
-    
+
     # Generate main compose file
     compose = generator.generate(
         output_path=output_dir / "docker-compose.yaml"
     )
-    
+
     # Generate override for development
     if not production:
         generator.generate_override(
@@ -355,5 +356,5 @@ def generate_compose_from_config(
         generator.generate_production(
             output_path=output_dir / "docker-compose.prod.yaml"
         )
-    
+
     return compose

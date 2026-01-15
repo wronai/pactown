@@ -4,13 +4,12 @@ import tempfile
 from pathlib import Path
 
 import pytest
-import yaml
 
 from pactown.config import (
-    EcosystemConfig,
-    ServiceConfig,
     DependencyConfig,
+    EcosystemConfig,
     RegistryConfig,
+    ServiceConfig,
     load_config,
 )
 
@@ -100,9 +99,9 @@ services:
     with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
         f.write(yaml_content)
         f.flush()
-        
+
         config = EcosystemConfig.from_yaml(Path(f.name))
-        
+
     assert config.name == "yaml-test"
     assert config.version == "0.2.0"
     assert len(config.services) == 2

@@ -16,7 +16,7 @@ Modern web frontend for the SaaS platform. Built with vanilla HTML/CSS/JS with A
 
 ---
 
-```markpact:file html path=public/index.html
+```html markpact:file path=public/index.html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -214,7 +214,7 @@ Modern web frontend for the SaaS platform. Built with vanilla HTML/CSS/JS with A
 </html>
 ```
 
-```markpact:file python path=server.py
+```python markpact:file path=server.py
 import os
 from pathlib import Path
 from http.server import HTTPServer, SimpleHTTPRequestHandler
@@ -264,11 +264,10 @@ if __name__ == '__main__':
     server.serve_forever()
 ```
 
-```markpact:run python
+```bash markpact:run
 python server.py
 ```
 
-```markpact:test http
+```http markpact:test
 GET /health EXPECT 200
 GET / EXPECT 200
-```

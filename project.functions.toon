@@ -1,15 +1,16 @@
 project: pactown
-generated: "2026-01-15T19:09:49.940018"
-modules[34]{path,lang,items}:
+generated: "2026-01-15T20:09:52.999771"
+modules[38]{path,lang,items}:
   tests/test_deploy_dockerfile.py,python,2
   tests/test_resolver.py,python,10
   tests/__init__.py,python,0
   tests/test_parallel.py,python,6
   tests/test_config.py,python,9
+  tests/test_quadlet_security.py,python,24
   tests/test_network.py,python,12
   tests/test_registry.py,python,10
   src/pactown/config.py,python,7
-  src/pactown/cli.py,python,13
+  src/pactown/cli.py,python,21
   src/pactown/generator.py,python,4
   src/pactown/parallel.py,python,6
   src/pactown/__init__.py,python,0
@@ -18,12 +19,15 @@ modules[34]{path,lang,items}:
   src/pactown/resolver.py,python,8
   src/pactown/sandbox_manager.py,python,13
   src/pactown/network.py,python,19
+  src/pactown/deploy/quadlet_shell.py,python,23
   src/pactown/deploy/base.py,python,14
   src/pactown/deploy/docker.py,python,8
   src/pactown/deploy/__init__.py,python,0
   src/pactown/deploy/kubernetes.py,python,13
+  src/pactown/deploy/quadlet.py,python,33
   src/pactown/deploy/compose.py,python,7
   src/pactown/deploy/podman.py,python,10
+  src/pactown/deploy/quadlet_api.py,python,2
   src/pactown/registry/server.py,python,2
   src/pactown/registry/__init__.py,python,0
   src/pactown/registry/client.py,python,21
@@ -72,6 +76,32 @@ function_details:
       test_ecosystem_config_to_dict,function,() -> None,112-122,false,11,1,checks ecosystem config to dict
       test_load_config_file_not_found,function,() -> None,125-127,false,3,1,checks load config file not found
       test_registry_config_defaults,function,() -> None,130-134,false,5,1,checks registry config defaults
+  tests/test_quadlet_security.py:
+    functions[24]{name,kind,sig,loc,async,lines,cc,does}:
+      temp_dir,function,() -> None,678-681,false,4,1,Create temporary directory for tests.
+      mock_systemctl,function,() -> None,685-689,false,5,1,Mock systemctl calls.
+      TestContainerNameInjection.test_container_name_sanitization,method,() -> None,72-96,false,25,3,Ensure malicious container names are sanitized.
+      TestContainerNameInjection.test_filename_sanitization,method,() -> None,98-110,false,13,3,Ensure unit filenames are safe.
+      TestEnvironmentVariableInjection.test_env_value_sanitization,method,() -> None,140-165,false,26,4,Ensure environment values are properly escaped.
+      TestEnvironmentVariableInjection.test_env_key_sanitization,method,() -> None,167-186,false,20,2,Ensure environment keys are sanitized.
+      TestVolumeMountInjection.test_volume_path_validation,method,() -> None,215-240,false,26,6,Test that dangerous volume mounts are detected and blocked.
+      TestVolumeMountInjection.test_volume_options_injection,method,() -> None,242-263,false,22,8,Test injection via volume mount options.
+      TestTraefikLabelInjection.test_domain_injection,method,() -> None,269-306,false,38,3,Test domain name injection in Traefik labels.
+      TestTraefikLabelInjection.test_middleware_injection,method,() -> None,308-331,false,24,3,Test Traefik middleware injection.
+      TestSystemdUnitInjection.test_section_injection,method,() -> None,337-373,false,37,3,Test injection of new systemd sections.
+      TestSystemdUnitInjection.test_directive_injection,method,() -> None,375-401,false,27,4,Test injection of dangerous systemd directives.
+      TestTenantIsolation.test_tenant_path_traversal,method,() -> None,407-440,false,34,3,Test that tenants cannot access other tenant directories.
+      TestTenantIsolation.test_tenant_network_isolation,method,() -> None,442-455,false,14,2,Test that tenants cannot access other tenant networks.
+      TestCommandInjection.test_health_check_injection,method,() -> None,461-491,false,31,6,Test injection via health check endpoint.
+      TestCommandInjection.test_image_name_injection,method,() -> None,493-520,false,28,5,Test injection via container image name.
+      TestAPISecurityInjection.api_client,method,() -> None,527-533,false,7,1,Create test client for API.
+      TestAPISecurityInjection.test_markdown_content_injection,method,(api_client) -> None,535-556,false,22,5,Test injection via markdown content.
+      TestAPISecurityInjection.test_tenant_id_injection,method,(api_client) -> None,558-579,false,22,4,Test injection via tenant_id parameter.
+      TestSecurityHardening.test_no_new_privileges,method,() -> None,585-596,false,12,1,Ensure no-new-privileges is set.
+      TestSecurityHardening.test_capability_drop,method,() -> None,598-610,false,13,2,Ensure capabilities are dropped by default.
+      TestSecurityHardening.test_resource_limits,method,() -> None,612-629,false,18,3,Ensure resource limits are set.
+      TestSecurityHardening.test_read_only_filesystem,method,() -> None,631-646,false,16,2,Test read-only filesystem option.
+      TestInputSanitization.test_sanitize_name,method,() -> None,652-673,false,22,3,Test name sanitization function.
   tests/test_network.py:
     functions[12]{name,kind,sig,loc,async,lines,cc,does}:
       test_port_allocator_allocate,function,() -> None,17-20,false,4,1,checks port allocator allocate
@@ -108,7 +138,7 @@ function_details:
       EcosystemConfig.to_dict,method,() -> dict,118-145,false,28,3,Convert configuration to dictionary.
       EcosystemConfig.to_yaml,method,"(path:Path) -> None",147-150,false,4,1,Save configuration to YAML file.
   src/pactown/cli.py:
-    functions[13]{name,kind,sig,loc,async,lines,cc,does}:
+    functions[21]{name,kind,sig,loc,async,lines,cc,does}:
       cli,function,() -> None,24-26,false,3,1,Pactown – Decentralized Service Ecosystem Orchestrator.
       up,function,"(config_path:str, dry_run:bool, no_health:bool, quiet:bool, sequential:bool, workers:int) -> None",36-75,false,40,9,Start all services in the ecosystem.
       down,function,"(config_path:str) -> None",80-89,false,10,2,Stop all services in the ecosystem.
@@ -121,7 +151,15 @@ function_details:
       scan,function,"(folder:str) -> None",235-237,false,3,1,Scan a folder and show detected services.
       generate,function,"(folder:str, name:Optional[str], output:str, base_port:int) -> None",245-274,false,30,2,Generate pactown config from a folder of README.md files.
       deploy,function,"(config_path:str, output:str, production:bool, kubernetes:bool) -> None",282-338,false,57,7,"Generate deployment files (Docker Compose, Kubernetes)."
-      main,function,(argv=None) -> None,341-343,false,3,1,Main entry point.
+      quadlet,function,() -> None,342-344,false,3,1,Podman Quadlet deployment commands for VPS production.
+      quadlet_shell,function,"(tenant:str, domain:str, system:bool) -> None",351-358,false,8,1,Start interactive Quadlet deployment shell.
+      quadlet_api,function,"(host:str, port:int, domain:str, tenant:str) -> None",366-377,false,12,1,Start Quadlet API server for programmatic deployments.
+      quadlet_generate,function,"(markdown_path:str, output:str, domain:str, subdomain:str, tenant:str, tls:bool) -> None",387-418,false,32,2,Generate Quadlet files for a Markdown service.
+      quadlet_init,function,"(domain:str, email:str, system:bool) -> None",425-454,false,30,4,Initialize Quadlet environment with Traefik.
+      quadlet_deploy,function,"(markdown_path:str, domain:str, subdomain:str, tenant:str, tls:bool, image:str) -> None",464-514,false,51,5,Deploy a Markdown file to VPS using Quadlet.
+      quadlet_list,function,"(tenant:str) -> None",519-548,false,30,4,List all Quadlet services for a tenant.
+      quadlet_logs,function,"(service_name:str, tenant:str, lines:int) -> None",555-568,false,14,2,Show logs for a Quadlet service.
+      main,function,(argv=None) -> None,571-573,false,3,1,Main entry point.
   src/pactown/generator.py:
     functions[4]{name,kind,sig,loc,async,lines,cc,does}:
       scan_readme,function,"(readme_path:Path) -> dict",13-74,false,62,12,Scan a README.md and extract service configuration.
@@ -206,6 +244,31 @@ function_details:
       ServiceRegistry.list_services,method,"() -> list[ServiceEndpoint]",191-193,false,3,1,List all registered services.
       ServiceRegistry.get_environment,method,"(service_name:str, dependencies:list[str]) -> dict[str, str]",195-220,false,26,4,Get environment variables for a service.
       ServiceRegistry.clear,method,() -> None,222-228,false,7,2,Clear all registrations.
+  src/pactown/deploy/quadlet_shell.py:
+    functions[23]{name,kind,sig,loc,async,lines,cc,does}:
+      run_shell,function,"(tenant_id:str='default', domain:str='localhost', user_mode:bool=True) -> None",544-558,false,15,2,Run the interactive Quadlet shell.
+      QuadletShell.__init__,method,"(tenant_id:str='default', domain:str='localhost', user_mode:bool=True) -> None",49-67,false,19,2,creates
+      QuadletShell.do_status,method,"(arg:str) -> None",69-96,false,28,2,Show current configuration and status.
+      QuadletShell.do_config,method,"(arg:str) -> None",98-139,false,42,9,Configure deployment settings.
+      QuadletShell.do_generate,method,"(arg:str) -> None",141-186,false,46,7,Generate Quadlet unit files for a Markdown file.
+      QuadletShell.do_generate_container,method,"(arg:str) -> None",188-220,false,33,3,Generate a custom container Quadlet file.
+      QuadletShell.do_generate_traefik,method,"(arg:str) -> None",222-247,false,26,4,Generate Traefik reverse proxy Quadlet files.
+      QuadletShell.do_list,method,"(arg:str) -> None",249-276,false,28,4,List all Quadlet services for current tenant.
+      QuadletShell.do_start,method,"(arg:str) -> None",278-294,false,17,3,Start a Quadlet service.
+      QuadletShell.do_stop,method,"(arg:str) -> None",296-310,false,15,3,Stop a Quadlet service.
+      QuadletShell.do_restart,method,"(arg:str) -> None",312-326,false,15,3,Restart a Quadlet service.
+      QuadletShell.do_logs,method,"(arg:str) -> None",328-346,false,19,4,Show logs for a Quadlet service.
+      QuadletShell.do_reload,method,"(arg:str) -> None",348-359,false,12,2,Reload systemd daemon to apply Quadlet changes.
+      QuadletShell.do_deploy,method,"(arg:str) -> None",361-412,false,52,7,Deploy a Markdown file as a web service.
+      QuadletShell.do_undeploy,method,"(arg:str) -> None",414-431,false,18,4,Remove a deployed service.
+      QuadletShell.do_init,method,"(arg:str) -> None",433-465,false,33,3,Initialize Quadlet directories and Traefik proxy.
+      QuadletShell.do_export,method,"(arg:str) -> None",467-486,false,20,5,Export all unit files to a directory.
+      QuadletShell.do_help,method,"(arg:str) -> None",488-518,false,31,2,Show help for commands.
+      QuadletShell.do_quit,method,"(arg:str) -> None",520-523,false,4,1,Exit the shell.
+      QuadletShell.do_exit,method,"(arg:str) -> None",525-527,false,3,1,Exit the shell.
+      QuadletShell.do_EOF,method,"(arg:str) -> None",529-532,false,4,1,Exit on Ctrl+D.
+      QuadletShell.default,method,"(line:str) -> None",534-537,false,4,1,Handle unknown commands.
+      QuadletShell.emptyline,method,() -> None,539-541,false,3,1,Do nothing on empty line.
   src/pactown/deploy/base.py:
     functions[14]{name,kind,sig,loc,async,lines,cc,does}:
       DeploymentConfig.for_production,method,"() -> \"DeploymentConfig\"",70-82,false,13,1,Create production-ready configuration.
@@ -247,6 +310,41 @@ function_details:
       KubernetesBackend.generate_manifests,method,"(service_name:str, image_name:str, port:int, env:dict[str,str], health_check:Optional[str]=None, replicas:int=2) -> list[dict]",231-393,false,163,4,Generate Kubernetes manifests for a service.
       KubernetesBackend.generate_hpa,method,"(service_name:str, min_replicas:int=2, max_replicas:int=10, target_cpu:int=70) -> dict",395-429,false,35,1,Generate HorizontalPodAutoscaler manifest.
       KubernetesBackend.save_manifests,method,"(service_name:str, manifests:list[dict], output_dir:Path) -> Path",431-449,false,19,3,Save manifests to files.
+  src/pactown/deploy/quadlet.py:
+    functions[33]{name,kind,sig,loc,async,lines,cc,does}:
+      sanitize_name,function,"(name:str) -> str",68-101,false,34,5,Sanitize container/service name to prevent injection.
+      sanitize_env_value,function,"(value:str) -> str",104-121,false,18,2,Sanitize environment variable value.
+      sanitize_env_key,function,"(key:str) -> str",124-142,false,19,4,Sanitize environment variable key.
+      sanitize_path,function,"(path:str) -> str",145-163,false,19,3,Sanitize file/volume path.
+      sanitize_domain,function,"(domain:str) -> str",166-184,false,19,3,Sanitize domain name.
+      sanitize_image,function,"(image:str) -> str",187-206,false,20,3,Sanitize container image name.
+      sanitize_health_check,function,"(endpoint:str) -> str",209-231,false,23,4,Sanitize health check endpoint.
+      validate_volume,function,"(volume:str) -> tuple[bool, str]",234-261,false,28,7,Validate volume mount specification.
+      check_dangerous_content,function,"(content:str) -> list[str]",264-273,false,10,3,Check content for dangerous patterns.
+      generate_traefik_quadlet,function,"(config:QuadletConfig) -> list[QuadletUnit]",902-965,false,64,1,Generate Traefik reverse proxy Quadlet files.
+      generate_markdown_service_quadlet,function,"(markdown_path:Path, config:QuadletConfig, image:str='ghcr.io/pactown/markdown-server:latest') -> list[QuadletUnit]",968-1024,false,57,3,Generate Quadlet files for serving a Markdown file.
+      QuadletConfig.full_domain,method,() -> str,309-315,false,7,2,Get full domain with subdomain (sanitized).
+      QuadletConfig.systemd_path,method,() -> Path,318-322,false,5,2,Get systemd unit files path.
+      QuadletConfig.tenant_path,method,() -> Path,325-327,false,3,1,Get tenant-specific directory.
+      QuadletUnit.filename,method,() -> str,338-342,false,5,1,filename
+      QuadletUnit.save,method,"(directory:Path) -> Path",344-350,false,7,1,Save unit file to directory.
+      QuadletTemplates.container,method,"(name:str, image:str, port:int, config:QuadletConfig, env:dict[str,str]=None, health_check:Optional[str]=None, volumes:list[str]=None) -> QuadletUnit",448-537,false,90,18,Generate .container unit file with security sanitization.
+      QuadletTemplates.pod,method,"(name:str, config:QuadletConfig, ports:list[int]=None, network:str='pactown-net') -> QuadletUnit",540-559,false,20,4,Generate .pod unit file.
+      QuadletTemplates.network,method,"(name:str, config:QuadletConfig, driver:str='bridge', subnet:Optional[str]=None, gateway:Optional[str]=None) -> QuadletUnit",562-580,false,19,3,Generate .network unit file.
+      QuadletTemplates.volume,method,"(name:str, config:QuadletConfig) -> QuadletUnit",583-595,false,13,1,Generate .volume unit file.
+      QuadletBackend.__init__,method,"(config:DeploymentConfig, quadlet_config:QuadletConfig=None) -> None",606-608,false,3,2,creates
+      QuadletBackend.runtime_type,method,() -> RuntimeType,611-612,false,2,1,runtime type
+      QuadletBackend.is_available,method,() -> bool,614-632,false,19,5,Check if Podman with Quadlet support is available.
+      QuadletBackend.get_quadlet_version,method,"() -> Optional[str]",634-645,false,12,3,Get Quadlet/Podman version.
+      QuadletBackend.build_image,method,"(service_name:str, dockerfile_path:Path, context_path:Path, tag:Optional[str]=None) -> DeploymentResult",647-689,false,43,4,Build container image with Podman.
+      QuadletBackend.push_image,method,"(image_name:str, registry:Optional[str]=None) -> DeploymentResult",691-726,false,36,5,Push image to registry.
+      QuadletBackend.generate_quadlet_files,method,"(service_name:str, image_name:str, port:int, env:dict[str,str]=None, health_check:Optional[str]=None, volumes:list[str]=None, depends_on:list[str]=None) -> list[QuadletUnit]",728-754,false,27,1,Generate Quadlet unit files for a service.
+      QuadletBackend.deploy,method,"(service_name:str, image_name:str, port:int, env:dict[str,str], health_check:Optional[str]=None) -> DeploymentResult",756-803,false,48,4,Deploy a service using Quadlet.
+      QuadletBackend.stop,method,"(service_name:str) -> DeploymentResult",805-832,false,28,4,Stop a Quadlet service.
+      QuadletBackend.logs,method,"(service_name:str, tail:int=100) -> str",834-845,false,12,3,Get service logs via journalctl.
+      QuadletBackend.status,method,"(service_name:str) -> dict[str, Any]",847-871,false,25,5,Get service status.
+      QuadletBackend._systemctl,method,"(command:str, service:str=None) -> subprocess.CompletedProcess",873-882,false,10,3,Run systemctl command.
+      QuadletBackend.list_services,method,"() -> list[dict[str, Any]]",884-899,false,16,3,List all Quadlet services for the tenant.
   src/pactown/deploy/compose.py:
     functions[7]{name,kind,sig,loc,async,lines,cc,does}:
       generate_compose_from_config,function,"(config_path:Path, output_dir:Optional[Path]=None, production:bool=False) -> dict",310-359,false,50,4,Convenience function to generate compose files from pactown config.
@@ -268,6 +366,10 @@ function_details:
       PodmanBackend.status,method,"(service_name:str) -> dict[str, Any]",301-325,false,25,3,Get container status.
       PodmanBackend.generate_systemd_unit,method,"(service_name:str, container_name:Optional[str]=None) -> str",327-367,false,41,2,Generate systemd unit file for production deployment.
       PodmanBackend.create_pod,method,"(pod_name:str, services:list[str], ports:list[int]) -> DeploymentResult",369-400,false,32,3,Create a Podman pod (similar to Kubernetes pod).
+  src/pactown/deploy/quadlet_api.py:
+    functions[2]{name,kind,sig,loc,async,lines,cc,does}:
+      create_quadlet_api,function,"(default_domain:str='localhost', default_tenant:str='default', user_mode:bool=True) -> FastAPI",124-511,false,388,1,Create FastAPI application for Quadlet management.
+      run_api,function,"(host:str='0.0.0.0', port:int=8800, domain:str='localhost', tenant:str='default') -> None",518-533,false,16,1,Run the Quadlet API server.
   src/pactown/registry/server.py:
     functions[2]{name,kind,sig,loc,async,lines,cc,does}:
       create_app,function,"(storage_path:str='./.pactown-registry') -> FastAPI",50-186,false,137,1,Create the registry FastAPI application.

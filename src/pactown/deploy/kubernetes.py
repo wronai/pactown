@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-import subprocess
 import json
-import yaml
+import subprocess
 from pathlib import Path
-from typing import Optional, Any
+from typing import Any, Optional
+
+import yaml
 
 from .base import (
     DeploymentBackend,
@@ -19,7 +20,7 @@ from .base import (
 class KubernetesBackend(DeploymentBackend):
     """
     Kubernetes deployment backend for production environments.
-    
+
     Generates and applies Kubernetes manifests for:
     - Deployments with rolling updates
     - Services for internal/external access
@@ -28,22 +29,22 @@ class KubernetesBackend(DeploymentBackend):
     - HorizontalPodAutoscaler for scaling
     - NetworkPolicies for security
     """
-    
+
     def __init__(self, config: DeploymentConfig, kubeconfig: Optional[str] = None):
         super().__init__(config)
         self.kubeconfig = kubeconfig
-    
+
     @property
     def runtime_type(self) -> RuntimeType:
         return RuntimeType.KUBERNETES
-    
+
     def _kubectl(self, *args: str, input_data: Optional[str] = None) -> subprocess.CompletedProcess:
         """Run kubectl command."""
         cmd = ["kubectl"]
         if self.kubeconfig:
             cmd.extend(["--kubeconfig", self.kubeconfig])
         cmd.extend(args)
-        
+
         return subprocess.run(
             cmd,
             capture_output=True,
@@ -51,7 +52,7 @@ class KubernetesBackend(DeploymentBackend):
             input=input_data,
             timeout=60,
         )
-    
+
     def is_available(self) -> bool:
         """Check if kubectl is available and cluster is reachable."""
         try:
@@ -59,7 +60,7 @@ class KubernetesBackend(DeploymentBackend):
             return result.returncode == 0
         except (subprocess.TimeoutExpired, FileNotFoundError):
             return False
-    
+
     def build_image(
         self,
         service_name: str,
@@ -74,7 +75,7 @@ class KubernetesBackend(DeploymentBackend):
             image_name = f"{image_name}:{tag}"
         else:
             image_name = f"{image_name}:latest"
-        
+
         # Try podman first, then docker
         for runtime in ["podman", "docker"]:
             try:
@@ -93,14 +94,14 @@ class KubernetesBackend(DeploymentBackend):
                     )
             except FileNotFoundError:
                 continue
-        
+
         return DeploymentResult(
             success=False,
             service_name=service_name,
             runtime=self.runtime_type,
             error="No container runtime (docker/podman) available",
         )
-    
+
     def push_image(
         self,
         image_name: str,
@@ -124,14 +125,14 @@ class KubernetesBackend(DeploymentBackend):
                     )
             except FileNotFoundError:
                 continue
-        
+
         return DeploymentResult(
             success=False,
             service_name=image_name,
             runtime=self.runtime_type,
             error="Failed to push image",
         )
-    
+
     def deploy(
         self,
         service_name: str,
@@ -148,12 +149,12 @@ class KubernetesBackend(DeploymentBackend):
             env=env,
             health_check=health_check,
         )
-        
+
         # Apply all manifests
         for manifest in manifests:
             manifest_yaml = yaml.dump(manifest, default_flow_style=False)
             result = self._kubectl("apply", "-f", "-", input_data=manifest_yaml)
-            
+
             if result.returncode != 0:
                 return DeploymentResult(
                     success=False,
@@ -161,16 +162,16 @@ class KubernetesBackend(DeploymentBackend):
                     runtime=self.runtime_type,
                     error=result.stderr,
                 )
-        
+
         # Get service endpoint
         result = self._kubectl(
             "get", "service", service_name,
             "-n", self.config.namespace,
             "-o", "jsonpath={.status.loadBalancer.ingress[0].ip}",
         )
-        
+
         endpoint = f"http://{result.stdout}:{port}" if result.stdout else f"http://{service_name}.{self.config.namespace}.svc.cluster.local:{port}"
-        
+
         return DeploymentResult(
             success=True,
             service_name=service_name,
@@ -178,7 +179,7 @@ class KubernetesBackend(DeploymentBackend):
             image_name=image_name,
             endpoint=endpoint,
         )
-    
+
     def stop(self, service_name: str) -> DeploymentResult:
         """Delete Kubernetes resources."""
         result = self._kubectl(
@@ -186,14 +187,14 @@ class KubernetesBackend(DeploymentBackend):
             "-l", f"app={service_name}",
             "-n", self.config.namespace,
         )
-        
+
         return DeploymentResult(
             success=result.returncode == 0,
             service_name=service_name,
             runtime=self.runtime_type,
             error=result.stderr if result.returncode != 0 else None,
         )
-    
+
     def logs(self, service_name: str, tail: int = 100) -> str:
         """Get pod logs."""
         result = self._kubectl(
@@ -203,7 +204,7 @@ class KubernetesBackend(DeploymentBackend):
             "--tail", str(tail),
         )
         return result.stdout + result.stderr
-    
+
     def status(self, service_name: str) -> dict[str, Any]:
         """Get deployment status."""
         result = self._kubectl(
@@ -211,10 +212,10 @@ class KubernetesBackend(DeploymentBackend):
             "-n", self.config.namespace,
             "-o", "json",
         )
-        
+
         if result.returncode != 0:
             return {"running": False, "error": "Deployment not found"}
-        
+
         try:
             data = json.loads(result.stdout)
             status = data.get("status", {})
@@ -227,7 +228,7 @@ class KubernetesBackend(DeploymentBackend):
             }
         except json.JSONDecodeError:
             return {"running": False, "error": "Failed to parse status"}
-    
+
     def generate_manifests(
         self,
         service_name: str,
@@ -243,9 +244,9 @@ class KubernetesBackend(DeploymentBackend):
             "managed-by": "pactown",
             **self.config.labels,
         }
-        
+
         manifests = []
-        
+
         # Namespace
         manifests.append({
             "apiVersion": "v1",
@@ -255,7 +256,7 @@ class KubernetesBackend(DeploymentBackend):
                 "labels": {"managed-by": "pactown"},
             },
         })
-        
+
         # ConfigMap for environment variables
         if env:
             manifests.append({
@@ -268,7 +269,7 @@ class KubernetesBackend(DeploymentBackend):
                 },
                 "data": env,
             })
-        
+
         # Deployment
         container_spec = {
             "name": service_name,
@@ -294,12 +295,12 @@ class KubernetesBackend(DeploymentBackend):
                 },
             },
         }
-        
+
         if env:
             container_spec["envFrom"] = [
                 {"configMapRef": {"name": f"{service_name}-config"}}
             ]
-        
+
         if health_check:
             container_spec["livenessProbe"] = {
                 "httpGet": {"path": health_check, "port": port},
@@ -315,7 +316,7 @@ class KubernetesBackend(DeploymentBackend):
                 "timeoutSeconds": 3,
                 "failureThreshold": 3,
             }
-        
+
         deployment = {
             "apiVersion": "apps/v1",
             "kind": "Deployment",
@@ -350,7 +351,7 @@ class KubernetesBackend(DeploymentBackend):
             },
         }
         manifests.append(deployment)
-        
+
         # Service
         service = {
             "apiVersion": "v1",
@@ -367,7 +368,7 @@ class KubernetesBackend(DeploymentBackend):
             },
         }
         manifests.append(service)
-        
+
         # NetworkPolicy for security
         network_policy = {
             "apiVersion": "networking.k8s.io/v1",
@@ -389,9 +390,9 @@ class KubernetesBackend(DeploymentBackend):
             },
         }
         manifests.append(network_policy)
-        
+
         return manifests
-    
+
     def generate_hpa(
         self,
         service_name: str,
@@ -427,7 +428,7 @@ class KubernetesBackend(DeploymentBackend):
                 }],
             },
         }
-    
+
     def save_manifests(
         self,
         service_name: str,
@@ -437,13 +438,13 @@ class KubernetesBackend(DeploymentBackend):
         """Save manifests to files."""
         output_dir = Path(output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
-        
+
         output_file = output_dir / f"{service_name}.yaml"
-        
+
         with open(output_file, "w") as f:
             for i, manifest in enumerate(manifests):
                 if i > 0:
                     f.write("---\n")
                 yaml.dump(manifest, f, default_flow_style=False)
-        
+
         return output_file

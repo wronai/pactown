@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-import subprocess
 import json
+import subprocess
 from pathlib import Path
-from typing import Optional, Any
+from typing import Any, Optional
 
 from .base import (
     DeploymentBackend,
-    DeploymentConfig,
     DeploymentResult,
     RuntimeType,
 )
@@ -17,11 +16,11 @@ from .base import (
 
 class DockerBackend(DeploymentBackend):
     """Docker container runtime backend."""
-    
+
     @property
     def runtime_type(self) -> RuntimeType:
         return RuntimeType.DOCKER
-    
+
     def is_available(self) -> bool:
         """Check if Docker is available."""
         try:
@@ -34,7 +33,7 @@ class DockerBackend(DeploymentBackend):
             return result.returncode == 0
         except (subprocess.TimeoutExpired, FileNotFoundError):
             return False
-    
+
     def build_image(
         self,
         service_name: str,
@@ -48,18 +47,18 @@ class DockerBackend(DeploymentBackend):
             image_name = f"{image_name}:{tag}"
         else:
             image_name = f"{image_name}:latest"
-        
+
         cmd = [
             "docker", "build",
             "-t", image_name,
             "-f", str(dockerfile_path),
             str(context_path),
         ]
-        
+
         # Add labels
         for key, value in self.config.labels.items():
             cmd.extend(["--label", f"{key}={value}"])
-        
+
         try:
             result = subprocess.run(
                 cmd,
@@ -67,7 +66,7 @@ class DockerBackend(DeploymentBackend):
                 text=True,
                 timeout=300,
             )
-            
+
             if result.returncode == 0:
                 return DeploymentResult(
                     success=True,
@@ -89,7 +88,7 @@ class DockerBackend(DeploymentBackend):
                 runtime=self.runtime_type,
                 error="Build timed out",
             )
-    
+
     def push_image(
         self,
         image_name: str,
@@ -104,7 +103,7 @@ class DockerBackend(DeploymentBackend):
                 ["docker", "tag", image_name, target],
                 capture_output=True,
             )
-        
+
         try:
             result = subprocess.run(
                 ["docker", "push", target],
@@ -112,7 +111,7 @@ class DockerBackend(DeploymentBackend):
                 text=True,
                 timeout=300,
             )
-            
+
             return DeploymentResult(
                 success=result.returncode == 0,
                 service_name=image_name.split("/")[-1].split(":")[0],
@@ -127,7 +126,7 @@ class DockerBackend(DeploymentBackend):
                 runtime=self.runtime_type,
                 error="Push timed out",
             )
-    
+
     def deploy(
         self,
         service_name: str,
@@ -138,13 +137,13 @@ class DockerBackend(DeploymentBackend):
     ) -> DeploymentResult:
         """Deploy a container."""
         container_name = f"{self.config.namespace}-{service_name}"
-        
+
         # Stop existing container if running
         subprocess.run(
             ["docker", "rm", "-f", container_name],
             capture_output=True,
         )
-        
+
         cmd = [
             "docker", "run",
             "-d",
@@ -152,37 +151,37 @@ class DockerBackend(DeploymentBackend):
             "--network", self.config.network_name,
             "--restart", "unless-stopped",
         ]
-        
+
         # Port mapping
         if self.config.expose_ports:
             cmd.extend(["-p", f"{port}:{port}"])
-        
+
         # Environment variables
         for key, value in env.items():
             cmd.extend(["-e", f"{key}={value}"])
-        
+
         # Resource limits
         if self.config.memory_limit:
             cmd.extend(["--memory", self.config.memory_limit])
         if self.config.cpu_limit:
             cmd.extend(["--cpus", self.config.cpu_limit])
-        
+
         # Security options
         if self.config.read_only_fs:
             cmd.append("--read-only")
             cmd.extend(["--tmpfs", "/tmp"])
-        
+
         if self.config.no_new_privileges:
             cmd.append("--security-opt=no-new-privileges:true")
-        
+
         if self.config.drop_capabilities:
             for cap in self.config.drop_capabilities:
                 cmd.extend(["--cap-drop", cap])
-        
+
         if self.config.add_capabilities:
             for cap in self.config.add_capabilities:
                 cmd.extend(["--cap-add", cap])
-        
+
         # Health check
         if health_check:
             cmd.extend([
@@ -191,31 +190,31 @@ class DockerBackend(DeploymentBackend):
                 "--health-timeout", self.config.health_check_timeout,
                 "--health-retries", str(self.config.health_check_retries),
             ])
-        
+
         # Labels
         for key, value in self.config.labels.items():
             cmd.extend(["--label", f"{key}={value}"])
-        
+
         cmd.append(image_name)
-        
+
         try:
             # Ensure network exists
             subprocess.run(
                 ["docker", "network", "create", self.config.network_name],
                 capture_output=True,
             )
-            
+
             result = subprocess.run(
                 cmd,
                 capture_output=True,
                 text=True,
                 timeout=60,
             )
-            
+
             if result.returncode == 0:
                 container_id = result.stdout.strip()[:12]
                 endpoint = f"http://{container_name}:{port}" if self.config.use_internal_dns else f"http://localhost:{port}"
-                
+
                 return DeploymentResult(
                     success=True,
                     service_name=service_name,
@@ -238,54 +237,54 @@ class DockerBackend(DeploymentBackend):
                 runtime=self.runtime_type,
                 error="Deploy timed out",
             )
-    
+
     def stop(self, service_name: str) -> DeploymentResult:
         """Stop a container."""
         container_name = f"{self.config.namespace}-{service_name}"
-        
+
         result = subprocess.run(
             ["docker", "stop", container_name],
             capture_output=True,
             text=True,
         )
-        
+
         subprocess.run(
             ["docker", "rm", container_name],
             capture_output=True,
         )
-        
+
         return DeploymentResult(
             success=result.returncode == 0,
             service_name=service_name,
             runtime=self.runtime_type,
             error=result.stderr if result.returncode != 0 else None,
         )
-    
+
     def logs(self, service_name: str, tail: int = 100) -> str:
         """Get container logs."""
         container_name = f"{self.config.namespace}-{service_name}"
-        
+
         result = subprocess.run(
             ["docker", "logs", "--tail", str(tail), container_name],
             capture_output=True,
             text=True,
         )
-        
+
         return result.stdout + result.stderr
-    
+
     def status(self, service_name: str) -> dict[str, Any]:
         """Get container status."""
         container_name = f"{self.config.namespace}-{service_name}"
-        
+
         result = subprocess.run(
             ["docker", "inspect", container_name],
             capture_output=True,
             text=True,
         )
-        
+
         if result.returncode != 0:
             return {"running": False, "error": "Container not found"}
-        
+
         try:
             data = json.loads(result.stdout)[0]
             return {

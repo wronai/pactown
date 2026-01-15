@@ -1,17 +1,17 @@
 """Deployment backends for pactown - Docker, Podman, Kubernetes, Quadlet, etc."""
 
 from .base import DeploymentBackend, DeploymentConfig, DeploymentResult
-from .docker import DockerBackend
-from .podman import PodmanBackend
-from .kubernetes import KubernetesBackend
 from .compose import ComposeGenerator
+from .docker import DockerBackend
+from .kubernetes import KubernetesBackend
+from .podman import PodmanBackend
 from .quadlet import (
     QuadletBackend,
     QuadletConfig,
     QuadletTemplates,
     QuadletUnit,
-    generate_traefik_quadlet,
     generate_markdown_service_quadlet,
+    generate_traefik_quadlet,
 )
 
 __all__ = [
