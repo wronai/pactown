@@ -226,8 +226,8 @@ class DeploymentBackend(ABC):
             "USER appuser",
             "",
             "# Health check",
-            'HEALTHCHECK --interval=30s --timeout=10s --retries=3 \\',
-            '    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1',
+            'HEALTHCHECK --interval=30s --timeout=10s --retries=3 \\\\',
+            "    CMD python -c \"import os,urllib.request; port=os.environ.get('MARKPACT_PORT','8000'); urllib.request.urlopen('http://localhost:%s/health' % port, timeout=5).read()\"",
             "",
             "# Default command",
             'CMD ["python", "main.py"]',
@@ -246,7 +246,7 @@ RUN useradd -m -u 1000 appuser
 
 # Install dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+RUN if [ -f package-lock.json ]; then npm ci --only=production; else npm install --only=production; fi
 
 # Copy application
 COPY . .
@@ -256,7 +256,7 @@ USER appuser
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \\
-    CMD curl -f http://localhost:${PORT:-3000}/health || exit 1
+    CMD node -e "require('http').get('http://localhost:'+(process.env.MARKPACT_PORT||3000)+'/health',res=>process.exit(res.statusCode===200?0:1)).on('error',()=>process.exit(1));"
 
 # Default command
 CMD ["node", "server.js"]

@@ -1,0 +1,359 @@
+project: pactown
+generated: "2026-01-15T17:47:25.491803"
+modules[33]{path,lang,items}:
+  tests/test_deploy_dockerfile.py,python,2
+  tests/test_resolver.py,python,10
+  tests/__init__.py,python,0
+  tests/test_parallel.py,python,6
+  tests/test_config.py,python,9
+  tests/test_network.py,python,12
+  tests/test_registry.py,python,10
+  src/pactown/config.py,python,7
+  src/pactown/cli.py,python,13
+  src/pactown/generator.py,python,4
+  src/pactown/parallel.py,python,6
+  src/pactown/__init__.py,python,0
+  src/pactown/orchestrator.py,python,18
+  src/pactown/resolver.py,python,8
+  src/pactown/sandbox_manager.py,python,13
+  src/pactown/network.py,python,19
+  src/pactown/deploy/base.py,python,14
+  src/pactown/deploy/docker.py,python,8
+  src/pactown/deploy/__init__.py,python,0
+  src/pactown/deploy/kubernetes.py,python,13
+  src/pactown/deploy/compose.py,python,7
+  src/pactown/deploy/podman.py,python,10
+  src/pactown/registry/server.py,python,2
+  src/pactown/registry/__init__.py,python,0
+  src/pactown/registry/client.py,python,21
+  src/pactown/registry/models.py,python,15
+  examples/saas-platform/.pactown-sandboxes/gateway/gateway.py,python,7
+  examples/saas-platform/.pactown-sandboxes/web/server.py,python,3
+  examples/saas-platform/.pactown-sandboxes/database/main.py,python,9
+  examples/saas-platform/.pactown-sandboxes/database/db.py,python,8
+  examples/saas-platform/.pactown-sandboxes/api/app/database.py,python,5
+  examples/saas-platform/.pactown-sandboxes/api/app/models.py,python,0
+  examples/saas-platform/.pactown-sandboxes/api/app/main.py,python,6
+
+function_details:
+  tests/test_deploy_dockerfile.py:
+    functions[2]{name,kind,sig,loc,async,lines,cc,does}:
+      test_python_dockerfile_healthcheck_does_not_use_curl,function,() -> None,12-24,false,13,1,checks python dockerfile healthcheck does not use curl
+      test_node_dockerfile_falls_back_when_package_lock_missing,function,() -> None,27-42,false,16,1,checks node dockerfile falls back when package lock missing
+  tests/test_resolver.py:
+    functions[10]{name,kind,sig,loc,async,lines,cc,does}:
+      make_config,function,"(services:dict) -> EcosystemConfig",9-20,false,12,3,Helper to create test config.
+      test_startup_order_no_deps,function,() -> None,23-31,false,9,1,checks startup order no deps
+      test_startup_order_linear,function,() -> None,34-44,false,11,1,checks startup order linear
+      test_startup_order_diamond,function,() -> None,47-59,false,13,1,checks startup order diamond
+      test_circular_dependency_detection,function,() -> None,62-71,false,10,1,checks circular dependency detection
+      test_shutdown_order,function,() -> None,74-84,false,11,1,checks shutdown order
+      test_resolve_service_deps,function,() -> None,87-100,false,14,1,checks resolve service deps
+      test_get_environment,function,() -> None,103-119,false,17,1,checks get environment
+      test_validate_missing_dep,function,() -> None,122-130,false,9,1,checks validate missing dep
+      test_print_graph,function,() -> None,133-142,false,10,1,checks print graph
+  tests/test_parallel.py:
+    functions[6]{name,kind,sig,loc,async,lines,cc,does}:
+      test_run_parallel_basic,function,() -> None,15-34,false,20,1,Test basic parallel execution.
+      test_run_parallel_with_error,function,() -> None,37-50,false,14,1,Test parallel execution with failing task.
+      test_run_parallel_timing,function,() -> None,53-67,false,15,3,Test that parallel execution is faster than sequential.
+      test_run_in_dependency_waves,function,() -> None,70-101,false,32,2,Test wave-based execution with dependencies.
+      test_run_in_dependency_waves_diamond,function,() -> None,104-136,false,33,2,Test diamond dependency pattern.
+      test_task_result_dataclass,function,() -> None,139-152,false,14,1,Test TaskResult dataclass.
+  tests/test_config.py:
+    functions[9]{name,kind,sig,loc,async,lines,cc,does}:
+      test_dependency_config_from_string,function,() -> None,18-21,false,4,1,checks dependency config from string
+      test_dependency_config_from_dict,function,() -> None,24-34,false,11,1,checks dependency config from dict
+      test_service_config_from_dict,function,() -> None,37-51,false,15,1,checks service config from dict
+      test_ecosystem_config_from_dict,function,() -> None,54-67,false,14,1,checks ecosystem config from dict
+      test_ecosystem_config_auto_port,function,() -> None,70-80,false,11,1,checks ecosystem config auto port
+      test_ecosystem_config_from_yaml,function,() -> None,83-109,false,27,1,checks ecosystem config from yaml
+      test_ecosystem_config_to_dict,function,() -> None,112-122,false,11,1,checks ecosystem config to dict
+      test_load_config_file_not_found,function,() -> None,125-127,false,3,1,checks load config file not found
+      test_registry_config_defaults,function,() -> None,130-134,false,5,1,checks registry config defaults
+  tests/test_network.py:
+    functions[12]{name,kind,sig,loc,async,lines,cc,does}:
+      test_port_allocator_allocate,function,() -> None,17-20,false,4,1,checks port allocator allocate
+      test_port_allocator_preferred_port,function,() -> None,23-30,false,8,1,checks port allocator preferred port
+      test_port_allocator_release,function,() -> None,33-45,false,13,2,checks port allocator release
+      test_service_endpoint,function,() -> None,48-57,false,10,1,checks service endpoint
+      test_service_registry_register,function,() -> None,60-68,false,9,1,checks service registry register
+      test_service_registry_get,function,() -> None,71-81,false,11,1,checks service registry get
+      test_service_registry_get_url,function,() -> None,84-91,false,8,1,checks service registry get url
+      test_service_registry_environment,function,() -> None,94-106,false,13,1,checks service registry environment
+      test_service_registry_unregister,function,() -> None,109-117,false,9,1,checks service registry unregister
+      test_service_registry_dynamic_port,function,() -> None,120-132,false,13,1,Test that registry allocates a new port if preferred is busy.
+      test_find_free_port,function,() -> None,135-138,false,4,1,checks find free port
+      test_check_port,function,() -> None,141-144,false,4,1,checks check port
+  tests/test_registry.py:
+    functions[10]{name,kind,sig,loc,async,lines,cc,does}:
+      test_artifact_version_to_dict,function,() -> None,12-21,false,10,1,checks artifact version to dict
+      test_artifact_version_from_dict,function,() -> None,24-34,false,11,1,checks artifact version from dict
+      test_artifact_full_name,function,() -> None,37-39,false,3,1,checks artifact full name
+      test_artifact_add_version,function,() -> None,42-52,false,11,1,checks artifact add version
+      test_artifact_get_version,function,() -> None,55-66,false,12,1,checks artifact get version
+      test_registry_storage_save_and_get,function,() -> None,69-86,false,18,1,checks registry storage save and get
+      test_registry_storage_list,function,() -> None,89-102,false,14,2,checks registry storage list
+      test_registry_storage_delete,function,() -> None,105-116,false,12,1,checks registry storage delete
+      test_registry_storage_search,function,() -> None,119-136,false,18,1,checks registry storage search
+      test_registry_storage_persistence,function,() -> None,139-156,false,18,1,checks registry storage persistence
+  src/pactown/config.py:
+    functions[7]{name,kind,sig,loc,async,lines,cc,does}:
+      load_config,function,"(path:Any) -> EcosystemConfig",153-158,false,6,2,Load ecosystem configuration from file.
+      DependencyConfig.from_dict,method,"(data:Any) -> \"DependencyConfig\"",19-25,false,7,3,from dict
+      ServiceConfig.from_dict,method,"(name:str, data:dict) -> \"ServiceConfig\"",43-59,false,17,2,from dict
+      EcosystemConfig.from_yaml,method,"(path:Path) -> \"EcosystemConfig\"",83-87,false,5,1,Load ecosystem configuration from YAML file.
+      EcosystemConfig.from_dict,method,"(data:dict, base_path:Optional[Path]=None) -> \"EcosystemConfig\"",90-116,false,27,3,Create configuration from dictionary.
+      EcosystemConfig.to_dict,method,() -> dict,118-145,false,28,3,Convert configuration to dictionary.
+      EcosystemConfig.to_yaml,method,"(path:Path) -> None",147-150,false,4,1,Save configuration to YAML file.
+  src/pactown/cli.py:
+    functions[13]{name,kind,sig,loc,async,lines,cc,does}:
+      cli,function,() -> None,24-26,false,3,1,Pactown – Decentralized Service Ecosystem Orchestrator.
+      up,function,"(config_path:str, dry_run:bool, no_health:bool, quiet:bool, sequential:bool, workers:int) -> None",36-75,false,40,9,Start all services in the ecosystem.
+      down,function,"(config_path:str) -> None",80-89,false,10,2,Stop all services in the ecosystem.
+      status,function,"(config_path:str) -> None",94-102,false,9,2,Show status of all services.
+      validate,function,"(config_path:str) -> None",107-119,false,13,3,Validate ecosystem configuration.
+      graph,function,"(config_path:str) -> None",124-132,false,9,2,Show dependency graph.
+      init,function,"(name:str, output:str) -> None",138-177,false,40,1,Initialize a new pactown ecosystem configuration.
+      publish,function,"(config_path:str, registry:str) -> None",183-206,false,24,5,Publish all modules to registry.
+      pull,function,"(config_path:str, registry:str) -> None",212-230,false,19,6,Pull dependencies from registry.
+      scan,function,"(folder:str) -> None",235-237,false,3,1,Scan a folder and show detected services.
+      generate,function,"(folder:str, name:Optional[str], output:str, base_port:int) -> None",245-274,false,30,2,Generate pactown config from a folder of README.md files.
+      deploy,function,"(config_path:str, output:str, production:bool, kubernetes:bool) -> None",282-338,false,57,7,"Generate deployment files (Docker Compose, Kubernetes)."
+      main,function,(argv=None) -> None,341-343,false,3,1,Main entry point.
+  src/pactown/generator.py:
+    functions[4]{name,kind,sig,loc,async,lines,cc,does}:
+      scan_readme,function,"(readme_path:Path) -> dict",13-74,false,62,12,Scan a README.md and extract service configuration.
+      scan_folder,function,"(folder:Path, recursive:bool=True, pattern:str='README.md') -> list[dict]",77-109,false,33,5,Scan a folder for README.md files and extract service configs.
+      generate_config,function,"(folder:Path, name:Optional[str]=None, base_port:int=8000, output:Optional[Path]=None) -> dict",112-181,false,70,9,Generate a pactown ecosystem configuration from a folder.
+      print_scan_results,function,"(folder:Path) -> None",184-212,false,29,5,Print scan results in a readable format.
+  src/pactown/parallel.py:
+    functions[6]{name,kind,sig,loc,async,lines,cc,does}:
+      run_parallel,function,"(tasks:dict[str,Callable[Any,Any]], max_workers:int=4, show_progress:bool=True, description:str='Running tasks') -> dict[str, TaskResult]",29-112,false,84,8,Run multiple tasks in parallel using ThreadPoolExecutor.
+      run_in_dependency_waves,function,"(tasks:dict[str,Callable[Any,Any]], dependencies:dict[str,list[str]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, TaskResult]",115-170,false,56,12,Run tasks in waves based on dependencies.
+      run_parallel_async,function,"(tasks:dict[str,Callable[Any,Any]], max_concurrent:int=4) -> dict[str, TaskResult]",173-211,true,39,3,Run tasks using asyncio with a semaphore for concurrency control.
+      format_parallel_results,function,"(results:dict[str,TaskResult]) -> str",252-268,false,17,8,Format parallel execution results for display.
+      ParallelSandboxBuilder.__init__,method,"(max_workers:int=4) -> None",217-219,false,3,1,creates
+      ParallelSandboxBuilder.build_sandboxes,method,"(services:list[tuple[str,Path,Callable]], on_complete:Optional[Callable[Any,None]]=None) -> dict[str, TaskResult]",221-249,false,29,2,Build sandboxes for multiple services in parallel.
+  src/pactown/orchestrator.py:
+    functions[18]{name,kind,sig,loc,async,lines,cc,does}:
+      run_ecosystem,function,"(config_path:Any, wait:bool=True) -> Orchestrator",437-455,false,19,5,Convenience function to start an ecosystem.
+      Orchestrator.__init__,method,"(config:EcosystemConfig, base_path:Optional[Path]=None, verbose:bool=True, dynamic_ports:bool=True) -> None",37-54,false,18,2,creates
+      Orchestrator.from_file,method,"(config_path:Any, verbose:bool=True, dynamic_ports:bool=True) -> \"Orchestrator\"",57-66,false,10,1,Create orchestrator from configuration file.
+      Orchestrator._get_readme_path,method,"(service_name:str) -> Path",68-74,false,7,2,Get the README path for a service.
+      Orchestrator.validate,method,() -> bool,76-92,false,17,5,Validate the ecosystem configuration.
+      Orchestrator.start_service,method,"(service_name:str) -> ServiceProcess",94-136,false,43,7,Start a single service.
+      Orchestrator.start_all,method,"(wait_for_health:bool=True, parallel:bool=True, max_workers:int=4) -> dict[str, ServiceProcess]",138-155,false,18,2,Start all services in dependency order.
+      Orchestrator._start_all_sequential,method,"(wait_for_health:bool=True) -> dict[str, ServiceProcess]",157-184,false,28,7,Start all services sequentially in dependency order.
+      Orchestrator._start_all_parallel,method,"(wait_for_health:bool=True, max_workers:int=4) -> dict[str, ServiceProcess]",186-266,false,81,19,Start services in parallel waves based on dependencies.
+      Orchestrator._start_service_with_health,method,"(service_name:str, wait_for_health:bool) -> ServiceProcess",268-279,false,12,3,Start a service and optionally wait for health check.
+      Orchestrator.stop_service,method,"(service_name:str) -> bool",281-292,false,12,4,Stop a single service.
+      Orchestrator.stop_all,method,() -> None,294-308,false,15,4,Stop all services in reverse dependency order.
+      Orchestrator.restart_service,method,"(service_name:str) -> ServiceProcess",310-314,false,5,1,Restart a single service.
+      Orchestrator.check_health,method,"(service_name:str) -> ServiceHealth",316-353,false,38,7,Check health of a service.
+      Orchestrator._wait_for_health,method,"(service_name:str, timeout:int=60) -> bool",355-380,false,26,7,Wait for a service to become healthy.
+      Orchestrator.print_status,method,() -> None,382-420,false,39,9,Print status of all services.
+      Orchestrator.print_graph,method,() -> None,422-424,false,3,1,Print dependency graph.
+      Orchestrator.get_logs,method,"(service_name:str, lines:int=100) -> Optional[str]",426-434,false,9,4,Get recent logs from a service (if available).
+  src/pactown/resolver.py:
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+      DependencyResolver.__init__,method,"(config:EcosystemConfig) -> None",23-26,false,4,1,creates
+      DependencyResolver._build_graph,method,() -> None,28-34,false,7,4,Build dependency graph from configuration.
+      DependencyResolver.get_startup_order,method,"() -> list[str]",36-63,false,28,9,Get services in topological order for startup.
+      DependencyResolver.get_shutdown_order,method,"() -> list[str]",65-67,false,3,1,Get services in reverse order for shutdown.
+      DependencyResolver.resolve_service_deps,method,"(service_name:str) -> list[ResolvedDependency]",69-101,false,33,8,Resolve all dependencies for a service.
+      DependencyResolver.get_environment,method,"(service_name:str) -> dict[str, str]",103-119,false,17,4,Get environment variables for a service including dependency endpoints.
+      DependencyResolver.validate,method,"() -> list[str]",121-139,false,19,6,Validate the dependency graph and return any issues.
+      DependencyResolver.print_graph,method,() -> str,141-160,false,20,6,Return ASCII representation of dependency graph.
+  src/pactown/sandbox_manager.py:
+    functions[13]{name,kind,sig,loc,async,lines,cc,does}:
+      ServiceProcess.is_running,method,() -> bool,31-38,false,8,3,is running
+      SandboxManager.__init__,method,"(sandbox_root:Any) -> None",44-47,false,4,1,creates
+      SandboxManager.get_sandbox_path,method,"(service_name:str) -> Path",49-51,false,3,1,Get sandbox path for a service.
+      SandboxManager.create_sandbox,method,"(service:ServiceConfig, readme_path:Path, install_dependencies:bool=True) -> Sandbox",53-92,false,40,11,Create a sandbox for a service from its README.
+      SandboxManager.start_service,method,"(service:ServiceConfig, readme_path:Path, env:dict[str,str], verbose:bool=True) -> ServiceProcess",94-151,false,58,10,Start a service in its sandbox.
+      SandboxManager.stop_service,method,"(service_name:str, timeout:int=10) -> bool",153-183,false,31,8,Stop a running service.
+      SandboxManager.stop_all,method,"(timeout:int=10) -> None",185-188,false,4,2,Stop all running services.
+      SandboxManager.get_status,method,"(service_name:str) -> Optional[dict]",190-203,false,14,2,Get status of a service.
+      SandboxManager.get_all_status,method,"() -> list[dict]",205-211,false,7,3,Get status of all services.
+      SandboxManager.clean_sandbox,method,"(service_name:str) -> None",213-217,false,5,2,Remove sandbox directory for a service.
+      SandboxManager.clean_all,method,() -> None,219-223,false,5,2,Remove all sandbox directories.
+      SandboxManager.create_sandboxes_parallel,method,"(services:list[tuple[ServiceConfig,Path]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, Sandbox]",225-279,false,55,8,Create sandboxes for multiple services in parallel.
+      SandboxManager.start_services_parallel,method,"(services:list[tuple[ServiceConfig,Path,dict[str,str]]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, ServiceProcess]",281-338,false,58,6,Start multiple services in parallel.
+  src/pactown/network.py:
+    functions[19]{name,kind,sig,loc,async,lines,cc,does}:
+      find_free_port,function,"(start:int=10000, end:int=65000) -> int",231-234,false,4,1,Find a single free port.
+      check_port,function,"(port:int) -> bool",237-245,false,9,2,Check if a specific port is available.
+      ServiceEndpoint.url,method,() -> str,23-24,false,2,1,url
+      ServiceEndpoint.health_url,method,"() -> Optional[str]",27-30,false,4,2,health url
+      PortAllocator.__init__,method,"(start_port:int=10000, end_port:int=65000) -> None",36-40,false,5,1,creates
+      PortAllocator.is_port_free,method,"(port:int) -> bool",42-52,false,11,3,Check if a port is available.
+      PortAllocator.allocate,method,"(preferred_port:Optional[int]=None) -> int",54-73,false,20,5,Allocate a free port.
+      PortAllocator.release,method,"(port:int) -> None",75-78,false,4,1,Release an allocated port.
+      PortAllocator.release_all,method,() -> None,80-83,false,4,1,Release all allocated ports.
+      ServiceRegistry.__init__,method,"(storage_path:Optional[Path]=None, host:str='127.0.0.1') -> None",94-104,false,11,2,creates
+      ServiceRegistry._load,method,() -> None,106-120,false,15,4,Load service registry from disk.
+      ServiceRegistry._save,method,() -> None,122-136,false,15,2,Persist service registry to disk.
+      ServiceRegistry.register,method,"(name:str, preferred_port:Optional[int]=None, health_check:Optional[str]=None) -> ServiceEndpoint",138-172,false,35,3,Register a service and allocate a port.
+      ServiceRegistry.unregister,method,"(name:str) -> None",174-180,false,7,2,Unregister a service.
+      ServiceRegistry.get,method,"(name:str) -> Optional[ServiceEndpoint]",182-184,false,3,1,Get service endpoint by name.
+      ServiceRegistry.get_url,method,"(name:str) -> Optional[str]",186-189,false,4,2,Get service URL by name.
+      ServiceRegistry.list_services,method,"() -> list[ServiceEndpoint]",191-193,false,3,1,List all registered services.
+      ServiceRegistry.get_environment,method,"(service_name:str, dependencies:list[str]) -> dict[str, str]",195-220,false,26,4,Get environment variables for a service.
+      ServiceRegistry.clear,method,() -> None,222-228,false,7,2,Clear all registrations.
+  src/pactown/deploy/base.py:
+    functions[14]{name,kind,sig,loc,async,lines,cc,does}:
+      DeploymentConfig.for_production,method,"() -> \"DeploymentConfig\"",70-82,false,13,1,Create production-ready configuration.
+      DeploymentConfig.for_development,method,"() -> \"DeploymentConfig\"",85-92,false,8,1,Create development configuration.
+      DeploymentBackend.__init__,method,"(config:DeploymentConfig) -> None",111-112,false,2,1,creates
+      DeploymentBackend.runtime_type,method,() -> RuntimeType,116-118,false,3,1,Return the runtime type.
+      DeploymentBackend.is_available,method,() -> bool,121-123,false,3,1,Check if the runtime is available.
+      DeploymentBackend.build_image,method,"(service_name:str, dockerfile_path:Path, context_path:Path, tag:Optional[str]=None) -> DeploymentResult",126-134,false,9,1,Build a container image.
+      DeploymentBackend.push_image,method,"(image_name:str, registry:Optional[str]=None) -> DeploymentResult",137-143,false,7,1,Push image to registry.
+      DeploymentBackend.deploy,method,"(service_name:str, image_name:str, port:int, env:dict[str,str], health_check:Optional[str]=None) -> DeploymentResult",146-155,false,10,1,Deploy a service.
+      DeploymentBackend.stop,method,"(service_name:str) -> DeploymentResult",158-160,false,3,1,Stop a deployed service.
+      DeploymentBackend.logs,method,"(service_name:str, tail:int=100) -> str",163-165,false,3,1,Get logs from a service.
+      DeploymentBackend.status,method,"(service_name:str) -> dict[str, Any]",168-170,false,3,1,Get status of a service.
+      DeploymentBackend.generate_dockerfile,method,"(service_name:str, sandbox_path:Path, base_image:str='python:3.12-slim') -> Path",172-185,false,14,1,Generate Dockerfile for a service.
+      DeploymentBackend._create_dockerfile,method,"(sandbox_path:Path, base_image:str) -> str",187-236,false,50,3,Create Dockerfile content.
+      DeploymentBackend._create_node_dockerfile,method,"(sandbox_path:Path) -> str",238-263,false,26,1,Create Dockerfile for Node.js service.
+  src/pactown/deploy/docker.py:
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+      DockerBackend.runtime_type,method,() -> RuntimeType,22-23,false,2,1,runtime type
+      DockerBackend.is_available,method,() -> bool,25-36,false,12,2,Check if Docker is available.
+      DockerBackend.build_image,method,"(service_name:str, dockerfile_path:Path, context_path:Path, tag:Optional[str]=None) -> DeploymentResult",38-91,false,54,5,Build Docker image.
+      DockerBackend.push_image,method,"(image_name:str, registry:Optional[str]=None) -> DeploymentResult",93-129,false,37,4,Push image to registry.
+      DockerBackend.deploy,method,"(service_name:str, image_name:str, port:int, env:dict[str,str], health_check:Optional[str]=None) -> DeploymentResult",131-240,false,110,16,Deploy a container.
+      DockerBackend.stop,method,"(service_name:str) -> DeploymentResult",242-262,false,21,2,Stop a container.
+      DockerBackend.logs,method,"(service_name:str, tail:int=100) -> str",264-274,false,11,1,Get container logs.
+      DockerBackend.status,method,"(service_name:str) -> dict[str, Any]",276-299,false,24,3,Get container status.
+  src/pactown/deploy/kubernetes.py:
+    functions[13]{name,kind,sig,loc,async,lines,cc,does}:
+      KubernetesBackend.__init__,method,"(config:DeploymentConfig, kubeconfig:Optional[str]=None) -> None",32-34,false,3,1,creates
+      KubernetesBackend.runtime_type,method,() -> RuntimeType,37-38,false,2,1,runtime type
+      KubernetesBackend._kubectl,method,() -> subprocess.CompletedProcess,40-53,false,14,2,Run kubectl command.
+      KubernetesBackend.is_available,method,() -> bool,55-61,false,7,2,Check if kubectl is available and cluster is reachable.
+      KubernetesBackend.build_image,method,"(service_name:str, dockerfile_path:Path, context_path:Path, tag:Optional[str]=None) -> DeploymentResult",63-102,false,40,5,Build image (delegates to Docker/Podman).
+      KubernetesBackend.push_image,method,"(image_name:str, registry:Optional[str]=None) -> DeploymentResult",104-133,false,30,4,Push image to registry.
+      KubernetesBackend.deploy,method,"(service_name:str, image_name:str, port:int, env:dict[str,str], health_check:Optional[str]=None) -> DeploymentResult",135-180,false,46,4,Deploy to Kubernetes.
+      KubernetesBackend.stop,method,"(service_name:str) -> DeploymentResult",182-195,false,14,2,Delete Kubernetes resources.
+      KubernetesBackend.logs,method,"(service_name:str, tail:int=100) -> str",197-205,false,9,1,Get pod logs.
+      KubernetesBackend.status,method,"(service_name:str) -> dict[str, Any]",207-229,false,23,3,Get deployment status.
+      KubernetesBackend.generate_manifests,method,"(service_name:str, image_name:str, port:int, env:dict[str,str], health_check:Optional[str]=None, replicas:int=2) -> list[dict]",231-393,false,163,4,Generate Kubernetes manifests for a service.
+      KubernetesBackend.generate_hpa,method,"(service_name:str, min_replicas:int=2, max_replicas:int=10, target_cpu:int=70) -> dict",395-429,false,35,1,Generate HorizontalPodAutoscaler manifest.
+      KubernetesBackend.save_manifests,method,"(service_name:str, manifests:list[dict], output_dir:Path) -> Path",431-449,false,19,3,Save manifests to files.
+  src/pactown/deploy/compose.py:
+    functions[7]{name,kind,sig,loc,async,lines,cc,does}:
+      generate_compose_from_config,function,"(config_path:Path, output_dir:Optional[Path]=None, production:bool=False) -> dict",310-359,false,50,4,Convenience function to generate compose files from pactown config.
+      ComposeGenerator.__init__,method,"(ecosystem:EcosystemConfig, deploy_config:DeploymentConfig, base_path:Path) -> None",40-48,false,9,1,creates
+      ComposeGenerator.generate,method,"(output_path:Optional[Path]=None, include_registry:bool=False) -> dict",50-101,false,52,6,Generate docker-compose.yaml content.
+      ComposeGenerator._create_service,method,"(name:str, service:ServiceConfig) -> dict",103-198,false,96,14,Create compose service definition.
+      ComposeGenerator._create_registry_service,method,() -> dict,200-219,false,20,1,Create pactown registry service.
+      ComposeGenerator.generate_override,method,"(output_path:Optional[Path]=None, dev_mode:bool=True) -> dict",221-265,false,45,5,Generate docker-compose.override.yaml for development.
+      ComposeGenerator.generate_production,method,"(output_path:Optional[Path]=None, replicas:int=2) -> dict",267-307,false,41,3,Generate docker-compose.prod.yaml for production/swarm deployment.
+  src/pactown/deploy/podman.py:
+    functions[10]{name,kind,sig,loc,async,lines,cc,does}:
+      PodmanBackend.runtime_type,method,() -> RuntimeType,34-35,false,2,1,runtime type
+      PodmanBackend.is_available,method,() -> bool,37-48,false,12,2,Check if Podman is available.
+      PodmanBackend.build_image,method,"(service_name:str, dockerfile_path:Path, context_path:Path, tag:Optional[str]=None) -> DeploymentResult",50-108,false,59,6,Build container image with Podman.
+      PodmanBackend.push_image,method,"(image_name:str, registry:Optional[str]=None) -> DeploymentResult",110-145,false,36,4,Push image to registry.
+      PodmanBackend.deploy,method,"(service_name:str, image_name:str, port:int, env:dict[str,str], health_check:Optional[str]=None) -> DeploymentResult",147-265,false,119,17,Deploy a container with Podman.
+      PodmanBackend.stop,method,"(service_name:str) -> DeploymentResult",267-287,false,21,2,Stop a container.
+      PodmanBackend.logs,method,"(service_name:str, tail:int=100) -> str",289-299,false,11,1,Get container logs.
+      PodmanBackend.status,method,"(service_name:str) -> dict[str, Any]",301-325,false,25,3,Get container status.
+      PodmanBackend.generate_systemd_unit,method,"(service_name:str, container_name:Optional[str]=None) -> str",327-367,false,41,2,Generate systemd unit file for production deployment.
+      PodmanBackend.create_pod,method,"(pod_name:str, services:list[str], ports:list[int]) -> DeploymentResult",369-400,false,32,3,Create a Podman pod (similar to Kubernetes pod).
+  src/pactown/registry/server.py:
+    functions[2]{name,kind,sig,loc,async,lines,cc,does}:
+      create_app,function,"(storage_path:str='./.pactown-registry') -> FastAPI",50-186,false,137,1,Create the registry FastAPI application.
+      main,function,"(host:str, port:int, storage:str, reload:bool) -> None",194-203,false,10,1,Start the pactown registry server.
+  src/pactown/registry/client.py:
+    functions[21]{name,kind,sig,loc,async,lines,cc,does}:
+      RegistryClient.__init__,method,"(base_url:str='http://localhost:8800', timeout:float=30.0) -> None",13-16,false,4,1,creates
+      RegistryClient.__enter__,method,() -> None,18-19,false,2,1,enter
+      RegistryClient.__exit__,method,() -> None,21-22,false,2,1,exit
+      RegistryClient.close,method,() -> None,24-25,false,2,1,stops
+      RegistryClient.health,method,() -> bool,27-33,false,7,2,Check if registry is healthy.
+      RegistryClient.list_artifacts,method,"(namespace:Optional[str]=None, search:Optional[str]=None) -> list[dict]",35-49,false,15,3,List artifacts in the registry.
+      RegistryClient.get_artifact,method,"(name:str, namespace:str='default') -> Optional[dict]",51-62,false,12,3,Get artifact information.
+      RegistryClient.get_version,method,"(name:str, version:str='latest', namespace:str='default') -> Optional[dict]",64-80,false,17,3,Get specific version information.
+      RegistryClient.get_readme,method,"(name:str, version:str='latest', namespace:str='default') -> Optional[str]",82-98,false,17,3,Get README content for a specific version.
+      RegistryClient.publish,method,"(name:str, version:str, readme_path:Optional[Path]=None, readme_content:Optional[str]=None, namespace:str='default', description:str='', tags:Optional[list[str]]=None) -> dict",100-133,false,34,6,Publish an artifact to the registry.
+      RegistryClient.pull,method,"(name:str, version:str='latest', namespace:str='default', output_path:Optional[Path]=None) -> Optional[str]",135-150,false,16,3,Pull an artifact from the registry.
+      RegistryClient.delete,method,"(name:str, namespace:str='default') -> bool",152-160,false,9,2,Delete an artifact from the registry.
+      RegistryClient.list_namespaces,method,"() -> list[str]",162-169,false,8,2,List all namespaces.
+      AsyncRegistryClient.__init__,method,"(base_url:str='http://localhost:8800', timeout:float=30.0) -> None",175-178,false,4,1,creates
+      AsyncRegistryClient.__aenter__,method,() -> None,180-181,true,2,1,aenter
+      AsyncRegistryClient.__aexit__,method,() -> None,183-184,true,2,1,aexit
+      AsyncRegistryClient.close,method,() -> None,186-187,true,2,1,stops
+      AsyncRegistryClient.health,method,() -> bool,189-194,true,6,2,health
+      AsyncRegistryClient.list_artifacts,method,"(namespace:Optional[str]=None, search:Optional[str]=None) -> list[dict]",196-209,true,14,3,list artifacts
+      AsyncRegistryClient.get_readme,method,"(name:str, version:str='latest', namespace:str='default') -> Optional[str]",211-226,true,16,3,retrieves readme
+      AsyncRegistryClient.publish,method,"(name:str, version:str, readme_content:str, namespace:str='default', description:str='', tags:Optional[list[str]]=None, metadata:Optional[dict]=None) -> dict",228-253,true,26,4,sends
+  src/pactown/registry/models.py:
+    functions[15]{name,kind,sig,loc,async,lines,cc,does}:
+      ArtifactVersion.to_dict,method,() -> dict,21-28,false,8,1,converts dict
+      ArtifactVersion.from_dict,method,"(data:dict) -> \"ArtifactVersion\"",31-38,false,8,1,from dict
+      Artifact.full_name,method,() -> str,54-55,false,2,1,full name
+      Artifact.add_version,method,"(version:ArtifactVersion) -> None",57-60,false,4,1,creates version
+      Artifact.get_version,method,"(version:str='latest') -> Optional[ArtifactVersion]",62-65,false,4,3,retrieves version
+      Artifact.to_dict,method,() -> dict,67-77,false,11,2,converts dict
+      Artifact.from_dict,method,"(data:dict) -> \"Artifact\"",80-94,false,15,2,from dict
+      RegistryStorage.__init__,method,"(storage_path:Path) -> None",100-105,false,6,1,creates
+      RegistryStorage._load,method,() -> None,107-112,false,6,3,retrieves
+      RegistryStorage._save,method,() -> None,114-120,false,7,2,caches
+      RegistryStorage.get,method,"(namespace:str, name:str) -> Optional[Artifact]",122-123,false,2,1,retrieves
+      RegistryStorage.list,method,"(namespace:Optional[str]=None) -> list[Artifact]",125-128,false,4,4,list
+      RegistryStorage.save_artifact,method,"(artifact:Artifact) -> None",130-132,false,3,1,caches artifact
+      RegistryStorage.delete,method,"(namespace:str, name:str) -> bool",134-140,false,7,2,deletes
+      RegistryStorage.search,method,"(query:str) -> list[Artifact]",142-150,false,9,6,filters
+  examples/saas-platform/.pactown-sandboxes/gateway/gateway.py:
+    functions[7]{name,kind,sig,loc,async,lines,cc,does}:
+      proxy_request,function,"(target_url:str, request:Request, path:str='') -> Response",33-68,true,36,4,Proxy request to target service.
+      gateway_health,function,() -> None,72-108,true,37,4,Check health of gateway and all services.
+      list_routes,function,() -> None,112-119,true,8,2,List configured routes.
+      proxy_api,function,"(request:Request, path:str) -> None",124-125,true,2,1,proxy api
+      proxy_db,function,"(request:Request, path:str) -> None",130-131,true,2,1,proxy db
+      proxy_web_root,function,"(request:Request) -> None",136-137,true,2,1,proxy web root
+      health,function,() -> None,141-142,true,2,1,health
+  examples/saas-platform/.pactown-sandboxes/web/server.py:
+    functions[3]{name,kind,sig,loc,async,lines,cc,does}:
+      CORSHandler.__init__,method,() -> None,5-6,false,2,1,creates
+      CORSHandler.end_headers,method,() -> None,8-10,false,3,1,stops headers
+      CORSHandler.do_GET,method,() -> None,12-35,false,24,4,do get
+  examples/saas-platform/.pactown-sandboxes/database/main.py:
+    functions[9]{name,kind,sig,loc,async,lines,cc,does}:
+      lifespan,function,"(app:FastAPI) -> None",12-14,true,3,1,lifespan
+      health,function,() -> None,30-31,false,2,1,health
+      list_collections,function,() -> None,34-35,true,2,1,list collections
+      database_stats,function,() -> None,38-39,true,2,1,database stats
+      list_records,function,"(collection:str) -> None",42-44,true,3,1,list records
+      create_new_record,function,"(collection:str, data:dict) -> None",47-48,true,2,1,creates new record
+      get_record_by_id,function,"(collection:str, record_id:int) -> None",51-55,true,5,2,retrieves record by id
+      update_record_by_id,function,"(collection:str, record_id:int, data:dict) -> None",58-62,true,5,2,updates record by id
+      delete_record_by_id,function,"(collection:str, record_id:int) -> None",65-68,true,4,2,deletes record by id
+  examples/saas-platform/.pactown-sandboxes/database/db.py:
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+      init_db,function,() -> None,8-22,true,15,1,creates db
+      get_records,function,"(collection:str) -> list[dict]",24-35,true,12,2,retrieves records
+      get_record,function,"(collection:str, record_id:int) -> Optional[dict]",37-47,true,11,2,retrieves record
+      create_record,function,"(collection:str, data:dict) -> dict",49-57,true,9,3,creates record
+      update_record,function,"(collection:str, record_id:int, data:dict) -> Optional[dict]",59-71,true,13,4,updates record
+      delete_record,function,"(collection:str, record_id:int) -> bool",73-80,true,8,1,deletes record
+      get_collections,function,"() -> list[str]",82-88,true,7,2,retrieves collections
+      get_stats,function,() -> dict,90-99,true,10,1,retrieves stats
+  examples/saas-platform/.pactown-sandboxes/api/app/database.py:
+    functions[5]{name,kind,sig,loc,async,lines,cc,does}:
+      get_users,function,"() -> list[dict]",12-21,true,10,4,retrieves users
+      create_user,function,"(name:str, email:str) -> dict",23-47,true,25,4,creates user
+      get_user,function,"(user_id:int) -> dict | None",49-58,true,10,4,retrieves user
+      delete_user,function,"(user_id:int) -> bool",60-71,true,12,4,deletes user
+      get_stats,function,() -> dict,73-79,false,7,1,retrieves stats
+  examples/saas-platform/.pactown-sandboxes/api/app/main.py:
+    functions[6]{name,kind,sig,loc,async,lines,cc,does}:
+      health,function,() -> None,23-24,false,2,1,health
+      list_users,function,() -> None,27-29,true,3,1,list users
+      create_new_user,function,"(user:UserCreate) -> None",32-34,true,3,1,creates new user
+      get_user_by_id,function,"(user_id:int) -> None",37-41,true,5,2,retrieves user by id
+      delete_user_by_id,function,"(user_id:int) -> None",44-47,true,4,2,deletes user by id
+      get_statistics,function,() -> None,50-51,false,2,1,retrieves statistics

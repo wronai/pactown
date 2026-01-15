@@ -50,7 +50,12 @@ class SandboxManager:
         """Get sandbox path for a service."""
         return self.sandbox_root / service_name
     
-    def create_sandbox(self, service: ServiceConfig, readme_path: Path) -> Sandbox:
+    def create_sandbox(
+        self,
+        service: ServiceConfig,
+        readme_path: Path,
+        install_dependencies: bool = True,
+    ) -> Sandbox:
         """Create a sandbox for a service from its README."""
         sandbox_path = self.get_sandbox_path(service.name)
         
@@ -63,7 +68,7 @@ class SandboxManager:
         readme_content = readme_path.read_text()
         blocks = parse_blocks(readme_content)
         
-        deps = []
+        deps: list[str] = []
         run_command = None
         
         for block in blocks:
@@ -75,9 +80,14 @@ class SandboxManager:
             elif block.kind == "run":
                 run_command = block.body.strip()
         
-        if deps:
-            ensure_venv(sandbox, verbose=False)
-            install_deps([d for d in deps if d.strip()], sandbox, verbose=False)
+        deps_clean = [d.strip() for d in deps if d.strip()]
+        if deps_clean:
+            # Always write requirements.txt so the sandbox can be used as a container build context
+            sandbox.write_requirements(deps_clean)
+
+            if install_dependencies:
+                ensure_venv(sandbox, verbose=False)
+                install_deps(deps_clean, sandbox, verbose=False)
         
         return sandbox
     
@@ -94,7 +104,7 @@ class SandboxManager:
             if existing.is_running:
                 raise RuntimeError(f"Service {service.name} is already running")
         
-        sandbox = self.create_sandbox(service, readme_path)
+        sandbox = self.create_sandbox(service, readme_path, install_dependencies=True)
         
         readme_content = readme_path.read_text()
         blocks = parse_blocks(readme_content)
