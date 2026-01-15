@@ -72,7 +72,7 @@ services:
 The generator:
 
 1. **Scans** for `README.md` files recursively
-2. **Parses** markpact blocks using `markpact.parse_blocks()`
+2. **Parses** markpact blocks using `pactown.markpact_blocks.parse_blocks()`
 3. **Extracts**:
    - Service name (from folder name)
    - Port (from `markpact:run` command)
@@ -155,7 +155,7 @@ config = generate_config(
 The generator looks for port in `markpact:run` blocks:
 
 ```markdown
-```markpact:run python
+```bash markpact:run
 uvicorn main:app --port ${MARKPACT_PORT:-8001}
 ```
 ```
@@ -171,7 +171,7 @@ Patterns matched:
 Extracted from `markpact:test http` blocks:
 
 ```markdown
-```markpact:test http
+```http markpact:test
 GET /health EXPECT 200
 GET /api/users EXPECT 200
 ```
@@ -184,7 +184,7 @@ Detects: `/health` (preferred) or first `GET /` endpoint.
 From `markpact:deps` blocks:
 
 ```markdown
-```markpact:deps python
+```python markpact:deps
 fastapi
 uvicorn
 httpx

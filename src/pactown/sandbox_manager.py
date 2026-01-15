@@ -120,8 +120,8 @@ class SandboxManager:
 
         full_env = os.environ.copy()
         full_env.update(env)
-
-        if sandbox.has_venv:
+        
+        if sandbox.has_venv():
             venv_bin = str(sandbox.venv_bin)
             full_env["PATH"] = f"{venv_bin}:{full_env.get('PATH', '')}"
             full_env["VIRTUAL_ENV"] = str(sandbox.path / ".venv")

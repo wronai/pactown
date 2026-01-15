@@ -228,7 +228,7 @@ class DeploymentBackend(ABC):
             "# Health check",
             'HEALTHCHECK --interval=30s --timeout=10s --retries=3 \\',
             '    CMD python -c "import os,urllib.request; ' +
-            "port=os.environ.get('PORT','8000'); " +
+            "port=os.environ.get('MARKPACT_PORT') or os.environ.get('PORT','8000'); " +
             "urllib.request.urlopen('http://localhost:%s/health' % port, timeout=5)\"",
             "",
             "# Default command",

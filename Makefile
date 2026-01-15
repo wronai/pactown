@@ -1,6 +1,6 @@
 .PHONY: help install dev test test-cov lint format build clean registry up down status examples check-pypi-deps publish-pypi bump-patch bump-minor bump-major release
 
-PYTHON ?= python3
+PYTHON ?= $(shell if [ -x ./venv/bin/python3 ]; then echo ./venv/bin/python3; elif [ -x ./.venv/bin/python3 ]; then echo ./.venv/bin/python3; else echo python3; fi)
 CONFIG ?= saas.pactown.yaml
 README ?= README.md
 SANDBOX ?= ./sandbox
@@ -22,16 +22,22 @@ dev: ## Install dev dependencies
 	$(PYTHON) -m pip install -e ".[dev]"
 
 test: ## Run tests
-	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src $(PYTHON) -m pytest tests/ -v
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src $(PYTHON) -m pytest -p pytest_asyncio tests/ -v
 
 test-cov: ## Run tests with coverage
-	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src $(PYTHON) -m pytest tests/ -v --cov=src/pactown --cov-report=term-missing
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src $(PYTHON) -m pytest -p pytest_asyncio tests/ -v --cov=src/pactown --cov-report=term-missing
 
 lint: ## Run linter
-	$(PYTHON) -m ruff check src/ tests/
+	@$(PYTHON) -c "import ruff" >/dev/null 2>&1 && $(PYTHON) -m ruff check src/ tests/ || \
+		(command -v ruff >/dev/null 2>&1 && ruff check src/ tests/ || \
+		(command -v pipx >/dev/null 2>&1 && pipx run ruff check src/ tests/ || \
+		(echo "Missing dependency: ruff. Run: make dev (or install via pipx)." && exit 1)))
 
 format: ## Format code
-	$(PYTHON) -m ruff format src/ tests/
+	@$(PYTHON) -c "import ruff" >/dev/null 2>&1 && $(PYTHON) -m ruff format src/ tests/ || \
+		(command -v ruff >/dev/null 2>&1 && ruff format src/ tests/ || \
+		(command -v pipx >/dev/null 2>&1 && pipx run ruff format src/ tests/ || \
+		(echo "Missing dependency: ruff. Run: make dev (or install via pipx)." && exit 1)))
 
 build: clean ## Build package
 	@$(PYTHON) -c "import build" >/dev/null 2>&1 || (echo "Missing dependency: build. Run: $(PYTHON) -m pip install -e \".[dev]\" (or: $(PYTHON) -m pip install build)" && exit 1)
