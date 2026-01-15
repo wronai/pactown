@@ -1,0 +1,48 @@
+# Microservices Ecosystem Configuration
+# Demonstrates polyglot services (Python, Node.js, Go) working together
+
+name: polyglot-microservices
+version: 0.1.0
+description: Multi-language microservices ecosystem with Python ML, Node.js API, and Go Gateway
+
+base_port: 8010
+sandbox_root: ./.pactown-sandboxes
+
+registry:
+  url: http://localhost:8800
+  namespace: microservices
+
+services:
+  # Python ML Service - no dependencies, starts first
+  python-ml:
+    readme: services/python-ml/README.md
+    port: 8010
+    health_check: /health
+    timeout: 30
+    env:
+      LOG_LEVEL: info
+
+  # Node.js API - depends on ML service
+  node-api:
+    readme: services/node-api/README.md
+    port: 3000
+    health_check: /health
+    timeout: 30
+    depends_on:
+      - name: python-ml
+        endpoint: http://localhost:8010
+        env_var: ML_SERVICE_URL
+
+  # Go Gateway - depends on both services
+  go-gateway:
+    readme: services/go-gateway/README.md
+    port: 8080
+    health_check: /health
+    timeout: 20
+    depends_on:
+      - name: python-ml
+        endpoint: http://localhost:8010
+        env_var: ML_SERVICE_URL
+      - name: node-api
+        endpoint: http://localhost:3000
+        env_var: NODE_SERVICE_URL

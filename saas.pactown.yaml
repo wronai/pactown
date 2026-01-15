@@ -1,0 +1,50 @@
+# Main Pactown Configuration
+# This is a reference configuration demonstrating the full ecosystem
+
+name: pactown-demo
+version: 0.1.0
+description: Pactown demonstration ecosystem using existing markpact examples
+
+base_port: 8000
+sandbox_root: ./.pactown-sandboxes
+
+registry:
+  url: http://localhost:8800
+  namespace: demo
+
+# Import services from markpact examples
+# These paths reference the markpact project examples
+services:
+  # FastAPI Todo API
+  todo-api:
+    readme: ../markpact/examples/fastapi-todo/README.md
+    port: 8001
+    health_check: /todos
+    timeout: 30
+
+  # Flask Blog
+  blog:
+    readme: ../markpact/examples/flask-blog/README.md
+    port: 5000
+    health_check: /
+    timeout: 30
+
+  # Streamlit Dashboard
+  dashboard:
+    readme: ../markpact/examples/streamlit-dashboard/README.md
+    port: 8501
+    timeout: 45
+
+  # Node.js Express API
+  node-api:
+    readme: ../markpact/examples/node-express-api/README.md
+    port: 3000
+    health_check: /health
+    timeout: 30
+
+  # Static Frontend
+  frontend:
+    readme: ../markpact/examples/static-frontend/README.md
+    port: 8088
+    health_check: /
+    timeout: 20

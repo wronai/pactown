@@ -1,0 +1,75 @@
+# SaaS Platform Ecosystem Configuration
+# This file defines all services and their dependencies for the complete platform
+
+name: saas-platform
+version: 0.1.0
+description: Complete SaaS platform with API, Web, Database, CLI, and Gateway
+
+base_port: 8000
+sandbox_root: ./.pactown-sandboxes
+
+registry:
+  url: http://localhost:8800
+  namespace: saas
+
+services:
+  # Database service - no dependencies, starts first
+  database:
+    readme: services/database/README.md
+    port: 8003
+    health_check: /health
+    timeout: 30
+    env:
+      LOG_LEVEL: info
+
+  # API service - depends on database
+  api:
+    readme: services/api/README.md
+    port: 8001
+    health_check: /health
+    timeout: 30
+    depends_on:
+      - name: database
+        endpoint: http://localhost:8003
+        env_var: DATABASE_URL
+
+  # Web frontend - depends on API
+  web:
+    readme: services/web/README.md
+    port: 8002
+    health_check: /health
+    timeout: 20
+    depends_on:
+      - name: api
+        endpoint: http://localhost:8001
+        env_var: API_URL
+
+  # CLI tool - depends on API and Database
+  cli:
+    readme: services/cli/README.md
+    port: null  # CLI doesn't need a port
+    timeout: 10
+    depends_on:
+      - name: api
+        endpoint: http://localhost:8001
+        env_var: API_URL
+      - name: database
+        endpoint: http://localhost:8003
+        env_var: DATABASE_URL
+
+  # API Gateway - depends on all services, starts last
+  gateway:
+    readme: services/gateway/README.md
+    port: 8000
+    health_check: /health
+    timeout: 30
+    depends_on:
+      - name: api
+        endpoint: http://localhost:8001
+        env_var: API_URL
+      - name: database
+        endpoint: http://localhost:8003
+        env_var: DATABASE_URL
+      - name: web
+        endpoint: http://localhost:8002
+        env_var: WEB_URL

@@ -2,6 +2,8 @@
 
 PYTHON ?= python3
 CONFIG ?= saas.pactown.yaml
+README ?= README.md
+SANDBOX ?= ./sandbox
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-18s\033[0m %s\n", $$1, $$2}'
@@ -68,3 +70,24 @@ publish: ## Publish all modules to registry
 
 pull: ## Pull dependencies from registry
 	pactown pull $(CONFIG) --registry http://localhost:8800
+
+publish-pypi: bump-patch build ## Publish to PyPI production (uses ~/.pypirc credentials)
+	$(PYTHON) -m twine upload dist/*
+
+# Version management
+version: ## Show current version
+	@grep -m1 'version = ' pyproject.toml | cut -d'"' -f2
+
+bump-patch: ## Bump patch version (0.1.0 → 0.1.1)
+	bump2version patch --config-file .bumpversion.cfg --allow-dirty
+	@echo "Bumped to $$(grep -m1 'version = ' pyproject.toml | cut -d'\"' -f2)"
+
+bump-minor: ## Bump minor version (0.1.0 → 0.2.0)
+	bump2version minor --config-file .bumpversion.cfg --allow-dirty
+	@echo "Bumped to $$(grep -m1 'version = ' pyproject.toml | cut -d'\"' -f2)"
+
+bump-major: ## Bump major version (0.1.0 → 1.0.0)
+	bump2version major --config-file .bumpversion.cfg --allow-dirty
+	@echo "Bumped to $$(grep -m1 'version = ' pyproject.toml | cut -d'\"' -f2)"
+
+release: bump-patch publish-pypi ## Bump patch and publish

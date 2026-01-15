@@ -38,13 +38,10 @@ class DependencyResolver:
         Get services in topological order for startup.
         Services with no dependencies start first.
         """
-        in_degree = {name: 0 for name in self._graph}
+        # in_degree[X] = number of dependencies X has
+        in_degree = {name: len(deps) for name, deps in self._graph.items()}
         
-        for deps in self._graph.values():
-            for dep in deps:
-                if dep in in_degree:
-                    in_degree[dep] += 1
-        
+        # Start with services that have no dependencies
         queue = deque([name for name, degree in in_degree.items() if degree == 0])
         order = []
         
@@ -52,6 +49,7 @@ class DependencyResolver:
             current = queue.popleft()
             order.append(current)
             
+            # For each service that depends on current, decrease its in_degree
             for name, deps in self._graph.items():
                 if current in deps:
                     in_degree[name] -= 1
@@ -62,7 +60,7 @@ class DependencyResolver:
             missing = set(self._graph.keys()) - set(order)
             raise ValueError(f"Circular dependency detected involving: {missing}")
         
-        return list(reversed(order))
+        return order
     
     def get_shutdown_order(self) -> list[str]:
         """Get services in reverse order for shutdown."""
