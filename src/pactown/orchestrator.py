@@ -135,8 +135,27 @@ class Orchestrator:
         self._running[service_name] = process
         return process
     
-    def start_all(self, wait_for_health: bool = True) -> dict[str, ServiceProcess]:
-        """Start all services in dependency order."""
+    def start_all(
+        self, 
+        wait_for_health: bool = True,
+        parallel: bool = True,
+        max_workers: int = 4,
+    ) -> dict[str, ServiceProcess]:
+        """
+        Start all services in dependency order.
+        
+        Args:
+            wait_for_health: Wait for health checks
+            parallel: Use parallel execution for independent services
+            max_workers: Max parallel workers
+        """
+        if parallel:
+            return self._start_all_parallel(wait_for_health, max_workers)
+        else:
+            return self._start_all_sequential(wait_for_health)
+    
+    def _start_all_sequential(self, wait_for_health: bool = True) -> dict[str, ServiceProcess]:
+        """Start all services sequentially in dependency order."""
         order = self.resolver.get_startup_order()
         
         if self.verbose:
@@ -163,6 +182,101 @@ class Orchestrator:
             self.print_status()
         
         return self._running
+    
+    def _start_all_parallel(
+        self, 
+        wait_for_health: bool = True,
+        max_workers: int = 4,
+    ) -> dict[str, ServiceProcess]:
+        """
+        Start services in parallel waves based on dependencies.
+        
+        Services with no unmet dependencies start together in parallel.
+        Once a wave completes, the next wave starts.
+        """
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        
+        if self.verbose:
+            console.print(f"\n[bold]Starting ecosystem: {self.config.name} (parallel)[/bold]")
+        
+        # Build dependency map
+        deps_map: dict[str, list[str]] = {}
+        for name, service in self.config.services.items():
+            deps_map[name] = [d.name for d in service.depends_on if d.name in self.config.services]
+        
+        started = set()
+        remaining = set(self.config.services.keys())
+        wave_num = 0
+        
+        while remaining:
+            # Find services ready to start (all deps satisfied)
+            ready = [
+                name for name in remaining
+                if all(d in started for d in deps_map.get(name, []))
+            ]
+            
+            if not ready:
+                raise ValueError(f"Cannot resolve dependencies for: {remaining}")
+            
+            wave_num += 1
+            if self.verbose:
+                console.print(f"\n[cyan]Wave {wave_num}:[/cyan] {', '.join(ready)}")
+            
+            # Start ready services in parallel
+            wave_results = {}
+            wave_errors = {}
+            
+            with ThreadPoolExecutor(max_workers=min(max_workers, len(ready))) as executor:
+                futures = {}
+                
+                for name in ready:
+                    future = executor.submit(self._start_service_with_health, name, wait_for_health)
+                    futures[future] = name
+                
+                for future in as_completed(futures):
+                    name = futures[future]
+                    try:
+                        proc = future.result()
+                        wave_results[name] = proc
+                        self._running[name] = proc
+                        started.add(name)
+                        remaining.remove(name)
+                    except Exception as e:
+                        wave_errors[name] = str(e)
+                        remaining.remove(name)
+            
+            # Report wave results
+            for name in wave_results:
+                if self.verbose:
+                    console.print(f"  [green]✓[/green] {name} started")
+            
+            for name, error in wave_errors.items():
+                console.print(f"  [red]✗[/red] {name}: {error}")
+            
+            # Stop on any failure
+            if wave_errors:
+                console.print(f"\n[red]Stopping due to errors...[/red]")
+                self.stop_all()
+                raise RuntimeError(f"Failed to start services: {wave_errors}")
+        
+        if self.verbose:
+            console.print()
+            self.print_status()
+        
+        return self._running
+    
+    def _start_service_with_health(self, service_name: str, wait_for_health: bool) -> ServiceProcess:
+        """Start a service and optionally wait for health check."""
+        proc = self.start_service(service_name)
+        
+        if wait_for_health:
+            service = self.config.services[service_name]
+            if service.health_check:
+                self._wait_for_health(service_name, timeout=service.timeout)
+            else:
+                time.sleep(0.5)
+        
+        return proc
     
     def stop_service(self, service_name: str) -> bool:
         """Stop a single service."""

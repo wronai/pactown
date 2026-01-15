@@ -31,7 +31,9 @@ def cli():
 @click.option("--dry-run", "-n", is_flag=True, help="Show what would be done")
 @click.option("--no-health", is_flag=True, help="Don't wait for health checks")
 @click.option("--quiet", "-q", is_flag=True, help="Minimal output")
-def up(config_path: str, dry_run: bool, no_health: bool, quiet: bool):
+@click.option("--sequential", "-s", is_flag=True, help="Disable parallel execution")
+@click.option("--workers", "-w", default=4, type=int, help="Max parallel workers")
+def up(config_path: str, dry_run: bool, no_health: bool, quiet: bool, sequential: bool, workers: int):
     """Start all services in the ecosystem."""
     try:
         config = load_config(config_path)
@@ -53,7 +55,11 @@ def up(config_path: str, dry_run: bool, no_health: bool, quiet: bool):
         if not orch.validate():
             sys.exit(1)
         
-        orch.start_all(wait_for_health=not no_health)
+        orch.start_all(
+            wait_for_health=not no_health,
+            parallel=not sequential,
+            max_workers=workers,
+        )
         
         console.print("\n[dim]Press Ctrl+C to stop all services[/dim]\n")
         try:
