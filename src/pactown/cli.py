@@ -274,6 +274,70 @@ def generate(folder: str, name: Optional[str], output: str, base_port: int):
         sys.exit(1)
 
 
+@cli.command()
+@click.argument("config_path", type=click.Path(exists=True))
+@click.option("--output", "-o", default=".", help="Output directory")
+@click.option("--production", "-p", is_flag=True, help="Generate production config")
+@click.option("--kubernetes", "-k", is_flag=True, help="Generate Kubernetes manifests")
+def deploy(config_path: str, output: str, production: bool, kubernetes: bool):
+    """Generate deployment files (Docker Compose, Kubernetes)."""
+    try:
+        from .deploy.compose import generate_compose_from_config
+        from .deploy.kubernetes import KubernetesBackend
+        from .deploy.base import DeploymentConfig
+        
+        config_path = Path(config_path)
+        output_dir = Path(output)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        
+        if kubernetes:
+            # Generate Kubernetes manifests
+            from .config import load_config
+            ecosystem = load_config(config_path)
+            deploy_config = DeploymentConfig.for_production() if production else DeploymentConfig.for_development()
+            k8s = KubernetesBackend(deploy_config)
+            
+            k8s_dir = output_dir / "kubernetes"
+            k8s_dir.mkdir(exist_ok=True)
+            
+            for name, service in ecosystem.services.items():
+                image = f"{deploy_config.image_prefix}/{name}:latest"
+                manifests = k8s.generate_manifests(
+                    service_name=name,
+                    image_name=image,
+                    port=service.port or 8000,
+                    env=service.env,
+                    health_check=service.health_check,
+                )
+                k8s.save_manifests(name, manifests, k8s_dir)
+                console.print(f"  [green]✓[/green] {k8s_dir}/{name}.yaml")
+            
+            console.print(f"\n[green]Generated Kubernetes manifests in {k8s_dir}[/green]")
+            console.print(f"\nDeploy with:")
+            console.print(f"  kubectl apply -f {k8s_dir}/")
+        else:
+            # Generate Docker Compose
+            generate_compose_from_config(
+                config_path=config_path,
+                output_dir=output_dir,
+                production=production,
+            )
+            
+            console.print(f"\n[green]Generated Docker Compose files in {output_dir}[/green]")
+            console.print(f"\nRun with:")
+            if production:
+                console.print(f"  docker compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d")
+            else:
+                console.print(f"  docker compose up -d")
+                console.print(f"  # or: podman-compose up -d")
+    
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+
+
 def main(argv=None):
     """Main entry point."""
     cli(argv)
