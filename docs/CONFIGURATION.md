@@ -125,8 +125,9 @@ DATABASE_PORT=10000
 | Variable | Description |
 |----------|-------------|
 | `MARKPACT_PORT` | Service's allocated port |
-| `SERVICE_NAME` | Service name |
+| `SERVICE_NAME` | Service name (from runtime service registry injection) |
 | `SERVICE_URL` | Service's own URL |
+| `PACTOWN_SERVICE_NAME` | Service name (from dependency resolver injection) |
 | `PACTOWN_ECOSYSTEM` | Ecosystem name |
 
 ### Custom Variables

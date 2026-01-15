@@ -1,6 +1,6 @@
 # Production Deployment Guide
 
-> **See also:** [README](../README.md) | [Specification](SPECIFICATION.md) | [Configuration](CONFIGURATION.md) | [Network](NETWORK.md)
+> **See also:** [README](../README.md) | [Specification](SPECIFICATION.md) | [Configuration](CONFIGURATION.md) | [Network](NETWORK.md) | [Quadlet](QUADLET.md) | [Security](SECURITY.md)
 
 This guide covers deploying pactown ecosystems to production using Docker, Podman, and Kubernetes.
 
@@ -11,6 +11,7 @@ This guide covers deploying pactown ecosystems to production using Docker, Podma
 | **Local** | Development | Basic |
 | **Docker** | Single server | Good |
 | **Podman** | Rootless containers | Excellent |
+| **Quadlet** | VPS production (systemd-native) | Excellent |
 | **Kubernetes** | Orchestrated cluster | Enterprise |
 | **Compose** | Multi-container | Good |
 

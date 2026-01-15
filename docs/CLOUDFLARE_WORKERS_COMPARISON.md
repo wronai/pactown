@@ -205,7 +205,7 @@ async def increment(id: str):
 
 ```bash
 # Pactown deployment
-pactown quadlet deploy ./email-llm-responder \
+pactown quadlet deploy ./examples/email-llm-responder/README.md \
     --domain mail.example.com \
     --subdomain email
 ```
@@ -223,7 +223,7 @@ pactown quadlet deploy ./email-llm-responder \
 
 ```bash
 # Pactown deployment
-pactown quadlet deploy ./realtime-notifications \
+pactown quadlet deploy ./examples/realtime-notifications/README.md \
     --domain notify.example.com \
     --subdomain ws
 ```

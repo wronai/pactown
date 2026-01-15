@@ -1,5 +1,38 @@
-w folderze /home/tom/github/wronai/markpact znajduje się działający projekt, biblitoeka i shell app dla generowania działającyhc usług z wykorzystaniem LLM oraz na bazie pliku markdown z kodem, ktory jest uruchamiany w sandbox , w pliku /home/tom/github/wronai/markpact/project.functions.toon
-jest cała strukutra kodu, 
-stwórz paczke python o nazwie pactown w aktualnym folderze ./ makefile i dokumentacją, który będzie odpiwedzialny za wykorzystanie markpact do zbudowania na bazie wielu sandboxow z wykorzystanie markpact zdecentralizowanych ekosystemów usług, artefaktów 
-chodzi o możliwość łączenia wielu oddzielnych projektów z wykorzystaniem markpact w jeden system w którym kazdy z tych projektów w markdown był częścia całego systemu podobnie jak to się dzieje w zaleznosciach, stworz rowniez lokalny rejestr markpact jako usluge z api oraz jako lokalny klietn do tego rejestru, dzieki czemu mozliwe bedzie wykorzystanie roznych jezykow i roznych frameworkow w jednym ekosystemie, niezaleznie od technologii
-Stworz specyfikacje całego systemu i problematyke, aby dziaały wszystkie uslugi razem, np osobno readme dla strony www, osobny dla bazy danych, osobny dla cli shell, podobnie jak te 3 moduły, ale by działały razem w ramach jednego systemu, stworz wiecej przykladow i polacz je razem, zkonfiguracją w pliku saas.pactown.yaml na bazie nowych przykładów i korzystając z już istniejących w  /home/tom/github/wronai/markpact/examples/*/README.md
+# TODO
+
+## Status (done)
+
+- Pactown jako paczka Python (`pyproject.toml`, CLI, Makefile).
+- Orchestrator (sandboxes), dependency resolution, registry + API.
+- Podman Quadlet deployment:
+  - `pactown quadlet init / deploy / list / logs / shell / api`
+  - Traefik + TLS (Let's Encrypt)
+- Security hardening:
+  - input sanitization w generatorze Quadlet
+  - test suite: `tests/test_quadlet_security.py`
+  - dokument: `docs/SECURITY.md`
+- Przykłady Quadlet w `examples/*`:
+  - user edytuje tylko `README.md` (kod w markdown)
+  - reszta plików do uruchomienia jest generowana do `./sandbox`
+
+## Next steps
+
+### Quadlet / Sandbox generation
+
+- Zintegrować generowanie `./sandbox` z README (code blocks `main.py`, `routes.yaml`, `requirements.txt`) bezpośrednio w flow `pactown quadlet deploy`.
+- Dodać walidację, że README zawiera minimalny zestaw blocków wymaganych do uruchomienia.
+- Dodać tryb `pactown quadlet generate --sandbox ./sandbox` (bez deployu) do łatwego review.
+
+### Security (runtime)
+
+- Dodać runtime-hardening checklist: SELinux/AppArmor, firewall, limits per tenant.
+- Rozważyć blokowanie dodatkowych mountów (symlinki, `:Z`, `:suid`, itp.) oraz logowanie prób.
+
+### Docs
+
+- Uporządkować przewodnik: `docs/QUADLET.md` + `docs/SECURITY.md` + porównanie z CF.
+- Dodać krótkie “quick examples” jak odpalić 3 przykłady na VPS.
+
+### Packaging
+
+- Ustalić docelowy flow dla `make dev` i `make lint` (czy zawsze venv, czy pipx fallback).

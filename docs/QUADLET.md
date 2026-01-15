@@ -12,6 +12,12 @@ Quadlet generates systemd unit files from simple `.container`, `.pod`, `.network
 - **Simple file-based config** - Files in `~/.config/containers/systemd/`
 - **Perfect for MVP** - Ideal for single VPS deployments (e.g., Hetzner CX53)
 
+Related:
+
+- [`docs/SECURITY.md`](SECURITY.md) - hardening + injection test suite
+- [`docs/CLOUDFLARE_WORKERS_COMPARISON.md`](CLOUDFLARE_WORKERS_COMPARISON.md) - when Quadlet VPS beats Workers
+- [`examples/`](../examples/) - practical deployments
+
 ## Quick Start
 
 ### 1. Initialize Environment
@@ -37,6 +43,12 @@ pactown quadlet deploy ./README.md \
 
 # Access at: https://docs.pactown.com
 ```
+
+For more practical “copy & customize” services, see:
+
+- `examples/email-llm-responder/README.md`
+- `examples/api-gateway-webhooks/README.md`
+- `examples/realtime-notifications/README.md`
 
 ### 3. Manage Services
 

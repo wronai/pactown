@@ -28,16 +28,28 @@ test-cov: ## Run tests with coverage
 	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src $(PYTHON) -m pytest -p pytest_asyncio.plugin tests/ -v --cov=src/pactown --cov-report=term-missing
 
 lint: ## Run linter
-	@$(PYTHON) -c "import ruff" >/dev/null 2>&1 && $(PYTHON) -m ruff check src/ tests/ || \
-		(command -v ruff >/dev/null 2>&1 && ruff check src/ tests/ || \
-		(command -v pipx >/dev/null 2>&1 && pipx run ruff check src/ tests/ || \
-		(echo "Missing dependency: ruff. Run: make dev (or install via pipx)." && exit 1)))
+	@if $(PYTHON) -c "import ruff" >/dev/null 2>&1; then \
+		$(PYTHON) -m ruff check src/ tests/; \
+	elif command -v ruff >/dev/null 2>&1; then \
+		ruff check src/ tests/; \
+	elif command -v pipx >/dev/null 2>&1; then \
+		pipx run ruff check src/ tests/; \
+	else \
+		echo "Missing dependency: ruff. Run: make dev (or install via pipx)."; \
+		exit 1; \
+	fi
 
 format: ## Format code
-	@$(PYTHON) -c "import ruff" >/dev/null 2>&1 && $(PYTHON) -m ruff format src/ tests/ || \
-		(command -v ruff >/dev/null 2>&1 && ruff format src/ tests/ || \
-		(command -v pipx >/dev/null 2>&1 && pipx run ruff format src/ tests/ || \
-		(echo "Missing dependency: ruff. Run: make dev (or install via pipx)." && exit 1)))
+	@if $(PYTHON) -c "import ruff" >/dev/null 2>&1; then \
+		$(PYTHON) -m ruff format src/ tests/; \
+	elif command -v ruff >/dev/null 2>&1; then \
+		ruff format src/ tests/; \
+	elif command -v pipx >/dev/null 2>&1; then \
+		pipx run ruff format src/ tests/; \
+	else \
+		echo "Missing dependency: ruff. Run: make dev (or install via pipx)."; \
+		exit 1; \
+	fi
 
 build: clean ## Build package
 	@$(PYTHON) -c "import build" >/dev/null 2>&1 || (echo "Missing dependency: build. Run: $(PYTHON) -m pip install -e \".[dev]\" (or: $(PYTHON) -m pip install build)" && exit 1)

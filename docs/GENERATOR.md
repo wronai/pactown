@@ -154,10 +154,8 @@ config = generate_config(
 
 The generator looks for port in `markpact:run` blocks:
 
-```markdown
 ```bash markpact:run
 uvicorn main:app --port ${MARKPACT_PORT:-8001}
-```
 ```
 
 Patterns matched:
@@ -170,11 +168,9 @@ Patterns matched:
 
 Extracted from `markpact:test http` blocks:
 
-```markdown
 ```http markpact:test
 GET /health EXPECT 200
 GET /api/users EXPECT 200
-```
 ```
 
 Detects: `/health` (preferred) or first `GET /` endpoint.
@@ -183,12 +179,10 @@ Detects: `/health` (preferred) or first `GET /` endpoint.
 
 From `markpact:deps` blocks:
 
-```markdown
 ```python markpact:deps
 fastapi
 uvicorn
 httpx
-```
 ```
 
 ## Limitations

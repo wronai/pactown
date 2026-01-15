@@ -48,6 +48,7 @@ Pactown enables you to compose multiple independent markpact projects into a uni
 |----------|-------------|
 | [Specification](docs/SPECIFICATION.md) | Architecture and design |
 | [Configuration](docs/CONFIGURATION.md) | YAML config reference |
+| [Deployment](docs/DEPLOYMENT.md) | Production deployment guide (Compose/Kubernetes/Quadlet) |
 | [Network](docs/NETWORK.md) | Dynamic ports & service discovery |
 | [Generator](docs/GENERATOR.md) | Auto-generate configs |
 | [Quadlet](docs/QUADLET.md) | Podman Quadlet deployment for VPS production |

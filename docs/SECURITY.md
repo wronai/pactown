@@ -198,8 +198,10 @@ KillMode=mixed
 Uruchom testy:
 
 ```bash
-cd /home/tom/github/wronai/pactown
-python3 -m pytest tests/test_quadlet_security.py -v
+make test
+
+# lub bez make:
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src python3 -m pytest -p pytest_asyncio.plugin tests/test_quadlet_security.py -v
 ```
 
 ### Pokrycie testów

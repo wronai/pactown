@@ -79,3 +79,4 @@ uvicorn main:app --host 0.0.0.0 --port ${MARKPACT_PORT:-8010} --reload
 GET /health EXPECT 200
 GET /model/info EXPECT 200
 POST /predict BODY {"features":[1.0,2.0,3.0]} EXPECT 200
+```

@@ -191,3 +191,4 @@ GET /health EXPECT 200
 GET /api/users EXPECT 200
 GET /api/stats EXPECT 200
 POST /api/users BODY {"name":"Test","email":"test@example.com"} EXPECT 201
+```
