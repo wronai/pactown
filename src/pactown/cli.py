@@ -13,6 +13,7 @@ from . import __version__
 from .config import EcosystemConfig, load_config
 from .orchestrator import Orchestrator, run_ecosystem
 from .resolver import DependencyResolver
+from .generator import scan_folder, generate_config, print_scan_results
 
 
 console = Console()
@@ -218,6 +219,50 @@ def pull(config_path: str, registry: str):
                         console.print(f"[green]✓ Pulled {dep.name}@{dep.version}[/green]")
                     else:
                         console.print(f"[yellow]⚠ {dep.name} not found in registry[/yellow]")
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        sys.exit(1)
+
+
+@cli.command()
+@click.argument("folder", type=click.Path(exists=True))
+def scan(folder: str):
+    """Scan a folder and show detected services."""
+    print_scan_results(Path(folder))
+
+
+@cli.command()
+@click.argument("folder", type=click.Path(exists=True))
+@click.option("--name", "-n", help="Ecosystem name (default: folder name)")
+@click.option("--output", "-o", default="saas.pactown.yaml", help="Output file")
+@click.option("--base-port", "-p", default=8000, type=int, help="Starting port")
+def generate(folder: str, name: Optional[str], output: str, base_port: int):
+    """Generate pactown config from a folder of README.md files.
+    
+    Example:
+        pactown generate ./examples -o my-ecosystem.pactown.yaml
+    """
+    try:
+        folder_path = Path(folder)
+        output_path = Path(output)
+        
+        console.print(f"[bold]Scanning {folder_path}...[/bold]\n")
+        print_scan_results(folder_path)
+        
+        console.print()
+        config = generate_config(
+            folder=folder_path,
+            name=name,
+            base_port=base_port,
+            output=output_path,
+        )
+        
+        console.print(f"\n[green]✓ Generated {output_path}[/green]")
+        console.print(f"  Services: {len(config['services'])}")
+        console.print(f"\nNext steps:")
+        console.print(f"  pactown validate {output}")
+        console.print(f"  pactown up {output}")
+        
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
         sys.exit(1)

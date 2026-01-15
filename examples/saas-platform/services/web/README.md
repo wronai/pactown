@@ -216,11 +216,15 @@ Modern web frontend for the SaaS platform. Built with vanilla HTML/CSS/JS with A
 
 ```markpact:file python path=server.py
 import os
+from pathlib import Path
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+
+BASE_DIR = Path(__file__).parent
+PUBLIC_DIR = BASE_DIR / "public"
 
 class CORSHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, directory="public", **kwargs)
+        super().__init__(*args, directory=str(PUBLIC_DIR), **kwargs)
     
     def end_headers(self):
         self.send_header('Access-Control-Allow-Origin', '*')
@@ -237,24 +241,26 @@ class CORSHandler(SimpleHTTPRequestHandler):
         # Inject API_URL into index.html
         if self.path == '/' or self.path == '/index.html':
             api_url = os.environ.get('API_URL', 'http://localhost:8001')
-            with open('public/index.html', 'r') as f:
-                content = f.read()
-            content = content.replace(
-                "window.API_URL || 'http://localhost:8001'",
-                f"'{api_url}'"
-            )
-            self.send_response(200)
-            self.send_header('Content-type', 'text/html')
-            self.end_headers()
-            self.wfile.write(content.encode())
-            return
+            index_path = PUBLIC_DIR / "index.html"
+            if index_path.exists():
+                content = index_path.read_text()
+                content = content.replace(
+                    "window.API_URL || 'http://localhost:8001'",
+                    f"'{api_url}'"
+                )
+                self.send_response(200)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(content.encode())
+                return
         
         super().do_GET()
 
 if __name__ == '__main__':
     port = int(os.environ.get('MARKPACT_PORT', 8002))
-    server = HTTPServer(('0.0.0.0', port), CORSHandler)
     print(f'Web server running on http://0.0.0.0:{port}')
+    print(f'Serving from: {PUBLIC_DIR}')
+    server = HTTPServer(('0.0.0.0', port), CORSHandler)
     server.serve_forever()
 ```
 

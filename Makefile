@@ -1,9 +1,16 @@
-.PHONY: help install dev test test-cov lint format build clean registry up down status examples
+.PHONY: help install dev test test-cov lint format build clean registry up down status examples check-pypi-deps publish-pypi bump-patch bump-minor bump-major release
 
 PYTHON ?= python3
 CONFIG ?= saas.pactown.yaml
 README ?= README.md
 SANDBOX ?= ./sandbox
+
+BUMP2VERSION_PY := $(shell $(PYTHON) -c 'import os,sys; print(os.path.join(os.path.dirname(sys.executable),"bump2version"))')
+ifneq (,$(wildcard $(BUMP2VERSION_PY)))
+BUMP2VERSION := $(BUMP2VERSION_PY)
+else
+BUMP2VERSION := bump2version
+endif
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-18s\033[0m %s\n", $$1, $$2}'
@@ -27,6 +34,7 @@ format: ## Format code
 	$(PYTHON) -m ruff format src/ tests/
 
 build: clean ## Build package
+	@$(PYTHON) -c "import build" >/dev/null 2>&1 || (echo "Missing dependency: build. Run: $(PYTHON) -m pip install -e \".[dev]\" (or: $(PYTHON) -m pip install build)" && exit 1)
 	$(PYTHON) -m build
 
 clean: ## Remove build artifacts
@@ -71,7 +79,15 @@ publish: ## Publish all modules to registry
 pull: ## Pull dependencies from registry
 	pactown pull $(CONFIG) --registry http://localhost:8800
 
-publish-pypi: bump-patch build ## Publish to PyPI production (uses ~/.pypirc credentials)
+check-pypi-deps: ## Check dependencies for building/publishing
+	@$(PYTHON) -c "import build" >/dev/null 2>&1 || (echo "Missing dependency: build. Run: $(PYTHON) -m pip install -e \".[dev]\" (or: $(PYTHON) -m pip install build)" && exit 1)
+	@$(PYTHON) -c "import twine" >/dev/null 2>&1 || (echo "Missing dependency: twine. Run: $(PYTHON) -m pip install -e \".[dev]\" (or: $(PYTHON) -m pip install twine)" && exit 1)
+	@$(BUMP2VERSION) --help >/dev/null 2>&1 || (echo "Missing dependency: bump2version. Run: $(PYTHON) -m pip install -e \".[dev]\" (or: $(PYTHON) -m pip install bump2version)" && exit 1)
+
+publish-pypi: ## Publish to PyPI production (uses ~/.pypirc credentials)
+	@$(MAKE) check-pypi-deps
+	@$(MAKE) bump-patch
+	@$(MAKE) build
 	$(PYTHON) -m twine upload dist/*
 
 # Version management
@@ -79,15 +95,15 @@ version: ## Show current version
 	@grep -m1 'version = ' pyproject.toml | cut -d'"' -f2
 
 bump-patch: ## Bump patch version (0.1.0 → 0.1.1)
-	bump2version patch --config-file .bumpversion.cfg --allow-dirty
-	@echo "Bumped to $$(grep -m1 'version = ' pyproject.toml | cut -d'\"' -f2)"
+	$(BUMP2VERSION) patch --config-file .bumpversion.cfg --allow-dirty
+	@echo "Bumped to $$(grep -m1 'version = ' pyproject.toml | cut -d'"' -f2)"
 
 bump-minor: ## Bump minor version (0.1.0 → 0.2.0)
-	bump2version minor --config-file .bumpversion.cfg --allow-dirty
-	@echo "Bumped to $$(grep -m1 'version = ' pyproject.toml | cut -d'\"' -f2)"
+	$(BUMP2VERSION) minor --config-file .bumpversion.cfg --allow-dirty
+	@echo "Bumped to $$(grep -m1 'version = ' pyproject.toml | cut -d'"' -f2)"
 
 bump-major: ## Bump major version (0.1.0 → 1.0.0)
-	bump2version major --config-file .bumpversion.cfg --allow-dirty
-	@echo "Bumped to $$(grep -m1 'version = ' pyproject.toml | cut -d'\"' -f2)"
+	$(BUMP2VERSION) major --config-file .bumpversion.cfg --allow-dirty
+	@echo "Bumped to $$(grep -m1 'version = ' pyproject.toml | cut -d'"' -f2)"
 
-release: bump-patch publish-pypi ## Bump patch and publish
+release: publish-pypi ## Bump patch and publish

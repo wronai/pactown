@@ -15,6 +15,7 @@ from rich.panel import Panel
 from .config import EcosystemConfig, load_config
 from .resolver import DependencyResolver
 from .sandbox_manager import SandboxManager, ServiceProcess
+from .network import ServiceRegistry, ServiceEndpoint
 
 
 console = Console()
@@ -38,20 +39,31 @@ class Orchestrator:
         config: EcosystemConfig,
         base_path: Optional[Path] = None,
         verbose: bool = True,
+        dynamic_ports: bool = True,
     ):
         self.config = config
         self.base_path = base_path or Path.cwd()
         self.verbose = verbose
+        self.dynamic_ports = dynamic_ports
         self.resolver = DependencyResolver(config)
         self.sandbox_manager = SandboxManager(config.sandbox_root)
         self._running: dict[str, ServiceProcess] = {}
+        
+        # Service registry for dynamic port allocation and discovery
+        registry_path = Path(config.sandbox_root) / ".pactown-services.json"
+        self.service_registry = ServiceRegistry(storage_path=registry_path)
     
     @classmethod
-    def from_file(cls, config_path: str | Path, verbose: bool = True) -> "Orchestrator":
+    def from_file(
+        cls, 
+        config_path: str | Path, 
+        verbose: bool = True,
+        dynamic_ports: bool = True,
+    ) -> "Orchestrator":
         """Create orchestrator from configuration file."""
         config_path = Path(config_path)
         config = load_config(config_path)
-        return cls(config, base_path=config_path.parent, verbose=verbose)
+        return cls(config, base_path=config_path.parent, verbose=verbose, dynamic_ports=dynamic_ports)
     
     def _get_readme_path(self, service_name: str) -> Path:
         """Get the README path for a service."""
@@ -86,10 +98,39 @@ class Orchestrator:
         
         service = self.config.services[service_name]
         readme_path = self._get_readme_path(service_name)
-        env = self.resolver.get_environment(service_name)
+        
+        # Register service and get allocated port
+        if self.dynamic_ports:
+            endpoint = self.service_registry.register(
+                name=service_name,
+                preferred_port=service.port,
+                health_check=service.health_check,
+            )
+            actual_port = endpoint.port
+            
+            if self.verbose and actual_port != service.port:
+                console.print(f"  [yellow]Port {service.port} busy, using {actual_port}[/yellow]")
+        else:
+            actual_port = service.port
+        
+        # Get dependencies from config
+        dep_names = [d.name for d in service.depends_on]
+        
+        # Build environment with service discovery
+        env = self.service_registry.get_environment(service_name, dep_names)
+        
+        # Add any extra env from config
+        env.update(service.env)
+        env["PACTOWN_ECOSYSTEM"] = self.config.name
+        
+        # Override port in service config for this run
+        service_copy = service
+        if actual_port != service.port:
+            from dataclasses import replace
+            service_copy = replace(service, port=actual_port)
         
         process = self.sandbox_manager.start_service(
-            service, readme_path, env, verbose=self.verbose
+            service_copy, readme_path, env, verbose=self.verbose
         )
         self._running[service_name] = process
         return process
@@ -146,6 +187,8 @@ class Orchestrator:
         for name in order:
             if name in self._running:
                 self.stop_service(name)
+            # Unregister from service registry
+            self.service_registry.unregister(name)
         
         self.sandbox_manager.stop_all()
         self._running.clear()
@@ -172,7 +215,10 @@ class Orchestrator:
         if not service.health_check:
             return ServiceHealth(name=service_name, healthy=True)
         
-        url = f"http://localhost:{service.port}{service.health_check}"
+        # Get actual port from registry (may differ from config if dynamic)
+        endpoint = self.service_registry.get(service_name)
+        port = endpoint.port if endpoint else service.port
+        url = f"http://localhost:{port}{service.health_check}"
         
         try:
             start = time.time()
@@ -199,7 +245,10 @@ class Orchestrator:
         if not service.health_check:
             return True
         
-        url = f"http://localhost:{service.port}{service.health_check}"
+        # Get actual port from registry
+        endpoint = self.service_registry.get(service_name)
+        port = endpoint.port if endpoint else service.port
+        url = f"http://localhost:{port}{service.health_check}"
         deadline = time.time() + timeout
         
         while time.time() < deadline:
@@ -226,6 +275,10 @@ class Orchestrator:
         table.add_column("Health")
         
         for name, service in self.config.services.items():
+            # Get actual port from registry
+            endpoint = self.service_registry.get(name)
+            actual_port = endpoint.port if endpoint else service.port
+            
             if name in self._running:
                 proc = self._running[name]
                 running = "🟢 Running" if proc.is_running else "🔴 Stopped"
@@ -240,10 +293,11 @@ class Orchestrator:
                 running = "⚪ Not started"
                 pid = "-"
                 health_str = "-"
+                actual_port = service.port  # Use config port if not registered
             
             table.add_row(
                 name,
-                str(service.port) if service.port else "-",
+                str(actual_port) if actual_port else "-",
                 running,
                 pid,
                 health_str,

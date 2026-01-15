@@ -44,18 +44,15 @@ services:
         endpoint: http://localhost:8001
         env_var: API_URL
 
-  # CLI tool - depends on API and Database
-  cli:
-    readme: services/cli/README.md
-    port: null  # CLI doesn't need a port
-    timeout: 10
-    depends_on:
-      - name: api
-        endpoint: http://localhost:8001
-        env_var: API_URL
-      - name: database
-        endpoint: http://localhost:8003
-        env_var: DATABASE_URL
+  # CLI tool - one-shot command, not a long-running service
+  # Uncomment to include in ecosystem (runs once and exits)
+  # cli:
+  #   readme: services/cli/README.md
+  #   port: null
+  #   timeout: 10
+  #   depends_on:
+  #     - name: api
+  #     - name: database
 
   # API Gateway - depends on all services, starts last
   gateway:

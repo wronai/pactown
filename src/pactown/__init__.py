@@ -6,6 +6,7 @@ from .config import EcosystemConfig, ServiceConfig, DependencyConfig
 from .orchestrator import Orchestrator
 from .resolver import DependencyResolver
 from .sandbox_manager import SandboxManager
+from .network import ServiceRegistry, PortAllocator, ServiceEndpoint, find_free_port
 
 __all__ = [
     "EcosystemConfig",
@@ -14,5 +15,9 @@ __all__ = [
     "Orchestrator",
     "DependencyResolver",
     "SandboxManager",
+    "ServiceRegistry",
+    "PortAllocator",
+    "ServiceEndpoint",
+    "find_free_port",
     "__version__",
 ]

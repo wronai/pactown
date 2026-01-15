@@ -1,3 +1,5 @@
+![img.png](img.png)
+
 # Pactown 🏘️
 
 **Decentralized Service Ecosystem Orchestrator** – Build interconnected microservices from Markdown using [markpact](https://github.com/wronai/markpact).
@@ -11,20 +13,20 @@ Pactown enables you to compose multiple independent markpact projects into a uni
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     Pactown Ecosystem                            │
+│                     Pactown Ecosystem                           │
 ├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐  │
-│  │   Web    │───▶│   API    │───▶│ Database │    │   CLI    │  │
-│  │ :8002    │    │  :8001   │    │  :8003   │    │  shell   │  │
-│  │ React    │    │ FastAPI  │    │ Postgres │    │  Python  │  │
-│  └──────────┘    └──────────┘    └──────────┘    └──────────┘  │
+│                                                                 │
+│  ┌──────────┐    ┌──────────┐    ┌──────────┐    ┌──────────┐   │
+│  │   Web    │───▶│   API    │───▶│ Database │    │   CLI    │   │
+│  │ :8002    │    │  :8001   │    │  :8003   │    │  shell   │   │
+│  │ React    │    │ FastAPI  │    │ Postgres │    │  Python  │   │
+│  └──────────┘    └──────────┘    └──────────┘    └──────────┘   │
 │       │               │               │               │         │
 │       ▼               ▼               ▼               ▼         │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │              markpact sandboxes (isolated)                │  │
-│  └──────────────────────────────────────────────────────────┘  │
-│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │              markpact sandboxes (isolated)               │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -36,6 +38,29 @@ Pactown enables you to compose multiple independent markpact projects into a uni
 - **🏥 Health Checks** – Monitor service health with configurable endpoints
 - **🌐 Multi-Language** – Mix Python, Node.js, Go, Rust in one ecosystem
 - **🔒 Isolated Sandboxes** – Each service runs in its own environment
+- **🔌 Dynamic Ports** – Automatic port allocation when preferred ports are busy
+- **🔍 Service Discovery** – Name-based service lookup, no hardcoded URLs
+- **⚡ Config Generator** – Auto-generate config from folder of READMEs
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Specification](docs/SPECIFICATION.md) | Architecture and design |
+| [Configuration](docs/CONFIGURATION.md) | YAML config reference |
+| [Network](docs/NETWORK.md) | Dynamic ports & service discovery |
+| [Generator](docs/GENERATOR.md) | Auto-generate configs |
+
+### Source Code Reference
+
+| Module | Description |
+|--------|-------------|
+| [`config.py`](src/pactown/config.py) | Configuration models |
+| [`orchestrator.py`](src/pactown/orchestrator.py) | Service lifecycle management |
+| [`resolver.py`](src/pactown/resolver.py) | Dependency resolution |
+| [`network.py`](src/pactown/network.py) | Port allocation & discovery |
+| [`generator.py`](src/pactown/generator.py) | Config file generator |
+| [`registry/`](src/pactown/registry/) | Local artifact registry |
 
 ## Installation
 
@@ -110,6 +135,33 @@ uvicorn main:app --port ${MARKPACT_PORT:-8001}
 pactown up saas.pactown.yaml
 ```
 
+
+
+```bash
+INFO:     127.0.0.1:57432 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59272 - "GET /health HTTP/1.1" 200 OK
+127.0.0.1 - - [15/Jan/2026 14:15:17] "GET /health HTTP/1.1" 200 -
+INFO:     127.0.0.1:59300 - "GET /health HTTP/1.1" 200 OK
+                Ecosystem: saas-platform                 
+┏━━━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━┳━━━━━━━━━━━━━━┓
+┃ Service  ┃ Port  ┃ Status     ┃ PID    ┃ Health       ┃
+┡━━━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━╇━━━━━━━━━━━━━━┩
+│ database │ 10000 │ 🟢 Running │ 534102 │ ✓ 22ms       │
+│ api      │ 10001 │ 🟢 Running │ 534419 │ ✓ 23ms       │
+│ web      │ 10002 │ 🟢 Running │ 534424 │ ✓ 29ms       │
+│ cli      │ 10003 │ 🔴 Stopped │ 534734 │ Process died │
+│ gateway  │ 10004 │ 🟢 Running │ 535242 │ ✓ 23ms       │
+└──────────┴───────┴────────────┴────────┴──────────────┘
+
+Press Ctrl+C to stop all services
+
+127.0.0.1 - - [15/Jan/2026 14:15:29] "GET / HTTP/1.1" 200 -
+INFO:     127.0.0.1:42964 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53998 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54008 - "GET /api/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36100 - "GET /records/users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54012 - "GET /api/users HTTP/1.1" 200 OK
+```
 ## Commands
 
 | Command | Description |
@@ -186,7 +238,7 @@ See the `examples/` directory for complete ecosystem examples:
 
 ## Architecture
 
-```
+```bash
 pactown/
 ├── src/pactown/
 │   ├── __init__.py          # Package exports

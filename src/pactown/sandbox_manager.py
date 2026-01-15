@@ -3,11 +3,13 @@
 import os
 import shutil
 import subprocess
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, Any
+from typing import Optional, Any, Callable
 import signal
 import time
+from threading import Lock
 
 from markpact import Sandbox, parse_blocks, run_cmd, ensure_venv
 from markpact.runner import install_deps
@@ -209,3 +211,118 @@ class SandboxManager:
         if self.sandbox_root.exists():
             shutil.rmtree(self.sandbox_root)
         self.sandbox_root.mkdir(parents=True)
+    
+    def create_sandboxes_parallel(
+        self,
+        services: list[tuple[ServiceConfig, Path]],
+        max_workers: int = 4,
+        on_complete: Optional[Callable[[str, bool, float], None]] = None,
+    ) -> dict[str, Sandbox]:
+        """
+        Create sandboxes for multiple services in parallel.
+        
+        Args:
+            services: List of (ServiceConfig, readme_path) tuples
+            max_workers: Maximum parallel workers
+            on_complete: Callback(name, success, duration)
+        
+        Returns:
+            Dict of {service_name: Sandbox}
+        """
+        results: dict[str, Sandbox] = {}
+        errors: dict[str, str] = {}
+        lock = Lock()
+        
+        def create_one(service: ServiceConfig, readme_path: Path) -> tuple[str, Sandbox]:
+            sandbox = self.create_sandbox(service, readme_path)
+            return service.name, sandbox
+        
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {}
+            start_times = {}
+            
+            for service, readme_path in services:
+                start_times[service.name] = time.time()
+                future = executor.submit(create_one, service, readme_path)
+                futures[future] = service.name
+            
+            for future in as_completed(futures):
+                name = futures[future]
+                duration = time.time() - start_times[name]
+                
+                try:
+                    _, sandbox = future.result()
+                    with lock:
+                        results[name] = sandbox
+                    if on_complete:
+                        on_complete(name, True, duration)
+                except Exception as e:
+                    with lock:
+                        errors[name] = str(e)
+                    if on_complete:
+                        on_complete(name, False, duration)
+        
+        if errors:
+            error_msg = "; ".join(f"{k}: {v}" for k, v in errors.items())
+            raise RuntimeError(f"Failed to create sandboxes: {error_msg}")
+        
+        return results
+    
+    def start_services_parallel(
+        self,
+        services: list[tuple[ServiceConfig, Path, dict[str, str]]],
+        max_workers: int = 4,
+        on_complete: Optional[Callable[[str, bool, float], None]] = None,
+    ) -> dict[str, ServiceProcess]:
+        """
+        Start multiple services in parallel.
+        
+        Note: Should only be used for services with no inter-dependencies.
+        For dependent services, use the orchestrator's wave-based approach.
+        
+        Args:
+            services: List of (ServiceConfig, readme_path, env) tuples
+            max_workers: Maximum parallel workers
+            on_complete: Callback(name, success, duration)
+        
+        Returns:
+            Dict of {service_name: ServiceProcess}
+        """
+        results: dict[str, ServiceProcess] = {}
+        errors: dict[str, str] = {}
+        lock = Lock()
+        
+        def start_one(
+            service: ServiceConfig, 
+            readme_path: Path, 
+            env: dict[str, str]
+        ) -> tuple[str, ServiceProcess]:
+            proc = self.start_service(service, readme_path, env, verbose=False)
+            return service.name, proc
+        
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {}
+            start_times = {}
+            
+            for service, readme_path, env in services:
+                start_times[service.name] = time.time()
+                future = executor.submit(start_one, service, readme_path, env)
+                futures[future] = service.name
+            
+            for future in as_completed(futures):
+                name = futures[future]
+                duration = time.time() - start_times[name]
+                
+                try:
+                    _, proc = future.result()
+                    with lock:
+                        results[name] = proc
+                    if on_complete:
+                        on_complete(name, True, duration)
+                except Exception as e:
+                    with lock:
+                        errors[name] = str(e)
+                    if on_complete:
+                        on_complete(name, False, duration)
+        
+        return results, errors
