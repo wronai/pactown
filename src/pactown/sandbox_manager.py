@@ -11,9 +11,9 @@ import signal
 import time
 from threading import Lock
 
-from markpact import Sandbox, parse_blocks, run_cmd, ensure_venv
+from markpact import Sandbox, run_cmd, ensure_venv
 from markpact.runner import install_deps
-
+from .markpact_blocks import parse_blocks
 from .config import ServiceConfig
 
 

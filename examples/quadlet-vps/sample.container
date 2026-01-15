@@ -1,0 +1,44 @@
+[Unit]
+Description=Pactown Markdown Service Example
+After=network-online.target traefik.service
+Wants=network-online.target
+
+[Container]
+ContainerName=example-docs
+Image=ghcr.io/pactown/markdown-server:latest
+
+# Mount local markdown file
+Volume=/path/to/your/README.md:/app/content/README.md:ro
+
+# Environment
+Environment=MARKDOWN_TITLE=My Documentation
+Environment=MARKDOWN_THEME=github
+Environment=PORT=8080
+
+# Traefik routing labels
+Label=traefik.enable=true
+Label=traefik.http.routers.docs.rule=Host(`docs.example.com`)
+Label=traefik.http.routers.docs.entrypoints=websecure
+Label=traefik.http.services.docs.loadbalancer.server.port=8080
+Label=traefik.http.routers.docs.tls=true
+Label=traefik.http.routers.docs.tls.certresolver=letsencrypt
+
+# Resource limits
+PodmanArgs=--cpus=0.5 --memory=256M --memory-reservation=512M
+
+# Security hardening
+PodmanArgs=--security-opt=no-new-privileges:true
+PodmanArgs=--read-only
+PodmanArgs=--tmpfs=/tmp:rw,noexec,nosuid
+
+# Auto-update from registry
+AutoUpdate=registry
+
+[Service]
+Restart=always
+RestartSec=5
+TimeoutStartSec=300
+TimeoutStopSec=70
+
+[Install]
+WantedBy=default.target

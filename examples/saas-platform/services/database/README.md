@@ -15,15 +15,13 @@ Simple key-value database service with REST API. Provides persistent storage for
 
 Data is persisted to SQLite database in the sandbox directory.
 
----
-
-```markpact:deps python
+```python markpact:deps
 fastapi
 uvicorn
 aiosqlite
 ```
 
-```markpact:file python path=db.py
+```python markpact:file path=db.py
 import aiosqlite
 import json
 from pathlib import Path
@@ -125,7 +123,7 @@ async def get_stats() -> dict:
         }
 ```
 
-```markpact:file python path=main.py
+```python markpact:file path=main.py
 import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
@@ -196,14 +194,13 @@ async def delete_record_by_id(collection: str, record_id: int):
     raise HTTPException(status_code=404, detail="Record not found")
 ```
 
-```markpact:run python
+```bash markpact:run
 uvicorn main:app --host 0.0.0.0 --port ${MARKPACT_PORT:-8003} --reload
 ```
 
-```markpact:test http
+```http markpact:test
 GET /health EXPECT 200
 GET /collections EXPECT 200
 GET /stats EXPECT 200
 POST /records/test BODY {"name":"item1"} EXPECT 201
 GET /records/test EXPECT 200
-```

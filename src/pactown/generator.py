@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Optional
 import yaml
 
-from markpact import parse_blocks
+from .markpact_blocks import parse_blocks
 
 
 def scan_readme(readme_path: Path) -> dict:

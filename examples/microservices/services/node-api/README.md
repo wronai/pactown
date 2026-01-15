@@ -11,7 +11,7 @@ REST API service using Node.js and Express. Demonstrates JavaScript service in a
 
 ---
 
-```markpact:file json path=package.json
+```json markpact:file path=package.json
 {
   "name": "node-api-service",
   "version": "1.0.0",
@@ -26,7 +26,7 @@ REST API service using Node.js and Express. Demonstrates JavaScript service in a
 }
 ```
 
-```markpact:file javascript path=server.js
+```javascript markpact:file path=server.js
 import express from "express";
 
 const app = express();
@@ -92,12 +92,12 @@ app.listen(port, "0.0.0.0", () => {
 });
 ```
 
-```markpact:run shell
+```bash markpact:run
 npm install
 MARKPACT_PORT=${MARKPACT_PORT:-3000} npm start
 ```
 
-```markpact:test http
+```http markpact:test
 GET /health EXPECT 200
 GET /api/items EXPECT 200
 POST /api/items BODY {"name":"test","value":42} EXPECT 201

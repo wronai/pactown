@@ -1,6 +1,6 @@
 project: pactown
-generated: "2026-01-15T17:47:25.491803"
-modules[33]{path,lang,items}:
+generated: "2026-01-15T19:09:49.940018"
+modules[34]{path,lang,items}:
   tests/test_deploy_dockerfile.py,python,2
   tests/test_resolver.py,python,10
   tests/__init__.py,python,0
@@ -13,6 +13,7 @@ modules[33]{path,lang,items}:
   src/pactown/generator.py,python,4
   src/pactown/parallel.py,python,6
   src/pactown/__init__.py,python,0
+  src/pactown/markpact_blocks.py,python,2
   src/pactown/orchestrator.py,python,18
   src/pactown/resolver.py,python,8
   src/pactown/sandbox_manager.py,python,13
@@ -135,6 +136,10 @@ function_details:
       format_parallel_results,function,"(results:dict[str,TaskResult]) -> str",252-268,false,17,8,Format parallel execution results for display.
       ParallelSandboxBuilder.__init__,method,"(max_workers:int=4) -> None",217-219,false,3,1,creates
       ParallelSandboxBuilder.build_sandboxes,method,"(services:list[tuple[str,Path,Callable]], on_complete:Optional[Callable[Any,None]]=None) -> dict[str, TaskResult]",221-249,false,29,2,Build sandboxes for multiple services in parallel.
+  src/pactown/markpact_blocks.py:
+    functions[2]{name,kind,sig,loc,async,lines,cc,does}:
+      parse_blocks,function,"(text:str) -> list[Block]",24-33,false,10,4,parses blocks
+      Block.get_path,method,() -> str | None,19-21,false,3,2,retrieves path
   src/pactown/orchestrator.py:
     functions[18]{name,kind,sig,loc,async,lines,cc,does}:
       run_ecosystem,function,"(config_path:Any, wait:bool=True) -> Orchestrator",437-455,false,19,5,Convenience function to start an ecosystem.

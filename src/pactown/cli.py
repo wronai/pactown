@@ -338,6 +338,236 @@ def deploy(config_path: str, output: str, production: bool, kubernetes: bool):
         sys.exit(1)
 
 
+@cli.group()
+def quadlet():
+    """Podman Quadlet deployment commands for VPS production."""
+    pass
+
+
+@quadlet.command("shell")
+@click.option("--tenant", "-t", default="default", help="Tenant ID")
+@click.option("--domain", "-d", default="localhost", help="Base domain")
+@click.option("--system", is_flag=True, help="Use system-wide systemd (requires root)")
+def quadlet_shell(tenant: str, domain: str, system: bool):
+    """Start interactive Quadlet deployment shell.
+    
+    Example:
+        pactown quadlet shell --domain pactown.com --tenant user01
+    """
+    from .deploy.quadlet_shell import run_shell
+    run_shell(tenant_id=tenant, domain=domain, user_mode=not system)
+
+
+@quadlet.command("api")
+@click.option("--host", "-h", default="0.0.0.0", help="API host")
+@click.option("--port", "-p", default=8800, type=int, help="API port")
+@click.option("--domain", "-d", default="localhost", help="Default domain")
+@click.option("--tenant", "-t", default="default", help="Default tenant")
+def quadlet_api(host: str, port: int, domain: str, tenant: str):
+    """Start Quadlet API server for programmatic deployments.
+    
+    Example:
+        pactown quadlet api --port 8800 --domain pactown.com
+    """
+    from .deploy.quadlet_api import run_api
+    console.print(f"[bold]Starting Quadlet API server...[/bold]")
+    console.print(f"  Host: {host}:{port}")
+    console.print(f"  Domain: {domain}")
+    console.print(f"  Docs: http://{host}:{port}/docs")
+    run_api(host=host, port=port, domain=domain, tenant=tenant)
+
+
+@quadlet.command("generate")
+@click.argument("markdown_path", type=click.Path(exists=True))
+@click.option("--output", "-o", default=".", help="Output directory")
+@click.option("--domain", "-d", default="localhost", help="Domain")
+@click.option("--subdomain", "-s", help="Subdomain")
+@click.option("--tenant", "-t", default="default", help="Tenant ID")
+@click.option("--tls/--no-tls", default=False, help="Enable TLS")
+def quadlet_generate(markdown_path: str, output: str, domain: str, subdomain: str, tenant: str, tls: bool):
+    """Generate Quadlet files for a Markdown service.
+    
+    Example:
+        pactown quadlet generate ./README.md --domain pactown.com --subdomain docs
+    """
+    from .deploy.quadlet import QuadletConfig, generate_markdown_service_quadlet
+    
+    config = QuadletConfig(
+        tenant_id=tenant,
+        domain=domain,
+        subdomain=subdomain,
+        tls_enabled=tls,
+    )
+    
+    units = generate_markdown_service_quadlet(
+        markdown_path=Path(markdown_path).resolve(),
+        config=config,
+    )
+    
+    output_dir = Path(output)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    for unit in units:
+        path = output_dir / unit.filename
+        path.write_text(unit.content)
+        console.print(f"[green]✓ Generated: {path}[/green]")
+    
+    console.print(f"\n[bold]Deploy with:[/bold]")
+    console.print(f"  cp {output}/*.container ~/.config/containers/systemd/tenant-{tenant}/")
+    console.print(f"  systemctl --user daemon-reload")
+    console.print(f"  systemctl --user enable --now {units[0].name}.service")
+
+
+@quadlet.command("init")
+@click.option("--domain", "-d", required=True, help="Domain for Traefik")
+@click.option("--email", "-e", help="Email for Let's Encrypt")
+@click.option("--system", is_flag=True, help="Use system-wide systemd")
+def quadlet_init(domain: str, email: str, system: bool):
+    """Initialize Quadlet environment with Traefik.
+    
+    Example:
+        pactown quadlet init --domain pactown.com --email admin@pactown.com
+    """
+    from .deploy.quadlet import QuadletConfig, generate_traefik_quadlet
+    
+    config = QuadletConfig(domain=domain, user_mode=not system)
+    
+    # Create directories
+    config.systemd_path.mkdir(parents=True, exist_ok=True)
+    console.print(f"[green]✓ Created: {config.systemd_path}[/green]")
+    
+    # Generate Traefik
+    units = generate_traefik_quadlet(config)
+    
+    for unit in units:
+        content = unit.content
+        if email:
+            content = content.replace(f"admin@{domain}", email)
+        
+        path = config.systemd_path / unit.filename
+        path.write_text(content)
+        console.print(f"[green]✓ Generated: {path}[/green]")
+    
+    console.print(f"\n[bold]Start Traefik:[/bold]")
+    mode = "" if system else " --user"
+    console.print(f"  systemctl{mode} daemon-reload")
+    console.print(f"  systemctl{mode} enable --now traefik.service")
+
+
+@quadlet.command("deploy")
+@click.argument("markdown_path", type=click.Path(exists=True))
+@click.option("--domain", "-d", required=True, help="Domain")
+@click.option("--subdomain", "-s", help="Subdomain")
+@click.option("--tenant", "-t", default="default", help="Tenant ID")
+@click.option("--tls/--no-tls", default=True, help="Enable TLS")
+@click.option("--image", default="ghcr.io/pactown/markdown-server:latest", help="Container image")
+def quadlet_deploy(markdown_path: str, domain: str, subdomain: str, tenant: str, tls: bool, image: str):
+    """Deploy a Markdown file to VPS using Quadlet.
+    
+    Example:
+        pactown quadlet deploy ./README.md --domain pactown.com --subdomain docs --tls
+    """
+    from .deploy.quadlet import QuadletConfig, QuadletBackend, generate_markdown_service_quadlet
+    from .deploy.base import DeploymentConfig
+    
+    config = QuadletConfig(
+        tenant_id=tenant,
+        domain=domain,
+        subdomain=subdomain,
+        tls_enabled=tls,
+    )
+    
+    deploy_config = DeploymentConfig.for_production()
+    backend = QuadletBackend(deploy_config, config)
+    
+    if not backend.is_available():
+        console.print("[red]✗ Podman 4.4+ with Quadlet support not available[/red]")
+        sys.exit(1)
+    
+    md_path = Path(markdown_path).resolve()
+    console.print(f"[bold]Deploying: {md_path.name}[/bold]")
+    console.print(f"  Domain: {config.full_domain}")
+    console.print(f"  Tenant: {tenant}")
+    console.print(f"  TLS: {tls}")
+    
+    # Generate units
+    units = generate_markdown_service_quadlet(md_path, config, image)
+    
+    # Save to tenant path
+    config.tenant_path.mkdir(parents=True, exist_ok=True)
+    for unit in units:
+        unit.save(config.tenant_path)
+        console.print(f"[dim]Created: {unit.filename}[/dim]")
+    
+    # Reload and start
+    backend._systemctl("daemon-reload")
+    service = f"{units[0].name}.service"
+    backend._systemctl("enable", service)
+    result = backend._systemctl("start", service)
+    
+    if result.returncode == 0:
+        url = f"https://{config.full_domain}" if tls else f"http://{config.full_domain}"
+        console.print(f"\n[green]✓ Deployed successfully![/green]")
+        console.print(f"  URL: {url}")
+    else:
+        console.print(f"\n[red]✗ Deployment failed: {result.stderr}[/red]")
+        sys.exit(1)
+
+
+@quadlet.command("list")
+@click.option("--tenant", "-t", default="default", help="Tenant ID")
+def quadlet_list(tenant: str):
+    """List all Quadlet services for a tenant.
+    
+    Example:
+        pactown quadlet list --tenant user01
+    """
+    from .deploy.quadlet import QuadletConfig, QuadletBackend
+    from .deploy.base import DeploymentConfig
+    from rich.table import Table
+    
+    config = QuadletConfig(tenant_id=tenant)
+    backend = QuadletBackend(DeploymentConfig.for_production(), config)
+    
+    services = backend.list_services()
+    
+    if not services:
+        console.print(f"[yellow]No services found for tenant: {tenant}[/yellow]")
+        return
+    
+    table = Table(title=f"Services (tenant: {tenant})")
+    table.add_column("Name", style="cyan")
+    table.add_column("Status", style="green")
+    table.add_column("State")
+    
+    for svc in services:
+        status = svc["status"]
+        running = "🟢 running" if status.get("running") else "🔴 stopped"
+        table.add_row(svc["name"], running, status.get("state", "-"))
+    
+    console.print(table)
+
+
+@quadlet.command("logs")
+@click.argument("service_name")
+@click.option("--tenant", "-t", default="default", help="Tenant ID")
+@click.option("--lines", "-n", default=50, type=int, help="Number of lines")
+def quadlet_logs(service_name: str, tenant: str, lines: int):
+    """Show logs for a Quadlet service.
+    
+    Example:
+        pactown quadlet logs my-service --lines 100
+    """
+    from .deploy.quadlet import QuadletConfig, QuadletBackend
+    from .deploy.base import DeploymentConfig
+    
+    config = QuadletConfig(tenant_id=tenant)
+    backend = QuadletBackend(DeploymentConfig.for_production(), config)
+    
+    output = backend.logs(service_name, tail=lines)
+    console.print(output or "[dim]No logs available[/dim]")
+
+
 def main(argv=None):
     """Main entry point."""
     cli(argv)

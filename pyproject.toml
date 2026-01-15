@@ -50,6 +50,7 @@ dev = [
 [project.scripts]
 pactown = "pactown.cli:main"
 pactown-registry = "pactown.registry.server:main"
+pactown-quadlet-api = "pactown.deploy.quadlet_api:run_api"
 
 [project.urls]
 Homepage = "https://github.com/wronai/pactown"

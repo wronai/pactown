@@ -11,7 +11,7 @@ Lightweight API gateway written in Go. Demonstrates Go service in a polyglot eco
 
 ---
 
-```markpact:file go path=main.go
+```go markpact:file path=main.go
 package main
 
 import (
@@ -185,17 +185,16 @@ func main() {
 }
 ```
 
-```markpact:file text path=go.mod
+```text markpact:file path=go.mod
 module go-gateway
 
 go 1.21
 ```
 
-```markpact:run shell
+```bash markpact:run
 go run main.go
 ```
 
-```markpact:test http
+```http markpact:test
 GET /health EXPECT 200
 GET /status EXPECT 200
-```

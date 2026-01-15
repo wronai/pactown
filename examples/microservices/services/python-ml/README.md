@@ -10,13 +10,13 @@ Machine learning prediction service using Python. Demonstrates Python service in
 
 ---
 
-```markpact:deps python
+```python markpact:deps
 fastapi
 uvicorn
 numpy
 ```
 
-```markpact:file python path=main.py
+```python markpact:file path=main.py
 import os
 import random
 from fastapi import FastAPI
@@ -71,12 +71,11 @@ if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=port)
 ```
 
-```markpact:run python
+```bash markpact:run
 uvicorn main:app --host 0.0.0.0 --port ${MARKPACT_PORT:-8010} --reload
 ```
 
-```markpact:test http
+```http markpact:test
 GET /health EXPECT 200
 GET /model/info EXPECT 200
 POST /predict BODY {"features":[1.0,2.0,3.0]} EXPECT 200
-```

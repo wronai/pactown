@@ -1,6 +1,6 @@
-# pactown | 33f 5916L | python:33
+# pactown | 34f 5950L | python:34
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
-M[33]:
+M[34]:
   tests/test_deploy_dockerfile.py,29
   tests/test_resolver.py,109
   tests/__init__.py,1
@@ -13,9 +13,10 @@ M[33]:
   src/pactown/generator.py,164
   src/pactown/parallel.py,211
   src/pactown/__init__.py,20
+  src/pactown/markpact_blocks.py,26
   src/pactown/orchestrator.py,349
   src/pactown/resolver.py,122
-  src/pactown/sandbox_manager.py,274
+  src/pactown/sandbox_manager.py,275
   src/pactown/network.py,194
   src/pactown/deploy/base.py,198
   src/pactown/deploy/docker.py,246
@@ -113,7 +114,7 @@ D:
     init(name:str;output:str)->None
     publish(config_path:str;registry:str)->None
   src/pactown/generator.py:
-    i: re,yaml,markpact.parse_blocks,pathlib.Path,typing.Optional
+    i: re,yaml,markpact_blocks.parse_blocks,pathlib.Path,typing.Optional
     e: scan_readme,scan_folder,generate_config,print_scan_results
     scan_readme(readme_path:Path)->dict
     scan_folder(folder:Path;recursive:bool=True;pattern:str='README.md')->list[dict]
@@ -128,6 +129,11 @@ D:
     run_in_dependency_waves(tasks:dict[str;Callable[Any;Any]];dependencies:dict[str;list[str]];max_workers:int=4;on_complete:Optional[Callable[Any;None]]=None)->dict[str, TaskResult]
     run_parallel_async(tasks:dict[str;Callable[Any;Any]];max_concurrent:int=4)->dict[str, TaskResult]
     format_parallel_results(results:dict[str;TaskResult])->str
+  src/pactown/markpact_blocks.py:
+    i: re,dataclasses.dataclass
+    e: CODEBLOCK_RE,Block,parse_blocks
+    Block: get_path(0)
+    parse_blocks(text:str)->list[Block]
   src/pactown/orchestrator.py:
     i: asyncio,time,httpx,dataclasses.{dataclass,field},pathlib.Path,rich.console.Console,rich.table.Table,typing.{Callable,Optional}
     e: ServiceHealth,Orchestrator,run_ecosystem

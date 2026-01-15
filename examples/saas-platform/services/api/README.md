@@ -18,14 +18,14 @@ REST API backend for the SaaS platform. Provides user management, data endpoints
 
 ---
 
-```markpact:deps python
+```python markpact:deps
 fastapi
 uvicorn
 httpx
 pydantic
 ```
 
-```markpact:file python path=app/models.py
+```python markpact:file path=app/models.py
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import datetime
@@ -46,7 +46,7 @@ class Stats(BaseModel):
     uptime_seconds: float
 ```
 
-```markpact:file python path=app/database.py
+```python markpact:file path=app/database.py
 from datetime import datetime
 import os
 import httpx
@@ -128,7 +128,7 @@ def get_stats() -> dict:
     }
 ```
 
-```markpact:file python path=app/main.py
+```python markpact:file path=app/main.py
 import os
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -182,13 +182,12 @@ def get_statistics():
     return get_stats()
 ```
 
-```markpact:run python
+```bash markpact:run
 uvicorn app.main:app --host 0.0.0.0 --port ${MARKPACT_PORT:-8001} --reload
 ```
 
-```markpact:test http
+```http markpact:test
 GET /health EXPECT 200
 GET /api/users EXPECT 200
 GET /api/stats EXPECT 200
 POST /api/users BODY {"name":"Test","email":"test@example.com"} EXPECT 201
-```
