@@ -183,3 +183,4 @@ uvicorn gateway:app --host 0.0.0.0 --port ${MARKPACT_PORT:-8000} --reload
 GET /health EXPECT 200
 GET /gateway/health EXPECT 200
 GET /gateway/routes EXPECT 200
+```

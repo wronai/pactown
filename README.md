@@ -116,31 +116,31 @@ services:
 
 Each service is a standard markpact README:
 
-```markdown
+````markdown
 # API Service
 
 REST API for the application.
 
 ---
 
-\`\`\`markpact:deps python
+```python markpact:deps
 fastapi
 uvicorn
-\`\`\`
+```
 
-\`\`\`markpact:file python path=main.py
+```python markpact:file path=main.py
 from fastapi import FastAPI
 app = FastAPI()
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
-\`\`\`
-
-\`\`\`markpact:run python
-uvicorn main:app --port ${MARKPACT_PORT:-8001}
-\`\`\`
 ```
+
+```bash markpact:run
+uvicorn main:app --port ${MARKPACT_PORT:-8001}
+```
+````
 
 ### 3. Start the ecosystem
 

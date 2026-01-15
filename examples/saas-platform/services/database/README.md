@@ -205,3 +205,4 @@ GET /collections EXPECT 200
 GET /stats EXPECT 200
 POST /records/test BODY {"name":"item1"} EXPECT 201
 GET /records/test EXPECT 200
+```

@@ -201,3 +201,4 @@ python cli.py --version
 python cli.py users list
 python cli.py stats
 python cli.py health
+```

@@ -271,3 +271,4 @@ python server.py
 ```http markpact:test
 GET /health EXPECT 200
 GET / EXPECT 200
+```

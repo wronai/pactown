@@ -153,11 +153,12 @@ config = generate_config(
 ### Port Detection
 
 The generator looks for port in `markpact:run` blocks:
-
+ 
+````markdown
 ```bash markpact:run
 uvicorn main:app --port ${MARKPACT_PORT:-8001}
 ```
-
+````
 Patterns matched:
 - `--port ${MARKPACT_PORT:-8001}` → 8001
 - `--port 8080` → 8080
@@ -167,24 +168,26 @@ Patterns matched:
 ### Health Check Detection
 
 Extracted from `markpact:test http` blocks:
-
+ 
+````markdown
 ```http markpact:test
 GET /health EXPECT 200
 GET /api/users EXPECT 200
 ```
-
+````
 Detects: `/health` (preferred) or first `GET /` endpoint.
 
 ### Dependencies
 
 From `markpact:deps` blocks:
-
+ 
+````markdown
 ```python markpact:deps
 fastapi
 uvicorn
 httpx
 ```
-
+````
 ## Limitations
 
 - **No dependency inference** – doesn't detect cross-service dependencies

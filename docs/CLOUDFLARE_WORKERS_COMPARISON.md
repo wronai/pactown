@@ -136,9 +136,11 @@ async def hello():
 
 **Quadlet deployment:**
 ```bash
-pactown quadlet deploy ./main.py \
+# Example using a README.md-based service (recommended pattern)
+pactown quadlet deploy ./examples/api-gateway-webhooks/README.md \
     --domain example.com \
     --subdomain api \
+    --tenant gateway \
     --tls
 ```
 
