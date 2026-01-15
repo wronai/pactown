@@ -17,13 +17,13 @@ Command-line interface for managing the SaaS platform. Provides admin operations
 
 ---
 
-```markpact:deps python
+```python markpact:deps
 click
 rich
 httpx
 ```
 
-```markpact:file python path=cli.py
+```python markpact:file path=cli.py
 #!/usr/bin/env python3
 """SaaS Platform CLI - Admin tool for managing the platform."""
 
@@ -192,13 +192,12 @@ if __name__ == "__main__":
     cli()
 ```
 
-```markpact:run python
+```bash markpact:run
 python cli.py --help
 ```
 
-```markpact:test shell
+```bash markpact:test
 python cli.py --version
 python cli.py users list
 python cli.py stats
 python cli.py health
-```

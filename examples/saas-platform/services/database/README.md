@@ -15,6 +15,7 @@ Simple key-value database service with REST API. Provides persistent storage for
 
 Data is persisted to SQLite database in the sandbox directory.
 
+---
 ```python markpact:deps
 fastapi
 uvicorn

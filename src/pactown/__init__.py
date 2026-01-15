@@ -1,6 +1,6 @@
 """Pactown – Decentralized Service Ecosystem Orchestrator using markpact"""
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 
 from .config import EcosystemConfig, ServiceConfig, DependencyConfig
 from .orchestrator import Orchestrator
