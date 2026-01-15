@@ -50,6 +50,9 @@ Pactown enables you to compose multiple independent markpact projects into a uni
 | [Configuration](docs/CONFIGURATION.md) | YAML config reference |
 | [Network](docs/NETWORK.md) | Dynamic ports & service discovery |
 | [Generator](docs/GENERATOR.md) | Auto-generate configs |
+| [Quadlet](docs/QUADLET.md) | Podman Quadlet deployment for VPS production |
+| [Security](docs/SECURITY.md) | Quadlet security hardening and injection test suite |
+| [Cloudflare Workers comparison](docs/CLOUDFLARE_WORKERS_COMPARISON.md) | When to use Pactown vs Cloudflare Workers |
 
 ### Source Code Reference
 
@@ -61,6 +64,15 @@ Pactown enables you to compose multiple independent markpact projects into a uni
 | [`network.py`](src/pactown/network.py) | Port allocation & discovery |
 | [`generator.py`](src/pactown/generator.py) | Config file generator |
 | [`registry/`](src/pactown/registry/) | Local artifact registry |
+
+## Examples
+
+| Example | What it shows |
+|--------|----------------|
+| [`examples/quadlet-vps/`](examples/quadlet-vps/) | VPS setup and Quadlet workflow |
+| [`examples/email-llm-responder/`](examples/email-llm-responder/) | Email automation with LLM integration |
+| [`examples/api-gateway-webhooks/`](examples/api-gateway-webhooks/) | API gateway / webhook handler |
+| [`examples/realtime-notifications/`](examples/realtime-notifications/) | WebSocket + SSE real-time notifications |
 
 ## Installation
 

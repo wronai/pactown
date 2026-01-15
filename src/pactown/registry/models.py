@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
@@ -15,7 +15,7 @@ class ArtifactVersion:
     version: str
     readme_content: str
     checksum: str
-    published_at: datetime = field(default_factory=datetime.utcnow)
+    published_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
@@ -46,8 +46,8 @@ class Artifact:
     description: str = ""
     versions: dict[str, ArtifactVersion] = field(default_factory=dict)
     latest_version: Optional[str] = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     tags: list[str] = field(default_factory=list)
 
     @property
@@ -57,7 +57,7 @@ class Artifact:
     def add_version(self, version: ArtifactVersion) -> None:
         self.versions[version.version] = version
         self.latest_version = version.version
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(timezone.utc)
 
     def get_version(self, version: str = "latest") -> Optional[ArtifactVersion]:
         if version == "latest" or version == "*":
@@ -114,7 +114,7 @@ class RegistryStorage:
     def _save(self) -> None:
         data = {
             "artifacts": {k: v.to_dict() for k, v in self._artifacts.items()},
-            "updated_at": datetime.utcnow().isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
         }
         with open(self._index_path, "w") as f:
             json.dump(data, f, indent=2)

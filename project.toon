@@ -1,36 +1,36 @@
-# pactown | 38f 9014L | python:38
+# pactown | 38f 8989L | python:38
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
 M[38]:
   tests/test_deploy_dockerfile.py,29
   tests/test_resolver.py,109
   tests/__init__.py,1
-  tests/test_parallel.py,108
-  tests/test_config.py,111
-  tests/test_quadlet_security.py,505
-  tests/test_network.py,88
-  tests/test_registry.py,112
+  tests/test_parallel.py,106
+  tests/test_config.py,110
+  tests/test_quadlet_security.py,500
+  tests/test_network.py,87
+  tests/test_registry.py,110
   src/pactown/config.py,137
   src/pactown/cli.py,462
   src/pactown/generator.py,164
   src/pactown/parallel.py,211
   src/pactown/__init__.py,20
   src/pactown/markpact_blocks.py,26
-  src/pactown/orchestrator.py,349
+  src/pactown/orchestrator.py,347
   src/pactown/resolver.py,122
-  src/pactown/sandbox_manager.py,275
-  src/pactown/network.py,194
-  src/pactown/deploy/quadlet_shell.py,436
-  src/pactown/deploy/base.py,198
-  src/pactown/deploy/docker.py,246
+  src/pactown/sandbox_manager.py,274
+  src/pactown/network.py,193
+  src/pactown/deploy/quadlet_shell.py,432
+  src/pactown/deploy/base.py,200
+  src/pactown/deploy/docker.py,245
   src/pactown/deploy/__init__.py,29
   src/pactown/deploy/kubernetes.py,396
-  src/pactown/deploy/quadlet.py,738
+  src/pactown/deploy/quadlet.py,736
   src/pactown/deploy/compose.py,279
-  src/pactown/deploy/podman.py,324
-  src/pactown/deploy/quadlet_api.py,424
+  src/pactown/deploy/podman.py,323
+  src/pactown/deploy/quadlet_api.py,420
   src/pactown/registry/server.py,167
   src/pactown/registry/__init__.py,10
-  src/pactown/registry/client.py,218
+  src/pactown/registry/client.py,217
   src/pactown/registry/models.py,127
   examples/saas-platform/.pactown-sandboxes/gateway/gateway.py,112
   examples/saas-platform/.pactown-sandboxes/web/server.py,34
@@ -57,7 +57,7 @@ D:
     test_resolve_service_deps()->None
     test_get_environment()->None
   tests/test_parallel.py:
-    i: time,pytest,concurrent.futures.ThreadPoolExecutor,pactown.parallel.{TaskResult,run_in_dependency_waves,run_parallel}
+    i: time,pactown.parallel.{TaskResult,run_in_dependency_waves,run_parallel}
     e: test_run_parallel_basic,test_run_parallel_with_error,test_run_parallel_timing,test_run_in_dependency_waves,test_run_in_dependency_waves_diamond,test_task_result_dataclass
     test_run_parallel_basic()->None
     test_run_parallel_with_error()->None
@@ -66,7 +66,7 @@ D:
     test_run_in_dependency_waves_diamond()->None
     test_task_result_dataclass()->None
   tests/test_config.py:
-    i: tempfile,pytest,yaml,pactown.config.{DependencyConfig,EcosystemConfig,RegistryConfig,ServiceConfig,load_config},pathlib.Path
+    i: tempfile,pytest,pactown.config.{DependencyConfig,EcosystemConfig,RegistryConfig,ServiceConfig,load_config},pathlib.Path
     e: test_dependency_config_from_string,test_dependency_config_from_dict,test_service_config_from_dict,test_ecosystem_config_from_dict,test_ecosystem_config_auto_port,test_ecosystem_config_from_yaml,test_ecosystem_config_to_dict,test_load_config_file_not_found
     test_dependency_config_from_string()->None
     test_dependency_config_from_dict()->None
@@ -77,7 +77,7 @@ D:
     test_ecosystem_config_to_dict()->None
     test_load_config_file_not_found()->None
   tests/test_quadlet_security.py:
-    i: pytest,re,os,tempfile,sys,pactown.deploy.quadlet.{QuadletConfig,QuadletTemplates},pathlib.Path,unittest.mock.{MagicMock,patch}
+    i: re,sys,tempfile,pytest,pactown.deploy.quadlet.{QuadletConfig,QuadletTemplates,QuadletUnit},pathlib.Path,unittest.mock.{MagicMock,patch}
     e: TestContainerNameInjection,TestEnvironmentVariableInjection,TestVolumeMountInjection,TestTraefikLabelInjection,TestSystemdUnitInjection,TestTenantIsolation,TestCommandInjection,TestAPISecurityInjection
     TestContainerNameInjection: test_container_name_sanitization(0),test_filename_sanitization(0)  # Test container name sanitization agai...
     TestEnvironmentVariableInjection: test_env_value_sanitization(0),test_env_key_sanitization(0)  # Test environment variable injection a...
@@ -87,7 +87,7 @@ D:
     temp_dir()->None
     mock_systemctl()->None
   tests/test_network.py:
-    i: tempfile,pytest,pactown.network.{PortAllocator,ServiceEndpoint,ServiceRegistry,check_port,find_free_port},pathlib.Path
+    i: tempfile,pactown.network.{PortAllocator,ServiceEndpoint,ServiceRegistry,check_port,find_free_port},pathlib.Path
     e: test_port_allocator_allocate,test_port_allocator_preferred_port,test_port_allocator_release,test_service_endpoint,test_service_registry_register,test_service_registry_get,test_service_registry_get_url,test_service_registry_environment
     test_port_allocator_allocate()->None
     test_port_allocator_preferred_port()->None
@@ -98,7 +98,7 @@ D:
     test_service_registry_get_url()->None
     test_service_registry_environment()->None
   tests/test_registry.py:
-    i: tempfile,datetime,pytest,pactown.registry.models.{Artifact,ArtifactVersion,RegistryStorage},pathlib.Path
+    i: tempfile,pactown.registry.models.{Artifact,ArtifactVersion,RegistryStorage},pathlib.Path
     e: test_artifact_version_to_dict,test_artifact_version_from_dict,test_artifact_full_name,test_artifact_add_version,test_artifact_get_version,test_registry_storage_save_and_get,test_registry_storage_list,test_registry_storage_delete
     test_artifact_version_to_dict()->None
     test_artifact_version_from_dict()->None
@@ -109,7 +109,7 @@ D:
     test_registry_storage_list()->None
     test_registry_storage_delete()->None
   src/pactown/config.py:
-    i: yaml,dataclasses.{dataclass,field},pathlib.Path,typing.{Any,Optional}
+    i: yaml,dataclasses.{dataclass,field},pathlib.Path,typing.Optional
     e: DependencyConfig,ServiceConfig,RegistryConfig,EcosystemConfig,load_config
     DependencyConfig: from_dict(1)  # Configuration for a service dependency.
     ServiceConfig: from_dict(2)  # Configuration for a single service in...
@@ -117,7 +117,7 @@ D:
     EcosystemConfig: from_yaml(1),from_dict(2),to_dict(0),to_yaml(1)  # Configuration for a complete pactown...
     load_config(path:Any)->EcosystemConfig
   src/pactown/cli.py:
-    i: sys,click,yaml,__version__,config.{EcosystemConfig,load_config},pathlib.Path,rich.console.Console,rich.panel.Panel,typing.Optional
+    i: sys,click,yaml,__version__,config.load_config,generator.generate_config,pathlib.Path,rich.console.Console,rich.panel.Panel,typing.Optional
     e: cli,up,down,status,validate,graph,init,publish
     cli()->None
     up(config_path:str;dry_run:bool;no_health:bool;quiet:bool;sequential:bool;workers:int)->None
@@ -135,7 +135,7 @@ D:
     generate_config(folder:Path;name:Optional[str]=None;base_port:int=8000;output:Optional[Path]=None)->dict
     print_scan_results(folder:Path)->None
   src/pactown/parallel.py:
-    i: asyncio,time,concurrent.futures.{ThreadPoolExecutor,as_completed},dataclasses.{dataclass,field},pathlib.Path,typing.{Any,Callable,Optional}
+    i: asyncio,time,concurrent.futures.{ThreadPoolExecutor,as_completed},dataclasses.dataclass,pathlib.Path,threading.Lock,typing.{Any,Callable,Optional}
     e: TaskResult,run_parallel,run_in_dependency_waves,run_parallel_async,ParallelSandboxBuilder,format_parallel_results
     TaskResult:   # Result of a parallel task.
     ParallelSandboxBuilder: __init__(1),build_sandboxes(2)  # Build multiple sandboxes in parallel.
@@ -149,7 +149,7 @@ D:
     Block: get_path(0)
     parse_blocks(text:str)->list[Block]
   src/pactown/orchestrator.py:
-    i: asyncio,time,httpx,dataclasses.{dataclass,field},pathlib.Path,rich.console.Console,rich.table.Table,typing.{Callable,Optional}
+    i: time,httpx,config.{EcosystemConfig,load_config},dataclasses.dataclass,pathlib.Path,rich.console.Console,rich.panel.Panel,rich.table.Table,typing.Optional
     e: ServiceHealth,Orchestrator,run_ecosystem
     ServiceHealth:   # Health status of a service.
     Orchestrator: __init__(4),from_file(3),_get_readme_path(1),validate(0),start_service(1)  # Orchestrates the lifecycle of a pacto...
@@ -160,12 +160,12 @@ D:
     ResolvedDependency:   # A resolved dependency with endpoint i...
     DependencyResolver: __init__(1),_build_graph(0),get_startup_order(0),get_shutdown_order(0),resolve_service_deps(1)  # Resolves dependencies between service...
   src/pactown/sandbox_manager.py:
-    i: os,shutil,subprocess,concurrent.futures.{ThreadPoolExecutor,as_completed},dataclasses.{dataclass,field},pathlib.Path,typing.{Any,Optional}
+    i: os,shutil,signal,subprocess,time,concurrent.futures.{ThreadPoolExecutor,as_completed},dataclasses.{dataclass,field},pathlib.Path
     e: ServiceProcess,SandboxManager
     ServiceProcess: is_running(0)  # Represents a running service process.
     SandboxManager: __init__(1),get_sandbox_path(1),create_sandbox(3),start_service(4),stop_service(2)  # Manages sandboxes for multiple services.
   src/pactown/network.py:
-    i: socket,json,os,dataclasses.{dataclass,field},pathlib.Path,threading.Lock,typing.Optional
+    i: json,socket,dataclasses.dataclass,pathlib.Path,threading.Lock,typing.Optional
     e: ServiceEndpoint,PortAllocator,ServiceRegistry,find_free_port,check_port
     ServiceEndpoint: url(0),health_url(0)  # Represents a running service's networ...
     PortAllocator: __init__(2),is_port_free(1),allocate(1),release(1),release_all(0)  # Allocates free ports dynamically.
@@ -173,7 +173,7 @@ D:
     find_free_port(start:int=10000;end:int=65000)->int
     check_port(port:int)->bool
   src/pactown/deploy/quadlet_shell.py:
-    i: cmd,os,sys,shutil,pathlib.Path,rich.console.Console,rich.panel.Panel,rich.syntax.Syntax,rich.table.Table,typing.Optional
+    i: cmd,shutil,base.DeploymentConfig,pathlib.Path,quadlet.QuadletBackend,rich.console.Console,rich.panel.Panel,rich.prompt.Confirm,rich.syntax.Syntax,rich.table.Table
     e: QuadletShell,run_shell
     QuadletShell: __init__(3),do_status(1),do_config(1),do_generate(1),do_generate_container(1)  # Interactive shell for Quadlet deploym...
     run_shell(tenant_id:str='default';domain:str='localhost';user_mode:bool=True)->None
@@ -186,15 +186,15 @@ D:
     DeploymentResult:   # Result of a deployment operation.
     DeploymentBackend: __init__(1),runtime_type(0),is_available(0),build_image(4),push_image(2)  # Abstract base class for deployment ba...
   src/pactown/deploy/docker.py:
-    i: subprocess,json,base.{DeploymentBackend,DeploymentConfig,DeploymentResult,RuntimeType},pathlib.Path,typing.{Any,Optional}
+    i: json,subprocess,base.{DeploymentBackend,DeploymentResult,RuntimeType},pathlib.Path,typing.{Any,Optional}
     e: DockerBackend
     DockerBackend: runtime_type(0),is_available(0),build_image(4),push_image(2),deploy(5)  # Docker container runtime backend.
   src/pactown/deploy/kubernetes.py:
-    i: subprocess,json,yaml,base.{DeploymentBackend,DeploymentConfig,DeploymentResult,RuntimeType},pathlib.Path,typing.{Any,Optional}
+    i: json,subprocess,yaml,base.{DeploymentBackend,DeploymentConfig,DeploymentResult,RuntimeType},pathlib.Path,typing.{Any,Optional}
     e: KubernetesBackend
     KubernetesBackend: __init__(2),runtime_type(0),_kubectl(0),is_available(0),build_image(4)  # Kubernetes deployment backend for pro...
   src/pactown/deploy/quadlet.py:
-    i: os,re,subprocess,shutil,dataclasses.{dataclass,field},pathlib.Path,string.Template,typing.{Any,Optional}
+    i: re,subprocess,base.{DeploymentBackend,DeploymentConfig,DeploymentResult},dataclasses.dataclass,pathlib.Path,string.Template,typing.{Any,Optional}
     e: SAFE_NAME_PATTERN,DANGEROUS_PATTERNS,BLOCKED_VOLUME_PATHS,sanitize_name,sanitize_env_value,sanitize_env_key,sanitize_path,sanitize_domain
     QuadletConfig: full_domain(0),systemd_path(0),tenant_path(0)  # Configuration for Quadlet deployment.
     QuadletUnit: filename(0),save(1)  # Represents a Quadlet unit file.
@@ -215,11 +215,11 @@ D:
     ComposeGenerator: __init__(3),generate(2),_create_service(2),_create_registry_service(0),generate_override(2)  # Generate Docker Compose / Podman Comp...
     generate_compose_from_config(config_path:Path;output_dir:Optional[Path]=None;production:bool=False)->dict
   src/pactown/deploy/podman.py:
-    i: subprocess,json,base.{DeploymentBackend,DeploymentConfig,DeploymentResult,RuntimeType},pathlib.Path,typing.{Any,Optional}
+    i: json,subprocess,base.{DeploymentBackend,DeploymentResult,RuntimeType},pathlib.Path,typing.{Any,Optional}
     e: PodmanBackend
     PodmanBackend: runtime_type(0),is_available(0),build_image(4),push_image(2),deploy(5)  # Podman container runtime backend.
   src/pactown/deploy/quadlet_api.py:
-    i: os,tempfile,hashlib,datetime,fastapi.{BackgroundTasks,FastAPI,HTTPException},pathlib.Path,typing.{Literal,Optional}
+    i: hashlib,base.DeploymentConfig,fastapi.{BackgroundTasks,FastAPI,HTTPException},fastapi.responses.PlainTextResponse,pathlib.Path,pydantic.{BaseModel,Field},typing.Optional
     e: DeploymentRequest,ContainerRequest,TraefikRequest,DeploymentResponse,QuadletFileResponse,ServiceStatus,ListServicesResponse,create_quadlet_api
     DeploymentRequest:   # Request to deploy a Markdown service.
     ContainerRequest:   # Request to generate a container Quadl...
@@ -238,12 +238,12 @@ D:
     create_app(storage_path:str='./.pactown-registry')->FastAPI
     main(host:str;port:int;storage:str;reload:bool)->None
   src/pactown/registry/client.py:
-    i: hashlib,httpx,pathlib.Path,typing.{Any,Optional}
+    i: httpx,pathlib.Path,typing.Optional
     e: RegistryClient,AsyncRegistryClient
     RegistryClient: __init__(2),__enter__(0),__exit__(0),close(0),health(0)  # Client for interacting with pactown r...
     AsyncRegistryClient: __init__(2),__aenter__(0),__aexit__(0),close(0),health(0)  # Async client for pactown registry.
   src/pactown/registry/models.py:
-    i: datetime,json,dataclasses.{dataclass,field},pathlib.Path,typing.{Any,Optional}
+    i: json,datetime,dataclasses.{dataclass,field},pathlib.Path,typing.{Any,Optional}
     e: ArtifactVersion,Artifact,RegistryStorage
     ArtifactVersion: to_dict(0),from_dict(1)  # A specific version of an artifact.
     Artifact: full_name(0),add_version(1),get_version(1),to_dict(0),from_dict(1)  # An artifact in the registry (a markpa...

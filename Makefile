@@ -22,10 +22,10 @@ dev: ## Install dev dependencies
 	$(PYTHON) -m pip install -e ".[dev]"
 
 test: ## Run tests
-	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src $(PYTHON) -m pytest -p pytest_asyncio tests/ -v
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src $(PYTHON) -m pytest -p pytest_asyncio.plugin tests/ -v
 
 test-cov: ## Run tests with coverage
-	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src $(PYTHON) -m pytest -p pytest_asyncio tests/ -v --cov=src/pactown --cov-report=term-missing
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src $(PYTHON) -m pytest -p pytest_asyncio.plugin tests/ -v --cov=src/pactown --cov-report=term-missing
 
 lint: ## Run linter
 	@$(PYTHON) -c "import ruff" >/dev/null 2>&1 && $(PYTHON) -m ruff check src/ tests/ || \
