@@ -20,37 +20,74 @@ import httpx
 def kill_process_on_port(port: int) -> bool:
     """Kill any process using the specified port.
     
+    Uses /proc filesystem to find processes (works in minimal containers).
     Returns True if a process was killed, False otherwise.
     """
+    killed = False
+    
+    # Method 1: Check /proc/net/tcp for listening sockets
     try:
-        # Try lsof first (more common)
-        result = subprocess.run(
-            ["lsof", "-ti", f":{port}"],
-            capture_output=True,
-            text=True,
-        )
-        if result.returncode == 0 and result.stdout.strip():
-            pids = result.stdout.strip().split('\n')
-            for pid in pids:
-                try:
-                    os.kill(int(pid), signal.SIGKILL)
-                except (ProcessLookupError, ValueError):
-                    pass
-            return True
-    except FileNotFoundError:
+        hex_port = f"{port:04X}"
+        with open("/proc/net/tcp", "r") as f:
+            for line in f:
+                parts = line.split()
+                if len(parts) < 10:
+                    continue
+                local_addr = parts[1]
+                if local_addr.endswith(f":{hex_port}"):
+                    # Found a socket on this port, find the inode
+                    inode = parts[9]
+                    # Search for process with this inode
+                    for pid_dir in os.listdir("/proc"):
+                        if not pid_dir.isdigit():
+                            continue
+                        try:
+                            fd_dir = f"/proc/{pid_dir}/fd"
+                            for fd in os.listdir(fd_dir):
+                                try:
+                                    link = os.readlink(f"{fd_dir}/{fd}")
+                                    if f"socket:[{inode}]" in link:
+                                        pid = int(pid_dir)
+                                        if pid > 1:  # Don't kill init
+                                            os.kill(pid, signal.SIGKILL)
+                                            killed = True
+                                except (OSError, PermissionError):
+                                    pass
+                        except (OSError, PermissionError):
+                            pass
+    except (FileNotFoundError, PermissionError):
         pass
     
-    try:
-        # Fallback: try fuser
-        result = subprocess.run(
-            ["fuser", "-k", f"{port}/tcp"],
-            capture_output=True,
-        )
-        return result.returncode == 0
-    except FileNotFoundError:
-        pass
+    # Method 2: Fallback - try lsof/fuser if available
+    if not killed:
+        try:
+            result = subprocess.run(
+                ["lsof", "-ti", f":{port}"],
+                capture_output=True,
+                text=True,
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                for pid in result.stdout.strip().split('\n'):
+                    try:
+                        os.kill(int(pid), signal.SIGKILL)
+                        killed = True
+                    except (ProcessLookupError, ValueError):
+                        pass
+        except FileNotFoundError:
+            pass
     
-    return False
+    if not killed:
+        try:
+            result = subprocess.run(["fuser", "-k", f"{port}/tcp"], capture_output=True)
+            killed = result.returncode == 0
+        except FileNotFoundError:
+            pass
+    
+    # Give the OS a moment to clean up
+    if killed:
+        time.sleep(0.5)
+    
+    return killed
 
 from .config import ServiceConfig
 from .markpact_blocks import parse_blocks, Block
