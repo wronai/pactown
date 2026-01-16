@@ -7,14 +7,83 @@ with health checks, restart support, and endpoint testing.
 
 import asyncio
 import os
+import shutil
 import signal
 import subprocess
+import sys
 import time
 from dataclasses import dataclass, field
+from enum import Enum
 from pathlib import Path
 from typing import Callable, Dict, List, Optional
 
 import httpx
+
+
+class ErrorCategory(str, Enum):
+    """Categorized error types for better diagnostics."""
+    NONE = "none"
+    VALIDATION = "validation"  # Markpact content issues
+    DEPENDENCY = "dependency"  # pip install failures
+    PORT_CONFLICT = "port_conflict"  # Address already in use
+    STARTUP_TIMEOUT = "startup_timeout"  # Server didn't respond in time
+    PROCESS_CRASH = "process_crash"  # Process died unexpectedly
+    ENVIRONMENT = "environment"  # Python/venv issues
+    PERMISSION = "permission"  # File/directory access issues
+    UNKNOWN = "unknown"
+
+
+@dataclass
+class DiagnosticInfo:
+    """Environment diagnostics for debugging."""
+    python_version: str = ""
+    pip_version: str = ""
+    disk_space_mb: int = 0
+    sandbox_path: str = ""
+    venv_exists: bool = False
+    installed_packages: List[str] = field(default_factory=list)
+    
+    @classmethod
+    def collect(cls, sandbox_path: Optional[Path] = None) -> "DiagnosticInfo":
+        """Collect diagnostic information."""
+        info = cls()
+        
+        # Python version
+        info.python_version = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+        
+        # Pip version
+        try:
+            result = subprocess.run(
+                [sys.executable, "-m", "pip", "--version"],
+                capture_output=True, text=True, timeout=5
+            )
+            if result.returncode == 0:
+                info.pip_version = result.stdout.split()[1]
+        except:
+            pass
+        
+        # Disk space
+        try:
+            path = sandbox_path or Path("/tmp")
+            stat = shutil.disk_usage(str(path))
+            info.disk_space_mb = stat.free // (1024 * 1024)
+        except:
+            pass
+        
+        if sandbox_path:
+            info.sandbox_path = str(sandbox_path)
+            info.venv_exists = (sandbox_path / ".venv").exists()
+        
+        return info
+
+
+@dataclass 
+class AutoFixSuggestion:
+    """Actionable suggestion to fix an error."""
+    action: str  # e.g., "install_dependency", "change_port", "restart"
+    description: str
+    command: Optional[str] = None
+    auto_fixable: bool = False
 
 
 def kill_process_on_port(port: int) -> bool:
@@ -96,7 +165,7 @@ from .sandbox_manager import SandboxManager, ServiceProcess
 
 @dataclass
 class RunResult:
-    """Result of running a service."""
+    """Result of running a service with detailed diagnostics."""
     success: bool
     port: int
     pid: Optional[int] = None
@@ -104,6 +173,37 @@ class RunResult:
     logs: List[str] = field(default_factory=list)
     service_name: Optional[str] = None
     sandbox_path: Optional[Path] = None
+    # Enhanced error reporting
+    error_category: ErrorCategory = ErrorCategory.NONE
+    diagnostics: Optional[DiagnosticInfo] = None
+    suggestions: List[AutoFixSuggestion] = field(default_factory=list)
+    stderr_output: str = ""  # Captured stderr for debugging
+    
+    def to_dict(self) -> dict:
+        """Convert to dictionary for JSON serialization."""
+        return {
+            "success": self.success,
+            "port": self.port,
+            "pid": self.pid,
+            "message": self.message,
+            "logs": self.logs,
+            "service_name": self.service_name,
+            "sandbox_path": str(self.sandbox_path) if self.sandbox_path else None,
+            "error_category": self.error_category.value,
+            "diagnostics": {
+                "python_version": self.diagnostics.python_version,
+                "pip_version": self.diagnostics.pip_version,
+                "disk_space_mb": self.diagnostics.disk_space_mb,
+                "sandbox_path": self.diagnostics.sandbox_path,
+                "venv_exists": self.diagnostics.venv_exists,
+            } if self.diagnostics else None,
+            "suggestions": [
+                {"action": s.action, "description": s.description, 
+                 "command": s.command, "auto_fixable": s.auto_fixable}
+                for s in self.suggestions
+            ],
+            "stderr_output": self.stderr_output,
+        }
 
 
 @dataclass
@@ -305,16 +405,25 @@ class ServiceRunner:
                     on_log=log,
                 )
                 
-                if not health_result:
+                if not health_result["success"]:
                     # Cleanup
                     self.sandbox_manager.stop_service(service_name)
                     self.sandbox_manager.clean_sandbox(service_name)
+                    
+                    error_cat = health_result.get("error_category", ErrorCategory.STARTUP_TIMEOUT)
+                    stderr_out = health_result.get("stderr", "")
+                    suggestions = self._generate_suggestions(error_cat, stderr_out, port)
+                    
                     log("❌ Server failed to start - check dependencies and code")
                     return RunResult(
                         success=False,
                         port=port,
                         message=f"Server failed to start within {timeout} seconds",
                         logs=logs,
+                        error_category=error_cat,
+                        stderr_output=stderr_out,
+                        suggestions=suggestions,
+                        diagnostics=DiagnosticInfo.collect(process.sandbox_path),
                     )
             
             # Track mapping
@@ -342,15 +451,89 @@ class ServiceRunner:
                 logs=logs,
             )
     
+    def _generate_suggestions(
+        self, 
+        error_cat: ErrorCategory, 
+        stderr: str,
+        port: int
+    ) -> List[AutoFixSuggestion]:
+        """Generate actionable suggestions based on error type."""
+        suggestions = []
+        
+        if error_cat == ErrorCategory.PORT_CONFLICT:
+            suggestions.append(AutoFixSuggestion(
+                action="kill_port_process",
+                description=f"Kill process using port {port}",
+                command=f"fuser -k {port}/tcp",
+                auto_fixable=True,
+            ))
+            suggestions.append(AutoFixSuggestion(
+                action="use_different_port",
+                description="Try a different port",
+            ))
+        
+        elif error_cat == ErrorCategory.DEPENDENCY:
+            # Extract failed package from stderr
+            if "No matching distribution" in stderr:
+                pkg = stderr.split("No matching distribution found for")[-1].split()[0] if "for" in stderr else "unknown"
+                suggestions.append(AutoFixSuggestion(
+                    action="check_package_name",
+                    description=f"Package '{pkg}' not found - check spelling or availability",
+                ))
+            suggestions.append(AutoFixSuggestion(
+                action="clear_cache",
+                description="Clear pip cache and retry",
+                command="pip cache purge",
+                auto_fixable=True,
+            ))
+        
+        elif error_cat == ErrorCategory.PROCESS_CRASH:
+            if "SyntaxError" in stderr:
+                suggestions.append(AutoFixSuggestion(
+                    action="fix_syntax",
+                    description="Fix Python syntax error in code",
+                ))
+            elif "ModuleNotFoundError" in stderr or "ImportError" in stderr:
+                # Extract module name
+                if "No module named" in stderr:
+                    module = stderr.split("No module named")[-1].strip().strip("'\"")
+                    suggestions.append(AutoFixSuggestion(
+                        action="add_dependency",
+                        description=f"Add '{module}' to dependencies",
+                    ))
+            elif "Address already in use" in stderr:
+                suggestions.append(AutoFixSuggestion(
+                    action="kill_port_process",
+                    description=f"Kill process using port {port}",
+                    command=f"fuser -k {port}/tcp",
+                    auto_fixable=True,
+                ))
+        
+        elif error_cat == ErrorCategory.STARTUP_TIMEOUT:
+            suggestions.append(AutoFixSuggestion(
+                action="increase_timeout",
+                description="Increase health check timeout for slow dependencies",
+            ))
+            suggestions.append(AutoFixSuggestion(
+                action="check_run_command",
+                description="Verify the run command starts a web server",
+            ))
+        
+        return suggestions
+
     async def _wait_for_health(
         self,
         process: ServiceProcess,
         port: int,
         timeout: int,
         on_log: Callable[[str], None],
-    ) -> bool:
-        """Wait for service to pass health check."""
+    ) -> dict:
+        """Wait for service to pass health check.
+        
+        Returns dict with: success, error_category, stderr
+        """
         attempts = timeout * 2  # Check every 0.5s
+        stderr_output = ""
         
         for _ in range(attempts):
             await asyncio.sleep(0.5)
@@ -363,12 +546,23 @@ class ServiceRunner:
                 # Try to get error output
                 if process.process and process.process.stderr:
                     try:
-                        stderr = process.process.stderr.read()
-                        if stderr:
-                            on_log(f"Error output: {stderr.decode()[:500]}")
+                        stderr_bytes = process.process.stderr.read()
+                        if stderr_bytes:
+                            stderr_output = stderr_bytes.decode()[:1000]
+                            on_log(f"Error output: {stderr_output[:500]}")
                     except:
                         pass
-                return False
+                
+                # Categorize error based on stderr
+                error_cat = ErrorCategory.PROCESS_CRASH
+                if "Address already in use" in stderr_output:
+                    error_cat = ErrorCategory.PORT_CONFLICT
+                elif "ModuleNotFoundError" in stderr_output or "No module named" in stderr_output:
+                    error_cat = ErrorCategory.DEPENDENCY
+                elif "SyntaxError" in stderr_output:
+                    error_cat = ErrorCategory.VALIDATION
+                
+                return {"success": False, "error_category": error_cat, "stderr": stderr_output}
             
             # Try to connect
             try:
@@ -376,11 +570,12 @@ class ServiceRunner:
                     resp = await client.get(f"http://localhost:{port}/")
                     if resp.status_code < 500:
                         on_log(f"✓ Server responding (status {resp.status_code})")
-                        return True
+                        return {"success": True, "error_category": ErrorCategory.NONE, "stderr": ""}
             except:
                 pass  # Keep trying
         
-        return False
+        # Timeout reached
+        return {"success": False, "error_category": ErrorCategory.STARTUP_TIMEOUT, "stderr": ""}
     
     def stop(self, service_id: str) -> RunResult:
         """Stop a running service."""

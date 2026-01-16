@@ -1,6 +1,6 @@
 """Pactown – Decentralized Service Ecosystem Orchestrator using markpact"""
 
-__version__ = "0.1.10"
+__version__ = "0.1.11"
 
 from .config import DependencyConfig, EcosystemConfig, ServiceConfig
 from .network import PortAllocator, ServiceEndpoint, ServiceRegistry, find_free_port
@@ -12,6 +12,9 @@ from .service_runner import (
     RunResult,
     EndpointTestResult,
     ValidationResult,
+    ErrorCategory,
+    DiagnosticInfo,
+    AutoFixSuggestion,
 )
 
 __all__ = [
@@ -20,6 +23,9 @@ __all__ = [
     "RunResult",
     "EndpointTestResult",
     "ValidationResult",
+    "ErrorCategory",
+    "DiagnosticInfo",
+    "AutoFixSuggestion",
     # Orchestration
     "EcosystemConfig",
     "ServiceConfig",
