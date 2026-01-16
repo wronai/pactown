@@ -438,7 +438,7 @@ class ServiceRunner:
         try:
             log(f"Creating sandbox for {service_name}")
             
-            # Start service with detailed logging
+            # Start service with detailed logging and user isolation
             process = self.sandbox_manager.start_service(
                 service=service_config,
                 readme_path=readme_path,
@@ -446,6 +446,7 @@ class ServiceRunner:
                 verbose=False,
                 restart_if_running=False,  # Already handled above
                 on_log=log,  # Pass log callback for detailed logging
+                user_id=effective_user_id if effective_user_id != "anonymous" else None,
             )
             
             log(f"Sandbox created: {process.sandbox_path}")

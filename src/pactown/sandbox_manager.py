@@ -115,6 +115,7 @@ class SandboxManager:
         verbose: bool = True,
         restart_if_running: bool = False,
         on_log: Optional[Callable[[str], None]] = None,
+        user_id: Optional[str] = None,
     ) -> ServiceProcess:
         """Start a service in its sandbox.
         
@@ -125,6 +126,7 @@ class SandboxManager:
             verbose: Print status messages
             restart_if_running: If True, stop and restart if already running
             on_log: Callback for detailed logging
+            user_id: Optional SaaS user ID for process isolation
         """
         def log(msg: str, level: str = "INFO"):
             logger.log(getattr(logging, level), f"[{service.name}] {msg}")
@@ -215,8 +217,37 @@ class SandboxManager:
             log(f"Port-corrected command: {expanded_cmd}", "INFO")
         else:
             log(f"Expanded command: {expanded_cmd}", "DEBUG")
+        
+        # Remove --reload flag from uvicorn commands in sandbox environments
+        # --reload uses multiprocessing which can crash in Docker containers
+        if "--reload" in expanded_cmd and "uvicorn" in expanded_cmd:
+            expanded_cmd = re.sub(r'\s*--reload\s*', ' ', expanded_cmd)
+            log(f"Removed --reload flag (not compatible with sandbox): {expanded_cmd}", "INFO")
 
         log(f"Starting process...", "INFO")
+
+        # Use user isolation if user_id provided
+        preexec = os.setsid
+        if user_id:
+            try:
+                from .user_isolation import get_isolation_manager
+                isolation = get_isolation_manager()
+                user = isolation.get_or_create_user(user_id)
+                log(f"🔒 Running as isolated user: {user.linux_username} (uid={user.linux_uid})", "INFO")
+                
+                # Update env with user-specific settings
+                full_env["HOME"] = str(user.home_dir)
+                full_env["USER"] = user.linux_username
+                full_env["LOGNAME"] = user.linux_username
+                
+                # Create preexec function for user switching
+                def preexec():
+                    os.setsid()
+                    if os.geteuid() == 0:
+                        os.setgid(user.linux_gid)
+                        os.setuid(user.linux_uid)
+            except Exception as e:
+                log(f"⚠️ User isolation not available: {e} - running without isolation", "WARNING")
 
         # Always capture stderr for debugging
         process = subprocess.Popen(
@@ -226,7 +257,7 @@ class SandboxManager:
             env=full_env,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            preexec_fn=os.setsid,
+            preexec_fn=preexec,
         )
 
         log(f"Process started with PID: {process.pid}", "INFO")
