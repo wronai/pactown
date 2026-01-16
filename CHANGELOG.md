@@ -58,6 +58,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Process killed by SIGTERM on restart (race condition)
 - Truncated error output from crashed processes
+- **Hardcoded port mismatch** - Auto-replace hardcoded ports (e.g., `--port 8009`) with requested port
+- PORT and MARKPACT_PORT environment variables now always set
 
 ## [Unreleased]
 
