@@ -15,7 +15,7 @@ import time
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 import httpx
 
@@ -237,7 +237,8 @@ class ServiceRunner:
         result = await runner.run_from_content(
             service_id="my-service",
             content="# My API\\n```python markpact:file path=main.py...",
-            port=8000
+            port=8000,
+            user_id="user123",  # Optional: for security policy enforcement
         )
         if result.success:
             print(f"Running on port {result.port}")
@@ -248,6 +249,7 @@ class ServiceRunner:
         sandbox_root: str | Path = "/tmp/pactown-sandboxes",
         default_health_check: str = "/health",
         health_timeout: int = 10,
+        security_policy: Optional["SecurityPolicy"] = None,
     ):
         self.sandbox_root = Path(sandbox_root)
         self.sandbox_root.mkdir(parents=True, exist_ok=True)
@@ -255,6 +257,11 @@ class ServiceRunner:
         self.default_health_check = default_health_check
         self.health_timeout = health_timeout
         self._services: Dict[str, str] = {}  # external_id -> service_name
+        self._service_users: Dict[str, str] = {}  # service_id -> user_id
+        
+        # Security policy - use provided or get global default
+        from .security import get_security_policy
+        self.security_policy = security_policy or get_security_policy()
     
     def validate_content(self, content: str) -> ValidationResult:
         """Validate markpact content before running."""
@@ -298,6 +305,8 @@ class ServiceRunner:
         wait_for_health: bool = True,
         health_timeout: Optional[int] = None,
         on_log: Optional[Callable[[str], None]] = None,
+        user_id: Optional[str] = None,
+        user_profile: Optional[Dict[str, Any]] = None,
     ) -> RunResult:
         """
         Run a service directly from markdown content.
@@ -311,17 +320,48 @@ class ServiceRunner:
             wait_for_health: Wait for health check to pass
             health_timeout: Health check timeout (default: self.health_timeout)
             on_log: Callback for log messages
+            user_id: User ID for security policy enforcement
+            user_profile: User profile dict (tier, limits) for security checks
         
         Returns:
             RunResult with success status, logs, and service info
         """
         logs: List[str] = []
         service_name = f"service_{service_id}"
+        effective_user_id = user_id or "anonymous"
         
         def log(msg: str):
             logs.append(msg)
             if on_log:
                 on_log(msg)
+        
+        # Set user profile if provided
+        if user_profile and user_id:
+            from .security import UserProfile
+            profile = UserProfile.from_dict({**user_profile, "user_id": user_id})
+            self.security_policy.set_user_profile(profile)
+        
+        # Security check - can this user start a service?
+        security_check = await self.security_policy.check_can_start_service(
+            user_id=effective_user_id,
+            service_id=service_id,
+            port=port,
+        )
+        
+        if not security_check.allowed:
+            log(f"🔒 Security: {security_check.reason}")
+            return RunResult(
+                success=False,
+                port=port,
+                message=security_check.reason or "Security check failed",
+                logs=logs,
+                error_category=ErrorCategory.PERMISSION,
+            )
+        
+        # Apply throttle delay if server is under load
+        if security_check.delay_seconds > 0:
+            log(f"⏳ Server under load, waiting {security_check.delay_seconds:.1f}s...")
+            await asyncio.sleep(security_check.delay_seconds)
         
         # Check if already running (tracked by sandbox manager)
         status = self.sandbox_manager.get_status(service_name)
@@ -428,6 +468,10 @@ class ServiceRunner:
             
             # Track mapping
             self._services[service_id] = service_name
+            self._service_users[service_id] = effective_user_id
+            
+            # Register with security policy for concurrent service tracking
+            self.security_policy.register_service(effective_user_id, service_id)
             
             log(f"✓ Project running on http://localhost:{port}")
             log(f"  PID: {process.pid}")
@@ -493,20 +537,31 @@ class ServiceRunner:
                     action="fix_syntax",
                     description="Fix Python syntax error in code",
                 ))
-            elif "ModuleNotFoundError" in stderr or "ImportError" in stderr:
+            if "ModuleNotFoundError" in stderr or "ImportError" in stderr or "No module named" in stderr:
                 # Extract module name
                 if "No module named" in stderr:
-                    module = stderr.split("No module named")[-1].strip().strip("'\"")
+                    module = stderr.split("No module named")[-1].strip().split()[0].strip("'\"")
                     suggestions.append(AutoFixSuggestion(
                         action="add_dependency",
-                        description=f"Add '{module}' to dependencies",
+                        description=f"Add '{module}' to dependencies block",
                     ))
-            elif "Address already in use" in stderr:
+                else:
+                    suggestions.append(AutoFixSuggestion(
+                        action="check_imports",
+                        description="Check that all imported modules are in dependencies",
+                    ))
+            if "Address already in use" in stderr:
                 suggestions.append(AutoFixSuggestion(
                     action="kill_port_process",
                     description=f"Kill process using port {port}",
                     command=f"fuser -k {port}/tcp",
                     auto_fixable=True,
+                ))
+            if "Traceback" in stderr and not suggestions:
+                # Generic crash - suggest checking logs
+                suggestions.append(AutoFixSuggestion(
+                    action="check_code",
+                    description="Review code for runtime errors - see stderr_output for full traceback",
                 ))
         
         elif error_cat == ErrorCategory.STARTUP_TIMEOUT:
@@ -610,6 +665,13 @@ class ServiceRunner:
                 logs.append("Process terminated")
                 self.sandbox_manager.clean_sandbox(service_name)
                 logs.append("Sandbox cleaned up")
+                
+                # Unregister from security policy
+                user_id = self._service_users.get(service_id, "anonymous")
+                self.security_policy.unregister_service(user_id, service_id)
+                if service_id in self._service_users:
+                    del self._service_users[service_id]
+                
                 del self._services[service_id]
                 
                 return RunResult(
