@@ -1,6 +1,6 @@
 """Pactown – Decentralized Service Ecosystem Orchestrator using markpact"""
 
-__version__ = "0.1.18"
+__version__ = "0.1.19"
 
 from .config import DependencyConfig, EcosystemConfig, ServiceConfig
 from .network import PortAllocator, ServiceEndpoint, ServiceRegistry, find_free_port
@@ -41,6 +41,34 @@ from .user_isolation import (
     UserIsolationManager,
     IsolatedUser,
     get_isolation_manager,
+)
+from .events import (
+    # Core event types
+    Event,
+    EventType,
+    EventStore,
+    get_event_store,
+    set_event_store,
+    # Aggregates
+    Aggregate,
+    ServiceAggregate,
+    # Commands (Write side)
+    ServiceCommands,
+    ProjectCommands,
+    SecurityCommands,
+    get_service_commands,
+    get_project_commands,
+    get_security_commands,
+    # Queries (Read side)
+    ServiceQueries,
+    ProjectQueries,
+    SecurityQueries,
+    get_service_queries,
+    get_project_queries,
+    get_security_queries,
+    # Projections
+    Projection,
+    ServiceStatusProjection,
 )
 
 __all__ = [
@@ -87,5 +115,27 @@ __all__ = [
     "PortAllocator",
     "ServiceEndpoint",
     "find_free_port",
+    # CQRS/Event Sourcing
+    "Event",
+    "EventType",
+    "EventStore",
+    "get_event_store",
+    "set_event_store",
+    "Aggregate",
+    "ServiceAggregate",
+    "ServiceCommands",
+    "ProjectCommands",
+    "SecurityCommands",
+    "get_service_commands",
+    "get_project_commands",
+    "get_security_commands",
+    "ServiceQueries",
+    "ProjectQueries",
+    "SecurityQueries",
+    "get_service_queries",
+    "get_project_queries",
+    "get_security_queries",
+    "Projection",
+    "ServiceStatusProjection",
     "__version__",
 ]

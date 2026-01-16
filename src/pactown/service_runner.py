@@ -660,8 +660,19 @@ class ServiceRunner:
             except:
                 pass  # Keep trying
         
-        # Timeout reached
-        return {"success": False, "error_category": ErrorCategory.STARTUP_TIMEOUT, "stderr": ""}
+        # Timeout reached - try to capture any stderr
+        if process.is_running and process.process and process.process.stderr:
+            try:
+                import select
+                if select.select([process.process.stderr], [], [], 0)[0]:
+                    stderr_bytes = process.process.stderr.read(2000)
+                    if stderr_bytes:
+                        stderr_output = stderr_bytes.decode("utf-8", errors="replace")
+                        on_log(f"Process output: {stderr_output[:500]}")
+            except:
+                pass
+        on_log(f"⏱️ Health check timed out after {timeout}s - process still running: {process.is_running}")
+        return {"success": False, "error_category": ErrorCategory.STARTUP_TIMEOUT, "stderr": stderr_output}
     
     def stop(self, service_id: str) -> RunResult:
         """Stop a running service."""

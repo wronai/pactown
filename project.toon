@@ -1,6 +1,6 @@
-# pactown | 46f 12257L | python:46
+# pactown | 47f 13414L | python:47
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
-M[46]:
+M[47]:
   tests/test_deploy_dockerfile.py,29
   tests/test_resolver.py,109
   tests/__init__.py,1
@@ -13,17 +13,18 @@ M[46]:
   src/pactown/config.py,137
   src/pactown/cli.py,462
   src/pactown/user_isolation.py,284
+  src/pactown/events.py,884
   src/pactown/generator.py,164
   src/pactown/security.py,570
   src/pactown/parallel.py,211
-  src/pactown/__init__.py,82
+  src/pactown/__init__.py,126
   src/pactown/fast_start.py,412
   src/pactown/markpact_blocks.py,25
   src/pactown/orchestrator.py,347
   src/pactown/resolver.py,122
-  src/pactown/sandbox_manager.py,390
+  src/pactown/sandbox_manager.py,412
   src/pactown/network.py,193
-  src/pactown/service_runner.py,911
+  src/pactown/service_runner.py,922
   src/pactown/deploy/quadlet_shell.py,432
   src/pactown/deploy/base.py,200
   src/pactown/deploy/docker.py,245
@@ -147,6 +148,22 @@ D:
     IsolatedUser: to_dict(0)  # Represents an isolated Linux user for...
     UserIsolationManager: __init__(2),_load_existing_users(0),_generate_username(1),get_or_create_user(1),get_user(1)  # Manages isolated Linux users for sand...
     get_isolation_manager()->UserIsolationManager
+  src/pactown/events.py:
+    i: datetime,abc.{ABC,abstractmethod},collections.defaultdict,dataclasses.{dataclass,field},datetime.UTC,enum.Enum,pathlib.Path,typing.Any
+    e: EventType,Event,EventStore,get_event_store,set_event_store,T,Aggregate,ServiceAggregate
+    EventType:   # Standard event types for service life...
+    Event: to_dict(0),from_dict(1)  # Immutable event record.
+    EventStore: __init__(1),_load_from_file(0),_save_to_file(0),append(1),_notify_subscribers(1)  # Append-only event store with subscrip...
+    Aggregate: __init__(2),apply_event(1),load_from_history(1),raise_event(3),get_pending_events(0)  # Base class for event-sourced aggregates.
+    ServiceAggregate: __init__(1),apply_event(1),to_dict(0)  # Event-sourced aggregate for service l...
+    get_event_store(persistence_path:Optional[Path]=None)->EventStore
+    set_event_store(store:EventStore)->None
+    get_service_commands(event_store:Optional[EventStore]=None)->ServiceCommands
+    get_service_queries(event_store:Optional[EventStore]=None)->ServiceQueries
+    get_project_commands(event_store:Optional[EventStore]=None)->ProjectCommands
+    get_project_queries(event_store:Optional[EventStore]=None)->ProjectQueries
+    get_security_commands(event_store:Optional[EventStore]=None)->SecurityCommands
+    get_security_queries(event_store:Optional[EventStore]=None)->SecurityQueries
   src/pactown/generator.py:
     i: re,yaml,markpact_blocks.parse_blocks,pathlib.Path,typing.Optional
     e: scan_readme,scan_folder,generate_config,print_scan_results

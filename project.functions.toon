@@ -1,6 +1,6 @@
 project: pactown
-generated: "2026-01-16T12:35:57.556529"
-modules[46]{path,lang,items}:
+generated: "2026-01-16T14:29:09.883124"
+modules[47]{path,lang,items}:
   tests/test_deploy_dockerfile.py,python,2
   tests/test_resolver.py,python,10
   tests/__init__.py,python,0
@@ -13,6 +13,7 @@ modules[46]{path,lang,items}:
   src/pactown/config.py,python,7
   src/pactown/cli.py,python,21
   src/pactown/user_isolation.py,python,14
+  src/pactown/events.py,python,75
   src/pactown/generator.py,python,4
   src/pactown/security.py,python,32
   src/pactown/parallel.py,python,6
@@ -189,6 +190,83 @@ function_details:
       UserIsolationManager.export_user_data,method,"(saas_user_id:str, output_path:Path) -> bool",266-286,false,21,4,Export user's data for migration.
       UserIsolationManager.import_user_data,method,"(saas_user_id:str, archive_path:Path) -> bool",288-314,false,27,3,Import user's data from migration archive.
       UserIsolationManager.delete_user,method,"(saas_user_id:str, delete_home:bool=True) -> bool",316-344,false,29,7,Delete an isolated user.
+  src/pactown/events.py:
+    functions[75]{name,kind,sig,loc,async,lines,cc,does}:
+      get_event_store,function,"(persistence_path:Optional[Path]=None) -> EventStore",355-360,false,6,2,Get or create global event store.
+      set_event_store,function,"(store:EventStore) -> None",363-366,false,4,1,Set the global event store instance.
+      get_service_commands,function,"(event_store:Optional[EventStore]=None) -> ServiceCommands",1039-1041,false,3,2,Get service command handlers.
+      get_service_queries,function,"(event_store:Optional[EventStore]=None) -> ServiceQueries",1044-1046,false,3,2,Get service query handlers.
+      get_project_commands,function,"(event_store:Optional[EventStore]=None) -> ProjectCommands",1049-1051,false,3,2,Get project command handlers.
+      get_project_queries,function,"(event_store:Optional[EventStore]=None) -> ProjectQueries",1054-1056,false,3,2,Get project query handlers.
+      get_security_commands,function,"(event_store:Optional[EventStore]=None) -> SecurityCommands",1059-1061,false,3,2,Get security command handlers.
+      get_security_queries,function,"(event_store:Optional[EventStore]=None) -> SecurityQueries",1064-1066,false,3,2,Get security query handlers.
+      Event.to_dict,method,"() -> Dict[str, Any]",111-123,false,13,2,Serialize event to dictionary for JSON storage.
+      Event.from_dict,method,"(d:Dict[str,Any]) -> \"Event\"",126-144,false,19,3,Deserialize event from dictionary.
+      EventStore.__init__,method,"(persistence_path:Optional[Path]=None) -> None",160-175,false,16,3,Initialize event store.
+      EventStore._load_from_file,method,() -> None,177-185,false,9,3,Load events from persistence file.
+      EventStore._save_to_file,method,() -> None,187-197,false,11,3,Persist events to file.
+      EventStore.append,method,"(event:Event) -> Event",199-231,true,33,2,Append event to store and notify subscribers.
+      EventStore._notify_subscribers,method,"(event:Event) -> None",233-247,true,15,4,Notify all relevant subscribers of an event.
+      EventStore.subscribe,method,"(event_type:Any, handler:Callable) -> Callable[[], None]",249-265,false,17,1,Subscribe to events of a specific type.
+      EventStore.subscribe_all,method,"(handler:Callable) -> Callable[[], None]",267-282,false,16,1,Subscribe to all events.
+      EventStore.get_events,method,"(aggregate_id:Optional[str]=None, aggregate_type:Optional[str]=None, event_type:Optional[Any]=None, since:Optional[datetime]=None, until:Optional[datetime]=None, since_sequence:Optional[int]=None, limit:int=100) -> List[Event]",284-324,false,41,19,Query events with filters.
+      EventStore.get_aggregate_history,method,"(aggregate_id:str) -> List[Event]",326-331,false,6,3,Get all events for a specific aggregate in order.
+      EventStore.count,method,"(event_type:Optional[Any]=None) -> int",333-337,false,5,4,"Count events, optionally filtered by type."
+      EventStore.get_current_sequence,method,() -> int,339-341,false,3,1,Get current sequence number.
+      EventStore.clear,method,() -> None,343-348,false,6,3,Clear all events (use with caution).
+      Aggregate.__init__,method,"(aggregate_id:str, aggregate_type:str) -> None",395-399,false,5,1,creates
+      Aggregate.apply_event,method,"(event:Event) -> None",402-404,false,3,1,Apply an event to update aggregate state.
+      Aggregate.load_from_history,method,"(events:List[Event]) -> None",406-410,false,5,2,Rebuild state from event history.
+      Aggregate.raise_event,method,"(event_type:Any, data:Dict[str,Any], metadata:Optional[Dict[str,Any]]=None) -> Event",412-433,false,22,2,Raise a new event from this aggregate.
+      Aggregate.get_pending_events,method,"() -> List[Event]",435-437,false,3,1,Get events raised but not yet persisted.
+      Aggregate.clear_pending_events,method,() -> None,439-441,false,3,1,Clear pending events after persistence.
+      Aggregate.load,method,"(cls:type[T], aggregate_id:str, event_store:EventStore) -> T",444-449,true,6,1,Load aggregate from event store.
+      ServiceAggregate.__init__,method,"(aggregate_id:str) -> None",462-473,false,12,1,creates
+      ServiceAggregate.apply_event,method,"(event:Event) -> None",475-501,false,27,7,Apply event to update service state.
+      ServiceAggregate.to_dict,method,"() -> Dict[str, Any]",503-518,false,16,3,Serialize aggregate state.
+      ServiceCommands.__init__,method,"(event_store:EventStore) -> None",530-531,false,2,1,creates
+      ServiceCommands.create_service,method,"(service_id:int, user_id:int, name:str, port:int) -> Event",533-555,true,23,1,Record service creation.
+      ServiceCommands.start_service,method,"(service_id:int, pid:Optional[int]=None, startup_time_ms:Optional[float]=None, cached:bool=False) -> Event",557-576,true,20,1,Record service start.
+      ServiceCommands.stop_service,method,"(service_id:int, reason:str='user_request') -> Event",578-593,true,16,1,Record service stop.
+      ServiceCommands.record_error,method,"(service_id:int, error:str, details:Optional[Dict]=None, fatal:bool=False) -> Event",595-614,true,20,2,Record service error.
+      ServiceCommands.record_health_check,method,"(service_id:int, healthy:bool, response_time_ms:Optional[float]=None, status_code:Optional[int]=None) -> Event",616-635,true,20,1,Record health check result.
+      ServiceCommands.delete_service,method,"(service_id:int, user_id:Optional[int]=None) -> Event",637-650,true,14,2,Record service deletion.
+      ProjectCommands.__init__,method,"(event_store:EventStore) -> None",656-657,false,2,1,creates
+      ProjectCommands.create_project,method,"(project_id:int, user_id:int, name:str) -> Event",659-679,true,21,1,Record project creation.
+      ProjectCommands.update_project,method,"(project_id:int, changes:Dict[str,Any], user_id:Optional[int]=None) -> Event",681-698,true,18,2,Record project update.
+      ProjectCommands.delete_project,method,"(project_id:int, user_id:Optional[int]=None) -> Event",700-713,true,14,2,Record project deletion.
+      SecurityCommands.__init__,method,"(event_store:EventStore) -> None",719-720,false,2,1,creates
+      SecurityCommands.record_security_check,method,"(user_id:str, service_id:str, passed:bool, reason:Optional[str]=None, details:Optional[Dict]=None) -> Event",722-744,true,23,3,Record security check result.
+      SecurityCommands.record_rate_limit,method,"(user_id:str, endpoint:str, limit:int) -> Event",746-763,true,18,1,Record rate limit hit.
+      SecurityCommands.record_anomaly,method,"(user_id:str, anomaly_type:str, severity:str, details:Optional[Dict]=None) -> Event",765-784,true,20,2,Record security anomaly.
+      ServiceQueries.__init__,method,"(event_store:EventStore) -> None",796-797,false,2,1,creates
+      ServiceQueries.get_service_history,method,"(service_id:int) -> List[Dict]",799-802,false,4,2,Get history of events for a service.
+      ServiceQueries.get_recent_starts,method,"(limit:int=10) -> List[Dict]",804-810,false,7,2,Get recent service starts.
+      ServiceQueries.get_recent_errors,method,"(limit:int=10) -> List[Dict]",812-818,false,7,2,Get recent service errors.
+      ServiceQueries.get_recent_health_checks,method,"(service_id:Optional[int]=None, limit:int=10) -> List[Dict]",820-828,false,9,3,Get recent health check results.
+      ServiceQueries.get_stats,method,"() -> Dict[str, int]",830-840,false,11,1,Get event statistics.
+      ServiceQueries.get_service_state,method,"(service_id:int) -> Dict[str, Any]",842-848,true,7,1,Rebuild current service state from events.
+      ServiceQueries.get_user_services,method,"(user_id:int) -> List[Dict]",850-856,false,7,4,Get all service events for a user.
+      ProjectQueries.__init__,method,"(event_store:EventStore) -> None",862-863,false,2,1,creates
+      ProjectQueries.get_project_history,method,"(project_id:int) -> List[Dict]",865-868,false,4,2,Get history of events for a project.
+      ProjectQueries.get_recent_projects,method,"(user_id:Optional[int]=None, limit:int=10) -> List[Dict]",870-878,false,9,5,Get recently created projects.
+      ProjectQueries.get_stats,method,"() -> Dict[str, int]",880-886,false,7,1,Get project statistics.
+      SecurityQueries.__init__,method,"(event_store:EventStore) -> None",892-893,false,2,1,creates
+      SecurityQueries.get_recent_security_failures,method,"(limit:int=10) -> List[Dict]",895-901,false,7,2,Get recent security check failures.
+      SecurityQueries.get_user_security_history,method,"(user_id:str, limit:int=50) -> List[Dict]",903-910,false,8,2,Get security event history for a user.
+      SecurityQueries.get_rate_limit_hits,method,"(since:Optional[datetime]=None, limit:int=100) -> List[Dict]",912-919,false,8,2,Get recent rate limit hits.
+      SecurityQueries.get_anomalies,method,"(severity:Optional[str]=None, limit:int=50) -> List[Dict]",921-929,false,9,5,Get security anomalies.
+      SecurityQueries.get_stats,method,"() -> Dict[str, int]",931-938,false,8,1,Get security statistics.
+      Projection.__init__,method,"(event_store:EventStore) -> None",950-952,false,3,1,creates
+      Projection.apply,method,"(event:Event) -> None",955-957,false,3,1,Apply an event to update the projection.
+      Projection.rebuild,method,() -> None,959-964,false,6,2,Rebuild projection from all events.
+      Projection.catch_up,method,() -> None,966-974,false,9,2,Apply new events since last update.
+      ServiceStatusProjection.__init__,method,"(event_store:EventStore) -> None",984-986,false,3,1,creates
+      ServiceStatusProjection.apply,method,"(event:Event) -> None",988-1019,false,32,11,Update service status based on event.
+      ServiceStatusProjection.get_all,method,"() -> List[Dict[str, Any]]",1021-1023,false,3,1,Get all services.
+      ServiceStatusProjection.get_running,method,"() -> List[Dict[str, Any]]",1025-1027,false,3,3,Get only running services.
+      ServiceStatusProjection.get_by_user,method,"(user_id:int) -> List[Dict[str, Any]]",1029-1031,false,3,3,Get services for a specific user.
+      ServiceStatusProjection.get,method,"(service_id:str) -> Optional[Dict[str, Any]]",1033-1035,false,3,1,Get a specific service.
   src/pactown/generator.py:
     functions[4]{name,kind,sig,loc,async,lines,cc,does}:
       scan_readme,function,"(readme_path:Path) -> dict",14-75,false,62,12,Scan a README.md and extract service configuration.
@@ -300,15 +378,15 @@ function_details:
       SandboxManager.__init__,method,"(sandbox_root:Any) -> None",61-64,false,4,1,creates
       SandboxManager.get_sandbox_path,method,"(service_name:str) -> Path",66-68,false,3,1,Get sandbox path for a service.
       SandboxManager.create_sandbox,method,"(service:ServiceConfig, readme_path:Path, install_dependencies:bool=True) -> Sandbox",70-108,false,39,11,Create a sandbox for a service from its README.
-      SandboxManager.start_service,method,"(service:ServiceConfig, readme_path:Path, env:dict[str,str], verbose:bool=True, restart_if_running:bool=False, on_log:Optional[Callable[Any,None]]=None) -> ServiceProcess",110-280,false,171,22,Start a service in its sandbox.
-      SandboxManager.stop_service,method,"(service_name:str, timeout:int=10) -> bool",282-332,false,51,10,Stop a running service.
-      SandboxManager.stop_all,method,"(timeout:int=10) -> None",334-337,false,4,2,Stop all running services.
-      SandboxManager.get_status,method,"(service_name:str) -> Optional[dict]",339-352,false,14,2,Get status of a service.
-      SandboxManager.get_all_status,method,"() -> list[dict]",354-360,false,7,3,Get status of all services.
-      SandboxManager.clean_sandbox,method,"(service_name:str) -> None",362-366,false,5,2,Remove sandbox directory for a service.
-      SandboxManager.clean_all,method,() -> None,368-372,false,5,2,Remove all sandbox directories.
-      SandboxManager.create_sandboxes_parallel,method,"(services:list[tuple[ServiceConfig,Path]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, Sandbox]",374-428,false,55,8,Create sandboxes for multiple services in parallel.
-      SandboxManager.start_services_parallel,method,"(services:list[tuple[ServiceConfig,Path,dict[str,str]]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, ServiceProcess]",430-487,false,58,6,Start multiple services in parallel.
+      SandboxManager.start_service,method,"(service:ServiceConfig, readme_path:Path, env:dict[str,str], verbose:bool=True, restart_if_running:bool=False, on_log:Optional[Callable[Any,None]]=None) -> ServiceProcess",110-309,false,200,28,Start a service in its sandbox.
+      SandboxManager.stop_service,method,"(service_name:str, timeout:int=10) -> bool",311-361,false,51,10,Stop a running service.
+      SandboxManager.stop_all,method,"(timeout:int=10) -> None",363-366,false,4,2,Stop all running services.
+      SandboxManager.get_status,method,"(service_name:str) -> Optional[dict]",368-381,false,14,2,Get status of a service.
+      SandboxManager.get_all_status,method,"() -> list[dict]",383-389,false,7,3,Get status of all services.
+      SandboxManager.clean_sandbox,method,"(service_name:str) -> None",391-395,false,5,2,Remove sandbox directory for a service.
+      SandboxManager.clean_all,method,() -> None,397-401,false,5,2,Remove all sandbox directories.
+      SandboxManager.create_sandboxes_parallel,method,"(services:list[tuple[ServiceConfig,Path]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, Sandbox]",403-457,false,55,8,Create sandboxes for multiple services in parallel.
+      SandboxManager.start_services_parallel,method,"(services:list[tuple[ServiceConfig,Path,dict[str,str]]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, ServiceProcess]",459-516,false,58,6,Start multiple services in parallel.
   src/pactown/network.py:
     functions[19]{name,kind,sig,loc,async,lines,cc,does}:
       find_free_port,function,"(start:int=10000, end:int=65000) -> int",230-233,false,4,1,Find a single free port.
@@ -339,15 +417,15 @@ function_details:
       ServiceRunner.validate_content,method,"(content:str) -> ValidationResult",279-309,false,31,11,Validate markpact content before running.
       ServiceRunner.run_from_content,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, restart_if_running:bool=True, wait_for_health:bool=True, health_timeout:Optional[int]=None) -> RunResult",311-527,true,217,25,Run a service directly from markdown content.
       ServiceRunner._generate_suggestions,method,"(error_cat:ErrorCategory, stderr:str, port:int) -> List[AutoFixSuggestion]",529-608,false,80,15,Generate actionable suggestions based on error type.
-      ServiceRunner._wait_for_health,method,"(process:ServiceProcess, port:int, timeout:int, on_log:Callable[Any,None]) -> dict",610-664,true,55,14,Wait for service to pass health check.
-      ServiceRunner.stop,method,"(service_id:str) -> RunResult",666-729,false,64,6,Stop a running service.
-      ServiceRunner.get_status,method,"(service_id:str) -> Optional[Dict]",731-749,false,19,3,Get status of a service.
-      ServiceRunner.list_services,method,"() -> List[Dict]",751-764,false,14,3,List all running services.
-      ServiceRunner.test_endpoints,method,"(service_id:str, endpoints:Optional[List[str]]=None, timeout:float=5.0) -> List[EndpointTestResult]",766-826,true,61,8,Test endpoints of a running service.
-      ServiceRunner.stop_all,method,() -> None,828-831,false,4,2,Stop all running services.
-      ServiceRunner.fast_run,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, user_id:Optional[str]=None, user_profile:Optional[Dict[str,Any]]=None, skip_health_check:bool=False) -> RunResult",833-1077,true,245,24,Fast service startup with dependency caching.
-      ServiceRunner._quick_health_check,method,"(process:Any, port:int, timeout:int=5) -> bool",1079-1100,true,22,5,Quick health check with shorter timeout.
-      ServiceRunner.get_cache_stats,method,"() -> Dict[str, Any]",1102-1106,false,5,2,Get fast start cache statistics.
+      ServiceRunner._wait_for_health,method,"(process:ServiceProcess, port:int, timeout:int, on_log:Callable[Any,None]) -> dict",610-675,true,66,20,Wait for service to pass health check.
+      ServiceRunner.stop,method,"(service_id:str) -> RunResult",677-740,false,64,6,Stop a running service.
+      ServiceRunner.get_status,method,"(service_id:str) -> Optional[Dict]",742-760,false,19,3,Get status of a service.
+      ServiceRunner.list_services,method,"() -> List[Dict]",762-775,false,14,3,List all running services.
+      ServiceRunner.test_endpoints,method,"(service_id:str, endpoints:Optional[List[str]]=None, timeout:float=5.0) -> List[EndpointTestResult]",777-837,true,61,8,Test endpoints of a running service.
+      ServiceRunner.stop_all,method,() -> None,839-842,false,4,2,Stop all running services.
+      ServiceRunner.fast_run,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, user_id:Optional[str]=None, user_profile:Optional[Dict[str,Any]]=None, skip_health_check:bool=False) -> RunResult",844-1088,true,245,24,Fast service startup with dependency caching.
+      ServiceRunner._quick_health_check,method,"(process:Any, port:int, timeout:int=5) -> bool",1090-1111,true,22,5,Quick health check with shorter timeout.
+      ServiceRunner.get_cache_stats,method,"() -> Dict[str, Any]",1113-1117,false,5,2,Get fast start cache statistics.
   src/pactown/deploy/quadlet_shell.py:
     functions[23]{name,kind,sig,loc,async,lines,cc,does}:
       run_shell,function,"(tenant_id:str='default', domain:str='localhost', user_mode:bool=True) -> None",539-553,false,15,2,Run the interactive Quadlet shell.
