@@ -1,11 +1,12 @@
-# pactown | 38f 8989L | python:38
+# pactown | 40f 9575L | python:40
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
-M[38]:
+M[40]:
   tests/test_deploy_dockerfile.py,29
   tests/test_resolver.py,109
   tests/__init__.py,1
   tests/test_parallel.py,106
   tests/test_config.py,110
+  tests/test_markpact_blocks.py,36
   tests/test_quadlet_security.py,500
   tests/test_network.py,87
   tests/test_registry.py,110
@@ -13,12 +14,13 @@ M[38]:
   src/pactown/cli.py,462
   src/pactown/generator.py,164
   src/pactown/parallel.py,211
-  src/pactown/__init__.py,20
-  src/pactown/markpact_blocks.py,26
+  src/pactown/__init__.py,30
+  src/pactown/markpact_blocks.py,25
   src/pactown/orchestrator.py,347
   src/pactown/resolver.py,122
-  src/pactown/sandbox_manager.py,274
+  src/pactown/sandbox_manager.py,288
   src/pactown/network.py,193
+  src/pactown/service_runner.py,419
   src/pactown/deploy/quadlet_shell.py,432
   src/pactown/deploy/base.py,200
   src/pactown/deploy/docker.py,245
@@ -76,6 +78,12 @@ D:
     test_ecosystem_config_from_yaml()->None
     test_ecosystem_config_to_dict()->None
     test_load_config_file_not_found()->None
+  tests/test_markpact_blocks.py:
+    i: pactown.markpact_blocks.parse_blocks
+    e: test_parse_blocks_new_format_includes_lang,test_parse_blocks_old_format_is_supported,test_parse_blocks_run_block_new_format
+    test_parse_blocks_new_format_includes_lang()->None
+    test_parse_blocks_old_format_is_supported()->None
+    test_parse_blocks_run_block_new_format()->None
   tests/test_quadlet_security.py:
     i: re,sys,tempfile,pytest,pactown.deploy.quadlet.{QuadletConfig,QuadletTemplates,QuadletUnit},pathlib.Path,unittest.mock.{MagicMock,patch}
     e: TestContainerNameInjection,TestEnvironmentVariableInjection,TestVolumeMountInjection,TestTraefikLabelInjection,TestSystemdUnitInjection,TestTenantIsolation,TestCommandInjection,TestAPISecurityInjection
@@ -163,7 +171,7 @@ D:
     i: os,shutil,signal,subprocess,time,concurrent.futures.{ThreadPoolExecutor,as_completed},dataclasses.{dataclass,field},pathlib.Path
     e: ServiceProcess,SandboxManager
     ServiceProcess: is_running(0)  # Represents a running service process.
-    SandboxManager: __init__(1),get_sandbox_path(1),create_sandbox(3),start_service(4),stop_service(2)  # Manages sandboxes for multiple services.
+    SandboxManager: __init__(1),get_sandbox_path(1),create_sandbox(3),start_service(5),stop_service(2)  # Manages sandboxes for multiple services.
   src/pactown/network.py:
     i: json,socket,dataclasses.dataclass,pathlib.Path,threading.Lock,typing.Optional
     e: ServiceEndpoint,PortAllocator,ServiceRegistry,find_free_port,check_port
@@ -172,6 +180,14 @@ D:
     ServiceRegistry: __init__(2),_load(0),_save(0),register(3),unregister(1)  # Local service registry for name-based...
     find_free_port(start:int=10000;end:int=65000)->int
     check_port(port:int)->bool
+  src/pactown/service_runner.py:
+    i: asyncio,os,signal,subprocess,time,dataclasses.{dataclass,field},pathlib.Path,typing.{Callable,Dict}
+    e: kill_process_on_port,RunResult,EndpointTestResult,ValidationResult,ServiceRunner
+    RunResult:   # Result of running a service.
+    EndpointTestResult:   # Result of testing an endpoint.
+    ValidationResult:   # Result of validating markpact content.
+    ServiceRunner: __init__(3),validate_content(1),run_from_content(7),_wait_for_health(4),stop(1)  # High-level service runner for markpac...
+    kill_process_on_port(port:int)->bool
   src/pactown/deploy/quadlet_shell.py:
     i: cmd,shutil,base.DeploymentConfig,pathlib.Path,quadlet.QuadletBackend,rich.console.Console,rich.panel.Panel,rich.prompt.Confirm,rich.syntax.Syntax,rich.table.Table
     e: QuadletShell,run_shell
@@ -243,7 +259,7 @@ D:
     RegistryClient: __init__(2),__enter__(0),__exit__(0),close(0),health(0)  # Client for interacting with pactown r...
     AsyncRegistryClient: __init__(2),__aenter__(0),__aexit__(0),close(0),health(0)  # Async client for pactown registry.
   src/pactown/registry/models.py:
-    i: json,datetime,dataclasses.{dataclass,field},pathlib.Path,typing.{Any,Optional}
+    i: json,datetime,dataclasses.{dataclass,field},datetime.timezone,pathlib.Path,typing.{Any,Optional}
     e: ArtifactVersion,Artifact,RegistryStorage
     ArtifactVersion: to_dict(0),from_dict(1)  # A specific version of an artifact.
     Artifact: full_name(0),add_version(1),get_version(1),to_dict(0),from_dict(1)  # An artifact in the registry (a markpa...

@@ -97,12 +97,27 @@ class SandboxManager:
         readme_path: Path,
         env: dict[str, str],
         verbose: bool = True,
+        restart_if_running: bool = False,
     ) -> ServiceProcess:
-        """Start a service in its sandbox."""
+        """Start a service in its sandbox.
+        
+        Args:
+            service: Service configuration
+            readme_path: Path to README.md with markpact blocks
+            env: Environment variables to pass to the service
+            verbose: Print status messages
+            restart_if_running: If True, stop and restart if already running
+        """
         if service.name in self._processes:
             existing = self._processes[service.name]
             if existing.is_running:
-                raise RuntimeError(f"Service {service.name} is already running")
+                if restart_if_running:
+                    if verbose:
+                        print(f"Restarting {service.name}...")
+                    self.stop_service(service.name)
+                    self.clean_sandbox(service.name)
+                else:
+                    raise RuntimeError(f"Service {service.name} is already running")
 
         sandbox = self.create_sandbox(service, readme_path, install_dependencies=True)
 

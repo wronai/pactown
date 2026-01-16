@@ -4,8 +4,7 @@ import re
 from dataclasses import dataclass
 
 CODEBLOCK_RE = re.compile(
-    r"^```(?:(?P<lang>[^\s]+)\s+)?markpact:(?P<kind>\w+)(?:\s+(?P<meta>[^\n]+))?\n(?P<body>.*?)\n^```[ \t]*$",
-    re.DOTALL | re.MULTILINE,
+    r"```(?P<lang>\w+)\s+markpact:(?P<kind>\w+)(?:[ \t]+(?P<meta>[^\n]*))?\n(?P<body>[\s\S]*?)\n```",
 )
 
 

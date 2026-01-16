@@ -1,11 +1,12 @@
 project: pactown
-generated: "2026-01-15T20:28:17.555675"
-modules[38]{path,lang,items}:
+generated: "2026-01-16T11:16:58.706332"
+modules[40]{path,lang,items}:
   tests/test_deploy_dockerfile.py,python,2
   tests/test_resolver.py,python,10
   tests/__init__.py,python,0
   tests/test_parallel.py,python,6
   tests/test_config.py,python,9
+  tests/test_markpact_blocks.py,python,3
   tests/test_quadlet_security.py,python,24
   tests/test_network.py,python,12
   tests/test_registry.py,python,10
@@ -19,6 +20,7 @@ modules[38]{path,lang,items}:
   src/pactown/resolver.py,python,8
   src/pactown/sandbox_manager.py,python,13
   src/pactown/network.py,python,19
+  src/pactown/service_runner.py,python,10
   src/pactown/deploy/quadlet_shell.py,python,23
   src/pactown/deploy/base.py,python,14
   src/pactown/deploy/docker.py,python,8
@@ -76,6 +78,11 @@ function_details:
       test_ecosystem_config_to_dict,function,() -> None,111-121,false,11,1,checks ecosystem config to dict
       test_load_config_file_not_found,function,() -> None,124-126,false,3,1,checks load config file not found
       test_registry_config_defaults,function,() -> None,129-133,false,5,1,checks registry config defaults
+  tests/test_markpact_blocks.py:
+    functions[3]{name,kind,sig,loc,async,lines,cc,does}:
+      test_parse_blocks_new_format_includes_lang,function,() -> None,4-18,false,15,1,checks parse blocks new format includes lang
+      test_parse_blocks_old_format_is_supported,function,() -> None,21-35,false,15,1,checks parse blocks old format is supported
+      test_parse_blocks_run_block_new_format,function,() -> None,38-51,false,14,1,checks parse blocks run block new format
   tests/test_quadlet_security.py:
     functions[24]{name,kind,sig,loc,async,lines,cc,does}:
       temp_dir,function,() -> None,675-678,false,4,1,Create temporary directory for tests.
@@ -176,8 +183,8 @@ function_details:
       ParallelSandboxBuilder.build_sandboxes,method,"(services:list[tuple[str,Path,Callable]], on_complete:Optional[Callable[Any,None]]=None) -> dict[str, TaskResult]",221-249,false,29,2,Build sandboxes for multiple services in parallel.
   src/pactown/markpact_blocks.py:
     functions[2]{name,kind,sig,loc,async,lines,cc,does}:
-      parse_blocks,function,"(text:str) -> list[Block]",24-33,false,10,4,parses blocks
-      Block.get_path,method,() -> str | None,19-21,false,3,2,retrieves path
+      parse_blocks,function,"(text:str) -> list[Block]",23-32,false,10,4,parses blocks
+      Block.get_path,method,() -> str | None,18-20,false,3,2,retrieves path
   src/pactown/orchestrator.py:
     functions[18]{name,kind,sig,loc,async,lines,cc,does}:
       run_ecosystem,function,"(config_path:Any, wait:bool=True) -> Orchestrator",434-452,false,19,5,Convenience function to start an ecosystem.
@@ -214,15 +221,15 @@ function_details:
       SandboxManager.__init__,method,"(sandbox_root:Any) -> None",45-48,false,4,1,creates
       SandboxManager.get_sandbox_path,method,"(service_name:str) -> Path",50-52,false,3,1,Get sandbox path for a service.
       SandboxManager.create_sandbox,method,"(service:ServiceConfig, readme_path:Path, install_dependencies:bool=True) -> Sandbox",54-92,false,39,11,Create a sandbox for a service from its README.
-      SandboxManager.start_service,method,"(service:ServiceConfig, readme_path:Path, env:dict[str,str], verbose:bool=True) -> ServiceProcess",94-151,false,58,10,Start a service in its sandbox.
-      SandboxManager.stop_service,method,"(service_name:str, timeout:int=10) -> bool",153-183,false,31,8,Stop a running service.
-      SandboxManager.stop_all,method,"(timeout:int=10) -> None",185-188,false,4,2,Stop all running services.
-      SandboxManager.get_status,method,"(service_name:str) -> Optional[dict]",190-203,false,14,2,Get status of a service.
-      SandboxManager.get_all_status,method,"() -> list[dict]",205-211,false,7,3,Get status of all services.
-      SandboxManager.clean_sandbox,method,"(service_name:str) -> None",213-217,false,5,2,Remove sandbox directory for a service.
-      SandboxManager.clean_all,method,() -> None,219-223,false,5,2,Remove all sandbox directories.
-      SandboxManager.create_sandboxes_parallel,method,"(services:list[tuple[ServiceConfig,Path]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, Sandbox]",225-279,false,55,8,Create sandboxes for multiple services in parallel.
-      SandboxManager.start_services_parallel,method,"(services:list[tuple[ServiceConfig,Path,dict[str,str]]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, ServiceProcess]",281-338,false,58,6,Start multiple services in parallel.
+      SandboxManager.start_service,method,"(service:ServiceConfig, readme_path:Path, env:dict[str,str], verbose:bool=True, restart_if_running:bool=False) -> ServiceProcess",94-166,false,73,12,Start a service in its sandbox.
+      SandboxManager.stop_service,method,"(service_name:str, timeout:int=10) -> bool",168-198,false,31,8,Stop a running service.
+      SandboxManager.stop_all,method,"(timeout:int=10) -> None",200-203,false,4,2,Stop all running services.
+      SandboxManager.get_status,method,"(service_name:str) -> Optional[dict]",205-218,false,14,2,Get status of a service.
+      SandboxManager.get_all_status,method,"() -> list[dict]",220-226,false,7,3,Get status of all services.
+      SandboxManager.clean_sandbox,method,"(service_name:str) -> None",228-232,false,5,2,Remove sandbox directory for a service.
+      SandboxManager.clean_all,method,() -> None,234-238,false,5,2,Remove all sandbox directories.
+      SandboxManager.create_sandboxes_parallel,method,"(services:list[tuple[ServiceConfig,Path]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, Sandbox]",240-294,false,55,8,Create sandboxes for multiple services in parallel.
+      SandboxManager.start_services_parallel,method,"(services:list[tuple[ServiceConfig,Path,dict[str,str]]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, ServiceProcess]",296-353,false,58,6,Start multiple services in parallel.
   src/pactown/network.py:
     functions[19]{name,kind,sig,loc,async,lines,cc,does}:
       find_free_port,function,"(start:int=10000, end:int=65000) -> int",230-233,false,4,1,Find a single free port.
@@ -244,6 +251,18 @@ function_details:
       ServiceRegistry.list_services,method,"() -> list[ServiceEndpoint]",190-192,false,3,1,List all registered services.
       ServiceRegistry.get_environment,method,"(service_name:str, dependencies:list[str]) -> dict[str, str]",194-219,false,26,4,Get environment variables for a service.
       ServiceRegistry.clear,method,() -> None,221-227,false,7,2,Clear all registrations.
+  src/pactown/service_runner.py:
+    functions[10]{name,kind,sig,loc,async,lines,cc,does}:
+      kill_process_on_port,function,"(port:int) -> bool",20-53,false,34,7,Kill any process using the specified port.
+      ServiceRunner.__init__,method,"(sandbox_root:Any='/tmp/pactown-sandboxes', default_health_check:str='/health', health_timeout:int=10) -> None",109-120,false,12,1,creates
+      ServiceRunner.validate_content,method,"(content:str) -> ValidationResult",122-152,false,31,11,Validate markpact content before running.
+      ServiceRunner.run_from_content,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, restart_if_running:bool=True, wait_for_health:bool=True, health_timeout:Optional[int]=None) -> RunResult",154-306,true,153,14,Run a service directly from markdown content.
+      ServiceRunner._wait_for_health,method,"(process:ServiceProcess, port:int, timeout:int, on_log:Callable[Any,None]) -> bool",308-346,true,39,10,Wait for service to pass health check.
+      ServiceRunner.stop,method,"(service_id:str) -> RunResult",348-404,false,57,5,Stop a running service.
+      ServiceRunner.get_status,method,"(service_id:str) -> Optional[Dict]",406-424,false,19,3,Get status of a service.
+      ServiceRunner.list_services,method,"() -> List[Dict]",426-439,false,14,3,List all running services.
+      ServiceRunner.test_endpoints,method,"(service_id:str, endpoints:Optional[List[str]]=None, timeout:float=5.0) -> List[EndpointTestResult]",441-501,true,61,8,Test endpoints of a running service.
+      ServiceRunner.stop_all,method,() -> None,503-506,false,4,2,Stop all running services.
   src/pactown/deploy/quadlet_shell.py:
     functions[23]{name,kind,sig,loc,async,lines,cc,does}:
       run_shell,function,"(tenant_id:str='default', domain:str='localhost', user_mode:bool=True) -> None",539-553,false,15,2,Run the interactive Quadlet shell.
