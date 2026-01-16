@@ -174,6 +174,10 @@ class SandboxManager:
 
         full_env = os.environ.copy()
         full_env.update(env)
+        
+        # Ensure PORT is always set in environment
+        full_env["PORT"] = str(service.port)
+        full_env["MARKPACT_PORT"] = str(service.port)
 
         if sandbox.has_venv():
             venv_bin = str(sandbox.venv_bin)
@@ -185,7 +189,32 @@ class SandboxManager:
 
         # Expand $PORT in command
         expanded_cmd = run_command.replace("$PORT", str(service.port))
-        log(f"Expanded command: {expanded_cmd}", "DEBUG")
+        expanded_cmd = expanded_cmd.replace("${PORT}", str(service.port))
+        expanded_cmd = expanded_cmd.replace("${MARKPACT_PORT}", str(service.port))
+        expanded_cmd = expanded_cmd.replace("$MARKPACT_PORT", str(service.port))
+        
+        # Replace hardcoded ports in run command with the requested port
+        # This handles cases where LLM generates hardcoded ports like --port 8000
+        import re
+        port_patterns = [
+            (r'--port[=\s]+(\d+)', f'--port {service.port}'),  # --port 8000 or --port=8000
+            (r'-p[=\s]+(\d+)', f'-p {service.port}'),          # -p 8000 or -p=8000
+            (r':(\d{4,5})(?=\s|$|")', f':{service.port}'),     # :8000 at end of string
+        ]
+        
+        original_cmd = expanded_cmd
+        for pattern, replacement in port_patterns:
+            match = re.search(pattern, expanded_cmd)
+            if match:
+                old_port = match.group(1) if match.groups() else None
+                if old_port and old_port != str(service.port):
+                    log(f"Replacing hardcoded port {old_port} with {service.port}", "INFO")
+                    expanded_cmd = re.sub(pattern, replacement, expanded_cmd)
+        
+        if expanded_cmd != original_cmd:
+            log(f"Port-corrected command: {expanded_cmd}", "INFO")
+        else:
+            log(f"Expanded command: {expanded_cmd}", "DEBUG")
 
         log(f"Starting process...", "INFO")
 
