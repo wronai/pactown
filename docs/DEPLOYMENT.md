@@ -1,6 +1,10 @@
 # Production Deployment Guide
 
-> **See also:** [README](../README.md) | [Specification](SPECIFICATION.md) | [Configuration](CONFIGURATION.md) | [Network](NETWORK.md) | [Quadlet](QUADLET.md) | [Security](SECURITY.md)
+[← Back to README](../README.md) | [Configuration](CONFIGURATION.md) | [Quadlet →](QUADLET.md)
+
+---
+
+> **Related:** [Network](NETWORK.md) | [Security](SECURITY.md) | [User Isolation](USER_ISOLATION.md)
 
 This guide covers deploying pactown ecosystems to production using Docker, Podman, and Kubernetes.
 

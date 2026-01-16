@@ -1,6 +1,10 @@
 # Configuration Reference
 
-> **See also:** [README](../README.md) | [Specification](SPECIFICATION.md) | [Network](NETWORK.md) | [Generator](GENERATOR.md)
+[← Back to README](../README.md) | [Specification](SPECIFICATION.md) | [Network](NETWORK.md) | [Deployment →](DEPLOYMENT.md)
+
+---
+
+> **Related:** [Generator](GENERATOR.md) | [Fast Start](FAST_START.md) | [Security Policy](SECURITY_POLICY.md)
 
 Complete reference for `saas.pactown.yaml` configuration files.
 

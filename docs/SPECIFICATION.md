@@ -1,5 +1,9 @@
 # Pactown System Specification
 
+[← Back to README](../README.md) | [Configuration →](CONFIGURATION.md)
+
+---
+
 ## Problem Statement
 
 Modern software systems are increasingly composed of multiple independent services that need to work together. However, setting up and managing these systems presents several challenges:

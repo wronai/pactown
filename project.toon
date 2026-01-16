@@ -1,6 +1,6 @@
-# pactown | 43f 11915L | python:43
+# pactown | 46f 12257L | python:46
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
-M[43]:
+M[46]:
   tests/test_deploy_dockerfile.py,29
   tests/test_resolver.py,109
   tests/__init__.py,1
@@ -23,7 +23,7 @@ M[43]:
   src/pactown/resolver.py,122
   src/pactown/sandbox_manager.py,390
   src/pactown/network.py,193
-  src/pactown/service_runner.py,908
+  src/pactown/service_runner.py,911
   src/pactown/deploy/quadlet_shell.py,432
   src/pactown/deploy/base.py,200
   src/pactown/deploy/docker.py,245
@@ -37,6 +37,9 @@ M[43]:
   src/pactown/registry/__init__.py,10
   src/pactown/registry/client.py,217
   src/pactown/registry/models.py,127
+  examples/user-isolation/demo.py,67
+  examples/security-policy/demo.py,71
+  examples/fast-start-demo/demo.py,85
   examples/saas-platform/.pactown-sandboxes/gateway/gateway.py,112
   examples/saas-platform/.pactown-sandboxes/web/server.py,34
   examples/saas-platform/.pactown-sandboxes/database/main.py,56
@@ -293,6 +296,18 @@ D:
     ArtifactVersion: to_dict(0),from_dict(1)  # A specific version of an artifact.
     Artifact: full_name(0),add_version(1),get_version(1),to_dict(0),from_dict(1)  # An artifact in the registry (a markpa...
     RegistryStorage: __init__(1),_load(0),_save(0),get(2),list(1)  # File-based storage for registry artif...
+  examples/user-isolation/demo.py:
+    i: tempfile,sys,pactown.UserIsolationManager,pathlib.Path
+    e: main
+    main()->None
+  examples/security-policy/demo.py:
+    i: asyncio,sys,pactown.{AnomalyType,SecurityPolicy,UserProfile,UserTier},pathlib.Path
+    e: main
+    main()->None
+  examples/fast-start-demo/demo.py:
+    i: asyncio,time,sys,pactown.ServiceRunner,pathlib.Path
+    e: API_README,main
+    main()->None
   examples/saas-platform/.pactown-sandboxes/gateway/gateway.py:
     i: os,asyncio,httpx,fastapi.{FastAPI,HTTPException,Request,Response},fastapi.middleware.cors.CORSMiddleware,fastapi.responses.JSONResponse,typing.Optional
     e: API_URL,DATABASE_URL,WEB_URL,ROUTES,proxy_request,gateway_health,list_routes,proxy_api

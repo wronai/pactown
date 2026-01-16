@@ -32,6 +32,7 @@ Pactown enables you to compose multiple independent markpact projects into a uni
 
 ## Key Features
 
+### Core Features
 - **🔗 Service Composition** – Combine multiple markpact READMEs into one ecosystem
 - **📦 Local Registry** – Store and share markpact artifacts across projects
 - **🔄 Dependency Resolution** – Automatic startup order based on service dependencies
@@ -42,7 +43,28 @@ Pactown enables you to compose multiple independent markpact projects into a uni
 - **🔍 Service Discovery** – Name-based service lookup, no hardcoded URLs
 - **⚡ Config Generator** – Auto-generate config from folder of READMEs
 
-## Documentation
+### New in v0.4.0
+- **⚡ Fast Start** – Dependency caching for millisecond startup times ([docs](docs/FAST_START.md))
+- **🛡️ Security Policy** – Rate limiting, user profiles, anomaly logging ([docs](docs/SECURITY_POLICY.md))
+- **👤 User Isolation** – Linux user-based sandbox isolation for multi-tenant SaaS ([docs](docs/USER_ISOLATION.md))
+- **📊 Detailed Logging** – Structured logs with error capture ([docs](docs/LOGGING.md))
+
+---
+
+## 📚 Documentation
+
+### Quick Navigation
+
+| Category | Documents |
+|----------|-----------|
+| **Getting Started** | [Quick Start](#quick-start) · [Installation](#installation) · [Commands](#commands) |
+| **Core Concepts** | [Specification](docs/SPECIFICATION.md) · [Configuration](docs/CONFIGURATION.md) · [Network](docs/NETWORK.md) |
+| **Deployment** | [Deployment Guide](docs/DEPLOYMENT.md) · [Quadlet/VPS](docs/QUADLET.md) · [Generator](docs/GENERATOR.md) |
+| **Security** | [Security Policy](docs/SECURITY_POLICY.md) · [Quadlet Security](docs/SECURITY.md) · [User Isolation](docs/USER_ISOLATION.md) |
+| **Performance** | [Fast Start](docs/FAST_START.md) · [Logging](docs/LOGGING.md) |
+| **Comparisons** | [vs Cloudflare Workers](docs/CLOUDFLARE_WORKERS_COMPARISON.md) |
+
+### All Documentation
 
 | Document | Description |
 |----------|-------------|
@@ -53,6 +75,10 @@ Pactown enables you to compose multiple independent markpact projects into a uni
 | [Generator](docs/GENERATOR.md) | Auto-generate configs |
 | [Quadlet](docs/QUADLET.md) | Podman Quadlet deployment for VPS production |
 | [Security](docs/SECURITY.md) | Quadlet security hardening and injection test suite |
+| [Security Policy](docs/SECURITY_POLICY.md) | Rate limiting, user profiles, resource monitoring |
+| [Fast Start](docs/FAST_START.md) | Dependency caching for fast startup |
+| [User Isolation](docs/USER_ISOLATION.md) | Linux user-based sandbox isolation |
+| [Logging](docs/LOGGING.md) | Structured logging and error capture |
 | [Cloudflare Workers comparison](docs/CLOUDFLARE_WORKERS_COMPARISON.md) | When to use Pactown vs Cloudflare Workers |
 
 ### Source Code Reference
@@ -64,16 +90,29 @@ Pactown enables you to compose multiple independent markpact projects into a uni
 | [`resolver.py`](src/pactown/resolver.py) | Dependency resolution |
 | [`network.py`](src/pactown/network.py) | Port allocation & discovery |
 | [`generator.py`](src/pactown/generator.py) | Config file generator |
+| [`service_runner.py`](src/pactown/service_runner.py) | High-level service runner API |
+| [`security.py`](src/pactown/security.py) | Security policy & rate limiting |
+| [`fast_start.py`](src/pactown/fast_start.py) | Dependency caching & fast startup |
+| [`user_isolation.py`](src/pactown/user_isolation.py) | Linux user isolation for multi-tenant |
+| [`sandbox_manager.py`](src/pactown/sandbox_manager.py) | Sandbox lifecycle management |
 | [`registry/`](src/pactown/registry/) | Local artifact registry |
+| [`deploy/`](src/pactown/deploy/) | Deployment backends (Docker, Podman, K8s, Quadlet) |
 
-## Examples
+---
+
+## 🎯 Examples
 
 | Example | What it shows |
-|--------|----------------|
+|---------|---------------|
+| [`examples/saas-platform/`](examples/saas-platform/) | Complete SaaS with Web + API + Database + Gateway |
 | [`examples/quadlet-vps/`](examples/quadlet-vps/) | VPS setup and Quadlet workflow |
 | [`examples/email-llm-responder/`](examples/email-llm-responder/) | Email automation with LLM integration |
 | [`examples/api-gateway-webhooks/`](examples/api-gateway-webhooks/) | API gateway / webhook handler |
 | [`examples/realtime-notifications/`](examples/realtime-notifications/) | WebSocket + SSE real-time notifications |
+| [`examples/microservices/`](examples/microservices/) | Multi-language microservices |
+| [`examples/fast-start-demo/`](examples/fast-start-demo/) | **NEW:** Fast startup with dependency caching |
+| [`examples/security-policy/`](examples/security-policy/) | **NEW:** Rate limiting and user profiles |
+| [`examples/user-isolation/`](examples/user-isolation/) | **NEW:** Multi-tenant user isolation |
 
 ## Installation
 

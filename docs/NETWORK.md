@@ -1,6 +1,10 @@
 # Network & Service Discovery
 
-> **See also:** [README](../README.md) | [Specification](SPECIFICATION.md) | [Configuration](CONFIGURATION.md) | [Generator](GENERATOR.md)
+[← Back to README](../README.md) | [Configuration](CONFIGURATION.md) | [Deployment →](DEPLOYMENT.md)
+
+---
+
+> **Related:** [Specification](SPECIFICATION.md) | [Generator](GENERATOR.md)
 
 This document describes pactown's dynamic port allocation and service discovery system.
 

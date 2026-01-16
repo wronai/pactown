@@ -1,6 +1,6 @@
 project: pactown
-generated: "2026-01-16T12:21:07.171506"
-modules[43]{path,lang,items}:
+generated: "2026-01-16T12:35:57.556529"
+modules[46]{path,lang,items}:
   tests/test_deploy_dockerfile.py,python,2
   tests/test_resolver.py,python,10
   tests/__init__.py,python,0
@@ -37,6 +37,9 @@ modules[43]{path,lang,items}:
   src/pactown/registry/__init__.py,python,0
   src/pactown/registry/client.py,python,21
   src/pactown/registry/models.py,python,15
+  examples/user-isolation/demo.py,python,1
+  examples/security-policy/demo.py,python,1
+  examples/fast-start-demo/demo.py,python,1
   examples/saas-platform/.pactown-sandboxes/gateway/gateway.py,python,7
   examples/saas-platform/.pactown-sandboxes/web/server.py,python,3
   examples/saas-platform/.pactown-sandboxes/database/main.py,python,9
@@ -334,17 +337,17 @@ function_details:
       RunResult.to_dict,method,() -> dict,182-206,false,25,4,Convert to dictionary for JSON serialization.
       ServiceRunner.__init__,method,"(sandbox_root:Any='/tmp/pactown-sandboxes', default_health_check:str='/health', health_timeout:int=10, security_policy:Optional[SecurityPolicy]=None, enable_fast_start:bool=True) -> None",247-277,false,31,3,creates
       ServiceRunner.validate_content,method,"(content:str) -> ValidationResult",279-309,false,31,11,Validate markpact content before running.
-      ServiceRunner.run_from_content,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, restart_if_running:bool=True, wait_for_health:bool=True, health_timeout:Optional[int]=None) -> RunResult",311-523,true,213,25,Run a service directly from markdown content.
-      ServiceRunner._generate_suggestions,method,"(error_cat:ErrorCategory, stderr:str, port:int) -> List[AutoFixSuggestion]",525-604,false,80,15,Generate actionable suggestions based on error type.
-      ServiceRunner._wait_for_health,method,"(process:ServiceProcess, port:int, timeout:int, on_log:Callable[Any,None]) -> dict",606-660,true,55,14,Wait for service to pass health check.
-      ServiceRunner.stop,method,"(service_id:str) -> RunResult",662-725,false,64,6,Stop a running service.
-      ServiceRunner.get_status,method,"(service_id:str) -> Optional[Dict]",727-745,false,19,3,Get status of a service.
-      ServiceRunner.list_services,method,"() -> List[Dict]",747-760,false,14,3,List all running services.
-      ServiceRunner.test_endpoints,method,"(service_id:str, endpoints:Optional[List[str]]=None, timeout:float=5.0) -> List[EndpointTestResult]",762-822,true,61,8,Test endpoints of a running service.
-      ServiceRunner.stop_all,method,() -> None,824-827,false,4,2,Stop all running services.
-      ServiceRunner.fast_run,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, user_id:Optional[str]=None, user_profile:Optional[Dict[str,Any]]=None, skip_health_check:bool=False) -> RunResult",829-1073,true,245,24,Fast service startup with dependency caching.
-      ServiceRunner._quick_health_check,method,"(process:Any, port:int, timeout:int=5) -> bool",1075-1096,true,22,5,Quick health check with shorter timeout.
-      ServiceRunner.get_cache_stats,method,"() -> Dict[str, Any]",1098-1102,false,5,2,Get fast start cache statistics.
+      ServiceRunner.run_from_content,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, restart_if_running:bool=True, wait_for_health:bool=True, health_timeout:Optional[int]=None) -> RunResult",311-527,true,217,25,Run a service directly from markdown content.
+      ServiceRunner._generate_suggestions,method,"(error_cat:ErrorCategory, stderr:str, port:int) -> List[AutoFixSuggestion]",529-608,false,80,15,Generate actionable suggestions based on error type.
+      ServiceRunner._wait_for_health,method,"(process:ServiceProcess, port:int, timeout:int, on_log:Callable[Any,None]) -> dict",610-664,true,55,14,Wait for service to pass health check.
+      ServiceRunner.stop,method,"(service_id:str) -> RunResult",666-729,false,64,6,Stop a running service.
+      ServiceRunner.get_status,method,"(service_id:str) -> Optional[Dict]",731-749,false,19,3,Get status of a service.
+      ServiceRunner.list_services,method,"() -> List[Dict]",751-764,false,14,3,List all running services.
+      ServiceRunner.test_endpoints,method,"(service_id:str, endpoints:Optional[List[str]]=None, timeout:float=5.0) -> List[EndpointTestResult]",766-826,true,61,8,Test endpoints of a running service.
+      ServiceRunner.stop_all,method,() -> None,828-831,false,4,2,Stop all running services.
+      ServiceRunner.fast_run,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, user_id:Optional[str]=None, user_profile:Optional[Dict[str,Any]]=None, skip_health_check:bool=False) -> RunResult",833-1077,true,245,24,Fast service startup with dependency caching.
+      ServiceRunner._quick_health_check,method,"(process:Any, port:int, timeout:int=5) -> bool",1079-1100,true,22,5,Quick health check with shorter timeout.
+      ServiceRunner.get_cache_stats,method,"() -> Dict[str, Any]",1102-1106,false,5,2,Get fast start cache statistics.
   src/pactown/deploy/quadlet_shell.py:
     functions[23]{name,kind,sig,loc,async,lines,cc,does}:
       run_shell,function,"(tenant_id:str='default', domain:str='localhost', user_mode:bool=True) -> None",539-553,false,15,2,Run the interactive Quadlet shell.
@@ -515,6 +518,15 @@ function_details:
       RegistryStorage.save_artifact,method,"(artifact:Artifact) -> None",130-132,false,3,1,caches artifact
       RegistryStorage.delete,method,"(namespace:str, name:str) -> bool",134-140,false,7,2,deletes
       RegistryStorage.search,method,"(query:str) -> list[Artifact]",142-150,false,9,6,filters
+  examples/user-isolation/demo.py:
+    functions[1]{name,kind,sig,loc,async,lines,cc,does}:
+      main,function,() -> None,18-106,false,89,5,main
+  examples/security-policy/demo.py:
+    functions[1]{name,kind,sig,loc,async,lines,cc,does}:
+      main,function,() -> None,18-101,true,84,7,main
+  examples/fast-start-demo/demo.py:
+    functions[1]{name,kind,sig,loc,async,lines,cc,does}:
+      main,function,() -> None,48-116,true,69,4,main
   examples/saas-platform/.pactown-sandboxes/gateway/gateway.py:
     functions[7]{name,kind,sig,loc,async,lines,cc,does}:
       proxy_request,function,"(target_url:str, request:Request, path:str='') -> Response",33-68,true,36,4,Proxy request to target service.
