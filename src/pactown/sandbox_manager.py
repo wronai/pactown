@@ -1,5 +1,7 @@
 """Sandbox manager for pactown services."""
 
+import json
+import logging
 import os
 import shutil
 import signal
@@ -7,15 +9,29 @@ import subprocess
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
+from datetime import datetime, UTC
 from pathlib import Path
 from threading import Lock
-from typing import Callable, Optional
+from typing import Callable, Optional, List, Dict, Any
 
 from markpact import Sandbox, ensure_venv
 from markpact.runner import install_deps
 
 from .config import ServiceConfig
 from .markpact_blocks import parse_blocks
+
+# Configure detailed logging
+logger = logging.getLogger("pactown.sandbox")
+logger.setLevel(logging.DEBUG)
+
+# File handler for persistent logs
+LOG_DIR = Path("/tmp/pactown-logs")
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+file_handler = logging.FileHandler(LOG_DIR / "sandbox.log")
+file_handler.setFormatter(logging.Formatter(
+    '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+))
+logger.addHandler(file_handler)
 
 
 @dataclass
@@ -98,6 +114,7 @@ class SandboxManager:
         env: dict[str, str],
         verbose: bool = True,
         restart_if_running: bool = False,
+        on_log: Optional[Callable[[str], None]] = None,
     ) -> ServiceProcess:
         """Start a service in its sandbox.
         
@@ -107,19 +124,38 @@ class SandboxManager:
             env: Environment variables to pass to the service
             verbose: Print status messages
             restart_if_running: If True, stop and restart if already running
+            on_log: Callback for detailed logging
         """
+        def log(msg: str, level: str = "INFO"):
+            logger.log(getattr(logging, level), f"[{service.name}] {msg}")
+            if on_log:
+                on_log(msg)
+            if verbose:
+                print(msg)
+        
+        log(f"Starting service: {service.name}", "INFO")
+        log(f"Port: {service.port}, README: {readme_path}", "DEBUG")
+        
         if service.name in self._processes:
             existing = self._processes[service.name]
             if existing.is_running:
                 if restart_if_running:
-                    if verbose:
-                        print(f"Restarting {service.name}...")
+                    log(f"Restarting {service.name}...", "INFO")
                     self.stop_service(service.name)
                     self.clean_sandbox(service.name)
                 else:
+                    log(f"Service {service.name} already running", "ERROR")
                     raise RuntimeError(f"Service {service.name} is already running")
 
-        sandbox = self.create_sandbox(service, readme_path, install_dependencies=True)
+        # Create sandbox with dependency installation
+        log("Creating sandbox and installing dependencies...", "INFO")
+        try:
+            sandbox = self.create_sandbox(service, readme_path, install_dependencies=True)
+            log(f"Sandbox created at: {sandbox.path}", "INFO")
+        except Exception as e:
+            log(f"Failed to create sandbox: {e}", "ERROR")
+            logger.exception(f"Sandbox creation failed for {service.name}")
+            raise
 
         readme_content = readme_path.read_text()
         blocks = parse_blocks(readme_content)
@@ -131,7 +167,10 @@ class SandboxManager:
                 break
 
         if not run_command:
+            log(f"No run command found in README", "ERROR")
             raise ValueError(f"No run command found in {readme_path}")
+
+        log(f"Run command: {run_command}", "DEBUG")
 
         full_env = os.environ.copy()
         full_env.update(env)
@@ -140,19 +179,50 @@ class SandboxManager:
             venv_bin = str(sandbox.venv_bin)
             full_env["PATH"] = f"{venv_bin}:{full_env.get('PATH', '')}"
             full_env["VIRTUAL_ENV"] = str(sandbox.path / ".venv")
+            log(f"Using venv: {sandbox.path / '.venv'}", "DEBUG")
+        else:
+            log("WARNING: No venv found, using system Python", "WARNING")
 
-        if verbose:
-            print(f"Starting {service.name} on port {service.port}...")
+        # Expand $PORT in command
+        expanded_cmd = run_command.replace("$PORT", str(service.port))
+        log(f"Expanded command: {expanded_cmd}", "DEBUG")
 
+        log(f"Starting process...", "INFO")
+
+        # Always capture stderr for debugging
         process = subprocess.Popen(
-            run_command,
+            expanded_cmd,
             shell=True,
             cwd=str(sandbox.path),
             env=full_env,
-            stdout=subprocess.PIPE if not verbose else None,
-            stderr=subprocess.PIPE if not verbose else None,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             preexec_fn=os.setsid,
         )
+
+        log(f"Process started with PID: {process.pid}", "INFO")
+
+        # Log initial stderr output after short delay
+        time.sleep(0.5)
+        if process.poll() is not None:
+            # Process already died
+            exit_code = process.returncode
+            stderr = process.stderr.read().decode() if process.stderr else ""
+            stdout = process.stdout.read().decode() if process.stdout else ""
+            log(f"Process died immediately with exit code: {exit_code}", "ERROR")
+            log(f"STDERR: {stderr[:1000]}", "ERROR")
+            if stdout:
+                log(f"STDOUT: {stdout[:500]}", "DEBUG")
+            
+            # Write to error log file
+            error_log = LOG_DIR / f"{service.name}_error.log"
+            with open(error_log, "w") as f:
+                f.write(f"Exit code: {exit_code}\n")
+                f.write(f"Command: {expanded_cmd}\n")
+                f.write(f"CWD: {sandbox.path}\n")
+                f.write(f"\n--- STDERR ---\n{stderr}\n")
+                f.write(f"\n--- STDOUT ---\n{stdout}\n")
+            log(f"Error log written to: {error_log}", "DEBUG")
 
         svc_process = ServiceProcess(
             name=service.name,
@@ -163,6 +233,14 @@ class SandboxManager:
         )
 
         self._processes[service.name] = svc_process
+        
+        # Log sandbox contents for debugging
+        try:
+            files = list(sandbox.path.glob("*"))
+            log(f"Sandbox files: {[f.name for f in files]}", "DEBUG")
+        except:
+            pass
+        
         return svc_process
 
     def stop_service(self, service_name: str, timeout: int = 10) -> bool:

@@ -1,6 +1,6 @@
 """Pactown – Decentralized Service Ecosystem Orchestrator using markpact"""
 
-__version__ = "0.1.12"
+__version__ = "0.1.13"
 
 from .config import DependencyConfig, EcosystemConfig, ServiceConfig
 from .network import PortAllocator, ServiceEndpoint, ServiceRegistry, find_free_port
@@ -29,6 +29,14 @@ from .security import (
     get_security_policy,
     set_security_policy,
 )
+from .fast_start import (
+    FastServiceStarter,
+    DependencyCache,
+    SandboxPool,
+    ParallelServiceRunner,
+    FastStartResult,
+    get_fast_starter,
+)
 
 __all__ = [
     # High-level API
@@ -51,6 +59,13 @@ __all__ = [
     "SecurityCheckResult",
     "get_security_policy",
     "set_security_policy",
+    # Fast Start
+    "FastServiceStarter",
+    "DependencyCache",
+    "SandboxPool",
+    "ParallelServiceRunner",
+    "FastStartResult",
+    "get_fast_starter",
     # Orchestration
     "EcosystemConfig",
     "ServiceConfig",

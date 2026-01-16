@@ -250,6 +250,7 @@ class ServiceRunner:
         default_health_check: str = "/health",
         health_timeout: int = 10,
         security_policy: Optional["SecurityPolicy"] = None,
+        enable_fast_start: bool = True,
     ):
         self.sandbox_root = Path(sandbox_root)
         self.sandbox_root.mkdir(parents=True, exist_ok=True)
@@ -262,6 +263,18 @@ class ServiceRunner:
         # Security policy - use provided or get global default
         from .security import get_security_policy
         self.security_policy = security_policy or get_security_policy()
+        
+        # Fast start - dependency caching for faster startup
+        self.enable_fast_start = enable_fast_start
+        if enable_fast_start:
+            from .fast_start import FastServiceStarter
+            self.fast_starter = FastServiceStarter(
+                sandbox_root=self.sandbox_root,
+                enable_caching=True,
+                enable_pool=True,
+            )
+        else:
+            self.fast_starter = None
     
     def validate_content(self, content: str) -> ValidationResult:
         """Validate markpact content before running."""
@@ -421,17 +434,31 @@ class ServiceRunner:
         try:
             log(f"Creating sandbox for {service_name}")
             
-            # Start service
+            # Start service with detailed logging
             process = self.sandbox_manager.start_service(
                 service=service_config,
                 readme_path=readme_path,
                 env=service_env,
                 verbose=False,
                 restart_if_running=False,  # Already handled above
+                on_log=log,  # Pass log callback for detailed logging
             )
             
             log(f"Sandbox created: {process.sandbox_path}")
             log(f"Process started with PID: {process.pid}")
+            
+            # Check if process died immediately after startup
+            if process.process and process.process.poll() is not None:
+                exit_code = process.process.returncode
+                stderr = ""
+                if process.process.stderr:
+                    try:
+                        stderr = process.process.stderr.read().decode()[:1000]
+                    except:
+                        pass
+                log(f"⚠️ Process exited immediately with code {exit_code}")
+                if stderr:
+                    log(f"STDERR: {stderr[:500]}")
             
             # Wait for health check
             if wait_for_health:
@@ -798,3 +825,278 @@ class ServiceRunner:
         """Stop all running services."""
         for service_id in list(self._services.keys()):
             self.stop(service_id)
+    
+    async def fast_run(
+        self,
+        service_id: str,
+        content: str,
+        port: int,
+        env: Optional[Dict[str, str]] = None,
+        user_id: Optional[str] = None,
+        user_profile: Optional[Dict[str, Any]] = None,
+        skip_health_check: bool = False,
+        on_log: Optional[Callable[[str], None]] = None,
+    ) -> RunResult:
+        """
+        Fast service startup with dependency caching.
+        
+        Uses cached venvs to achieve millisecond startup for repeated deps.
+        Security checks are still enforced.
+        
+        Args:
+            service_id: Unique identifier
+            content: Markdown content
+            port: Port to run on
+            env: Environment variables
+            user_id: User ID for security
+            user_profile: User profile for limits
+            skip_health_check: Return immediately without waiting for health
+            on_log: Log callback
+        
+        Returns:
+            RunResult with startup time in message
+        """
+        import time as time_module
+        start_time = time_module.time()
+        logs: List[str] = []
+        service_name = f"service_{service_id}"
+        effective_user_id = user_id or "anonymous"
+        
+        def log(msg: str):
+            logs.append(msg)
+            if on_log:
+                on_log(msg)
+        
+        # Security check (same as regular run)
+        if user_profile and user_id:
+            from .security import UserProfile
+            profile = UserProfile.from_dict({**user_profile, "user_id": user_id})
+            self.security_policy.set_user_profile(profile)
+        
+        security_check = await self.security_policy.check_can_start_service(
+            user_id=effective_user_id,
+            service_id=service_id,
+            port=port,
+        )
+        
+        if not security_check.allowed:
+            log(f"🔒 Security: {security_check.reason}")
+            return RunResult(
+                success=False,
+                port=port,
+                message=security_check.reason or "Security check failed",
+                logs=logs,
+                error_category=ErrorCategory.PERMISSION,
+            )
+        
+        # Apply throttle if needed
+        if security_check.delay_seconds > 0:
+            log(f"⏳ Throttle: {security_check.delay_seconds:.1f}s")
+            await asyncio.sleep(security_check.delay_seconds)
+        
+        # Kill any orphan process on port
+        if kill_process_on_port(port):
+            log(f"Killed orphan on port {port}")
+        
+        # Use fast starter if available
+        if self.fast_starter:
+            log("⚡ Fast start mode enabled")
+            fast_result = await self.fast_starter.fast_create_sandbox(
+                service_name=service_name,
+                content=content,
+                on_log=log,
+            )
+            
+            if not fast_result.success:
+                return RunResult(
+                    success=False,
+                    port=port,
+                    message=fast_result.message,
+                    logs=logs,
+                )
+            
+            sandbox_path = fast_result.sandbox_path
+            cache_info = "cached" if fast_result.cache_hit else "fresh"
+            log(f"⚡ Sandbox ready in {fast_result.startup_time_ms:.0f}ms ({cache_info})")
+        else:
+            # Fallback to regular sandbox creation
+            log("Creating sandbox (no cache)...")
+            validation = self.validate_content(content)
+            if not validation.valid:
+                return RunResult(
+                    success=False,
+                    port=port,
+                    message=validation.errors[0] if validation.errors else "Validation failed",
+                    logs=logs,
+                )
+            
+            # Use sandbox manager for regular creation
+            from .config import ServiceConfig
+            config = ServiceConfig(name=service_name, port=port)
+            
+            import tempfile
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as f:
+                f.write(content)
+                readme_path = Path(f.name)
+            
+            try:
+                sandbox = self.sandbox_manager.create_sandbox(config, readme_path)
+                sandbox_path = sandbox.path
+            finally:
+                readme_path.unlink()
+        
+        # Start the service process
+        blocks = parse_blocks(content)
+        run_cmd = None
+        for block in blocks:
+            if block.kind == "run":
+                run_cmd = block.body.strip()
+                break
+        
+        if not run_cmd:
+            return RunResult(
+                success=False,
+                port=port,
+                message="No run command found",
+                logs=logs,
+            )
+        
+        # Prepare environment
+        run_env = os.environ.copy()
+        run_env["PORT"] = str(port)
+        run_env["HOST"] = "0.0.0.0"
+        if env:
+            run_env.update(env)
+        
+        # Resolve venv path (could be symlink to cache)
+        venv_path = sandbox_path / ".venv"
+        if venv_path.is_symlink():
+            actual_venv = venv_path.resolve()
+            run_env["VIRTUAL_ENV"] = str(actual_venv)
+            run_env["PATH"] = f"{actual_venv}/bin:{run_env.get('PATH', '')}"
+        elif venv_path.exists():
+            run_env["VIRTUAL_ENV"] = str(venv_path)
+            run_env["PATH"] = f"{venv_path}/bin:{run_env.get('PATH', '')}"
+        
+        # Expand $PORT in command
+        run_cmd = run_cmd.replace("$PORT", str(port))
+        
+        log(f"Starting: {run_cmd[:50]}...")
+        
+        try:
+            process = subprocess.Popen(
+                run_cmd,
+                shell=True,
+                cwd=str(sandbox_path),
+                env=run_env,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            
+            # Register service
+            self._services[service_id] = service_name
+            self._service_users[service_id] = effective_user_id
+            self.security_policy.register_service(effective_user_id, service_id)
+            
+            # Track in sandbox manager
+            from .sandbox_manager import ServiceProcess
+            self.sandbox_manager._processes[service_name] = ServiceProcess(
+                name=service_name,
+                pid=process.pid,
+                port=port,
+                sandbox_path=sandbox_path,
+                process=process,
+            )
+            
+            total_time_ms = (time_module.time() - start_time) * 1000
+            
+            if skip_health_check:
+                log(f"⚡ Started in {total_time_ms:.0f}ms (health check skipped)")
+                return RunResult(
+                    success=True,
+                    port=port,
+                    pid=process.pid,
+                    message=f"Started in {total_time_ms:.0f}ms (async)",
+                    logs=logs,
+                    service_name=service_name,
+                    sandbox_path=sandbox_path,
+                )
+            
+            # Quick health check (max 5s for fast mode)
+            log("Quick health check...")
+            health_ok = await self._quick_health_check(process, port, timeout=5)
+            
+            total_time_ms = (time_module.time() - start_time) * 1000
+            
+            if health_ok:
+                log(f"✓ Running in {total_time_ms:.0f}ms")
+                return RunResult(
+                    success=True,
+                    port=port,
+                    pid=process.pid,
+                    message=f"Running on port {port} ({total_time_ms:.0f}ms)",
+                    logs=logs,
+                    service_name=service_name,
+                    sandbox_path=sandbox_path,
+                )
+            else:
+                # Check if process died
+                if process.poll() is not None:
+                    stderr = process.stderr.read().decode()[:500] if process.stderr else ""
+                    log(f"❌ Process died: {stderr[:200]}")
+                    return RunResult(
+                        success=False,
+                        port=port,
+                        message="Process crashed during startup",
+                        logs=logs,
+                        stderr_output=stderr,
+                    )
+                else:
+                    log(f"⚠️ Health check timeout, but process running")
+                    return RunResult(
+                        success=True,
+                        port=port,
+                        pid=process.pid,
+                        message=f"Started (health pending) in {total_time_ms:.0f}ms",
+                        logs=logs,
+                        service_name=service_name,
+                        sandbox_path=sandbox_path,
+                    )
+                    
+        except Exception as e:
+            log(f"Error: {e}")
+            return RunResult(
+                success=False,
+                port=port,
+                message=str(e),
+                logs=logs,
+            )
+    
+    async def _quick_health_check(
+        self,
+        process: subprocess.Popen,
+        port: int,
+        timeout: int = 5,
+    ) -> bool:
+        """Quick health check with shorter timeout."""
+        for _ in range(timeout * 4):  # Check every 250ms
+            await asyncio.sleep(0.25)
+            
+            if process.poll() is not None:
+                return False
+            
+            try:
+                async with httpx.AsyncClient(timeout=0.5) as client:
+                    resp = await client.get(f"http://localhost:{port}/")
+                    if resp.status_code < 500:
+                        return True
+            except:
+                pass
+        
+        return False
+    
+    def get_cache_stats(self) -> Dict[str, Any]:
+        """Get fast start cache statistics."""
+        if self.fast_starter:
+            return self.fast_starter.get_cache_stats()
+        return {"caching_enabled": False}
