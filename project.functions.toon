@@ -1,5 +1,5 @@
 project: pactown
-generated: "2026-01-16T14:29:09.883124"
+generated: "2026-01-16T14:38:57.679952"
 modules[47]{path,lang,items}:
   tests/test_deploy_dockerfile.py,python,2
   tests/test_resolver.py,python,10
@@ -340,8 +340,8 @@ function_details:
       ParallelServiceRunner.run_parallel,method,"(services:List[Dict[str,Any]], on_service_log:Optional[Callable[Any,None]]=None) -> List[FastStartResult]",471-501,true,31,2,Run multiple services in parallel.
   src/pactown/markpact_blocks.py:
     functions[2]{name,kind,sig,loc,async,lines,cc,does}:
-      parse_blocks,function,"(text:str) -> list[Block]",23-32,false,10,4,parses blocks
-      Block.get_path,method,() -> str | None,18-20,false,3,2,retrieves path
+      parse_blocks,function,"(text:str) -> list[Block]",29-50,false,22,6,parses blocks
+      Block.get_path,method,() -> str | None,24-26,false,3,2,retrieves path
   src/pactown/orchestrator.py:
     functions[18]{name,kind,sig,loc,async,lines,cc,does}:
       run_ecosystem,function,"(config_path:Any, wait:bool=True) -> Orchestrator",434-452,false,19,5,Convenience function to start an ecosystem.
