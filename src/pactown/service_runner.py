@@ -380,10 +380,12 @@ class ServiceRunner:
         status = self.sandbox_manager.get_status(service_name)
         if status and status.get("running"):
             if restart_if_running:
-                log(f"Service {service_name} is running, restarting...")
+                log(f"Service {service_name} is running (PID: {status.get('pid')}), restarting...")
                 try:
                     self.sandbox_manager.stop_service(service_name)
                     self.sandbox_manager.clean_sandbox(service_name)
+                    # Wait for cleanup to complete
+                    await asyncio.sleep(0.5)
                     log("Previous instance stopped")
                 except Exception as e:
                     log(f"Warning: could not stop previous instance: {e}")
@@ -397,8 +399,10 @@ class ServiceRunner:
                 )
         
         # Kill any orphan process on the port (handles container restarts)
-        if kill_process_on_port(port):
+        killed = kill_process_on_port(port)
+        if killed:
             log(f"Killed orphan process on port {port}")
+            await asyncio.sleep(0.3)  # Wait for port to be released
         
         # Validate content
         validation = self.validate_content(content)

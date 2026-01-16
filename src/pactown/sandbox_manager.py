@@ -202,17 +202,46 @@ class SandboxManager:
 
         log(f"Process started with PID: {process.pid}", "INFO")
 
-        # Log initial stderr output after short delay
-        time.sleep(0.5)
-        if process.poll() is not None:
-            # Process already died
-            exit_code = process.returncode
-            stderr = process.stderr.read().decode() if process.stderr else ""
-            stdout = process.stdout.read().decode() if process.stdout else ""
-            log(f"Process died immediately with exit code: {exit_code}", "ERROR")
-            log(f"STDERR: {stderr[:1000]}", "ERROR")
+        # Wait briefly for process to start (but don't block too long)
+        time.sleep(0.2)
+        
+        # Check if process died immediately
+        poll_result = process.poll()
+        if poll_result is not None:
+            # Process already died - capture all output
+            exit_code = poll_result
+            stderr = ""
+            stdout = ""
+            
+            try:
+                # Read all output with timeout
+                stdout_bytes, stderr_bytes = process.communicate(timeout=2)
+                stderr = stderr_bytes.decode('utf-8', errors='replace') if stderr_bytes else ""
+                stdout = stdout_bytes.decode('utf-8', errors='replace') if stdout_bytes else ""
+            except Exception as e:
+                log(f"Could not read process output: {e}", "WARNING")
+                if process.stderr:
+                    try:
+                        stderr = process.stderr.read().decode('utf-8', errors='replace')
+                    except:
+                        pass
+            
+            # Interpret exit code
+            if exit_code < 0:
+                signal_name = {
+                    -9: "SIGKILL",
+                    -15: "SIGTERM", 
+                    -11: "SIGSEGV",
+                    -6: "SIGABRT",
+                }.get(exit_code, f"signal {-exit_code}")
+                log(f"Process killed by {signal_name} (exit code: {exit_code})", "ERROR")
+            else:
+                log(f"Process exited with code: {exit_code}", "ERROR")
+            
+            if stderr:
+                log(f"STDERR:\n{stderr[:2000]}", "ERROR")
             if stdout:
-                log(f"STDOUT: {stdout[:500]}", "DEBUG")
+                log(f"STDOUT:\n{stdout[:1000]}", "DEBUG")
             
             # Write to error log file
             error_log = LOG_DIR / f"{service.name}_error.log"
@@ -220,8 +249,15 @@ class SandboxManager:
                 f.write(f"Exit code: {exit_code}\n")
                 f.write(f"Command: {expanded_cmd}\n")
                 f.write(f"CWD: {sandbox.path}\n")
+                f.write(f"Venv: {sandbox.path / '.venv'}\n")
                 f.write(f"\n--- STDERR ---\n{stderr}\n")
                 f.write(f"\n--- STDOUT ---\n{stdout}\n")
+                # List files for debugging
+                try:
+                    files = list(sandbox.path.glob("*"))
+                    f.write(f"\n--- FILES ---\n{[str(f) for f in files]}\n")
+                except:
+                    pass
             log(f"Error log written to: {error_log}", "DEBUG")
 
         svc_process = ServiceProcess(
@@ -246,19 +282,34 @@ class SandboxManager:
     def stop_service(self, service_name: str, timeout: int = 10) -> bool:
         """Stop a running service."""
         if service_name not in self._processes:
+            logger.debug(f"Service {service_name} not in tracked processes")
             return False
 
         svc = self._processes[service_name]
+        old_pid = svc.pid
 
         if not svc.is_running:
+            logger.debug(f"Service {service_name} (PID {old_pid}) already stopped")
             del self._processes[service_name]
             return True
 
+        logger.info(f"Stopping service {service_name} (PID {old_pid})")
+        
         try:
-            os.killpg(os.getpgid(svc.pid), signal.SIGTERM)
+            pgid = os.getpgid(old_pid)
+            os.killpg(pgid, signal.SIGTERM)
+            logger.debug(f"Sent SIGTERM to process group {pgid}")
         except ProcessLookupError:
+            logger.debug(f"Process {old_pid} already gone")
             del self._processes[service_name]
             return True
+        except OSError as e:
+            logger.warning(f"Error getting pgid for {old_pid}: {e}")
+            # Try killing just the process
+            try:
+                os.kill(old_pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
 
         deadline = time.time() + timeout
         while time.time() < deadline:
@@ -267,12 +318,17 @@ class SandboxManager:
             time.sleep(0.1)
 
         if svc.is_running:
+            logger.warning(f"Service {service_name} didn't stop gracefully, sending SIGKILL")
             try:
-                os.killpg(os.getpgid(svc.pid), signal.SIGKILL)
-            except ProcessLookupError:
+                os.killpg(os.getpgid(old_pid), signal.SIGKILL)
+            except (ProcessLookupError, OSError):
                 pass
 
         del self._processes[service_name]
+        
+        # Wait for OS to clean up the process
+        time.sleep(0.3)
+        logger.info(f"Service {service_name} stopped")
         return True
 
     def stop_all(self, timeout: int = 10) -> None:
