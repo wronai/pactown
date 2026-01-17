@@ -1,4 +1,4 @@
-# pactown | 47f 13432L | python:47
+# pactown | 47f 13464L | python:47
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
 M[47]:
   tests/test_deploy_dockerfile.py,29
@@ -22,9 +22,9 @@ M[47]:
   src/pactown/markpact_blocks.py,35
   src/pactown/orchestrator.py,347
   src/pactown/resolver.py,122
-  src/pactown/sandbox_manager.py,412
+  src/pactown/sandbox_manager.py,434
   src/pactown/network.py,193
-  src/pactown/service_runner.py,922
+  src/pactown/service_runner.py,923
   src/pactown/deploy/quadlet_shell.py,432
   src/pactown/deploy/base.py,200
   src/pactown/deploy/docker.py,245
@@ -219,7 +219,7 @@ D:
     i: json,logging,os,shutil,signal,subprocess,time,concurrent.futures.{ThreadPoolExecutor,as_completed},dataclasses.dataclass
     e: LOG_DIR,ServiceProcess,SandboxManager
     ServiceProcess: is_running(0)  # Represents a running service process.
-    SandboxManager: __init__(1),get_sandbox_path(1),create_sandbox(3),start_service(6),stop_service(2)  # Manages sandboxes for multiple services.
+    SandboxManager: __init__(1),get_sandbox_path(1),create_sandbox(3),start_service(7),stop_service(2)  # Manages sandboxes for multiple services.
   src/pactown/network.py:
     i: json,socket,dataclasses.dataclass,pathlib.Path,threading.Lock,typing.Optional
     e: ServiceEndpoint,PortAllocator,ServiceRegistry,find_free_port,check_port

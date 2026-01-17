@@ -3,7 +3,9 @@
 import json
 import logging
 import os
+import re
 import shutil
+import stat
 import signal
 import subprocess
 import time
@@ -32,6 +34,84 @@ file_handler.setFormatter(logging.Formatter(
     '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
 ))
 logger.addHandler(file_handler)
+
+
+def _escape_dotenv_value(value: str) -> str:
+    v = str(value)
+    v = v.replace("\\", "\\\\")
+    v = v.replace("\n", "\\n")
+    v = v.replace("\r", "\\r")
+    v = v.replace('"', '\\"')
+    return f'"{v}"'
+
+
+def _write_dotenv_file(sandbox_path: Path, env: dict[str, str]) -> None:
+    lines: list[str] = []
+    for key, value in (env or {}).items():
+        if value is None:
+            continue
+        if not isinstance(key, str):
+            continue
+        if not re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", key):
+            continue
+        lines.append(f"{key}={_escape_dotenv_value(str(value))}")
+
+    dotenv_path = sandbox_path / ".env"
+    dotenv_path.write_text("\n".join(lines) + ("\n" if lines else ""))
+    try:
+        dotenv_path.chmod(0o600)
+    except Exception:
+        pass
+
+
+def _sandbox_fallback_ids() -> tuple[int, int]:
+    try:
+        uid = int(os.environ.get("PACTOWN_SANDBOX_UID", "65534"))
+    except Exception:
+        uid = 65534
+    try:
+        gid = int(os.environ.get("PACTOWN_SANDBOX_GID", str(uid)))
+    except Exception:
+        gid = uid
+    return uid, gid
+
+
+def _chown_sandbox_tree(sandbox_path: Path, uid: int, gid: int) -> None:
+    try:
+        os.chown(sandbox_path, uid, gid)
+    except Exception:
+        pass
+    try:
+        sandbox_path.chmod(0o700)
+    except Exception:
+        pass
+
+    for root, dirnames, filenames in os.walk(sandbox_path):
+        if ".venv" in dirnames:
+            dirnames.remove(".venv")
+
+        root_path = Path(root)
+        try:
+            os.chown(root_path, uid, gid)
+        except Exception:
+            pass
+        try:
+            root_path.chmod(0o700)
+        except Exception:
+            pass
+
+        for name in filenames:
+            p = root_path / name
+            try:
+                st = os.lstat(p)
+                if stat.S_ISLNK(st.st_mode):
+                    continue
+            except Exception:
+                continue
+            try:
+                os.chown(p, uid, gid)
+            except Exception:
+                pass
 
 
 @dataclass
@@ -181,6 +261,11 @@ class SandboxManager:
         full_env["PORT"] = str(service.port)
         full_env["MARKPACT_PORT"] = str(service.port)
 
+        dotenv_env = dict(env or {})
+        dotenv_env["PORT"] = str(service.port)
+        dotenv_env["MARKPACT_PORT"] = str(service.port)
+        _write_dotenv_file(sandbox.path, dotenv_env)
+
         if sandbox.has_venv():
             venv_bin = str(sandbox.venv_bin)
             full_env["PATH"] = f"{venv_bin}:{full_env.get('PATH', '')}"
@@ -247,7 +332,21 @@ class SandboxManager:
                         os.setgid(user.linux_gid)
                         os.setuid(user.linux_uid)
             except Exception as e:
-                log(f"⚠️ User isolation not available: {e} - running without isolation", "WARNING")
+                log(f"⚠️ User isolation not available: {e} - using sandbox uid", "WARNING")
+                if os.geteuid() == 0:
+                    uid, gid = _sandbox_fallback_ids()
+                    try:
+                        dotenv_path = sandbox.path / ".env"
+                        if dotenv_path.exists():
+                            os.chown(dotenv_path, uid, gid)
+                    except Exception:
+                        pass
+                    _chown_sandbox_tree(sandbox.path, uid, gid)
+
+                    def preexec():
+                        os.setsid()
+                        os.setgid(gid)
+                        os.setuid(uid)
 
         # Always capture stderr for debugging
         process = subprocess.Popen(

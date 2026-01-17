@@ -160,7 +160,7 @@ def kill_process_on_port(port: int) -> bool:
 
 from .config import ServiceConfig
 from .markpact_blocks import parse_blocks, Block
-from .sandbox_manager import SandboxManager, ServiceProcess
+from .sandbox_manager import SandboxManager, ServiceProcess, _write_dotenv_file
 
 
 @dataclass
@@ -983,6 +983,11 @@ class ServiceRunner:
         run_env["HOST"] = "0.0.0.0"
         if env:
             run_env.update(env)
+
+        dotenv_env = dict(env or {})
+        dotenv_env["PORT"] = str(port)
+        dotenv_env["MARKPACT_PORT"] = str(port)
+        _write_dotenv_file(sandbox_path, dotenv_env)
         
         # Resolve venv path (could be symlink to cache)
         venv_path = sandbox_path / ".venv"
