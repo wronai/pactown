@@ -294,11 +294,20 @@ class TestCryptography:
                         pytest.fail(f"Weak random used in security context in {py_file}")
 
 
+def _pip_audit_available() -> bool:
+    """Check if pip-audit is available."""
+    try:
+        result = subprocess.run(["pip-audit", "--version"], capture_output=True)
+        return result.returncode == 0
+    except FileNotFoundError:
+        return False
+
+
 class TestDependencySecurity:
     """Test for known vulnerable dependencies."""
 
     @pytest.mark.skipif(
-        subprocess.run(["pip-audit", "--version"], capture_output=True).returncode != 0,
+        not _pip_audit_available(),
         reason="pip-audit not installed",
     )
     def test_no_known_vulnerabilities(self):

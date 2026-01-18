@@ -8,6 +8,7 @@ import shutil
 import stat
 import signal
 import subprocess
+import tempfile
 import time
 import socket
 from concurrent.futures import ThreadPoolExecutor, as_completed
