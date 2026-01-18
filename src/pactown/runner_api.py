@@ -1,0 +1,444 @@
+from __future__ import annotations
+
+import logging
+import os
+import re
+from dataclasses import asdict
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import httpx
+from fastapi import Depends, FastAPI, Header, HTTPException
+from pydantic import BaseModel
+
+from .config import ServiceConfig
+from .network import PortAllocator
+from .security import UserProfile
+from .service_runner import RunResult, ServiceRunner, ValidationResult
+
+logger = logging.getLogger(__name__)
+
+
+def _dns_label(value: str, fallback: str = "user") -> str:
+    v = (value or "").lower().strip()
+    v = re.sub(r"[^a-z0-9-]+", "-", v)
+    v = re.sub(r"-+", "-", v).strip("-")
+    return v or fallback
+
+
+def _validate_service_id(service_id: str) -> str:
+    if not service_id:
+        raise HTTPException(status_code=400, detail="service_id required")
+    if "/" in service_id or "\\" in service_id:
+        raise HTTPException(status_code=400, detail="invalid service_id")
+    if ".." in service_id:
+        raise HTTPException(status_code=400, detail="invalid service_id")
+    return service_id
+
+
+def _service_name_for(service_id: str) -> str:
+    service_id = _validate_service_id(service_id)
+    return f"service_{service_id}"
+
+
+def _validate_rel_path(path: str) -> Path:
+    if path is None:
+        raise HTTPException(status_code=400, detail="path required")
+    p = Path(str(path))
+    if p.is_absolute():
+        raise HTTPException(status_code=400, detail="path must be relative")
+    if any(part in {"..", ""} for part in p.parts):
+        raise HTTPException(status_code=400, detail="invalid path")
+    return p
+
+
+def _resolve_in_dir(root: Path, rel: Path) -> Path:
+    root_r = root.resolve()
+    target = (root / rel).resolve()
+    if not target.is_relative_to(root_r):
+        raise HTTPException(status_code=400, detail="path escapes sandbox")
+    return target
+
+
+class UserProfileRequest(BaseModel):
+    tier: str = "free"
+    max_concurrent_services: int = 2
+    max_memory_mb: int = 512
+    max_cpu_percent: int = 50
+    max_requests_per_minute: int = 30
+    max_services_per_hour: int = 10
+
+
+class RunRequest(BaseModel):
+    project_id: int
+    readme_content: str
+    port: int = 0
+    user_id: Optional[str] = None
+    username: Optional[str] = None
+    service_id: Optional[str] = None
+    user_profile: Optional[UserProfileRequest] = None
+    fast_mode: bool = False
+    skip_health_check: bool = False
+
+
+class StopRequest(BaseModel):
+    project_id: int
+    user_id: Optional[str] = None
+    username: Optional[str] = None
+    service_id: Optional[str] = None
+
+
+class ValidateRequest(BaseModel):
+    readme_content: str
+
+
+class SandboxPrepareRequest(BaseModel):
+    project_id: int
+    readme_content: str
+    user_id: Optional[str] = None
+    username: Optional[str] = None
+    service_id: Optional[str] = None
+    port: int = 0
+
+
+class SandboxFileWriteRequest(BaseModel):
+    content: str
+
+
+class RunnerApiSettings:
+    def __init__(self):
+        self.sandbox_root = Path(os.environ.get("PACTOWN_SANDBOX_ROOT", "/tmp/pactown-sandboxes"))
+        self.port_start = int(os.environ.get("PACTOWN_PORT_START", "10000"))
+        self.port_end = int(os.environ.get("PACTOWN_PORT_END", "20000"))
+        self.require_token = os.environ.get("PACTOWN_RUNNER_REQUIRE_TOKEN", "").lower() in {"1", "true", "yes"}
+        self.token = os.environ.get("PACTOWN_RUNNER_TOKEN") or ""
+        self.proxy_check_base_url = os.environ.get("PACTOWN_PROXY_CHECK_BASE_URL", "")
+        self.domain = os.environ.get("PACTOWN_DOMAIN", "")
+
+
+class RunnerService:
+    def __init__(
+        self,
+        *,
+        sandbox_root: Path,
+        port_start: int,
+        port_end: int,
+        health_timeout: int = 30,
+    ):
+        self.settings = RunnerApiSettings()
+        self.runner = ServiceRunner(sandbox_root=sandbox_root, default_health_check="/health", health_timeout=health_timeout)
+        self.port_allocator = PortAllocator(start_port=port_start, end_port=port_end)
+
+    def _resolve_service_id(self, req_service_id: Optional[str], project_id: int, username: Optional[str]) -> str:
+        if req_service_id:
+            return _validate_service_id(req_service_id)
+        if username:
+            return _validate_service_id(f"{int(project_id)}-{_dns_label(username, fallback=str(project_id))}")
+        return _validate_service_id(str(int(project_id)))
+
+    def validate(self, readme_content: str) -> ValidationResult:
+        return self.runner.validate_content(readme_content)
+
+    def _sandbox_path_for(self, service_id: str) -> Path:
+        return self.runner.sandbox_manager.get_sandbox_path(_service_name_for(service_id))
+
+    def list_sandbox_files(self, service_id: str) -> List[Dict[str, Any]]:
+        sandbox_path = self._sandbox_path_for(service_id)
+        if not sandbox_path.exists():
+            raise HTTPException(status_code=404, detail="sandbox not found")
+
+        files: List[Dict[str, Any]] = []
+        for p in sandbox_path.rglob("*"):
+            try:
+                if p.is_dir():
+                    continue
+                rel = p.relative_to(sandbox_path)
+                st = p.stat()
+                files.append(
+                    {
+                        "path": str(rel),
+                        "size": int(st.st_size),
+                        "mtime": int(st.st_mtime),
+                    }
+                )
+            except Exception:
+                continue
+        files.sort(key=lambda d: d.get("path", ""))
+        return files
+
+    def read_sandbox_file(self, service_id: str, path: str, limit: int = 200000) -> str:
+        sandbox_path = self._sandbox_path_for(service_id)
+        if not sandbox_path.exists():
+            raise HTTPException(status_code=404, detail="sandbox not found")
+
+        rel = _validate_rel_path(path)
+        target = _resolve_in_dir(sandbox_path, rel)
+        if not target.exists() or not target.is_file():
+            raise HTTPException(status_code=404, detail="file not found")
+
+        data = target.read_text(encoding="utf-8", errors="replace")
+        if len(data) > limit:
+            return data[:limit]
+        return data
+
+    def write_sandbox_file(self, service_id: str, path: str, content: str) -> None:
+        sandbox_path = self._sandbox_path_for(service_id)
+        sandbox_path.mkdir(parents=True, exist_ok=True)
+
+        rel = _validate_rel_path(path)
+        target = _resolve_in_dir(sandbox_path, rel)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(content, encoding="utf-8")
+
+    def delete_sandbox_file(self, service_id: str, path: str) -> None:
+        sandbox_path = self._sandbox_path_for(service_id)
+        if not sandbox_path.exists():
+            raise HTTPException(status_code=404, detail="sandbox not found")
+
+        rel = _validate_rel_path(path)
+        target = _resolve_in_dir(sandbox_path, rel)
+        if not target.exists():
+            return
+        if target.is_dir():
+            raise HTTPException(status_code=400, detail="path is a directory")
+        target.unlink()
+
+    def prepare_sandbox(self, service_id: str, content: str, port: int = 0) -> Dict[str, Any]:
+        validation = self.runner.validate_content(content)
+        if not validation.valid:
+            raise HTTPException(status_code=400, detail=validation.errors or ["validation failed"])
+
+        service_name = _service_name_for(service_id)
+        readme_path = self.runner.sandbox_root / f"{service_name}_README.md"
+        readme_path.write_text(content)
+
+        service_config = ServiceConfig(
+            name=service_name,
+            readme=str(readme_path),
+            port=int(port) if port else 0,
+            env={},
+            health_check="/health",
+        )
+
+        logs: List[str] = []
+
+        def on_log(msg: str) -> None:
+            logs.append(msg)
+
+        sandbox = self.runner.sandbox_manager.create_sandbox(
+            service=service_config,
+            readme_path=readme_path,
+            install_dependencies=False,
+            on_log=on_log,
+        )
+
+        return {
+            "sandbox": str(sandbox.path),
+            "files": self.list_sandbox_files(service_id),
+            "logs": logs,
+        }
+
+    async def run(
+        self,
+        *,
+        service_id: str,
+        content: str,
+        port: int,
+        user_id: Optional[str],
+        username: Optional[str],
+        user_profile: Optional[Dict[str, Any]],
+        fast_mode: bool,
+        skip_health_check: bool,
+    ) -> RunResult:
+        effective_port = int(port)
+        if effective_port <= 0:
+            effective_port = self.port_allocator.allocate()
+        else:
+            effective_port = self.port_allocator.allocate(preferred_port=effective_port)
+
+        if user_profile and user_id:
+            profile = UserProfile.from_dict({**user_profile, "user_id": user_id})
+            self.runner.security_policy.set_user_profile(profile)
+
+        if fast_mode:
+            result = await self.runner.fast_run(
+                service_id=service_id,
+                content=content,
+                port=effective_port,
+                env={},
+                user_id=user_id,
+                user_profile=user_profile,
+                skip_health_check=skip_health_check,
+            )
+        else:
+            result = await self.runner.run_from_content(
+                service_id=service_id,
+                content=content,
+                port=effective_port,
+                env={},
+                restart_if_running=True,
+                wait_for_health=not skip_health_check,
+                user_id=user_id,
+                user_profile=user_profile,
+            )
+
+        result.logs = result.logs or []
+
+        base_url = self.settings.proxy_check_base_url
+        domain = self.settings.domain
+        if base_url and domain and (username or user_id):
+            host = f"{service_id}.{domain}".lower()
+            try:
+                async with httpx.AsyncClient(follow_redirects=False, timeout=5.0) as client:
+                    headers = {"host": host, "connection": "close"}
+                    async with client.stream("GET", f"{base_url}/", headers=headers) as root_resp:
+                        root_status = root_resp.status_code
+                    async with client.stream("GET", f"{base_url}/health", headers=headers) as health_resp:
+                        health_status = health_resp.status_code
+                result.logs.extend(
+                    [
+                        f"[subdomain-check] host={host} / -> {root_status}",
+                        f"[subdomain-check] host={host} /health -> {health_status}",
+                    ]
+                )
+            except httpx.RemoteProtocolError as e:
+                result.logs.append(
+                    f"[subdomain-check][WARN] failed host={host}: RemoteProtocolError: {e}"
+                )
+            except Exception as e:
+                result.logs.append(f"[subdomain-check][WARN] failed host={host}: {type(e).__name__}: {e}")
+
+        return result
+
+
+def create_runner_api(*, runner_service: RunnerService, settings: RunnerApiSettings) -> FastAPI:
+    app = FastAPI(title="pactown-runner-api")
+
+    def require_token(x_runner_token: Optional[str] = Header(default=None)) -> None:
+        if not settings.require_token:
+            return
+        if not settings.token:
+            raise HTTPException(status_code=500, detail="runner token not configured")
+        if not x_runner_token or x_runner_token != settings.token:
+            raise HTTPException(status_code=401, detail="unauthorized")
+
+    @app.get("/health")
+    async def health() -> Dict[str, Any]:
+        return {"ok": True}
+
+    @app.post("/validate", dependencies=[Depends(require_token)])
+    async def validate(req: ValidateRequest) -> Dict[str, Any]:
+        res = runner_service.validate(req.readme_content)
+        return asdict(res)
+
+    @app.post("/sandbox/prepare", dependencies=[Depends(require_token)])
+    async def prepare_sandbox(req: SandboxPrepareRequest) -> Dict[str, Any]:
+        service_id = runner_service._resolve_service_id(req.service_id, req.project_id, req.username)
+        return runner_service.prepare_sandbox(service_id, req.readme_content, port=req.port)
+
+    @app.get("/sandbox/{service_id}/files", dependencies=[Depends(require_token)])
+    async def list_files(service_id: str) -> Dict[str, Any]:
+        service_id = _validate_service_id(service_id)
+        return {"files": runner_service.list_sandbox_files(service_id)}
+
+    @app.get("/sandbox/{service_id}/file", dependencies=[Depends(require_token)])
+    async def read_file(service_id: str, path: str) -> Dict[str, Any]:
+        service_id = _validate_service_id(service_id)
+        return {"path": path, "content": runner_service.read_sandbox_file(service_id, path)}
+
+    @app.put("/sandbox/{service_id}/file", dependencies=[Depends(require_token)])
+    async def write_file(service_id: str, path: str, body: SandboxFileWriteRequest) -> Dict[str, Any]:
+        service_id = _validate_service_id(service_id)
+        runner_service.write_sandbox_file(service_id, path, body.content)
+        return {"ok": True}
+
+    @app.delete("/sandbox/{service_id}/file", dependencies=[Depends(require_token)])
+    async def delete_file(service_id: str, path: str) -> Dict[str, Any]:
+        service_id = _validate_service_id(service_id)
+        runner_service.delete_sandbox_file(service_id, path)
+        return {"ok": True}
+
+    @app.post("/run", dependencies=[Depends(require_token)])
+    async def run(req: RunRequest) -> Dict[str, Any]:
+        service_id = runner_service._resolve_service_id(req.service_id, req.project_id, req.username)
+        user_profile_dict = req.user_profile.model_dump() if req.user_profile else None
+        result = await runner_service.run(
+            service_id=service_id,
+            content=req.readme_content,
+            port=req.port,
+            user_id=req.user_id,
+            username=req.username,
+            user_profile=user_profile_dict,
+            fast_mode=req.fast_mode,
+            skip_health_check=req.skip_health_check,
+        )
+        return {
+            "success": result.success,
+            "port": result.port,
+            "pid": result.pid,
+            "message": result.message,
+            "logs": result.logs or [],
+            "error_category": result.error_category.value if hasattr(result.error_category, "value") else str(result.error_category),
+            "stderr_output": result.stderr_output,
+            "suggestions": [asdict(s) for s in (result.suggestions or [])],
+            "diagnostics": asdict(result.diagnostics) if result.diagnostics else None,
+            "service_name": result.service_name,
+            "sandbox_path": str(result.sandbox_path) if getattr(result, "sandbox_path", None) else None,
+            "user_id": req.user_id,
+            "service_id": service_id,
+        }
+
+    @app.post("/stop", dependencies=[Depends(require_token)])
+    async def stop(req: StopRequest) -> Dict[str, Any]:
+        service_id = runner_service._resolve_service_id(req.service_id, req.project_id, req.username)
+        status = runner_service.runner.get_status(service_id) or {}
+        port = status.get("port")
+        result = runner_service.runner.stop(service_id)
+        if port:
+            runner_service.port_allocator.release(int(port))
+        return {
+            "success": result.success,
+            "port": result.port,
+            "pid": result.pid,
+            "message": result.message,
+            "logs": result.logs or [],
+            "error_category": result.error_category.value if hasattr(result.error_category, "value") else str(result.error_category),
+            "stderr_output": result.stderr_output,
+            "service_id": service_id,
+        }
+
+    @app.get("/status", dependencies=[Depends(require_token)])
+    async def status(user_id: Optional[str] = None) -> Dict[str, Any]:
+        services = runner_service.runner.list_services()
+        if user_id:
+            services = [s for s in services if s.get("user_id") == user_id]
+        return {"services": services}
+
+    @app.get("/status/{service_id}", dependencies=[Depends(require_token)])
+    async def status_one(service_id: str) -> Dict[str, Any]:
+        service_id = _validate_service_id(service_id)
+        st = runner_service.runner.get_status(service_id)
+        if not st:
+            return {"running": False}
+        return st
+
+    return app
+
+
+def create_app() -> FastAPI:
+    settings = RunnerApiSettings()
+    runner_service = RunnerService(
+        sandbox_root=settings.sandbox_root,
+        port_start=settings.port_start,
+        port_end=settings.port_end,
+    )
+    return create_runner_api(runner_service=runner_service, settings=settings)
+
+
+def main() -> None:
+    import uvicorn
+
+    app = create_app()
+    host = os.environ.get("PACTOWN_RUNNER_HOST", "0.0.0.0")
+    port = int(os.environ.get("PACTOWN_RUNNER_PORT", "8801"))
+    uvicorn.run(app, host=host, port=port)

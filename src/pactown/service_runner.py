@@ -330,7 +330,7 @@ class ServiceRunner:
                 continue
 
             if on_log:
-                on_log(f"🧹 Pruning stale service: service_id={service_id} running={running}")
+                on_log(f"Pruning stale service: service_id={service_id} running={running}")
 
             try:
                 self.security_policy.unregister_service(user_id, service_id)
@@ -339,7 +339,6 @@ class ServiceRunner:
 
             if service_name:
                 try:
-                    # If process already died, stop_service just removes it from tracking.
                     self.sandbox_manager.stop_service(service_name)
                 except Exception:
                     pass
@@ -797,6 +796,7 @@ class ServiceRunner:
         return {
             "service_id": service_id,
             "service_name": service_name,
+            "user_id": self._service_users.get(service_id),
             "running": status.get("running", False),
             "port": status.get("port"),
             "pid": status.get("pid"),
@@ -813,6 +813,7 @@ class ServiceRunner:
                 result.append({
                     "service_id": service_id,
                     "service_name": service_name,
+                    "user_id": self._service_users.get(service_id),
                     "port": status.get("port"),
                     "pid": status.get("pid"),
                     "running": status.get("running", False),

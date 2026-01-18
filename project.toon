@@ -1,6 +1,7 @@
-# pactown | 48f 13899L | python:48
+# pactown | 51f 14596L | python:51
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
-M[48]:
+M[51]:
+  tests/test_runner_api.py,84
   tests/test_user_isolation_manager.py,98
   tests/test_deploy_dockerfile.py,29
   tests/test_resolver.py,109
@@ -8,11 +9,12 @@ M[48]:
   tests/test_parallel.py,106
   tests/test_config.py,110
   tests/test_markpact_blocks.py,36
+  tests/test_service_runner_fast_run_fallback.py,54
   tests/test_quadlet_security.py,500
   tests/test_network.py,87
   tests/test_registry.py,110
   src/pactown/config.py,137
-  src/pactown/cli.py,462
+  src/pactown/cli.py,472
   src/pactown/user_isolation.py,380
   src/pactown/events.py,884
   src/pactown/generator.py,164
@@ -23,9 +25,10 @@ M[48]:
   src/pactown/markpact_blocks.py,35
   src/pactown/orchestrator.py,347
   src/pactown/resolver.py,122
-  src/pactown/sandbox_manager.py,590
+  src/pactown/sandbox_manager.py,597
+  src/pactown/runner_api.py,369
   src/pactown/network.py,193
-  src/pactown/service_runner.py,927
+  src/pactown/service_runner.py,963
   src/pactown/deploy/quadlet_shell.py,432
   src/pactown/deploy/base.py,200
   src/pactown/deploy/docker.py,245
@@ -50,6 +53,13 @@ M[48]:
   examples/saas-platform/.pactown-sandboxes/api/app/models.py,15
   examples/saas-platform/.pactown-sandboxes/api/app/main.py,42
 D:
+  tests/test_runner_api.py:
+    i: httpx,pytest,pactown.runner_api.{RunnerApiSettings,RunnerService,create_runner_api}
+    e: test_validate_ok,test_sandbox_prepare_and_file_ops,test_status_filtering
+    _sample_markdown()->str
+    test_validate_ok(tmp_path)->None
+    test_sandbox_prepare_and_file_ops(tmp_path)->None
+    test_status_filtering(tmp_path)->None
   tests/test_user_isolation_manager.py:
     i: os,pytest,pactown.user_isolation.{IsolatedUser,UserIsolationManager,_sanitize_gecos},pathlib.Path,types.SimpleNamespace
     e: test_sanitize_gecos_removes_colon_and_control_chars,test_get_or_create_user_non_root_virtual_user,test_get_or_create_user_reuses_existing_linux_user,test_get_or_create_user_root_creates_user_with_sanitized_comment,test_delete_user_root_builds_userdel_cmd
@@ -100,6 +110,10 @@ D:
     test_parse_blocks_new_format_includes_lang()->None
     test_parse_blocks_old_format_is_supported()->None
     test_parse_blocks_run_block_new_format()->None
+  tests/test_service_runner_fast_run_fallback.py:
+    i: asyncio,io,os,pytest,pactown.service_runner.ServiceRunner,pathlib.Path,types.SimpleNamespace
+    e: test_fast_run_fallback_sets_serviceconfig_readme_and_cleans_temp_file
+    test_fast_run_fallback_sets_serviceconfig_readme_and_cleans_temp_file(tmp_path:Path;monkeypatch:Any)->None
   tests/test_quadlet_security.py:
     i: re,sys,tempfile,pytest,pactown.deploy.quadlet.{QuadletConfig,QuadletTemplates,QuadletUnit},pathlib.Path,unittest.mock.{MagicMock,patch}
     e: TestContainerNameInjection,TestEnvironmentVariableInjection,TestVolumeMountInjection,TestTraefikLabelInjection,TestSystemdUnitInjection,TestTenantIsolation,TestCommandInjection,TestAPISecurityInjection
@@ -226,7 +240,7 @@ D:
     ResolvedDependency:   # A resolved dependency with endpoint i...
     DependencyResolver: __init__(1),_build_graph(0),get_startup_order(0),get_shutdown_order(0),resolve_service_deps(1)  # Resolves dependencies between service...
   src/pactown/sandbox_manager.py:
-    i: json,logging,os,re,shutil,stat,signal,subprocess,time,concurrent.futures.ThreadPoolExecutor
+    i: json,logging,os,re,shutil,stat,signal,subprocess,time,socket
     e: LOG_DIR,ServiceProcess,SandboxManager
     ServiceProcess: is_running(0)  # Represents a running service process.
     SandboxManager: __init__(1),get_sandbox_path(1),create_sandbox(4),start_service(7),stop_service(2)  # Manages sandboxes for multiple services.
@@ -235,6 +249,22 @@ D:
     _write_dotenv_file(sandbox_path:Path;env:dict[str;str])->None
     _sandbox_fallback_ids()->tuple[int, int]
     _chown_sandbox_tree(sandbox_path:Path;uid:int;gid:int)->None
+  src/pactown/runner_api.py:
+    i: logging,os,re,httpx,dataclasses.asdict,pathlib.Path,typing.{Any,Dict,List,Optional}
+    e: UserProfileRequest,RunRequest,StopRequest,ValidateRequest,SandboxPrepareRequest,SandboxFileWriteRequest,RunnerApiSettings,RunnerService
+    UserProfileRequest: 
+    RunRequest: 
+    StopRequest: 
+    ValidateRequest: 
+    SandboxPrepareRequest: 
+    _dns_label(value:str;fallback:str='user')->str
+    _validate_service_id(service_id:str)->str
+    _service_name_for(service_id:str)->str
+    _validate_rel_path(path:str)->Path
+    _resolve_in_dir(root:Path;rel:Path)->Path
+    create_runner_api(runner_service:RunnerService;settings:RunnerApiSettings)->FastAPI
+    create_app()->FastAPI
+    main()->None
   src/pactown/network.py:
     i: json,socket,dataclasses.dataclass,pathlib.Path,threading.Lock,typing.Optional
     e: ServiceEndpoint,PortAllocator,ServiceRegistry,find_free_port,check_port

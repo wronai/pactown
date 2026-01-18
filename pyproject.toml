@@ -51,6 +51,7 @@ dev = [
 pactown = "pactown.cli:main"
 pactown-registry = "pactown.registry.server:main"
 pactown-quadlet-api = "pactown.deploy.quadlet_api:run_api"
+pactown-runner-api = "pactown.runner_api:main"
 
 [project.urls]
 Homepage = "https://github.com/wronai/pactown"
@@ -70,4 +71,4 @@ select = ["E", "F", "W", "I"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
-addopts = "-p pytest_asyncio.plugin -p no:pytest_aiohttp -p no:aiohttp.pytest_plugin"
+addopts = "-p no:pytest_aiohttp -p no:aiohttp.pytest_plugin"
