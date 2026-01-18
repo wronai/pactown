@@ -13,6 +13,7 @@ from pydantic import BaseModel
 
 from .config import ServiceConfig
 from .network import PortAllocator
+from .platform import to_dns_label
 from .security import UserProfile
 from .service_runner import RunResult, ServiceRunner, ValidationResult
 
@@ -20,10 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 def _dns_label(value: str, fallback: str = "user") -> str:
-    v = (value or "").lower().strip()
-    v = re.sub(r"[^a-z0-9-]+", "-", v)
-    v = re.sub(r"-+", "-", v).strip("-")
-    return v or fallback
+    return to_dns_label(value, fallback=fallback)
 
 
 def _validate_service_id(service_id: str) -> str:

@@ -30,6 +30,30 @@ def normalize_domain(value: str) -> str:
     return v
 
 
+def is_local_domain(domain: str) -> bool:
+    d = normalize_domain(domain)
+    return d in {"localhost", "127.0.0.1", "0.0.0.0"}
+
+
+def build_origin(*, scheme: Literal["http", "https"], host: str, port: Optional[int] = None) -> str:
+    h = normalize_host(host)
+    if port is None:
+        return f"{scheme}://{h}"
+    return f"{scheme}://{h}:{int(port)}"
+
+
+def web_base_url(domain: str, web_host_port: int) -> str:
+    if is_local_domain(domain):
+        return build_origin(scheme="http", host="localhost", port=int(web_host_port))
+    return build_origin(scheme="https", host=normalize_domain(domain))
+
+
+def api_base_url(domain: str, api_host_port: int) -> str:
+    if is_local_domain(domain):
+        return build_origin(scheme="http", host="localhost", port=int(api_host_port))
+    return build_origin(scheme="https", host=f"api.{normalize_domain(domain)}")
+
+
 def to_dns_label(value: str, *, max_len: int = 63, fallback: str = "x") -> str:
     v = (value or "").lower().strip()
     v = re.sub(r"[^a-z0-9]+", "-", v)

@@ -47,10 +47,10 @@ dev = [
     "bump2version>=1.0",
 ]
 llm = [
-    "lolm>=0.1.7",
+    "lolm>=0.1.6",
 ]
 all = [
-    "lolm>=0.1.7",
+    "lolm>=0.1.6",
 ]
 
 [project.scripts]
