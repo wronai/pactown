@@ -76,6 +76,7 @@ class RunRequest(BaseModel):
     user_id: Optional[str] = None
     username: Optional[str] = None
     service_id: Optional[str] = None
+    env: Optional[Dict[str, str]] = None
     user_profile: Optional[UserProfileRequest] = None
     fast_mode: bool = False
     skip_health_check: bool = False
@@ -244,6 +245,7 @@ class RunnerService:
         service_id: str,
         content: str,
         port: int,
+        env: Optional[Dict[str, str]],
         user_id: Optional[str],
         username: Optional[str],
         user_profile: Optional[Dict[str, Any]],
@@ -265,7 +267,7 @@ class RunnerService:
                 service_id=service_id,
                 content=content,
                 port=effective_port,
-                env={},
+                env=env or {},
                 user_id=user_id,
                 user_profile=user_profile,
                 skip_health_check=skip_health_check,
@@ -275,7 +277,7 @@ class RunnerService:
                 service_id=service_id,
                 content=content,
                 port=effective_port,
-                env={},
+                env=env or {},
                 restart_if_running=True,
                 wait_for_health=not skip_health_check,
                 user_id=user_id,
@@ -366,6 +368,7 @@ def create_runner_api(*, runner_service: RunnerService, settings: RunnerApiSetti
             service_id=service_id,
             content=req.readme_content,
             port=req.port,
+            env=req.env,
             user_id=req.user_id,
             username=req.username,
             user_profile=user_profile_dict,
@@ -387,6 +390,19 @@ def create_runner_api(*, runner_service: RunnerService, settings: RunnerApiSetti
             "user_id": req.user_id,
             "service_id": service_id,
         }
+
+    @app.get("/test/{service_id}", dependencies=[Depends(require_token)])
+    async def test_endpoints(service_id: str) -> Dict[str, Any]:
+        service_id = _validate_service_id(service_id)
+        results = await runner_service.runner.test_endpoints(service_id)
+        return {
+            "success": len(results) > 0 and results[0].endpoint != "*",
+            "results": [asdict(r) for r in results],
+        }
+
+    @app.get("/cache/stats", dependencies=[Depends(require_token)])
+    async def cache_stats() -> Dict[str, Any]:
+        return runner_service.runner.get_cache_stats()
 
     @app.post("/stop", dependencies=[Depends(require_token)])
     async def stop(req: StopRequest) -> Dict[str, Any]:

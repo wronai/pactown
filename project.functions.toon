@@ -1,5 +1,5 @@
 project: pactown
-generated: "2026-01-18T12:03:01.009620"
+generated: "2026-01-18T12:34:06.570241"
 modules[51]{path,lang,items}:
   tests/test_runner_api.py,python,4
   tests/test_user_isolation_manager.py,python,5
@@ -421,20 +421,20 @@ function_details:
       _service_name_for,function,"(service_id:str) -> str",39-41,false,3,1,service name for
       _validate_rel_path,function,"(path:str) -> Path",44-52,false,9,5,validates rel path
       _resolve_in_dir,function,"(root:Path, rel:Path) -> Path",55-60,false,6,2,resolve in dir
-      create_runner_api,function,"(runner_service:RunnerService, settings:RunnerApiSettings) -> FastAPI",314-425,false,112,1,creates runner api
-      create_app,function,() -> FastAPI,428-435,false,8,1,creates app
-      main,function,() -> None,438-444,false,7,1,main
-      RunnerApiSettings.__init__,method,() -> None,109-116,false,8,2,creates
-      RunnerService.__init__,method,() -> None,120-130,false,11,1,creates
-      RunnerService._resolve_service_id,method,"(req_service_id:Optional[str], project_id:int, username:Optional[str]) -> str",132-137,false,6,3,resolve service id
-      RunnerService.validate,method,"(readme_content:str) -> ValidationResult",139-140,false,2,1,validates
-      RunnerService._sandbox_path_for,method,"(service_id:str) -> Path",142-143,false,2,1,sandbox path for
-      RunnerService.list_sandbox_files,method,"(service_id:str) -> List[Dict[str, Any]]",145-167,false,23,5,list sandbox files
-      RunnerService.read_sandbox_file,method,"(service_id:str, path:str, limit:int=200000) -> str",169-182,false,14,5,retrieves sandbox file
-      RunnerService.write_sandbox_file,method,"(service_id:str, path:str, content:str) -> None",184-191,false,8,1,logs sandbox file
-      RunnerService.delete_sandbox_file,method,"(service_id:str, path:str) -> None",193-204,false,12,4,deletes sandbox file
-      RunnerService.prepare_sandbox,method,"(service_id:str, content:str, port:int=0) -> Dict[str, Any]",206-239,false,34,4,prepare sandbox
-      RunnerService.run,method,() -> RunResult,241-311,true,71,12,starts
+      create_runner_api,function,"(runner_service:RunnerService, settings:RunnerApiSettings) -> FastAPI",316-441,false,126,1,creates runner api
+      create_app,function,() -> FastAPI,444-451,false,8,1,creates app
+      main,function,() -> None,454-460,false,7,1,main
+      RunnerApiSettings.__init__,method,() -> None,110-117,false,8,2,creates
+      RunnerService.__init__,method,() -> None,121-131,false,11,1,creates
+      RunnerService._resolve_service_id,method,"(req_service_id:Optional[str], project_id:int, username:Optional[str]) -> str",133-138,false,6,3,resolve service id
+      RunnerService.validate,method,"(readme_content:str) -> ValidationResult",140-141,false,2,1,validates
+      RunnerService._sandbox_path_for,method,"(service_id:str) -> Path",143-144,false,2,1,sandbox path for
+      RunnerService.list_sandbox_files,method,"(service_id:str) -> List[Dict[str, Any]]",146-168,false,23,5,list sandbox files
+      RunnerService.read_sandbox_file,method,"(service_id:str, path:str, limit:int=200000) -> str",170-183,false,14,5,retrieves sandbox file
+      RunnerService.write_sandbox_file,method,"(service_id:str, path:str, content:str) -> None",185-192,false,8,1,logs sandbox file
+      RunnerService.delete_sandbox_file,method,"(service_id:str, path:str) -> None",194-205,false,12,4,deletes sandbox file
+      RunnerService.prepare_sandbox,method,"(service_id:str, content:str, port:int=0) -> Dict[str, Any]",207-240,false,34,4,prepare sandbox
+      RunnerService.run,method,() -> RunResult,242-313,true,72,14,starts
   src/pactown/network.py:
     functions[19]{name,kind,sig,loc,async,lines,cc,does}:
       find_free_port,function,"(start:int=10000, end:int=65000) -> int",230-233,false,4,1,Find a single free port.
