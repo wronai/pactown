@@ -56,9 +56,12 @@ def create_app(storage_path: str = "./.pactown-registry") -> FastAPI:
         version="0.1.0",
     )
 
+    # CORS configuration - configurable via environment
+    # Default allows all origins for local development registry
+    cors_origins = os.environ.get("PACTOWN_REGISTRY_CORS_ORIGINS", "*").split(",")
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=cors_origins,  # nosec: configurable, default * for local dev
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

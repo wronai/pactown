@@ -106,7 +106,9 @@ class SandboxFileWriteRequest(BaseModel):
 
 class RunnerApiSettings:
     def __init__(self):
-        self.sandbox_root = Path(os.environ.get("PACTOWN_SANDBOX_ROOT", "/tmp/pactown-sandboxes"))
+        import tempfile
+        default_sandbox = tempfile.gettempdir() + "/pactown-sandboxes"
+        self.sandbox_root = Path(os.environ.get("PACTOWN_SANDBOX_ROOT", default_sandbox))
         self.port_start = int(os.environ.get("PACTOWN_PORT_START", "10000"))
         self.port_end = int(os.environ.get("PACTOWN_PORT_END", "20000"))
         self.require_token = os.environ.get("PACTOWN_RUNNER_REQUIRE_TOKEN", "").lower() in {"1", "true", "yes"}

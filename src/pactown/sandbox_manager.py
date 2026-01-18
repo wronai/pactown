@@ -28,7 +28,7 @@ logger = logging.getLogger("pactown.sandbox")
 logger.setLevel(logging.DEBUG)
 
 # File handler for persistent logs
-LOG_DIR = Path("/tmp/pactown-logs")
+LOG_DIR = Path(os.environ.get("PACTOWN_LOG_DIR", tempfile.gettempdir() + "/pactown-logs"))
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 _log_path = str(LOG_DIR / "sandbox.log")
 if not any(
@@ -432,9 +432,11 @@ class SandboxManager:
                         os.setuid(uid)
 
         # Always capture stderr for debugging
+        # nosec B602: shell=True required - we execute user-defined run commands
+        # Input is validated via markpact parsing and sandbox isolation
         process = subprocess.Popen(
             expanded_cmd,
-            shell=True,
+            shell=True,  # nosec B602
             cwd=str(sandbox.path),
             env=full_env,
             stdout=subprocess.PIPE,

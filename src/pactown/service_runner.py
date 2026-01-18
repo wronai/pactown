@@ -11,6 +11,7 @@ import shutil
 import signal
 import subprocess
 import sys
+import tempfile
 import time
 from dataclasses import dataclass, field
 from enum import Enum
@@ -276,12 +277,14 @@ class ServiceRunner:
     
     def __init__(
         self,
-        sandbox_root: str | Path = "/tmp/pactown-sandboxes",
+        sandbox_root: str | Path = None,  # Will use tempfile.gettempdir() if None
         default_health_check: str = "/health",
         health_timeout: int = 10,
         security_policy: Optional["SecurityPolicy"] = None,
         enable_fast_start: bool = True,
     ):
+        if sandbox_root is None:
+            sandbox_root = os.environ.get("PACTOWN_SANDBOX_ROOT", tempfile.gettempdir() + "/pactown-sandboxes")
         self.sandbox_root = Path(sandbox_root)
         self.sandbox_root.mkdir(parents=True, exist_ok=True)
         self.sandbox_manager = SandboxManager(self.sandbox_root)
@@ -1058,7 +1061,7 @@ class ServiceRunner:
         # Prepare environment
         run_env = os.environ.copy()
         run_env["PORT"] = str(port)
-        run_env["HOST"] = "0.0.0.0"
+        run_env["HOST"] = "0.0.0.0"  # nosec B104: bind all interfaces for container/service access
         if env:
             run_env.update(env)
 
@@ -1083,9 +1086,11 @@ class ServiceRunner:
         log(f"Starting: {run_cmd[:50]}...")
         
         try:
+            # nosec B602: shell=True required for user-defined run commands
+            # Commands come from validated markpact README blocks
             process = subprocess.Popen(
                 run_cmd,
-                shell=True,
+                shell=True,  # nosec B602
                 cwd=str(sandbox_path),
                 env=run_env,
                 stdout=subprocess.PIPE,

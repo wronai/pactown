@@ -174,7 +174,9 @@ class AnomalyLogger:
         max_events: int = 10000,
         on_anomaly: Optional[Callable[[AnomalyEvent], None]] = None,
     ):
-        self.log_path = log_path or Path("/tmp/pactown-anomalies.jsonl")
+        import tempfile
+        default_log = tempfile.gettempdir() + "/pactown-anomalies.jsonl"
+        self.log_path = log_path or Path(os.environ.get("PACTOWN_ANOMALY_LOG", default_log))
         self.max_events = max_events
         self.on_anomaly = on_anomaly
         self._events: List[AnomalyEvent] = []

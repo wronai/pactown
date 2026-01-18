@@ -509,6 +509,7 @@ def get_fast_starter(sandbox_root: Optional[Path] = None) -> FastServiceStarter:
     """Get or create the global fast starter instance."""
     global _fast_starter
     if _fast_starter is None:
-        root = sandbox_root or Path("/tmp/pactown-sandboxes")
+        import tempfile
+        root = sandbox_root or Path(os.environ.get("PACTOWN_SANDBOX_ROOT", tempfile.gettempdir() + "/pactown-sandboxes"))
         _fast_starter = FastServiceStarter(root)
     return _fast_starter

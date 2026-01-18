@@ -15,6 +15,7 @@ import re
 import shutil
 import subprocess
 import logging
+import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional, Any
@@ -187,7 +188,7 @@ class UserIsolationManager:
                 try:
                     home_dir.mkdir(parents=True, exist_ok=True)
                 except Exception as e:
-                    fallback_base = Path("/tmp/pactown_users")
+                    fallback_base = Path(tempfile.gettempdir()) / "pactown_users"
                     fallback_home = fallback_base / username
                     logger.warning(
                         "Could not create users_base home_dir=%s (%s); falling back to %s",
@@ -319,9 +320,11 @@ class UserIsolationManager:
                 os.setgid(user.linux_gid)
                 os.setuid(user.linux_uid)
         
+        # nosec B602: shell=True required for user commands in isolated sandbox
+        # User is isolated via Linux user/group and sandbox directory
         process = subprocess.Popen(
             command,
-            shell=True,
+            shell=True,  # nosec B602
             cwd=str(cwd),
             env=full_env,
             stdout=subprocess.PIPE,
@@ -452,7 +455,7 @@ def get_isolation_manager() -> UserIsolationManager:
     """Get global isolation manager instance."""
     global _isolation_manager
     if _isolation_manager is None:
-        default_base = "/home/pactown_users" if os.geteuid() == 0 else "/tmp/pactown_users"
+        default_base = "/home/pactown_users" if os.geteuid() == 0 else tempfile.gettempdir() + "/pactown_users"
         users_base = Path(os.environ.get("PACTOWN_USERS_BASE", default_base))
         _isolation_manager = UserIsolationManager(users_base=users_base)
     return _isolation_manager
