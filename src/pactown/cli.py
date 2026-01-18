@@ -267,6 +267,7 @@ def generate(folder: str, name: Optional[str], output: str, base_port: int):
         print_scan_results(folder_path)
 
         console.print()
+
         config = generate_config(
             folder=folder_path,
             name=name,

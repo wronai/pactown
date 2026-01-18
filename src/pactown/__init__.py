@@ -1,6 +1,6 @@
 """Pactown – Decentralized Service Ecosystem Orchestrator using markpact"""
 
-__version__ = "0.1.38"
+__version__ = "0.1.39"
 
 from .config import DependencyConfig, EcosystemConfig, ServiceConfig
 from .network import PortAllocator, ServiceEndpoint, ServiceRegistry, find_free_port
@@ -46,15 +46,19 @@ from .platform import (
     DomainConfig,
     ProjectHostParts,
     SubdomainSeparator,
+    api_base_url,
+    build_origin,
     build_project_host,
     build_project_subdomain,
     build_service_subdomain,
     coerce_subdomain_separator,
+    is_local_domain,
     normalize_domain,
     normalize_host,
     parse_project_host,
     parse_project_subdomain,
     to_dns_label,
+    web_base_url,
 )
 from .events import (
     # Core event types
@@ -132,15 +136,19 @@ __all__ = [
     "DomainConfig",
     "ProjectHostParts",
     "SubdomainSeparator",
+    "api_base_url",
+    "build_origin",
     "build_project_host",
     "build_project_subdomain",
     "build_service_subdomain",
     "coerce_subdomain_separator",
+    "is_local_domain",
     "normalize_domain",
     "normalize_host",
     "parse_project_host",
     "parse_project_subdomain",
     "to_dns_label",
+    "web_base_url",
     # Orchestration
     "EcosystemConfig",
     "ServiceConfig",
