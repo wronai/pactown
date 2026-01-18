@@ -580,6 +580,147 @@ def quadlet_logs(service_name: str, tenant: str, lines: int):
     console.print(output or "[dim]No logs available[/dim]")
 
 
+@cli.group()
+def llm():
+    """LLM provider management with rotation and fallback."""
+    pass
+
+
+@llm.command("status")
+def llm_status():
+    """Show status of all LLM providers.
+    
+    Example:
+        pactown llm status
+    """
+    from .llm import get_llm_status, is_lolm_available
+    
+    if not is_lolm_available():
+        console.print("[yellow]lolm library not installed[/yellow]")
+        console.print("Install with: pip install lolm")
+        return
+    
+    status = get_llm_status()
+    
+    if not status.get('is_available'):
+        console.print("[yellow]No LLM providers available[/yellow]")
+        if 'error' in status:
+            console.print(f"Error: {status['error']}")
+        return
+    
+    console.print("[bold]LLM Provider Status[/bold]\n")
+    
+    providers = status.get('providers', {})
+    for name, info in providers.items():
+        state = info.get('status', 'unknown')
+        model = info.get('model', '')
+        priority = info.get('priority', 100)
+        
+        if state == 'available':
+            state_icon = "[green]●[/green]"
+        elif state == 'unavailable':
+            state_icon = "[red]○[/red]"
+        else:
+            state_icon = "[yellow]◐[/yellow]"
+        
+        console.print(f"  {state_icon} [bold]{name}[/bold] ({model})")
+        console.print(f"      Priority: {priority}")
+        
+        health = info.get('health', {})
+        if health:
+            success_rate = health.get('success_rate', 1.0)
+            total = health.get('total_requests', 0)
+            rate_limits = health.get('rate_limit_hits', 0)
+            console.print(f"      Requests: {total} (success: {success_rate:.1%})")
+            if rate_limits > 0:
+                console.print(f"      [yellow]Rate limits: {rate_limits}[/yellow]")
+        
+        if info.get('error'):
+            console.print(f"      [red]Error: {info['error']}[/red]")
+        
+        console.print()
+
+
+@llm.command("priority")
+@click.argument("provider")
+@click.argument("priority", type=int)
+def llm_priority(provider: str, priority: int):
+    """Set priority for an LLM provider (lower = higher priority).
+    
+    Example:
+        pactown llm priority openrouter 10
+        pactown llm priority groq 20
+    """
+    from .llm import set_llm_priority, is_lolm_available
+    
+    if not is_lolm_available():
+        console.print("[yellow]lolm library not installed[/yellow]")
+        return
+    
+    if set_llm_priority(provider, priority):
+        console.print(f"[green]✓ Set {provider} priority to {priority}[/green]")
+    else:
+        console.print(f"[red]Failed to set priority for {provider}[/red]")
+
+
+@llm.command("reset")
+@click.argument("provider")
+def llm_reset(provider: str):
+    """Reset an LLM provider's health metrics.
+    
+    Clears failure counts, rate limit history, and cooldowns.
+    
+    Example:
+        pactown llm reset groq
+    """
+    from .llm import reset_llm_provider, is_lolm_available
+    
+    if not is_lolm_available():
+        console.print("[yellow]lolm library not installed[/yellow]")
+        return
+    
+    if reset_llm_provider(provider):
+        console.print(f"[green]✓ Reset {provider} health metrics[/green]")
+    else:
+        console.print(f"[red]Failed to reset {provider}[/red]")
+
+
+@llm.command("test")
+@click.option("--provider", "-p", help="Specific provider to test")
+@click.option("--rotation", "-r", is_flag=True, help="Test with rotation")
+def llm_test(provider: str, rotation: bool):
+    """Test LLM generation with a simple prompt.
+    
+    Example:
+        pactown llm test
+        pactown llm test --provider openrouter
+        pactown llm test --rotation
+    """
+    from .llm import get_llm, is_lolm_available
+    
+    if not is_lolm_available():
+        console.print("[yellow]lolm library not installed[/yellow]")
+        return
+    
+    try:
+        llm = get_llm()
+        prompt = "Say 'Hello from Pactown!' in one short sentence."
+        
+        console.print("[dim]Testing LLM generation...[/dim]")
+        
+        if rotation:
+            response = llm.generate_with_rotation(prompt, max_tokens=50)
+        elif provider:
+            response = llm.generate(prompt, provider=provider, max_tokens=50)
+        else:
+            response = llm.generate(prompt, max_tokens=50)
+        
+        console.print(f"[green]✓ Response:[/green] {response}")
+        
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+
+
 def main(argv=None):
     """Main entry point."""
     cli(argv)

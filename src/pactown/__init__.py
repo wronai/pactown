@@ -1,6 +1,6 @@
 """Pactown – Decentralized Service Ecosystem Orchestrator using markpact"""
 
-__version__ = "0.1.33"
+__version__ = "0.1.34"
 
 from .config import DependencyConfig, EcosystemConfig, ServiceConfig
 from .network import PortAllocator, ServiceEndpoint, ServiceRegistry, find_free_port
@@ -70,6 +70,17 @@ from .events import (
     Projection,
     ServiceStatusProjection,
 )
+from .llm import (
+    PactownLLM,
+    PactownLLMError,
+    LLMNotAvailableError,
+    get_llm,
+    is_lolm_available,
+    generate as llm_generate,
+    get_llm_status,
+    set_provider_priority as set_llm_priority,
+    reset_provider as reset_llm_provider,
+)
 
 __all__ = [
     # High-level API
@@ -137,5 +148,15 @@ __all__ = [
     "get_security_queries",
     "Projection",
     "ServiceStatusProjection",
+    # LLM
+    "PactownLLM",
+    "PactownLLMError",
+    "LLMNotAvailableError",
+    "get_llm",
+    "is_lolm_available",
+    "llm_generate",
+    "get_llm_status",
+    "set_llm_priority",
+    "reset_llm_provider",
     "__version__",
 ]
