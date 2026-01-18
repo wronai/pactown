@@ -1,8 +1,9 @@
 project: pactown
-generated: "2026-01-18T17:04:38.519640"
-modules[51]{path,lang,items}:
+generated: "2026-01-18T17:21:09.602992"
+modules[53]{path,lang,items}:
   tests/test_runner_api.py,python,4
   tests/test_user_isolation_manager.py,python,5
+  tests/test_llm.py,python,16
   tests/test_deploy_dockerfile.py,python,2
   tests/test_resolver.py,python,10
   tests/__init__.py,python,0
@@ -14,7 +15,8 @@ modules[51]{path,lang,items}:
   tests/test_network.py,python,12
   tests/test_registry.py,python,10
   src/pactown/config.py,python,7
-  src/pactown/cli.py,python,21
+  src/pactown/cli.py,python,26
+  src/pactown/llm.py,python,22
   src/pactown/user_isolation.py,python,16
   src/pactown/events.py,python,75
   src/pactown/generator.py,python,4
@@ -67,6 +69,24 @@ function_details:
       test_get_or_create_user_reuses_existing_linux_user,function,"(tmp_path:Path, monkeypatch:Any) -> None",36-64,false,29,1,checks get or create user reuses existing linux user
       test_get_or_create_user_root_creates_user_with_sanitized_comment,function,"(tmp_path:Path, monkeypatch:Any) -> None",67-119,false,53,6,checks get or create user root creates user with sanitized comment
       test_delete_user_root_builds_userdel_cmd,function,"(tmp_path:Path, monkeypatch:Any) -> None",122-152,false,31,1,checks delete user root builds userdel cmd
+  tests/test_llm.py:
+    functions[16]{name,kind,sig,loc,async,lines,cc,does}:
+      TestLLMStatus.test_llm_status_without_lolm,method,() -> None,13-27,false,15,2,Test llm status when lolm is not installed.
+      TestLLMStatus.test_llm_status_with_providers,method,() -> None,29-73,false,45,1,Test llm status with available providers.
+      TestLLMStatus.test_llm_status_no_providers_available,method,() -> None,75-90,false,16,1,Test llm status when no providers are configured.
+      TestLLMPriority.test_llm_priority_set_success,method,() -> None,96-106,false,11,1,Test setting provider priority successfully.
+      TestLLMPriority.test_llm_priority_set_failure,method,() -> None,108-117,false,10,1,Test setting priority for unknown provider.
+      TestLLMPriority.test_llm_priority_without_lolm,method,() -> None,119-127,false,9,1,Test priority command when lolm not installed.
+      TestLLMReset.test_llm_reset_success,method,() -> None,133-143,false,11,1,Test resetting provider health successfully.
+      TestLLMReset.test_llm_reset_failure,method,() -> None,145-154,false,10,1,Test reset for unknown provider.
+      TestLLMTest.test_llm_test_basic,method,() -> None,160-172,false,13,1,Test basic LLM generation test.
+      TestLLMTest.test_llm_test_with_rotation,method,() -> None,174-186,false,13,1,Test LLM generation with rotation flag.
+      TestLLMTest.test_llm_test_with_provider,method,() -> None,188-202,false,15,1,Test LLM generation with specific provider.
+      TestLLMTest.test_llm_test_error,method,() -> None,204-217,false,14,1,Test LLM generation error handling.
+      TestLLMModule.test_is_lolm_available_false,method,() -> None,223-231,false,9,1,Test is_lolm_available when lolm not installed.
+      TestLLMModule.test_get_llm_status_without_lolm,method,() -> None,233-241,false,9,2,Test get_llm_status returns proper error when lolm unavailable.
+      TestPactownLLMClass.test_pactown_llm_singleton,method,() -> None,247-261,false,15,1,Test PactownLLM singleton pattern.
+      TestPactownLLMClass.test_pactown_llm_generate_with_rotation,method,() -> None,263-283,false,21,1,Test generate_with_rotation delegates to manager.
   tests/test_deploy_dockerfile.py:
     functions[2]{name,kind,sig,loc,async,lines,cc,does}:
       test_python_dockerfile_healthcheck_does_not_use_curl,function,() -> None,12-24,false,13,1,checks python dockerfile healthcheck does not use curl
@@ -172,7 +192,7 @@ function_details:
       EcosystemConfig.to_dict,method,() -> dict,119-146,false,28,3,Convert configuration to dictionary.
       EcosystemConfig.to_yaml,method,"(path:Path) -> None",148-151,false,4,1,Save configuration to YAML file.
   src/pactown/cli.py:
-    functions[21]{name,kind,sig,loc,async,lines,cc,does}:
+    functions[26]{name,kind,sig,loc,async,lines,cc,does}:
       cli,function,() -> None,23-25,false,3,1,Pactown – Decentralized Service Ecosystem Orchestrator.
       up,function,"(config_path:str, dry_run:bool, no_health:bool, quiet:bool, sequential:bool, workers:int) -> None",35-74,false,40,9,Start all services in the ecosystem.
       down,function,"(config_path:str) -> None",79-88,false,10,2,Stop all services in the ecosystem.
@@ -193,7 +213,36 @@ function_details:
       quadlet_deploy,function,"(markdown_path:str, domain:str, subdomain:str, tenant:str, tls:bool, image:str) -> None",475-525,false,51,5,Deploy a Markdown file to VPS using Quadlet.
       quadlet_list,function,"(tenant:str) -> None",530-560,false,31,4,List all Quadlet services for a tenant.
       quadlet_logs,function,"(service_name:str, tenant:str, lines:int) -> None",567-580,false,14,2,Show logs for a Quadlet service.
-      main,function,(argv=None) -> None,583-585,false,3,1,Main entry point.
+      llm,function,() -> None,584-586,false,3,1,LLM provider management with rotation and fallback.
+      llm_status,function,() -> None,590-641,false,52,10,Show status of all LLM providers.
+      llm_priority,function,"(provider:str, priority:int) -> None",647-663,false,17,3,Set priority for an LLM provider (lower = higher priority).
+      llm_reset,function,"(provider:str) -> None",668-685,false,18,3,Reset an LLM provider's health metrics.
+      llm_test,function,"(provider:str, rotation:bool) -> None",691-721,false,31,5,Test LLM generation with a simple prompt.
+      main,function,(argv=None) -> None,724-726,false,3,1,Main entry point.
+  src/pactown/llm.py:
+    functions[22]{name,kind,sig,loc,async,lines,cc,does}:
+      get_llm,function,"(verbose:bool=False) -> PactownLLM",263-265,false,3,1,Get the global PactownLLM instance.
+      is_lolm_available,function,() -> bool,268-270,false,3,1,Check if lolm library is available.
+      generate,function,"(prompt:str, system:str=None, max_tokens:int=4000, with_rotation:bool=True) -> str",274-295,false,22,2,Generate completion using the global LLM instance.
+      get_llm_status,function,"() -> Dict[str, Any]",298-314,false,17,3,Get status of all LLM providers.
+      set_provider_priority,function,"(name:str, priority:int) -> bool",317-322,false,6,2,Set priority for an LLM provider.
+      reset_provider,function,"(name:str) -> bool",325-330,false,6,2,Reset an LLM provider's health metrics.
+      PactownLLM.__init__,method,"(verbose:bool=False) -> None",69-82,false,14,2,creates
+      PactownLLM.get_instance,method,"(verbose:bool=False) -> 'PactownLLM'",85-89,false,5,2,Get or create the global PactownLLM instance.
+      PactownLLM.set_instance,method,"(instance:PactownLLM) -> None",92-94,false,3,1,Set the global PactownLLM instance.
+      PactownLLM.initialize,method,() -> None,96-113,false,18,6,Initialize the LLM manager and all providers.
+      PactownLLM.is_available,method,() -> bool,116-120,false,5,2,Check if any LLM provider is available.
+      PactownLLM.generate,method,"(prompt:str, system:str=None, max_tokens:int=4000, provider:str=None) -> str",122-150,false,29,3,Generate completion using available provider.
+      PactownLLM.generate_with_rotation,method,"(prompt:str, system:str=None, max_tokens:int=4000, max_retries:int=3) -> str",152-179,false,28,2,Generate with intelligent rotation based on provider health.
+      PactownLLM.generate_with_fallback,method,"(prompt:str, system:str=None, max_tokens:int=4000, providers:List[str]=None) -> str",181-205,false,25,2,Generate with fallback to other providers on failure.
+      PactownLLM.get_status,method,"() -> Dict[str, Any]",207-224,false,18,5,Get status of all providers including health info.
+      PactownLLM.get_provider_health,method,"(name:str=None) -> Dict",226-230,false,5,2,Get health info for providers.
+      PactownLLM.set_provider_priority,method,"(name:str, priority:int) -> bool",232-236,false,5,2,Set priority for a provider (lower = higher priority).
+      PactownLLM.reset_provider,method,"(name:str) -> bool",238-242,false,5,2,Reset a provider's health metrics.
+      PactownLLM.get_rotation_queue,method,"() -> Optional[RotationQueue]",244-246,false,3,1,Get the rotation queue for advanced control.
+      PactownLLM.on_rate_limit,method,"(callback:Callable[Any,None]) -> None",249-251,false,3,1,Set callback for rate limit events.
+      PactownLLM.on_rotation,method,"(callback:Callable[Any,None]) -> None",253-255,false,3,1,Set callback for provider rotation events.
+      PactownLLM.on_provider_unavailable,method,"(callback:Callable[Any,None]) -> None",257-259,false,3,1,Set callback for when a provider becomes unavailable.
   src/pactown/user_isolation.py:
     functions[16]{name,kind,sig,loc,async,lines,cc,does}:
       _sanitize_gecos,function,"(value:str) -> str",26-33,false,8,3,sanitize gecos

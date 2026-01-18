@@ -1,8 +1,9 @@
-# pactown | 51f 14664L | python:51
+# pactown | 53f 15441L | python:53
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
-M[51]:
+M[53]:
   tests/test_runner_api.py,84
   tests/test_user_isolation_manager.py,98
+  tests/test_llm.py,206
   tests/test_deploy_dockerfile.py,29
   tests/test_resolver.py,109
   tests/__init__.py,1
@@ -14,13 +15,14 @@ M[51]:
   tests/test_network.py,87
   tests/test_registry.py,110
   src/pactown/config.py,137
-  src/pactown/cli.py,472
+  src/pactown/cli.py,578
+  src/pactown/llm.py,255
   src/pactown/user_isolation.py,380
   src/pactown/events.py,884
   src/pactown/generator.py,164
   src/pactown/security.py,570
   src/pactown/parallel.py,211
-  src/pactown/__init__.py,126
+  src/pactown/__init__.py,146
   src/pactown/fast_start.py,412
   src/pactown/markpact_blocks.py,35
   src/pactown/orchestrator.py,347
@@ -68,6 +70,14 @@ D:
     test_get_or_create_user_reuses_existing_linux_user(tmp_path:Path;monkeypatch:Any)->None
     test_get_or_create_user_root_creates_user_with_sanitized_comment(tmp_path:Path;monkeypatch:Any)->None
     test_delete_user_root_builds_userdel_cmd(tmp_path:Path;monkeypatch:Any)->None
+  tests/test_llm.py:
+    i: pytest,click.testing.CliRunner,pactown.cli,unittest.mock.{MagicMock,patch}
+    e: TestLLMStatus,TestLLMPriority,TestLLMReset,TestLLMTest,TestLLMModule,TestPactownLLMClass
+    TestLLMStatus: test_llm_status_without_lolm(0),test_llm_status_with_providers(0),test_llm_status_no_providers_available(0)  # Tests for pactown llm status command.
+    TestLLMPriority: test_llm_priority_set_success(0),test_llm_priority_set_failure(0),test_llm_priority_without_lolm(0)  # Tests for pactown llm priority command.
+    TestLLMReset: test_llm_reset_success(0),test_llm_reset_failure(0)  # Tests for pactown llm reset command.
+    TestLLMTest: test_llm_test_basic(0),test_llm_test_with_rotation(0),test_llm_test_with_provider(0),test_llm_test_error(0)  # Tests for pactown llm test command.
+    TestLLMModule: test_is_lolm_available_false(0),test_get_llm_status_without_lolm(0)  # Tests for pactown.llm module functions.
   tests/test_deploy_dockerfile.py:
     i: pactown.deploy.base.DeploymentConfig,pactown.deploy.docker.DockerBackend,pathlib.Path,tempfile.TemporaryDirectory
     e: test_python_dockerfile_healthcheck_does_not_use_curl,test_node_dockerfile_falls_back_when_package_lock_missing
@@ -165,6 +175,18 @@ D:
     graph(config_path:str)->None
     init(name:str;output:str)->None
     publish(config_path:str;registry:str)->None
+  src/pactown/llm.py:
+    i: os,lolm.{LLMManager,ProviderHealth,RotationQueue},pathlib.Path,typing.{Any,Callable,Dict,List,Optional}
+    e: PactownLLMError,LLMNotAvailableError,PactownLLM,get_llm,is_lolm_available,generate,get_llm_status,set_provider_priority
+    PactownLLMError:   # Base exception for Pactown LLM errors.
+    LLMNotAvailableError:   # Raised when no LLM provider is availa...
+    PactownLLM: __init__(1),get_instance(1),set_instance(1),initialize(0),is_available(0)  # Pactown LLM Manager with rotation and...
+    get_llm(verbose:bool=False)->PactownLLM
+    is_lolm_available()->bool
+    generate(prompt:str;system:str=None;max_tokens:int=4000;with_rotation:bool=True)->str
+    get_llm_status()->Dict[str, Any]
+    set_provider_priority(name:str;priority:int)->bool
+    reset_provider(name:str)->bool
   src/pactown/user_isolation.py:
     i: grp,os,pwd,re,shutil,subprocess,logging,dataclasses.{dataclass,field},pathlib.Path
     e: IsolatedUser,UserIsolationManager,get_isolation_manager
