@@ -1,5 +1,5 @@
 project: pactown
-generated: "2026-01-18T16:35:37.475485"
+generated: "2026-01-18T16:46:33.544414"
 modules[51]{path,lang,items}:
   tests/test_runner_api.py,python,4
   tests/test_user_isolation_manager.py,python,5
@@ -437,44 +437,44 @@ function_details:
       RunnerService.run,method,() -> RunResult,242-313,true,72,14,starts
   src/pactown/network.py:
     functions[19]{name,kind,sig,loc,async,lines,cc,does}:
-      find_free_port,function,"(start:int=10000, end:int=65000) -> int",230-233,false,4,1,Find a single free port.
-      check_port,function,"(port:int) -> bool",236-244,false,9,2,Check if a specific port is available.
+      find_free_port,function,"(start:int=10000, end:int=65000) -> int",246-255,false,10,2,Find a single free port.
+      check_port,function,"(port:int) -> bool",258-266,false,9,2,Check if a specific port is available.
       ServiceEndpoint.url,method,() -> str,22-23,false,2,1,url
       ServiceEndpoint.health_url,method,"() -> Optional[str]",26-29,false,4,2,health url
-      PortAllocator.__init__,method,"(start_port:int=10000, end_port:int=65000) -> None",35-39,false,5,1,creates
-      PortAllocator.is_port_free,method,"(port:int) -> bool",41-51,false,11,3,Check if a port is available.
-      PortAllocator.allocate,method,"(preferred_port:Optional[int]=None) -> int",53-72,false,20,5,Allocate a free port.
-      PortAllocator.release,method,"(port:int) -> None",74-77,false,4,1,Release an allocated port.
-      PortAllocator.release_all,method,() -> None,79-82,false,4,1,Release all allocated ports.
-      ServiceRegistry.__init__,method,"(storage_path:Optional[Path]=None, host:str='127.0.0.1') -> None",93-103,false,11,2,creates
-      ServiceRegistry._load,method,() -> None,105-119,false,15,4,Load service registry from disk.
-      ServiceRegistry._save,method,() -> None,121-135,false,15,2,Persist service registry to disk.
-      ServiceRegistry.register,method,"(name:str, preferred_port:Optional[int]=None, health_check:Optional[str]=None) -> ServiceEndpoint",137-171,false,35,3,Register a service and allocate a port.
-      ServiceRegistry.unregister,method,"(name:str) -> None",173-179,false,7,2,Unregister a service.
-      ServiceRegistry.get,method,"(name:str) -> Optional[ServiceEndpoint]",181-183,false,3,1,Get service endpoint by name.
-      ServiceRegistry.get_url,method,"(name:str) -> Optional[str]",185-188,false,4,2,Get service URL by name.
-      ServiceRegistry.list_services,method,"() -> list[ServiceEndpoint]",190-192,false,3,1,List all registered services.
-      ServiceRegistry.get_environment,method,"(service_name:str, dependencies:list[str]) -> dict[str, str]",194-219,false,26,4,Get environment variables for a service.
-      ServiceRegistry.clear,method,() -> None,221-227,false,7,2,Clear all registrations.
+      PortAllocator.__init__,method,"(start_port:int=10000, end_port:int=65000) -> None",43-53,false,11,3,creates
+      PortAllocator.is_port_free,method,"(port:int) -> bool",55-65,false,11,3,Check if a port is available.
+      PortAllocator.allocate,method,"(preferred_port:Optional[int]=None) -> int",67-88,false,22,6,Allocate a free port.
+      PortAllocator.release,method,"(port:int) -> None",90-93,false,4,1,Release an allocated port.
+      PortAllocator.release_all,method,() -> None,95-98,false,4,1,Release all allocated ports.
+      ServiceRegistry.__init__,method,"(storage_path:Optional[Path]=None, host:str='127.0.0.1') -> None",109-119,false,11,2,creates
+      ServiceRegistry._load,method,() -> None,121-135,false,15,4,Load service registry from disk.
+      ServiceRegistry._save,method,() -> None,137-151,false,15,2,Persist service registry to disk.
+      ServiceRegistry.register,method,"(name:str, preferred_port:Optional[int]=None, health_check:Optional[str]=None) -> ServiceEndpoint",153-187,false,35,3,Register a service and allocate a port.
+      ServiceRegistry.unregister,method,"(name:str) -> None",189-195,false,7,2,Unregister a service.
+      ServiceRegistry.get,method,"(name:str) -> Optional[ServiceEndpoint]",197-199,false,3,1,Get service endpoint by name.
+      ServiceRegistry.get_url,method,"(name:str) -> Optional[str]",201-204,false,4,2,Get service URL by name.
+      ServiceRegistry.list_services,method,"() -> list[ServiceEndpoint]",206-208,false,3,1,List all registered services.
+      ServiceRegistry.get_environment,method,"(service_name:str, dependencies:list[str]) -> dict[str, str]",210-235,false,26,4,Get environment variables for a service.
+      ServiceRegistry.clear,method,() -> None,237-243,false,7,2,Clear all registrations.
   src/pactown/service_runner.py:
     functions[17]{name,kind,sig,loc,async,lines,cc,does}:
-      kill_process_on_port,function,"(port:int) -> bool",89-159,false,71,21,Kill any process using the specified port.
+      kill_process_on_port,function,"(port:int, force:bool=False) -> bool",103-189,false,87,25,Kill any process using the specified port.
       DiagnosticInfo.collect,method,"(sandbox_path:Optional[Path]=None) -> \"DiagnosticInfo\"",47-77,false,31,6,Collect diagnostic information.
-      RunResult.to_dict,method,() -> dict,182-206,false,25,4,Convert to dictionary for JSON serialization.
-      ServiceRunner.__init__,method,"(sandbox_root:Any='/tmp/pactown-sandboxes', default_health_check:str='/health', health_timeout:int=10, security_policy:Optional[SecurityPolicy]=None, enable_fast_start:bool=True) -> None",247-277,false,31,3,creates
-      ServiceRunner.validate_content,method,"(content:str) -> ValidationResult",279-309,false,31,11,Validate markpact content before running.
-      ServiceRunner._prune_stale_user_services,method,"(user_id:str, on_log:Optional[Callable[Any,None]]=None) -> None",311-349,false,39,14,prune stale user services
-      ServiceRunner.run_from_content,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, restart_if_running:bool=True, wait_for_health:bool=True, health_timeout:Optional[int]=None) -> RunResult",351-571,true,221,26,Run a service directly from markdown content.
-      ServiceRunner._generate_suggestions,method,"(error_cat:ErrorCategory, stderr:str, port:int) -> List[AutoFixSuggestion]",573-652,false,80,15,Generate actionable suggestions based on error type.
-      ServiceRunner._wait_for_health,method,"(process:ServiceProcess, port:int, timeout:int, on_log:Callable[Any,None]) -> dict",654-719,true,66,20,Wait for service to pass health check.
-      ServiceRunner.stop,method,"(service_id:str) -> RunResult",721-784,false,64,6,Stop a running service.
-      ServiceRunner.get_status,method,"(service_id:str) -> Optional[Dict]",786-805,false,20,3,Get status of a service.
-      ServiceRunner.list_services,method,"() -> List[Dict]",807-821,false,15,4,List all running services.
-      ServiceRunner.test_endpoints,method,"(service_id:str, endpoints:Optional[List[str]]=None, timeout:float=5.0) -> List[EndpointTestResult]",823-883,true,61,8,Test endpoints of a running service.
-      ServiceRunner.stop_all,method,() -> None,885-888,false,4,2,Stop all running services.
-      ServiceRunner.fast_run,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, user_id:Optional[str]=None, user_profile:Optional[Dict[str,Any]]=None, skip_health_check:bool=False) -> RunResult",890-1142,true,253,25,Fast service startup with dependency caching.
-      ServiceRunner._quick_health_check,method,"(process:Any, port:int, timeout:int=5) -> bool",1144-1165,true,22,5,Quick health check with shorter timeout.
-      ServiceRunner.get_cache_stats,method,"() -> Dict[str, Any]",1167-1171,false,5,2,Get fast start cache statistics.
+      RunResult.to_dict,method,() -> dict,212-236,false,25,4,Convert to dictionary for JSON serialization.
+      ServiceRunner.__init__,method,"(sandbox_root:Any='/tmp/pactown-sandboxes', default_health_check:str='/health', health_timeout:int=10, security_policy:Optional[SecurityPolicy]=None, enable_fast_start:bool=True) -> None",277-307,false,31,3,creates
+      ServiceRunner.validate_content,method,"(content:str) -> ValidationResult",309-339,false,31,11,Validate markpact content before running.
+      ServiceRunner._prune_stale_user_services,method,"(user_id:str, on_log:Optional[Callable[Any,None]]=None) -> None",341-379,false,39,14,prune stale user services
+      ServiceRunner.run_from_content,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, restart_if_running:bool=True, wait_for_health:bool=True, health_timeout:Optional[int]=None) -> RunResult",381-601,true,221,26,Run a service directly from markdown content.
+      ServiceRunner._generate_suggestions,method,"(error_cat:ErrorCategory, stderr:str, port:int) -> List[AutoFixSuggestion]",603-682,false,80,15,Generate actionable suggestions based on error type.
+      ServiceRunner._wait_for_health,method,"(process:ServiceProcess, port:int, timeout:int, on_log:Callable[Any,None]) -> dict",684-749,true,66,20,Wait for service to pass health check.
+      ServiceRunner.stop,method,"(service_id:str) -> RunResult",751-814,false,64,6,Stop a running service.
+      ServiceRunner.get_status,method,"(service_id:str) -> Optional[Dict]",816-835,false,20,3,Get status of a service.
+      ServiceRunner.list_services,method,"() -> List[Dict]",837-851,false,15,4,List all running services.
+      ServiceRunner.test_endpoints,method,"(service_id:str, endpoints:Optional[List[str]]=None, timeout:float=5.0) -> List[EndpointTestResult]",853-913,true,61,8,Test endpoints of a running service.
+      ServiceRunner.stop_all,method,() -> None,915-918,false,4,2,Stop all running services.
+      ServiceRunner.fast_run,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, user_id:Optional[str]=None, user_profile:Optional[Dict[str,Any]]=None, skip_health_check:bool=False) -> RunResult",920-1172,true,253,25,Fast service startup with dependency caching.
+      ServiceRunner._quick_health_check,method,"(process:Any, port:int, timeout:int=5) -> bool",1174-1195,true,22,5,Quick health check with shorter timeout.
+      ServiceRunner.get_cache_stats,method,"() -> Dict[str, Any]",1197-1201,false,5,2,Get fast start cache statistics.
   src/pactown/deploy/quadlet_shell.py:
     functions[23]{name,kind,sig,loc,async,lines,cc,does}:
       run_shell,function,"(tenant_id:str='default', domain:str='localhost', user_mode:bool=True) -> None",539-553,false,15,2,Run the interactive Quadlet shell.

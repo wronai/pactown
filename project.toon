@@ -1,4 +1,4 @@
-# pactown | 51f 14612L | python:51
+# pactown | 51f 14664L | python:51
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
 M[51]:
   tests/test_runner_api.py,84
@@ -27,8 +27,8 @@ M[51]:
   src/pactown/resolver.py,122
   src/pactown/sandbox_manager.py,597
   src/pactown/runner_api.py,383
-  src/pactown/network.py,193
-  src/pactown/service_runner.py,963
+  src/pactown/network.py,206
+  src/pactown/service_runner.py,984
   src/pactown/deploy/quadlet_shell.py,432
   src/pactown/deploy/base.py,200
   src/pactown/deploy/docker.py,245
@@ -267,7 +267,7 @@ D:
     main()->None
   src/pactown/network.py:
     i: json,socket,dataclasses.dataclass,pathlib.Path,threading.Lock,typing.Optional
-    e: ServiceEndpoint,PortAllocator,ServiceRegistry,find_free_port,check_port
+    e: ServiceEndpoint,MIN_SAFE_PORT,PortAllocator,ServiceRegistry,find_free_port,check_port
     ServiceEndpoint: url(0),health_url(0)  # Represents a running service's networ...
     PortAllocator: __init__(2),is_port_free(1),allocate(1),release(1),release_all(0)  # Allocates free ports dynamically.
     ServiceRegistry: __init__(2),_load(0),_save(0),register(3),unregister(1)  # Local service registry for name-based...
@@ -275,13 +275,13 @@ D:
     check_port(port:int)->bool
   src/pactown/service_runner.py:
     i: asyncio,os,shutil,signal,subprocess,sys,time,dataclasses.{dataclass,field},enum.Enum
-    e: ErrorCategory,DiagnosticInfo,AutoFixSuggestion,kill_process_on_port,RunResult,EndpointTestResult,ValidationResult,ServiceRunner
+    e: ErrorCategory,DiagnosticInfo,AutoFixSuggestion,PROTECTED_PORTS,kill_process_on_port,RunResult,EndpointTestResult,ValidationResult
     ErrorCategory:   # Categorized error types for better di...
     DiagnosticInfo: collect(1)  # Environment diagnostics for debugging.
     AutoFixSuggestion:   # Actionable suggestion to fix an error.
     RunResult: to_dict(0)  # Result of running a service with deta...
     EndpointTestResult:   # Result of testing an endpoint.
-    kill_process_on_port(port:int)->bool
+    kill_process_on_port(port:int;force:bool=False)->bool
   src/pactown/deploy/quadlet_shell.py:
     i: cmd,shutil,base.DeploymentConfig,pathlib.Path,quadlet.QuadletBackend,rich.console.Console,rich.panel.Panel,rich.prompt.Confirm,rich.syntax.Syntax,rich.table.Table
     e: QuadletShell,run_shell
