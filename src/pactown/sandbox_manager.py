@@ -9,6 +9,7 @@ import stat
 import signal
 import subprocess
 import time
+import socket
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
@@ -155,6 +156,12 @@ class ServiceProcess:
             return self.process.poll() is None
         try:
             os.kill(self.pid, 0)
+            if self.port:
+                try:
+                    with socket.create_connection(("127.0.0.1", int(self.port)), timeout=0.2):
+                        return True
+                except OSError:
+                    return False
             return True
         except OSError:
             return False

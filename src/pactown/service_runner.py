@@ -307,6 +307,47 @@ class ServiceRunner:
             has_run=has_run,
             has_health=has_health,
         )
+
+    def _prune_stale_user_services(
+        self,
+        user_id: str,
+        on_log: Optional[Callable[[str], None]] = None,
+    ) -> None:
+        if not user_id or user_id == "anonymous":
+            return
+
+        for service_id, owner_id in list(self._service_users.items()):
+            if owner_id != user_id:
+                continue
+
+            service_name = self._services.get(service_id)
+            running = False
+            if service_name:
+                status = self.sandbox_manager.get_status(service_name)
+                running = bool(status and status.get("running"))
+
+            if running:
+                continue
+
+            if on_log:
+                on_log(f"🧹 Pruning stale service: service_id={service_id} running={running}")
+
+            try:
+                self.security_policy.unregister_service(user_id, service_id)
+            except Exception:
+                pass
+
+            if service_name:
+                try:
+                    # If process already died, stop_service just removes it from tracking.
+                    self.sandbox_manager.stop_service(service_name)
+                except Exception:
+                    pass
+
+            if service_id in self._services:
+                del self._services[service_id]
+            if service_id in self._service_users:
+                del self._service_users[service_id]
     
     async def run_from_content(
         self,
@@ -353,6 +394,9 @@ class ServiceRunner:
             from .security import UserProfile
             profile = UserProfile.from_dict({**user_profile, "user_id": user_id})
             self.security_policy.set_user_profile(profile)
+
+        # Clean up stale services before enforcing concurrent limits
+        self._prune_stale_user_services(effective_user_id, on_log=log)
         
         # Security check - can this user start a service?
         security_check = await self.security_policy.check_can_start_service(
@@ -765,7 +809,7 @@ class ServiceRunner:
         result = []
         for service_id, service_name in self._services.items():
             status = self.sandbox_manager.get_status(service_name)
-            if status:
+            if status and status.get("running"):
                 result.append({
                     "service_id": service_id,
                     "service_name": service_name,
@@ -888,6 +932,9 @@ class ServiceRunner:
             from .security import UserProfile
             profile = UserProfile.from_dict({**user_profile, "user_id": user_id})
             self.security_policy.set_user_profile(profile)
+
+        # Clean up stale services before enforcing concurrent limits
+        self._prune_stale_user_services(effective_user_id, on_log=log)
         
         security_check = await self.security_policy.check_can_start_service(
             user_id=effective_user_id,
