@@ -1,6 +1,7 @@
-# pactown | 47f 13746L | python:47
+# pactown | 48f 13899L | python:48
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
-M[47]:
+M[48]:
+  tests/test_user_isolation_manager.py,98
   tests/test_deploy_dockerfile.py,29
   tests/test_resolver.py,109
   tests/__init__.py,1
@@ -49,6 +50,14 @@ M[47]:
   examples/saas-platform/.pactown-sandboxes/api/app/models.py,15
   examples/saas-platform/.pactown-sandboxes/api/app/main.py,42
 D:
+  tests/test_user_isolation_manager.py:
+    i: os,pytest,pactown.user_isolation.{IsolatedUser,UserIsolationManager,_sanitize_gecos},pathlib.Path,types.SimpleNamespace
+    e: test_sanitize_gecos_removes_colon_and_control_chars,test_get_or_create_user_non_root_virtual_user,test_get_or_create_user_reuses_existing_linux_user,test_get_or_create_user_root_creates_user_with_sanitized_comment,test_delete_user_root_builds_userdel_cmd
+    test_sanitize_gecos_removes_colon_and_control_chars()->None
+    test_get_or_create_user_non_root_virtual_user(tmp_path:Path;monkeypatch:Any)->None
+    test_get_or_create_user_reuses_existing_linux_user(tmp_path:Path;monkeypatch:Any)->None
+    test_get_or_create_user_root_creates_user_with_sanitized_comment(tmp_path:Path;monkeypatch:Any)->None
+    test_delete_user_root_builds_userdel_cmd(tmp_path:Path;monkeypatch:Any)->None
   tests/test_deploy_dockerfile.py:
     i: pactown.deploy.base.DeploymentConfig,pactown.deploy.docker.DockerBackend,pathlib.Path,tempfile.TemporaryDirectory
     e: test_python_dockerfile_healthcheck_does_not_use_curl,test_node_dockerfile_falls_back_when_package_lock_missing
