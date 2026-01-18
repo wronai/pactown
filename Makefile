@@ -1,4 +1,4 @@
-.PHONY: help install dev test test-cov lint format build clean registry up down status examples check-pypi-deps publish-pypi bump-patch bump-minor bump-major release
+.PHONY: help install dev test test-cov lint format build clean registry up down status examples check-pypi-deps publish-pypi bump-patch bump-minor bump-major release security security-sast security-deps security-secrets security-all
 
 PYTHON ?= $(shell if [ -x ./venv/bin/python3 ]; then echo ./venv/bin/python3; elif [ -x ./.venv/bin/python3 ]; then echo ./.venv/bin/python3; else echo python3; fi)
 CONFIG ?= saas.pactown.yaml
@@ -125,3 +125,43 @@ bump-major: ## Bump major version (0.1.0 → 1.0.0)
 	@echo "Bumped to $$(grep -m1 'version = ' pyproject.toml | cut -d'"' -f2)"
 
 release: publish-pypi ## Bump patch and publish
+
+# Security targets
+security: security-sast security-deps ## Run all security checks (SAST + deps)
+
+security-sast: ## Run SAST (bandit + semgrep)
+	@echo "Running SAST analysis..."
+	@if $(PYTHON) -c "import bandit" >/dev/null 2>&1; then \
+		$(PYTHON) -m bandit -r src/ -ll -ii --skip B101 || true; \
+	elif command -v bandit >/dev/null 2>&1; then \
+		bandit -r src/ -ll -ii --skip B101 || true; \
+	else \
+		echo "[SKIP] bandit not installed. Run: $(PYTHON) -m pip install bandit"; \
+	fi
+	@if command -v semgrep >/dev/null 2>&1; then \
+		semgrep scan --config=p/python --config=p/owasp-top-ten src/ --error 2>/dev/null || \
+		semgrep scan --config=auto src/ --error 2>/dev/null || \
+		echo "[WARN] semgrep scan completed with findings"; \
+	else \
+		echo "[SKIP] semgrep not installed. Run: pip install semgrep (or pipx install semgrep)"; \
+	fi
+
+security-deps: ## Scan dependencies for vulnerabilities (pip-audit)
+	@echo "Scanning dependencies for vulnerabilities..."
+	@if $(PYTHON) -c "import pip_audit" >/dev/null 2>&1; then \
+		$(PYTHON) -m pip_audit --desc on || true; \
+	elif command -v pip-audit >/dev/null 2>&1; then \
+		pip-audit --desc on || true; \
+	else \
+		echo "[SKIP] pip-audit not installed. Run: $(PYTHON) -m pip install pip-audit"; \
+	fi
+
+security-secrets: ## Scan for secrets in codebase (gitleaks)
+	@echo "Scanning for secrets..."
+	@if command -v gitleaks >/dev/null 2>&1; then \
+		gitleaks detect --source . --verbose 2>/dev/null || echo "[WARN] Potential secrets found"; \
+	else \
+		echo "[SKIP] gitleaks not installed. Install: https://github.com/gitleaks/gitleaks#installing"; \
+	fi
+
+security-all: security security-secrets ## Run all security checks including secrets scan
