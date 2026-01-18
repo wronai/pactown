@@ -86,12 +86,42 @@ class AutoFixSuggestion:
     auto_fixable: bool = False
 
 
-def kill_process_on_port(port: int) -> bool:
+# Reserved/system ports that should never be killed by pactown
+PROTECTED_PORTS = frozenset({
+    22,    # SSH
+    80,    # HTTP (Traefik, nginx, etc.)
+    443,   # HTTPS (Traefik, nginx, etc.)
+    5432,  # PostgreSQL
+    6379,  # Redis
+    3306,  # MySQL
+    27017, # MongoDB
+    8080,  # Common proxy port
+    3000,  # Common dev server (Next.js, etc.)
+})
+
+
+def kill_process_on_port(port: int, force: bool = False) -> bool:
     """Kill any process using the specified port.
     
     Uses /proc filesystem to find processes (works in minimal containers).
     Returns True if a process was killed, False otherwise.
+    
+    Args:
+        port: The port number to clear
+        force: If True, bypass protected port check (use with caution)
+        
+    Note:
+        Ports in PROTECTED_PORTS (80, 443, 22, etc.) are protected by default
+        to prevent accidentally killing system services like Traefik.
     """
+    # Safety check: don't kill processes on protected system ports
+    if not force and port in PROTECTED_PORTS:
+        return False
+    
+    # Additional safety: don't kill on ports below 1024 (privileged) unless forced
+    if not force and port < 1024:
+        return False
+    
     killed = False
     
     # Method 1: Check /proc/net/tcp for listening sockets

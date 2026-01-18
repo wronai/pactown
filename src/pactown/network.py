@@ -29,10 +29,24 @@ class ServiceEndpoint:
         return None
 
 
+# Minimum safe port - below this are privileged/system ports
+MIN_SAFE_PORT = 1024
+
+
 class PortAllocator:
-    """Allocates free ports dynamically."""
+    """Allocates free ports dynamically.
+    
+    By default, only allocates ports >= 1024 to avoid conflicts with
+    system services (SSH, HTTP, HTTPS, databases, etc.).
+    """
 
     def __init__(self, start_port: int = 10000, end_port: int = 65000):
+        # Safety: ensure we don't allocate privileged ports
+        if start_port < MIN_SAFE_PORT:
+            start_port = MIN_SAFE_PORT
+        if end_port > 65535:
+            end_port = 65535
+        
         self.start_port = start_port
         self.end_port = end_port
         self._allocated: set[int] = set()
@@ -56,10 +70,12 @@ class PortAllocator:
 
         If preferred_port is given and available, use it.
         Otherwise, find the next available port.
+        
+        Note: Ports below MIN_SAFE_PORT (1024) are rejected for safety.
         """
         with self._lock:
-            # Try preferred port first
-            if preferred_port and self.is_port_free(preferred_port):
+            # Try preferred port first (but only if it's in safe range)
+            if preferred_port and preferred_port >= MIN_SAFE_PORT and self.is_port_free(preferred_port):
                 self._allocated.add(preferred_port)
                 return preferred_port
 
@@ -228,7 +244,13 @@ class ServiceRegistry:
 
 
 def find_free_port(start: int = 10000, end: int = 65000) -> int:
-    """Find a single free port."""
+    """Find a single free port.
+    
+    Note: start will be clamped to MIN_SAFE_PORT (1024) minimum for safety.
+    """
+    # Safety: ensure start is at least MIN_SAFE_PORT
+    if start < MIN_SAFE_PORT:
+        start = MIN_SAFE_PORT
     allocator = PortAllocator(start, end)
     return allocator.allocate()
 
