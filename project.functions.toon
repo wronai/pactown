@@ -1,9 +1,9 @@
 project: pactown
-generated: "2026-01-18T18:00:20.340764"
+generated: "2026-01-18T19:31:39.222014"
 modules[55]{path,lang,items}:
   tests/test_runner_api.py,python,4
   tests/test_user_isolation_manager.py,python,5
-  tests/test_llm.py,python,16
+  tests/test_llm.py,python,17
   tests/test_deploy_dockerfile.py,python,2
   tests/test_resolver.py,python,10
   tests/__init__.py,python,0
@@ -16,7 +16,7 @@ modules[55]{path,lang,items}:
   tests/test_network.py,python,12
   tests/test_registry.py,python,10
   src/pactown/config.py,python,7
-  src/pactown/cli.py,python,26
+  src/pactown/cli.py,python,32
   src/pactown/llm.py,python,23
   src/pactown/user_isolation.py,python,16
   src/pactown/events.py,python,75
@@ -72,7 +72,7 @@ function_details:
       test_get_or_create_user_root_creates_user_with_sanitized_comment,function,"(tmp_path:Path, monkeypatch:Any) -> None",67-119,false,53,6,checks get or create user root creates user with sanitized comment
       test_delete_user_root_builds_userdel_cmd,function,"(tmp_path:Path, monkeypatch:Any) -> None",122-152,false,31,1,checks delete user root builds userdel cmd
   tests/test_llm.py:
-    functions[16]{name,kind,sig,loc,async,lines,cc,does}:
+    functions[17]{name,kind,sig,loc,async,lines,cc,does}:
       TestLLMStatus.test_llm_status_without_lolm,method,() -> None,13-27,false,15,1,Test llm status when lolm is not installed.
       TestLLMStatus.test_llm_status_with_providers,method,() -> None,29-75,false,47,1,Test llm status with available providers.
       TestLLMStatus.test_llm_status_no_providers_available,method,() -> None,77-94,false,18,1,Test llm status when no providers are configured.
@@ -85,10 +85,11 @@ function_details:
       TestLLMTest.test_llm_test_with_rotation,method,() -> None,178-190,false,13,1,Test LLM generation with rotation flag.
       TestLLMTest.test_llm_test_with_provider,method,() -> None,192-206,false,15,1,Test LLM generation with specific provider.
       TestLLMTest.test_llm_test_error,method,() -> None,208-221,false,14,1,Test LLM generation error handling.
-      TestLLMModule.test_is_lolm_available_false,method,() -> None,227-235,false,9,1,Test is_lolm_available when lolm not installed.
-      TestLLMModule.test_get_llm_status_without_lolm,method,() -> None,237-245,false,9,2,Test get_llm_status returns proper error when lolm unavailable.
-      TestPactownLLMClass.test_pactown_llm_singleton,method,() -> None,251-265,false,15,1,Test PactownLLM singleton pattern.
-      TestPactownLLMClass.test_pactown_llm_generate_with_rotation,method,() -> None,267-287,false,21,1,Test generate_with_rotation delegates to manager.
+      TestLLMDoctor.test_llm_doctor_outputs_environment_info,method,() -> None,227-246,false,20,1,checks llm doctor outputs environment info
+      TestLLMModule.test_is_lolm_available_false,method,() -> None,252-257,false,6,1,Test is_lolm_available when lolm not installed.
+      TestLLMModule.test_get_llm_status_without_lolm,method,() -> None,259-269,false,11,1,Test get_llm_status returns proper error when lolm unavailable.
+      TestPactownLLMClass.test_pactown_llm_singleton,method,() -> None,275-289,false,15,1,Test PactownLLM singleton pattern.
+      TestPactownLLMClass.test_pactown_llm_generate_with_rotation,method,() -> None,291-311,false,21,1,Test generate_with_rotation delegates to manager.
   tests/test_deploy_dockerfile.py:
     functions[2]{name,kind,sig,loc,async,lines,cc,does}:
       test_python_dockerfile_healthcheck_does_not_use_curl,function,() -> None,12-24,false,13,1,checks python dockerfile healthcheck does not use curl
@@ -204,33 +205,39 @@ function_details:
       EcosystemConfig.to_dict,method,() -> dict,119-146,false,28,3,Convert configuration to dictionary.
       EcosystemConfig.to_yaml,method,"(path:Path) -> None",148-151,false,4,1,Save configuration to YAML file.
   src/pactown/cli.py:
-    functions[26]{name,kind,sig,loc,async,lines,cc,does}:
-      cli,function,() -> None,23-25,false,3,1,Pactown – Decentralized Service Ecosystem Orchestrator.
-      up,function,"(config_path:str, dry_run:bool, no_health:bool, quiet:bool, sequential:bool, workers:int) -> None",35-74,false,40,9,Start all services in the ecosystem.
-      down,function,"(config_path:str) -> None",79-88,false,10,2,Stop all services in the ecosystem.
-      status,function,"(config_path:str) -> None",93-101,false,9,2,Show status of all services.
-      validate,function,"(config_path:str) -> None",106-118,false,13,3,Validate ecosystem configuration.
-      graph,function,"(config_path:str) -> None",123-131,false,9,2,Show dependency graph.
-      init,function,"(name:str, output:str) -> None",137-176,false,40,1,Initialize a new pactown ecosystem configuration.
-      publish,function,"(config_path:str, registry:str) -> None",182-211,false,30,6,Publish all modules to registry.
-      pull,function,"(config_path:str, registry:str) -> None",217-241,false,25,7,Pull dependencies from registry.
-      scan,function,"(folder:str) -> None",246-248,false,3,1,Scan a folder and show detected services.
-      generate,function,"(folder:str, name:Optional[str], output:str, base_port:int) -> None",256-286,false,31,2,Generate pactown config from a folder of README.md files.
-      deploy,function,"(config_path:str, output:str, production:bool, kubernetes:bool) -> None",294-350,false,57,7,"Generate deployment files (Docker Compose, Kubernetes)."
-      quadlet,function,() -> None,354-356,false,3,1,Podman Quadlet deployment commands for VPS production.
-      quadlet_shell,function,"(tenant:str, domain:str, system:bool) -> None",363-370,false,8,1,Start interactive Quadlet deployment shell.
-      quadlet_api,function,"(host:str, port:int, domain:str, tenant:str) -> None",378-389,false,12,1,Start Quadlet API server for programmatic deployments.
-      quadlet_generate,function,"(markdown_path:str, output:str, domain:str, subdomain:str, tenant:str, tls:bool) -> None",399-430,false,32,2,Generate Quadlet files for a Markdown service.
-      quadlet_init,function,"(domain:str, email:str, system:bool) -> None",437-466,false,30,4,Initialize Quadlet environment with Traefik.
-      quadlet_deploy,function,"(markdown_path:str, domain:str, subdomain:str, tenant:str, tls:bool, image:str) -> None",476-526,false,51,5,Deploy a Markdown file to VPS using Quadlet.
-      quadlet_list,function,"(tenant:str) -> None",531-561,false,31,4,List all Quadlet services for a tenant.
-      quadlet_logs,function,"(service_name:str, tenant:str, lines:int) -> None",568-581,false,14,2,Show logs for a Quadlet service.
-      llm,function,() -> None,585-587,false,3,1,LLM provider management with rotation and fallback.
-      llm_status,function,() -> None,591-657,false,67,17,Show status of all LLM providers.
-      llm_priority,function,"(provider:str, priority:int) -> None",663-679,false,17,3,Set priority for an LLM provider (lower = higher priority).
-      llm_reset,function,"(provider:str) -> None",684-701,false,18,3,Reset an LLM provider's health metrics.
-      llm_test,function,"(provider:str, rotation:bool) -> None",707-737,false,31,5,Test LLM generation with a simple prompt.
-      main,function,(argv=None) -> None,740-742,false,3,1,Main entry point.
+    functions[32]{name,kind,sig,loc,async,lines,cc,does}:
+      is_lolm_available,function,() -> bool,21-24,false,4,1,is lolm available
+      get_llm_status,function,() -> dict,27-30,false,4,1,retrieves llm status
+      get_llm,function,() -> None,33-36,false,4,1,retrieves llm
+      set_llm_priority,function,"(provider:str, priority:int) -> bool",39-42,false,4,1,updates llm priority
+      reset_llm_provider,function,"(provider:str) -> bool",45-48,false,4,1,reset llm provider
+      cli,function,() -> None,53-55,false,3,1,Pactown – Decentralized Service Ecosystem Orchestrator.
+      up,function,"(config_path:str, dry_run:bool, no_health:bool, quiet:bool, sequential:bool, workers:int) -> None",65-104,false,40,9,Start all services in the ecosystem.
+      down,function,"(config_path:str) -> None",109-118,false,10,2,Stop all services in the ecosystem.
+      status,function,"(config_path:str) -> None",123-131,false,9,2,Show status of all services.
+      validate,function,"(config_path:str) -> None",136-148,false,13,3,Validate ecosystem configuration.
+      graph,function,"(config_path:str) -> None",153-161,false,9,2,Show dependency graph.
+      init,function,"(name:str, output:str) -> None",167-206,false,40,1,Initialize a new pactown ecosystem configuration.
+      publish,function,"(config_path:str, registry:str) -> None",212-241,false,30,6,Publish all modules to registry.
+      pull,function,"(config_path:str, registry:str) -> None",247-271,false,25,7,Pull dependencies from registry.
+      scan,function,"(folder:str) -> None",276-278,false,3,1,Scan a folder and show detected services.
+      generate,function,"(folder:str, name:Optional[str], output:str, base_port:int) -> None",286-316,false,31,2,Generate pactown config from a folder of README.md files.
+      deploy,function,"(config_path:str, output:str, production:bool, kubernetes:bool) -> None",324-380,false,57,7,"Generate deployment files (Docker Compose, Kubernetes)."
+      quadlet,function,() -> None,384-386,false,3,1,Podman Quadlet deployment commands for VPS production.
+      quadlet_shell,function,"(tenant:str, domain:str, system:bool) -> None",393-400,false,8,1,Start interactive Quadlet deployment shell.
+      quadlet_api,function,"(host:str, port:int, domain:str, tenant:str) -> None",408-419,false,12,1,Start Quadlet API server for programmatic deployments.
+      quadlet_generate,function,"(markdown_path:str, output:str, domain:str, subdomain:str, tenant:str, tls:bool) -> None",429-460,false,32,2,Generate Quadlet files for a Markdown service.
+      quadlet_init,function,"(domain:str, email:str, system:bool) -> None",467-496,false,30,4,Initialize Quadlet environment with Traefik.
+      quadlet_deploy,function,"(markdown_path:str, domain:str, subdomain:str, tenant:str, tls:bool, image:str) -> None",506-556,false,51,5,Deploy a Markdown file to VPS using Quadlet.
+      quadlet_list,function,"(tenant:str) -> None",561-591,false,31,4,List all Quadlet services for a tenant.
+      quadlet_logs,function,"(service_name:str, tenant:str, lines:int) -> None",598-611,false,14,2,Show logs for a Quadlet service.
+      llm,function,() -> None,615-617,false,3,1,LLM provider management with rotation and fallback.
+      llm_status,function,() -> None,621-690,false,70,17,Show status of all LLM providers.
+      llm_doctor,function,() -> None,694-766,false,73,12,Diagnose LLM installation and environment issues.
+      llm_priority,function,"(provider:str, priority:int) -> None",772-786,false,15,3,Set priority for an LLM provider (lower = higher priority).
+      llm_reset,function,"(provider:str) -> None",791-806,false,16,3,Reset an LLM provider's health metrics.
+      llm_test,function,"(provider:str, rotation:bool) -> None",812-840,false,29,5,Test LLM generation with a simple prompt.
+      main,function,(argv=None) -> None,843-845,false,3,1,Main entry point.
   src/pactown/llm.py:
     functions[23]{name,kind,sig,loc,async,lines,cc,does}:
       get_llm,function,"(verbose:bool=False) -> PactownLLM",355-357,false,3,1,Get the global PactownLLM instance.
@@ -425,20 +432,20 @@ function_details:
   src/pactown/platform.py:
     functions[15]{name,kind,sig,loc,async,lines,cc,does}:
       coerce_subdomain_separator,function,"(value:Optional[str]) -> SubdomainSeparator",11-12,false,2,2,coerce subdomain separator
-      normalize_host,function,"(value:str) -> str",15-23,false,9,4,normalize host
-      normalize_domain,function,"(value:str) -> str",26-30,false,5,2,normalize domain
-      is_local_domain,function,"(domain:str) -> bool",33-35,false,3,1,is local domain
-      build_origin,function,"(scheme:Literal[\"http\", \"https\"], host:str) -> str",38-42,false,5,2,creates origin
-      web_base_url,function,"(domain:str, web_host_port:int) -> str",45-48,false,4,2,web base url
-      api_base_url,function,"(domain:str, api_host_port:int) -> str",51-54,false,4,2,api base url
-      to_dns_label,function,"(value:str) -> str",57-63,false,7,3,converts dns label
-      parse_project_subdomain,function,"(subdomain:str) -> Optional[ProjectHostParts]",92-104,false,13,5,parses project subdomain
-      build_project_subdomain,function,"(project_id:int, username:str) -> str",107-115,false,9,1,creates project subdomain
-      build_project_host,function,"(project_id:int, username:str) -> str",118-121,false,4,1,creates project host
-      parse_project_host,function,"(host:str) -> Optional[ProjectHostParts]",124-133,false,10,4,parses project host
-      build_service_subdomain,function,"(service_name:str, username:str) -> str",136-145,false,10,2,creates service subdomain
-      DomainConfig._normalize_domain,method,"(v:str) -> str",72-76,false,5,2,normalize domain
-      DomainConfig._normalize_separator,method,"(v:str) -> SubdomainSeparator",80-81,false,2,1,normalize separator
+      normalize_host,function,"(value:str) -> str",15-24,false,10,4,normalize host
+      normalize_domain,function,"(value:str) -> str",27-31,false,5,2,normalize domain
+      is_local_domain,function,"(domain:str) -> bool",34-36,false,3,1,is local domain
+      build_origin,function,"(scheme:Literal[\"http\", \"https\"], host:str) -> str",39-43,false,5,2,creates origin
+      web_base_url,function,"(domain:str, web_host_port:int) -> str",46-49,false,4,2,web base url
+      api_base_url,function,"(domain:str, api_host_port:int) -> str",52-55,false,4,2,api base url
+      to_dns_label,function,"(value:str) -> str",58-64,false,7,3,converts dns label
+      parse_project_subdomain,function,"(subdomain:str) -> Optional[ProjectHostParts]",93-105,false,13,5,parses project subdomain
+      build_project_subdomain,function,"(project_id:int, username:str) -> str",108-116,false,9,1,creates project subdomain
+      build_project_host,function,"(project_id:int, username:str) -> str",119-122,false,4,1,creates project host
+      parse_project_host,function,"(host:str) -> Optional[ProjectHostParts]",125-134,false,10,4,parses project host
+      build_service_subdomain,function,"(service_name:str, username:str) -> str",137-146,false,10,2,creates service subdomain
+      DomainConfig._normalize_domain,method,"(v:str) -> str",73-77,false,5,2,normalize domain
+      DomainConfig._normalize_separator,method,"(v:str) -> SubdomainSeparator",81-82,false,2,1,normalize separator
   src/pactown/markpact_blocks.py:
     functions[2]{name,kind,sig,loc,async,lines,cc,does}:
       parse_blocks,function,"(text:str) -> list[Block]",29-50,false,22,6,parses blocks

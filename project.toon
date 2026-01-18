@@ -1,9 +1,9 @@
-# pactown | 55f 15817L | python:55
+# pactown | 55f 15945L | python:55
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
 M[55]:
   tests/test_runner_api.py,84
   tests/test_user_isolation_manager.py,98
-  tests/test_llm.py,211
+  tests/test_llm.py,232
   tests/test_deploy_dockerfile.py,29
   tests/test_resolver.py,109
   tests/__init__.py,1
@@ -16,7 +16,7 @@ M[55]:
   tests/test_network.py,87
   tests/test_registry.py,110
   src/pactown/config.py,137
-  src/pactown/cli.py,592
+  src/pactown/cli.py,668
   src/pactown/llm.py,352
   src/pactown/user_isolation.py,380
   src/pactown/events.py,884
@@ -25,7 +25,7 @@ M[55]:
   src/pactown/parallel.py,211
   src/pactown/__init__.py,180
   src/pactown/fast_start.py,412
-  src/pactown/platform.py,102
+  src/pactown/platform.py,103
   src/pactown/markpact_blocks.py,35
   src/pactown/orchestrator.py,347
   src/pactown/resolver.py,122
@@ -74,12 +74,12 @@ D:
     test_delete_user_root_builds_userdel_cmd(tmp_path:Path;monkeypatch:Any)->None
   tests/test_llm.py:
     i: pytest,click.testing.CliRunner,pactown.cli,unittest.mock.{MagicMock,patch}
-    e: TestLLMStatus,TestLLMPriority,TestLLMReset,TestLLMTest,TestLLMModule,TestPactownLLMClass
+    e: TestLLMStatus,TestLLMPriority,TestLLMReset,TestLLMTest,TestLLMDoctor,TestLLMModule,TestPactownLLMClass
     TestLLMStatus: test_llm_status_without_lolm(0),test_llm_status_with_providers(0),test_llm_status_no_providers_available(0)  # Tests for pactown llm status command.
     TestLLMPriority: test_llm_priority_set_success(0),test_llm_priority_set_failure(0),test_llm_priority_without_lolm(0)  # Tests for pactown llm priority command.
     TestLLMReset: test_llm_reset_success(0),test_llm_reset_failure(0)  # Tests for pactown llm reset command.
     TestLLMTest: test_llm_test_basic(0),test_llm_test_with_rotation(0),test_llm_test_with_provider(0),test_llm_test_error(0)  # Tests for pactown llm test command.
-    TestLLMModule: test_is_lolm_available_false(0),test_get_llm_status_without_lolm(0)  # Tests for pactown.llm module functions.
+    TestLLMDoctor: test_llm_doctor_outputs_environment_info(0)  # Tests for pactown llm doctor command.
   tests/test_deploy_dockerfile.py:
     i: pactown.deploy.base.DeploymentConfig,pactown.deploy.docker.DockerBackend,pathlib.Path,tempfile.TemporaryDirectory
     e: test_python_dockerfile_healthcheck_does_not_use_curl,test_node_dockerfile_falls_back_when_package_lock_missing
@@ -179,15 +179,15 @@ D:
     load_config(path:Any)->EcosystemConfig
   src/pactown/cli.py:
     i: sys,click,yaml,__version__,config.load_config,generator.generate_config,pathlib.Path,rich.console.Console,rich.panel.Panel,typing.Optional
-    e: cli,up,down,status,validate,graph,init,publish
+    e: is_lolm_available,get_llm_status,get_llm,set_llm_priority,reset_llm_provider,cli,up,down
+    is_lolm_available()->bool
+    get_llm_status()->dict
+    get_llm()->None
+    set_llm_priority(provider:str;priority:int)->bool
+    reset_llm_provider(provider:str)->bool
     cli()->None
     up(config_path:str;dry_run:bool;no_health:bool;quiet:bool;sequential:bool;workers:int)->None
     down(config_path:str)->None
-    status(config_path:str)->None
-    validate(config_path:str)->None
-    graph(config_path:str)->None
-    init(name:str;output:str)->None
-    publish(config_path:str;registry:str)->None
   src/pactown/llm.py:
     i: os,importlib,inspect,lolm._LLMManager,pathlib.Path,typing.{Any,Callable,Dict,List,Optional}
     e: LOLM_AVAILABLE,LOLM_VERSION,LOLM_IMPORT_ERROR,ROTATION_AVAILABLE,ROTATION_IMPORT_ERROR,PactownLLMError,LLMNotAvailableError,PactownLLM
