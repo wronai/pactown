@@ -946,14 +946,14 @@ class ServiceRunner:
                     logs=logs,
                 )
             
-            # Use sandbox manager for regular creation
-            from .config import ServiceConfig
-            config = ServiceConfig(name=service_name, port=port)
-            
             import tempfile
             with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as f:
                 f.write(content)
                 readme_path = Path(f.name)
+
+            # Use sandbox manager for regular creation
+            from .config import ServiceConfig
+            config = ServiceConfig(name=service_name, readme=str(readme_path), port=port)
             
             try:
                 sandbox = self.sandbox_manager.create_sandbox(config, readme_path)

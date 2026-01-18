@@ -11,6 +11,7 @@ Provides Linux user-based sandbox isolation for multi-tenant SaaS:
 import grp
 import os
 import pwd
+import re
 import shutil
 import subprocess
 import logging
@@ -20,6 +21,16 @@ from typing import Dict, List, Optional, Any
 from threading import Lock
 
 logger = logging.getLogger("pactown.isolation")
+
+
+def _sanitize_gecos(value: str) -> str:
+    v = str(value or "")
+    v = v.replace(":", "_")
+    v = re.sub(r"[\x00\r\n\t]", " ", v)
+    v = re.sub(r"\s+", " ", v).strip()
+    if not v:
+        v = "pactown-user"
+    return v[:200]
 
 
 @dataclass
@@ -80,6 +91,24 @@ class UserIsolationManager:
         
         # Load existing users
         self._load_existing_users()
+
+    def can_isolate(self) -> tuple[bool, str]:
+        if os.geteuid() != 0:
+            return False, "not running as root"
+        if shutil.which("useradd") is None:
+            return False, "missing 'useradd' (install 'passwd'/'shadow' tools)"
+        if shutil.which("groupadd") is None:
+            return False, "missing 'groupadd' (install 'passwd'/'shadow' tools)"
+        try:
+            self.users_base.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            return False, f"cannot create users_base={self.users_base}: {e}"
+        try:
+            if not os.access(self.users_base, os.W_OK | os.X_OK):
+                return False, f"users_base not writable: {self.users_base}"
+        except Exception as e:
+            return False, f"cannot check permissions for users_base={self.users_base}: {e}"
+        return True, ""
     
     def _load_existing_users(self):
         """Load existing pactown users from system."""
@@ -117,6 +146,29 @@ class UserIsolationManager:
             uid = self._next_uid
             gid = self._next_uid
             home_dir = self.users_base / username
+
+            # If user already exists (deterministic username), reuse it.
+            try:
+                existing = pwd.getpwnam(username)
+                user = IsolatedUser(
+                    saas_user_id=saas_user_id,
+                    linux_username=existing.pw_name,
+                    linux_uid=existing.pw_uid,
+                    linux_gid=existing.pw_gid,
+                    home_dir=Path(existing.pw_dir),
+                )
+                self._users[saas_user_id] = user
+                if existing.pw_uid >= self._next_uid:
+                    self._next_uid = existing.pw_uid + 1
+                logger.info(
+                    "Reusing existing Linux user %s (uid=%s) for %s",
+                    user.linux_username,
+                    user.linux_uid,
+                    saas_user_id,
+                )
+                return user
+            except KeyError:
+                pass
             
             # Check if we can create users (requires root)
             if os.geteuid() != 0:
@@ -132,36 +184,84 @@ class UserIsolationManager:
                 self._users[saas_user_id] = user
                 
                 # Create home directory anyway
-                home_dir.mkdir(parents=True, exist_ok=True)
+                try:
+                    home_dir.mkdir(parents=True, exist_ok=True)
+                except Exception as e:
+                    fallback_base = Path("/tmp/pactown_users")
+                    fallback_home = fallback_base / username
+                    logger.warning(
+                        "Could not create users_base home_dir=%s (%s); falling back to %s",
+                        home_dir,
+                        e,
+                        fallback_home,
+                    )
+                    fallback_home.mkdir(parents=True, exist_ok=True)
+                    user.home_dir = fallback_home
                 return user
+
+            can_isolate, reason = self.can_isolate()
+            if not can_isolate:
+                raise RuntimeError(f"User isolation unavailable: {reason}")
             
             try:
                 # Create group
-                subprocess.run(
-                    ["groupadd", "-g", str(gid), username],
-                    check=True,
-                    capture_output=True,
-                )
+                try:
+                    grp.getgrnam(username)
+                except KeyError:
+                    res = subprocess.run(
+                        ["groupadd", "-g", str(gid), username],
+                        check=True,
+                        capture_output=True,
+                        text=True,
+                    )
+                    if res.stdout:
+                        logger.debug("groupadd stdout: %s", res.stdout.strip())
+                    if res.stderr:
+                        logger.debug("groupadd stderr: %s", res.stderr.strip())
                 
                 # Create user
-                subprocess.run(
-                    ["useradd",
-                     "-u", str(uid),
-                     "-g", str(gid),
-                     "-d", str(home_dir),
-                     "-m",  # Create home directory
-                     "-s", "/bin/bash",
-                     "-c", saas_user_id,  # Store SaaS ID in comment
-                     username],
+                safe_comment = _sanitize_gecos(saas_user_id)
+                res = subprocess.run(
+                    [
+                        "useradd",
+                        "-u",
+                        str(uid),
+                        "-g",
+                        str(gid),
+                        "-d",
+                        str(home_dir),
+                        "-m",
+                        "-s",
+                        "/bin/bash",
+                        "-c",
+                        safe_comment,
+                        username,
+                    ],
                     check=True,
                     capture_output=True,
+                    text=True,
                 )
+                if res.stdout:
+                    logger.debug("useradd stdout: %s", res.stdout.strip())
+                if res.stderr:
+                    logger.debug("useradd stderr: %s", res.stderr.strip())
                 
                 logger.info(f"Created Linux user {username} (uid={uid}) for {saas_user_id}")
                 
             except subprocess.CalledProcessError as e:
-                logger.error(f"Failed to create user: {e.stderr.decode()}")
-                raise RuntimeError(f"Failed to create isolated user: {e}")
+                stderr = getattr(e, "stderr", None)
+                stdout = getattr(e, "stdout", None)
+                logger.error(
+                    "Failed to create isolated user for %s: cmd=%s returncode=%s stdout=%s stderr=%s",
+                    saas_user_id,
+                    getattr(e, "cmd", None),
+                    getattr(e, "returncode", None),
+                    (stdout.strip() if isinstance(stdout, str) else stdout),
+                    (stderr.strip() if isinstance(stderr, str) else stderr),
+                )
+                raise RuntimeError(
+                    f"Failed to create isolated user (saas_user_id={saas_user_id}, username={username}): {e}"
+                )
             
             user = IsolatedUser(
                 saas_user_id=saas_user_id,
@@ -322,11 +422,11 @@ class UserIsolationManager:
         try:
             if os.geteuid() == 0:
                 # Delete Linux user
-                subprocess.run(
-                    ["userdel", "-r" if delete_home else "", user.linux_username],
-                    check=True,
-                    capture_output=True,
-                )
+                cmd = ["userdel"]
+                if delete_home:
+                    cmd.append("-r")
+                cmd.append(user.linux_username)
+                subprocess.run(cmd, check=True, capture_output=True)
                 subprocess.run(
                     ["groupdel", user.linux_username],
                     capture_output=True,  # May fail if group doesn't exist
@@ -352,5 +452,7 @@ def get_isolation_manager() -> UserIsolationManager:
     """Get global isolation manager instance."""
     global _isolation_manager
     if _isolation_manager is None:
-        _isolation_manager = UserIsolationManager()
+        default_base = "/home/pactown_users" if os.geteuid() == 0 else "/tmp/pactown_users"
+        users_base = Path(os.environ.get("PACTOWN_USERS_BASE", default_base))
+        _isolation_manager = UserIsolationManager(users_base=users_base)
     return _isolation_manager

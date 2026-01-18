@@ -29,11 +29,36 @@ logger.setLevel(logging.DEBUG)
 # File handler for persistent logs
 LOG_DIR = Path("/tmp/pactown-logs")
 LOG_DIR.mkdir(parents=True, exist_ok=True)
-file_handler = logging.FileHandler(LOG_DIR / "sandbox.log")
-file_handler.setFormatter(logging.Formatter(
-    '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
-))
-logger.addHandler(file_handler)
+_log_path = str(LOG_DIR / "sandbox.log")
+if not any(
+    isinstance(h, logging.FileHandler) and getattr(h, "baseFilename", None) == _log_path
+    for h in logger.handlers
+):
+    file_handler = logging.FileHandler(_log_path)
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+    ))
+    logger.addHandler(file_handler)
+
+
+def _path_debug(path: Path) -> str:
+    try:
+        st = path.stat() if path.exists() else None
+        mode = oct(st.st_mode & 0o777) if st else "-"
+        uid = st.st_uid if st else "-"
+        gid = st.st_gid if st else "-"
+    except Exception:
+        mode, uid, gid = "?", "?", "?"
+    try:
+        readable = os.access(path, os.R_OK)
+        writable = os.access(path, os.W_OK)
+        executable = os.access(path, os.X_OK)
+    except Exception:
+        readable, writable, executable = False, False, False
+    return (
+        f"path={path} exists={path.exists()} is_dir={path.is_dir()} is_file={path.is_file()} "
+        f"mode={mode} uid={uid} gid={gid} access=r{int(readable)}w{int(writable)}x{int(executable)}"
+    )
 
 
 def _escape_dotenv_value(value: str) -> str:
@@ -152,18 +177,38 @@ class SandboxManager:
         service: ServiceConfig,
         readme_path: Path,
         install_dependencies: bool = True,
+        on_log: Optional[Callable[[str], None]] = None,
     ) -> Sandbox:
         """Create a sandbox for a service from its README."""
+        def dbg(msg: str, level: str = "DEBUG"):
+            if on_log:
+                on_log(msg)
+            else:
+                logger.log(getattr(logging, level), f"[{service.name}] {msg}")
+
         sandbox_path = self.get_sandbox_path(service.name)
 
+        dbg(f"Sandbox root: {_path_debug(self.sandbox_root)}", "DEBUG")
+        dbg(f"Sandbox path: {_path_debug(sandbox_path)}", "DEBUG")
+        dbg(f"README path: {_path_debug(readme_path)}", "DEBUG")
+        dbg(f"UID/EUID/GID: uid={os.getuid()} euid={os.geteuid()} gid={os.getgid()}", "DEBUG")
+
         if sandbox_path.exists():
+            dbg(f"Removing existing sandbox: {sandbox_path}", "INFO")
             shutil.rmtree(sandbox_path)
-        sandbox_path.mkdir(parents=True)
+        sandbox_path.mkdir(parents=True, exist_ok=False)
+        dbg(f"Created sandbox dir: {_path_debug(sandbox_path)}", "DEBUG")
 
         sandbox = Sandbox(sandbox_path)
 
         readme_content = readme_path.read_text()
+        dbg(f"Read README bytes={len(readme_content.encode('utf-8', errors='replace'))}", "DEBUG")
         blocks = parse_blocks(readme_content)
+
+        kind_counts: dict[str, int] = {}
+        for b in blocks:
+            kind_counts[b.kind] = kind_counts.get(b.kind, 0) + 1
+        dbg(f"Parsed markpact blocks: total={len(blocks)} kinds={kind_counts}", "DEBUG")
 
         deps: list[str] = []
 
@@ -172,6 +217,7 @@ class SandboxManager:
                 deps.extend(block.body.strip().split("\n"))
             elif block.kind == "file":
                 file_path = block.get_path() or "main.py"
+                dbg(f"Writing file: {file_path} (chars={len(block.body)})", "DEBUG")
                 sandbox.write_file(file_path, block.body)
             elif block.kind == "run":
                 block.body.strip()
@@ -179,11 +225,27 @@ class SandboxManager:
         deps_clean = [d.strip() for d in deps if d.strip()]
         if deps_clean:
             # Always write requirements.txt so the sandbox can be used as a container build context
+            dbg(f"Dependencies detected: count={len(deps_clean)}", "INFO")
             sandbox.write_requirements(deps_clean)
+            dbg(f"Wrote requirements.txt: {_path_debug(sandbox.path / 'requirements.txt')}", "DEBUG")
 
             if install_dependencies:
-                ensure_venv(sandbox, verbose=False)
-                install_deps(deps_clean, sandbox, verbose=False)
+                dbg(f"Creating venv (.venv) in sandbox", "INFO")
+                try:
+                    ensure_venv(sandbox, verbose=False)
+                    dbg(f"Venv status: {_path_debug(sandbox.path / '.venv')}", "DEBUG")
+                except Exception as e:
+                    dbg(f"ensure_venv failed: {e}", "ERROR")
+                    raise
+                dbg("Installing dependencies via pip", "INFO")
+                try:
+                    install_deps(deps_clean, sandbox, verbose=False)
+                    dbg("Dependencies installed", "INFO")
+                except Exception as e:
+                    dbg(f"install_deps failed: {e}", "ERROR")
+                    raise
+        else:
+            dbg("No dependencies block found", "DEBUG")
 
         return sandbox
 
@@ -217,6 +279,9 @@ class SandboxManager:
         
         log(f"Starting service: {service.name}", "INFO")
         log(f"Port: {service.port}, README: {readme_path}", "DEBUG")
+        log(f"Runner UID/EUID/GID: uid={os.getuid()} euid={os.geteuid()} gid={os.getgid()}", "DEBUG")
+        log(f"Sandbox root: {_path_debug(self.sandbox_root)}", "DEBUG")
+        log(f"README: {_path_debug(readme_path)}", "DEBUG")
         
         if service.name in self._processes:
             existing = self._processes[service.name]
@@ -232,7 +297,12 @@ class SandboxManager:
         # Create sandbox with dependency installation
         log("Creating sandbox and installing dependencies...", "INFO")
         try:
-            sandbox = self.create_sandbox(service, readme_path, install_dependencies=True)
+            sandbox = self.create_sandbox(
+                service,
+                readme_path,
+                install_dependencies=True,
+                on_log=log,
+            )
             log(f"Sandbox created at: {sandbox.path}", "INFO")
         except Exception as e:
             log(f"Failed to create sandbox: {e}", "ERROR")
@@ -317,6 +387,11 @@ class SandboxManager:
             try:
                 from .user_isolation import get_isolation_manager
                 isolation = get_isolation_manager()
+                try:
+                    can_isolate, reason = isolation.can_isolate()
+                    log(f"Isolation capability: can_isolate={can_isolate} reason={reason}", "DEBUG")
+                except Exception as e:
+                    log(f"Isolation capability check failed: {e}", "WARNING")
                 user = isolation.get_or_create_user(user_id)
                 log(f"🔒 Running as isolated user: {user.linux_username} (uid={user.linux_uid})", "INFO")
                 
@@ -335,6 +410,7 @@ class SandboxManager:
                 log(f"⚠️ User isolation not available: {e} - using sandbox uid", "WARNING")
                 if os.geteuid() == 0:
                     uid, gid = _sandbox_fallback_ids()
+                    log(f"Sandbox uid fallback: uid={uid} gid={gid}", "DEBUG")
                     try:
                         dotenv_path = sandbox.path / ".env"
                         if dotenv_path.exists():
