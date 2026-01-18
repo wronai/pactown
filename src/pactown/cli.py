@@ -632,6 +632,8 @@ def llm_status():
         console.print("[yellow]lolm library not available[/yellow]")
         if status.get("lolm_import_error"):
             console.print(f"Import error: {status['lolm_import_error']}")
+        if status.get("install"):
+            console.print(status["install"], markup=False)
         console.print("Install/upgrade (same interpreter as pactown):")
         console.print(f"  {sys.executable} -m pip install -U pactown[llm]\n", markup=False)
         console.print("Or install directly:")
