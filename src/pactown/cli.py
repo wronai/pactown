@@ -593,22 +593,37 @@ def llm_status():
     Example:
         pactown llm status
     """
-    from .llm import get_llm_status, is_lolm_available
-    
-    if not is_lolm_available():
-        console.print("[yellow]lolm library not installed[/yellow]")
-        console.print("Install with: pip install lolm")
-        return
-    
+    from .llm import get_llm_status
+
     status = get_llm_status()
-    
+
+    if not status.get("lolm_installed", False):
+        console.print("[yellow]lolm library not available[/yellow]")
+        if status.get("lolm_import_error"):
+            console.print(f"Import error: {status['lolm_import_error']}")
+        console.print("Install/upgrade with: pip install -U pactown[llm]")
+        console.print("Or install directly: pip install -U lolm")
+        return
+
     if not status.get('is_available'):
         console.print("[yellow]No LLM providers available[/yellow]")
+        if status.get("lolm_version"):
+            console.print(f"lolm version: {status['lolm_version']}")
+        if status.get("rotation_available") is False and status.get("rotation_import_error"):
+            console.print(f"Rotation not available: {status['rotation_import_error']}")
         if 'error' in status:
             console.print(f"Error: {status['error']}")
         return
     
     console.print("[bold]LLM Provider Status[/bold]\n")
+
+    if status.get("lolm_version"):
+        console.print(f"[dim]lolm version: {status['lolm_version']}[/dim]")
+    if status.get("rotation_available") is False:
+        console.print("[dim]rotation: not available (fallback only)[/dim]")
+    elif status.get("rotation_available") is True:
+        console.print("[dim]rotation: enabled[/dim]")
+    console.print()
     
     providers = status.get('providers', {})
     for name, info in providers.items():

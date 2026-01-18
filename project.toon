@@ -1,6 +1,6 @@
-# pactown | 53f 15441L | python:53
+# pactown | 54f 15725L | python:54
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
-M[53]:
+M[54]:
   tests/test_runner_api.py,84
   tests/test_user_isolation_manager.py,98
   tests/test_llm.py,206
@@ -15,15 +15,16 @@ M[53]:
   tests/test_network.py,87
   tests/test_registry.py,110
   src/pactown/config.py,137
-  src/pactown/cli.py,578
-  src/pactown/llm.py,255
+  src/pactown/cli.py,592
+  src/pactown/llm.py,352
   src/pactown/user_isolation.py,380
   src/pactown/events.py,884
   src/pactown/generator.py,164
   src/pactown/security.py,570
   src/pactown/parallel.py,211
-  src/pactown/__init__.py,146
+  src/pactown/__init__.py,172
   src/pactown/fast_start.py,412
+  src/pactown/platform.py,86
   src/pactown/markpact_blocks.py,35
   src/pactown/orchestrator.py,347
   src/pactown/resolver.py,122
@@ -176,13 +177,14 @@ D:
     init(name:str;output:str)->None
     publish(config_path:str;registry:str)->None
   src/pactown/llm.py:
-    i: os,lolm.{LLMManager,ProviderHealth,RotationQueue},pathlib.Path,typing.{Any,Callable,Dict,List,Optional}
-    e: PactownLLMError,LLMNotAvailableError,PactownLLM,get_llm,is_lolm_available,generate,get_llm_status,set_provider_priority
+    i: os,importlib,inspect,lolm._LLMManager,pathlib.Path,typing.{Any,Callable,Dict,List,Optional}
+    e: LOLM_AVAILABLE,LOLM_VERSION,LOLM_IMPORT_ERROR,ROTATION_AVAILABLE,ROTATION_IMPORT_ERROR,PactownLLMError,LLMNotAvailableError,PactownLLM
     PactownLLMError:   # Base exception for Pactown LLM errors.
     LLMNotAvailableError:   # Raised when no LLM provider is availa...
     PactownLLM: __init__(1),get_instance(1),set_instance(1),initialize(0),is_available(0)  # Pactown LLM Manager with rotation and...
     get_llm(verbose:bool=False)->PactownLLM
     is_lolm_available()->bool
+    get_lolm_info()->Dict[str, Any]
     generate(prompt:str;system:str=None;max_tokens:int=4000;with_rotation:bool=True)->str
     get_llm_status()->Dict[str, Any]
     set_provider_priority(name:str;priority:int)->bool
@@ -245,6 +247,19 @@ D:
     DependencyCache: __init__(3),_load_existing(0),_hash_deps(1),get_cached_venv(1),create_and_cache(2)  # Caches virtual environments by depend...
     SandboxPool: __init__(3),_hash_deps(1),warm_pool(1),get_prewarmed(1),release(1)  # Pool of pre-warmed sandboxes for inst...
     get_fast_starter(sandbox_root:Optional[Path]=None)->FastServiceStarter
+  src/pactown/platform.py:
+    i: re,pydantic.{BaseModel,Field,field_validator},typing.{Literal,Optional}
+    e: coerce_subdomain_separator,normalize_host,normalize_domain,to_dns_label,DomainConfig,ProjectHostParts,_PROJECT_SUBDOMAIN_RE,parse_project_subdomain
+    DomainConfig: _normalize_domain(1),_normalize_separator(1)
+    ProjectHostParts: 
+    coerce_subdomain_separator(value:Optional[str])->SubdomainSeparator
+    normalize_host(value:str)->str
+    normalize_domain(value:str)->str
+    to_dns_label(value:str)->str
+    parse_project_subdomain(subdomain:str)->Optional[ProjectHostParts]
+    build_project_subdomain(project_id:int;username:str)->str
+    build_project_host(project_id:int;username:str)->str
+    parse_project_host(host:str)->Optional[ProjectHostParts]
   src/pactown/markpact_blocks.py:
     i: re,dataclasses.dataclass
     e: CODEBLOCK_NEW_RE,CODEBLOCK_OLD_RE,Block,parse_blocks

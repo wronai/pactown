@@ -1,6 +1,6 @@
 project: pactown
-generated: "2026-01-18T17:21:09.602992"
-modules[53]{path,lang,items}:
+generated: "2026-01-18T17:41:51.039631"
+modules[54]{path,lang,items}:
   tests/test_runner_api.py,python,4
   tests/test_user_isolation_manager.py,python,5
   tests/test_llm.py,python,16
@@ -16,7 +16,7 @@ modules[53]{path,lang,items}:
   tests/test_registry.py,python,10
   src/pactown/config.py,python,7
   src/pactown/cli.py,python,26
-  src/pactown/llm.py,python,22
+  src/pactown/llm.py,python,23
   src/pactown/user_isolation.py,python,16
   src/pactown/events.py,python,75
   src/pactown/generator.py,python,4
@@ -24,6 +24,7 @@ modules[53]{path,lang,items}:
   src/pactown/parallel.py,python,6
   src/pactown/__init__.py,python,0
   src/pactown/fast_start.py,python,21
+  src/pactown/platform.py,python,11
   src/pactown/markpact_blocks.py,python,2
   src/pactown/orchestrator.py,python,18
   src/pactown/resolver.py,python,8
@@ -214,35 +215,36 @@ function_details:
       quadlet_list,function,"(tenant:str) -> None",530-560,false,31,4,List all Quadlet services for a tenant.
       quadlet_logs,function,"(service_name:str, tenant:str, lines:int) -> None",567-580,false,14,2,Show logs for a Quadlet service.
       llm,function,() -> None,584-586,false,3,1,LLM provider management with rotation and fallback.
-      llm_status,function,() -> None,590-641,false,52,10,Show status of all LLM providers.
-      llm_priority,function,"(provider:str, priority:int) -> None",647-663,false,17,3,Set priority for an LLM provider (lower = higher priority).
-      llm_reset,function,"(provider:str) -> None",668-685,false,18,3,Reset an LLM provider's health metrics.
-      llm_test,function,"(provider:str, rotation:bool) -> None",691-721,false,31,5,Test LLM generation with a simple prompt.
-      main,function,(argv=None) -> None,724-726,false,3,1,Main entry point.
+      llm_status,function,() -> None,590-656,false,67,17,Show status of all LLM providers.
+      llm_priority,function,"(provider:str, priority:int) -> None",662-678,false,17,3,Set priority for an LLM provider (lower = higher priority).
+      llm_reset,function,"(provider:str) -> None",683-700,false,18,3,Reset an LLM provider's health metrics.
+      llm_test,function,"(provider:str, rotation:bool) -> None",706-736,false,31,5,Test LLM generation with a simple prompt.
+      main,function,(argv=None) -> None,739-741,false,3,1,Main entry point.
   src/pactown/llm.py:
-    functions[22]{name,kind,sig,loc,async,lines,cc,does}:
-      get_llm,function,"(verbose:bool=False) -> PactownLLM",263-265,false,3,1,Get the global PactownLLM instance.
-      is_lolm_available,function,() -> bool,268-270,false,3,1,Check if lolm library is available.
-      generate,function,"(prompt:str, system:str=None, max_tokens:int=4000, with_rotation:bool=True) -> str",274-295,false,22,2,Generate completion using the global LLM instance.
-      get_llm_status,function,"() -> Dict[str, Any]",298-314,false,17,3,Get status of all LLM providers.
-      set_provider_priority,function,"(name:str, priority:int) -> bool",317-322,false,6,2,Set priority for an LLM provider.
-      reset_provider,function,"(name:str) -> bool",325-330,false,6,2,Reset an LLM provider's health metrics.
-      PactownLLM.__init__,method,"(verbose:bool=False) -> None",69-82,false,14,2,creates
-      PactownLLM.get_instance,method,"(verbose:bool=False) -> 'PactownLLM'",85-89,false,5,2,Get or create the global PactownLLM instance.
-      PactownLLM.set_instance,method,"(instance:PactownLLM) -> None",92-94,false,3,1,Set the global PactownLLM instance.
-      PactownLLM.initialize,method,() -> None,96-113,false,18,6,Initialize the LLM manager and all providers.
-      PactownLLM.is_available,method,() -> bool,116-120,false,5,2,Check if any LLM provider is available.
-      PactownLLM.generate,method,"(prompt:str, system:str=None, max_tokens:int=4000, provider:str=None) -> str",122-150,false,29,3,Generate completion using available provider.
-      PactownLLM.generate_with_rotation,method,"(prompt:str, system:str=None, max_tokens:int=4000, max_retries:int=3) -> str",152-179,false,28,2,Generate with intelligent rotation based on provider health.
-      PactownLLM.generate_with_fallback,method,"(prompt:str, system:str=None, max_tokens:int=4000, providers:List[str]=None) -> str",181-205,false,25,2,Generate with fallback to other providers on failure.
-      PactownLLM.get_status,method,"() -> Dict[str, Any]",207-224,false,18,5,Get status of all providers including health info.
-      PactownLLM.get_provider_health,method,"(name:str=None) -> Dict",226-230,false,5,2,Get health info for providers.
-      PactownLLM.set_provider_priority,method,"(name:str, priority:int) -> bool",232-236,false,5,2,Set priority for a provider (lower = higher priority).
-      PactownLLM.reset_provider,method,"(name:str) -> bool",238-242,false,5,2,Reset a provider's health metrics.
-      PactownLLM.get_rotation_queue,method,"() -> Optional[RotationQueue]",244-246,false,3,1,Get the rotation queue for advanced control.
-      PactownLLM.on_rate_limit,method,"(callback:Callable[Any,None]) -> None",249-251,false,3,1,Set callback for rate limit events.
-      PactownLLM.on_rotation,method,"(callback:Callable[Any,None]) -> None",253-255,false,3,1,Set callback for provider rotation events.
-      PactownLLM.on_provider_unavailable,method,"(callback:Callable[Any,None]) -> None",257-259,false,3,1,Set callback for when a provider becomes unavailable.
+    functions[23]{name,kind,sig,loc,async,lines,cc,does}:
+      get_llm,function,"(verbose:bool=False) -> PactownLLM",355-357,false,3,1,Get the global PactownLLM instance.
+      is_lolm_available,function,() -> bool,360-362,false,3,1,Check if lolm library is available.
+      get_lolm_info,function,"() -> Dict[str, Any]",365-373,false,9,1,Get diagnostic info about lolm availability/features.
+      generate,function,"(prompt:str, system:str=None, max_tokens:int=4000, with_rotation:bool=True) -> str",377-398,false,22,2,Generate completion using the global LLM instance.
+      get_llm_status,function,"() -> Dict[str, Any]",401-428,false,28,3,Get status of all LLM providers.
+      set_provider_priority,function,"(name:str, priority:int) -> bool",431-439,false,9,3,Set priority for an LLM provider.
+      reset_provider,function,"(name:str) -> bool",442-450,false,9,3,Reset an LLM provider's health metrics.
+      PactownLLM.__init__,method,"(verbose:bool=False) -> None",140-163,false,24,4,creates
+      PactownLLM.get_instance,method,"(verbose:bool=False) -> 'PactownLLM'",166-170,false,5,2,Get or create the global PactownLLM instance.
+      PactownLLM.set_instance,method,"(instance:PactownLLM) -> None",173-175,false,3,1,Set the global PactownLLM instance.
+      PactownLLM.initialize,method,() -> None,177-195,false,19,7,Initialize the LLM manager and all providers.
+      PactownLLM.is_available,method,() -> bool,198-202,false,5,2,Check if any LLM provider is available.
+      PactownLLM.generate,method,"(prompt:str, system:str=None, max_tokens:int=4000, provider:str=None) -> str",204-232,false,29,3,Generate completion using available provider.
+      PactownLLM.generate_with_rotation,method,"(prompt:str, system:str=None, max_tokens:int=4000, max_retries:int=3) -> str",234-264,false,31,3,Generate with intelligent rotation based on provider health.
+      PactownLLM.generate_with_fallback,method,"(prompt:str, system:str=None, max_tokens:int=4000, providers:List[str]=None) -> str",266-290,false,25,2,Generate with fallback to other providers on failure.
+      PactownLLM.get_status,method,"() -> Dict[str, Any]",292-313,false,22,6,Get status of all providers including health info.
+      PactownLLM.get_provider_health,method,"(name:str=None) -> Dict",315-322,false,8,3,Get health info for providers.
+      PactownLLM.set_provider_priority,method,"(name:str, priority:int) -> bool",324-328,false,5,2,Set priority for a provider (lower = higher priority).
+      PactownLLM.reset_provider,method,"(name:str) -> bool",330-334,false,5,2,Reset a provider's health metrics.
+      PactownLLM.get_rotation_queue,method,"() -> Optional[RotationQueue]",336-338,false,3,1,Get the rotation queue for advanced control.
+      PactownLLM.on_rate_limit,method,"(callback:Callable[Any,None]) -> None",341-343,false,3,1,Set callback for rate limit events.
+      PactownLLM.on_rotation,method,"(callback:Callable[Any,None]) -> None",345-347,false,3,1,Set callback for provider rotation events.
+      PactownLLM.on_provider_unavailable,method,"(callback:Callable[Any,None]) -> None",349-351,false,3,1,Set callback for when a provider becomes unavailable.
   src/pactown/user_isolation.py:
     functions[16]{name,kind,sig,loc,async,lines,cc,does}:
       _sanitize_gecos,function,"(value:str) -> str",26-33,false,8,3,sanitize gecos
@@ -409,6 +411,19 @@ function_details:
       FastServiceStarter.get_cache_stats,method,"() -> Dict[str, Any]",450-458,false,9,2,Get caching statistics.
       ParallelServiceRunner.__init__,method,"(fast_starter:FastServiceStarter, max_parallel:int=4) -> None",466-469,false,4,1,creates
       ParallelServiceRunner.run_parallel,method,"(services:List[Dict[str,Any]], on_service_log:Optional[Callable[Any,None]]=None) -> List[FastStartResult]",471-501,true,31,2,Run multiple services in parallel.
+  src/pactown/platform.py:
+    functions[11]{name,kind,sig,loc,async,lines,cc,does}:
+      coerce_subdomain_separator,function,"(value:Optional[str]) -> SubdomainSeparator",11-12,false,2,2,coerce subdomain separator
+      normalize_host,function,"(value:str) -> str",15-23,false,9,4,normalize host
+      normalize_domain,function,"(value:str) -> str",26-30,false,5,2,normalize domain
+      to_dns_label,function,"(value:str) -> str",33-39,false,7,3,converts dns label
+      parse_project_subdomain,function,"(subdomain:str) -> Optional[ProjectHostParts]",68-80,false,13,5,parses project subdomain
+      build_project_subdomain,function,"(project_id:int, username:str) -> str",83-91,false,9,1,creates project subdomain
+      build_project_host,function,"(project_id:int, username:str) -> str",94-97,false,4,1,creates project host
+      parse_project_host,function,"(host:str) -> Optional[ProjectHostParts]",100-109,false,10,4,parses project host
+      build_service_subdomain,function,"(service_name:str, username:str) -> str",112-121,false,10,2,creates service subdomain
+      DomainConfig._normalize_domain,method,"(v:str) -> str",48-52,false,5,2,normalize domain
+      DomainConfig._normalize_separator,method,"(v:str) -> SubdomainSeparator",56-57,false,2,1,normalize separator
   src/pactown/markpact_blocks.py:
     functions[2]{name,kind,sig,loc,async,lines,cc,does}:
       parse_blocks,function,"(text:str) -> list[Block]",29-50,false,22,6,parses blocks
