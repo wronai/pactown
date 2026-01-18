@@ -13,18 +13,18 @@ class TestLLMStatus:
     def test_llm_status_without_lolm(self):
         """Test llm status when lolm is not installed."""
         runner = CliRunner()
-        
-        with patch('pactown.llm.LOLM_AVAILABLE', False):
-            with patch.dict('sys.modules', {'pactown.llm': MagicMock(
-                is_lolm_available=lambda: False,
-                get_llm_status=lambda: {'available': False, 'error': 'lolm not installed'}
-            )}):
-                # Re-import to get patched version
-                from pactown.llm import is_lolm_available
-                result = runner.invoke(cli, ['llm', 'status'])
-                
-                assert result.exit_code == 0
-                assert 'lolm library not installed' in result.output or 'No LLM providers available' in result.output
+
+        with patch('pactown.cli.get_llm_status', return_value={
+            'lolm_installed': False,
+            'is_available': False,
+            'error': 'lolm library not available in this environment',
+            'install': 'pip install -U pactown[llm]',
+        }):
+            result = runner.invoke(cli, ['llm', 'status'])
+
+            assert result.exit_code == 0
+            assert 'lolm library not available' in result.output
+            assert 'pip install -U pactown[llm]' in result.output
     
     def test_llm_status_with_providers(self):
         """Test llm status with available providers."""
@@ -32,6 +32,9 @@ class TestLLMStatus:
         
         mock_status = {
             'is_available': True,
+            'lolm_installed': True,
+            'lolm_version': '0.1.6',
+            'rotation_available': False,
             'available_providers': ['openrouter', 'groq'],
             'providers': {
                 'openrouter': {
@@ -63,14 +66,13 @@ class TestLLMStatus:
             }
         }
         
-        with patch('pactown.cli.is_lolm_available', return_value=True):
-            with patch('pactown.cli.get_llm_status', return_value=mock_status):
-                result = runner.invoke(cli, ['llm', 'status'])
-                
-                assert result.exit_code == 0
-                assert 'openrouter' in result.output
-                assert 'groq' in result.output
-                assert 'anthropic/claude-3-haiku' in result.output
+        with patch('pactown.cli.get_llm_status', return_value=mock_status):
+            result = runner.invoke(cli, ['llm', 'status'])
+
+            assert result.exit_code == 0
+            assert 'openrouter' in result.output
+            assert 'groq' in result.output
+            assert 'anthropic/claude-3-haiku' in result.output
     
     def test_llm_status_no_providers_available(self):
         """Test llm status when no providers are configured."""
@@ -78,16 +80,18 @@ class TestLLMStatus:
         
         mock_status = {
             'is_available': False,
+            'lolm_installed': True,
+            'lolm_version': '0.1.6',
+            'rotation_available': False,
             'available_providers': [],
             'providers': {}
         }
-        
-        with patch('pactown.cli.is_lolm_available', return_value=True):
-            with patch('pactown.cli.get_llm_status', return_value=mock_status):
-                result = runner.invoke(cli, ['llm', 'status'])
-                
-                assert result.exit_code == 0
-                assert 'No LLM providers available' in result.output
+
+        with patch('pactown.cli.get_llm_status', return_value=mock_status):
+            result = runner.invoke(cli, ['llm', 'status'])
+
+            assert result.exit_code == 0
+            assert 'No LLM providers available' in result.output
 
 
 class TestLLMPriority:
@@ -119,10 +123,10 @@ class TestLLMPriority:
     def test_llm_priority_without_lolm(self):
         """Test priority command when lolm not installed."""
         runner = CliRunner()
-        
+
         with patch('pactown.cli.is_lolm_available', return_value=False):
             result = runner.invoke(cli, ['llm', 'priority', 'openrouter', '5'])
-            
+
             assert result.exit_code == 0
             assert 'lolm library not installed' in result.output
 
