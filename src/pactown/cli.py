@@ -187,6 +187,12 @@ def publish(config_path: str, registry: str):
         config = load_config(config_path)
         client = RegistryClient(registry)
 
+        if not client.health():
+            console.print(
+                f"[red]Error: Registry not reachable at {registry}. Start it with: make registry[/red]"
+            )
+            sys.exit(1)
+
         for name, service in config.services.items():
             readme_path = Path(config_path).parent / service.readme
             if readme_path.exists():
@@ -215,6 +221,12 @@ def pull(config_path: str, registry: str):
 
         config = load_config(config_path)
         client = RegistryClient(registry)
+
+        if not client.health():
+            console.print(
+                f"[red]Error: Registry not reachable at {registry}. Start it with: make registry[/red]"
+            )
+            sys.exit(1)
 
         for name, service in config.services.items():
             for dep in service.depends_on:

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pactown"
-version = "0.1.23"
+version = "0.1.24"
 description = "Decentralized Service Ecosystem Orchestrator - Build interconnected microservices from Markdown using markpact"
 readme = "README.md"
 license = "Apache-2.0"
@@ -70,3 +70,4 @@ select = ["E", "F", "W", "I"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+addopts = "-p pytest_asyncio.plugin -p no:pytest_aiohttp -p no:aiohttp.pytest_plugin"

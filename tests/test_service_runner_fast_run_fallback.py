@@ -31,7 +31,9 @@ def test_fast_run_fallback_sets_serviceconfig_readme_and_cleans_temp_file(
         # Readme file should exist while sandbox is being created
         assert Path(config.readme).exists()
         assert readme_path.exists()
-        return SimpleNamespace(path=tmp_path / "sandbox")
+        sandbox_path = tmp_path / "sandbox"
+        sandbox_path.mkdir(parents=True, exist_ok=True)
+        return SimpleNamespace(path=sandbox_path)
 
     monkeypatch.setattr(runner.sandbox_manager, "create_sandbox", fake_create_sandbox)
     runner.sandbox_manager._processes = {}
