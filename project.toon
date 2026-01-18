@@ -1,9 +1,9 @@
-# pactown | 54f 15725L | python:54
+# pactown | 55f 15817L | python:55
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
-M[54]:
+M[55]:
   tests/test_runner_api.py,84
   tests/test_user_isolation_manager.py,98
-  tests/test_llm.py,206
+  tests/test_llm.py,211
   tests/test_deploy_dockerfile.py,29
   tests/test_resolver.py,109
   tests/__init__.py,1
@@ -12,6 +12,7 @@ M[54]:
   tests/test_markpact_blocks.py,36
   tests/test_service_runner_fast_run_fallback.py,54
   tests/test_quadlet_security.py,500
+  tests/test_platform.py,39
   tests/test_network.py,87
   tests/test_registry.py,110
   src/pactown/config.py,137
@@ -22,14 +23,14 @@ M[54]:
   src/pactown/generator.py,164
   src/pactown/security.py,570
   src/pactown/parallel.py,211
-  src/pactown/__init__.py,172
+  src/pactown/__init__.py,180
   src/pactown/fast_start.py,412
-  src/pactown/platform.py,86
+  src/pactown/platform.py,102
   src/pactown/markpact_blocks.py,35
   src/pactown/orchestrator.py,347
   src/pactown/resolver.py,122
   src/pactown/sandbox_manager.py,597
-  src/pactown/runner_api.py,383
+  src/pactown/runner_api.py,381
   src/pactown/network.py,206
   src/pactown/service_runner.py,984
   src/pactown/deploy/quadlet_shell.py,432
@@ -135,6 +136,17 @@ D:
     TestSystemdUnitInjection: test_section_injection(0),test_directive_injection(0)  # Test systemd unit file injection atta...
     temp_dir()->None
     mock_systemctl()->None
+  tests/test_platform.py:
+    i: pytest,pactown.platform
+    e: test_normalize_host_strips_scheme_and_port,test_normalize_domain_strips_www_and_scheme,test_build_project_host_dash_separator_normalizes_username,test_build_project_host_dot_separator_normalizes_username,test_parse_project_host,test_build_project_subdomain_limits_length,test_build_service_subdomain_dash,test_build_service_subdomain_dot
+    test_normalize_host_strips_scheme_and_port()->None
+    test_normalize_domain_strips_www_and_scheme()->None
+    test_build_project_host_dash_separator_normalizes_username()->None
+    test_build_project_host_dot_separator_normalizes_username()->None
+    test_parse_project_host(host:str)->None
+    test_build_project_subdomain_limits_length()->None
+    test_build_service_subdomain_dash()->None
+    test_build_service_subdomain_dot()->None
   tests/test_network.py:
     i: tempfile,pactown.network.{PortAllocator,ServiceEndpoint,ServiceRegistry,check_port,find_free_port},pathlib.Path
     e: test_port_allocator_allocate,test_port_allocator_preferred_port,test_port_allocator_release,test_service_endpoint,test_service_registry_register,test_service_registry_get,test_service_registry_get_url,test_service_registry_environment
@@ -249,17 +261,17 @@ D:
     get_fast_starter(sandbox_root:Optional[Path]=None)->FastServiceStarter
   src/pactown/platform.py:
     i: re,pydantic.{BaseModel,Field,field_validator},typing.{Literal,Optional}
-    e: coerce_subdomain_separator,normalize_host,normalize_domain,to_dns_label,DomainConfig,ProjectHostParts,_PROJECT_SUBDOMAIN_RE,parse_project_subdomain
+    e: coerce_subdomain_separator,normalize_host,normalize_domain,is_local_domain,build_origin,web_base_url,api_base_url,to_dns_label
     DomainConfig: _normalize_domain(1),_normalize_separator(1)
     ProjectHostParts: 
     coerce_subdomain_separator(value:Optional[str])->SubdomainSeparator
     normalize_host(value:str)->str
     normalize_domain(value:str)->str
+    is_local_domain(domain:str)->bool
+    build_origin(scheme:Literal["http"; "https"];host:str)->str
+    web_base_url(domain:str;web_host_port:int)->str
+    api_base_url(domain:str;api_host_port:int)->str
     to_dns_label(value:str)->str
-    parse_project_subdomain(subdomain:str)->Optional[ProjectHostParts]
-    build_project_subdomain(project_id:int;username:str)->str
-    build_project_host(project_id:int;username:str)->str
-    parse_project_host(host:str)->Optional[ProjectHostParts]
   src/pactown/markpact_blocks.py:
     i: re,dataclasses.dataclass
     e: CODEBLOCK_NEW_RE,CODEBLOCK_OLD_RE,Block,parse_blocks

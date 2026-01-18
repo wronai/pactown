@@ -657,6 +657,74 @@ def llm_status():
         console.print()
 
 
+@llm.command("doctor")
+def llm_doctor():
+    """Diagnose LLM installation and environment issues.
+
+    Helps detect situations where `pactown` is executed with a different
+    Python interpreter than the one where you installed `lolm`.
+
+    Example:
+        pactown llm doctor
+    """
+    import importlib.util
+    import platform
+    import subprocess
+    import sys
+
+    from . import __version__
+    from .llm import get_lolm_info
+
+    console.print("[bold]LLM Doctor[/bold]\n")
+
+    console.print("[bold]Runtime[/bold]")
+    console.print(f"  Python: {sys.executable}")
+    console.print(f"  Python version: {platform.python_version()}")
+    console.print(f"  pactown version: {__version__}")
+
+    pactown_spec = importlib.util.find_spec("pactown")
+    if pactown_spec and pactown_spec.origin:
+        console.print(f"  pactown module: {pactown_spec.origin}")
+
+    try:
+        pip_v = subprocess.check_output(
+            [sys.executable, "-m", "pip", "-V"],
+            stderr=subprocess.STDOUT,
+            text=True,
+        ).strip()
+        console.print(f"  pip: {pip_v}")
+    except Exception as e:
+        console.print(f"  pip: [red]error[/red] ({e})")
+
+    console.print("\n[bold]lolm[/bold]")
+    info = get_lolm_info()
+    console.print(f"  installed: {info.get('lolm_installed')}")
+    if info.get("lolm_version"):
+        console.print(f"  version: {info['lolm_version']}")
+
+    lolm_spec = importlib.util.find_spec("lolm")
+    if lolm_spec and lolm_spec.origin:
+        console.print(f"  module: {lolm_spec.origin}")
+
+    if info.get("lolm_import_error"):
+        console.print(f"  import error: {info['lolm_import_error']}")
+
+    console.print("\n[bold]Rotation[/bold]")
+    console.print(f"  available: {info.get('rotation_available')}")
+    if info.get("rotation_import_error"):
+        console.print(f"  error: {info['rotation_import_error']}")
+
+    console.print("\n[bold]Suggested fix[/bold]")
+    if not info.get("lolm_installed"):
+        console.print("  pip install -U pactown[llm]")
+        console.print("  # or: pip install -U lolm")
+    elif not info.get("rotation_available"):
+        console.print("  pip install -U lolm")
+        console.print("  # rotation will be enabled automatically when supported")
+    else:
+        console.print("  OK")
+
+
 @llm.command("priority")
 @click.argument("provider")
 @click.argument("priority", type=int)

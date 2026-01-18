@@ -1,6 +1,6 @@
 project: pactown
-generated: "2026-01-18T17:41:51.039631"
-modules[54]{path,lang,items}:
+generated: "2026-01-18T18:00:20.340764"
+modules[55]{path,lang,items}:
   tests/test_runner_api.py,python,4
   tests/test_user_isolation_manager.py,python,5
   tests/test_llm.py,python,16
@@ -12,6 +12,7 @@ modules[54]{path,lang,items}:
   tests/test_markpact_blocks.py,python,3
   tests/test_service_runner_fast_run_fallback.py,python,1
   tests/test_quadlet_security.py,python,24
+  tests/test_platform.py,python,8
   tests/test_network.py,python,12
   tests/test_registry.py,python,10
   src/pactown/config.py,python,7
@@ -24,7 +25,7 @@ modules[54]{path,lang,items}:
   src/pactown/parallel.py,python,6
   src/pactown/__init__.py,python,0
   src/pactown/fast_start.py,python,21
-  src/pactown/platform.py,python,11
+  src/pactown/platform.py,python,15
   src/pactown/markpact_blocks.py,python,2
   src/pactown/orchestrator.py,python,18
   src/pactown/resolver.py,python,8
@@ -72,22 +73,22 @@ function_details:
       test_delete_user_root_builds_userdel_cmd,function,"(tmp_path:Path, monkeypatch:Any) -> None",122-152,false,31,1,checks delete user root builds userdel cmd
   tests/test_llm.py:
     functions[16]{name,kind,sig,loc,async,lines,cc,does}:
-      TestLLMStatus.test_llm_status_without_lolm,method,() -> None,13-27,false,15,2,Test llm status when lolm is not installed.
-      TestLLMStatus.test_llm_status_with_providers,method,() -> None,29-73,false,45,1,Test llm status with available providers.
-      TestLLMStatus.test_llm_status_no_providers_available,method,() -> None,75-90,false,16,1,Test llm status when no providers are configured.
-      TestLLMPriority.test_llm_priority_set_success,method,() -> None,96-106,false,11,1,Test setting provider priority successfully.
-      TestLLMPriority.test_llm_priority_set_failure,method,() -> None,108-117,false,10,1,Test setting priority for unknown provider.
-      TestLLMPriority.test_llm_priority_without_lolm,method,() -> None,119-127,false,9,1,Test priority command when lolm not installed.
-      TestLLMReset.test_llm_reset_success,method,() -> None,133-143,false,11,1,Test resetting provider health successfully.
-      TestLLMReset.test_llm_reset_failure,method,() -> None,145-154,false,10,1,Test reset for unknown provider.
-      TestLLMTest.test_llm_test_basic,method,() -> None,160-172,false,13,1,Test basic LLM generation test.
-      TestLLMTest.test_llm_test_with_rotation,method,() -> None,174-186,false,13,1,Test LLM generation with rotation flag.
-      TestLLMTest.test_llm_test_with_provider,method,() -> None,188-202,false,15,1,Test LLM generation with specific provider.
-      TestLLMTest.test_llm_test_error,method,() -> None,204-217,false,14,1,Test LLM generation error handling.
-      TestLLMModule.test_is_lolm_available_false,method,() -> None,223-231,false,9,1,Test is_lolm_available when lolm not installed.
-      TestLLMModule.test_get_llm_status_without_lolm,method,() -> None,233-241,false,9,2,Test get_llm_status returns proper error when lolm unavailable.
-      TestPactownLLMClass.test_pactown_llm_singleton,method,() -> None,247-261,false,15,1,Test PactownLLM singleton pattern.
-      TestPactownLLMClass.test_pactown_llm_generate_with_rotation,method,() -> None,263-283,false,21,1,Test generate_with_rotation delegates to manager.
+      TestLLMStatus.test_llm_status_without_lolm,method,() -> None,13-27,false,15,1,Test llm status when lolm is not installed.
+      TestLLMStatus.test_llm_status_with_providers,method,() -> None,29-75,false,47,1,Test llm status with available providers.
+      TestLLMStatus.test_llm_status_no_providers_available,method,() -> None,77-94,false,18,1,Test llm status when no providers are configured.
+      TestLLMPriority.test_llm_priority_set_success,method,() -> None,100-110,false,11,1,Test setting provider priority successfully.
+      TestLLMPriority.test_llm_priority_set_failure,method,() -> None,112-121,false,10,1,Test setting priority for unknown provider.
+      TestLLMPriority.test_llm_priority_without_lolm,method,() -> None,123-131,false,9,1,Test priority command when lolm not installed.
+      TestLLMReset.test_llm_reset_success,method,() -> None,137-147,false,11,1,Test resetting provider health successfully.
+      TestLLMReset.test_llm_reset_failure,method,() -> None,149-158,false,10,1,Test reset for unknown provider.
+      TestLLMTest.test_llm_test_basic,method,() -> None,164-176,false,13,1,Test basic LLM generation test.
+      TestLLMTest.test_llm_test_with_rotation,method,() -> None,178-190,false,13,1,Test LLM generation with rotation flag.
+      TestLLMTest.test_llm_test_with_provider,method,() -> None,192-206,false,15,1,Test LLM generation with specific provider.
+      TestLLMTest.test_llm_test_error,method,() -> None,208-221,false,14,1,Test LLM generation error handling.
+      TestLLMModule.test_is_lolm_available_false,method,() -> None,227-235,false,9,1,Test is_lolm_available when lolm not installed.
+      TestLLMModule.test_get_llm_status_without_lolm,method,() -> None,237-245,false,9,2,Test get_llm_status returns proper error when lolm unavailable.
+      TestPactownLLMClass.test_pactown_llm_singleton,method,() -> None,251-265,false,15,1,Test PactownLLM singleton pattern.
+      TestPactownLLMClass.test_pactown_llm_generate_with_rotation,method,() -> None,267-287,false,21,1,Test generate_with_rotation delegates to manager.
   tests/test_deploy_dockerfile.py:
     functions[2]{name,kind,sig,loc,async,lines,cc,does}:
       test_python_dockerfile_healthcheck_does_not_use_curl,function,() -> None,12-24,false,13,1,checks python dockerfile healthcheck does not use curl
@@ -157,6 +158,16 @@ function_details:
       TestSecurityHardening.test_resource_limits,method,() -> None,609-626,false,18,3,Ensure resource limits are set.
       TestSecurityHardening.test_read_only_filesystem,method,() -> None,628-643,false,16,2,Test read-only filesystem option.
       TestInputSanitization.test_sanitize_name,method,() -> None,649-670,false,22,3,Test name sanitization function.
+  tests/test_platform.py:
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+      test_normalize_host_strips_scheme_and_port,function,() -> None,13-14,false,2,1,checks normalize host strips scheme and port
+      test_normalize_domain_strips_www_and_scheme,function,() -> None,17-18,false,2,1,checks normalize domain strips www and scheme
+      test_build_project_host_dash_separator_normalizes_username,function,() -> None,21-22,false,2,1,checks build project host dash separator normalizes username
+      test_build_project_host_dot_separator_normalizes_username,function,() -> None,25-26,false,2,1,checks build project host dot separator normalizes username
+      test_parse_project_host,function,"(host:str) -> None",38-42,false,5,1,checks parse project host
+      test_build_project_subdomain_limits_length,function,() -> None,45-48,false,4,1,checks build project subdomain limits length
+      test_build_service_subdomain_dash,function,() -> None,51-52,false,2,1,checks build service subdomain dash
+      test_build_service_subdomain_dot,function,() -> None,55-56,false,2,1,checks build service subdomain dot
   tests/test_network.py:
     functions[12]{name,kind,sig,loc,async,lines,cc,does}:
       test_port_allocator_allocate,function,() -> None,15-18,false,4,1,checks port allocator allocate
@@ -204,22 +215,22 @@ function_details:
       publish,function,"(config_path:str, registry:str) -> None",182-211,false,30,6,Publish all modules to registry.
       pull,function,"(config_path:str, registry:str) -> None",217-241,false,25,7,Pull dependencies from registry.
       scan,function,"(folder:str) -> None",246-248,false,3,1,Scan a folder and show detected services.
-      generate,function,"(folder:str, name:Optional[str], output:str, base_port:int) -> None",256-285,false,30,2,Generate pactown config from a folder of README.md files.
-      deploy,function,"(config_path:str, output:str, production:bool, kubernetes:bool) -> None",293-349,false,57,7,"Generate deployment files (Docker Compose, Kubernetes)."
-      quadlet,function,() -> None,353-355,false,3,1,Podman Quadlet deployment commands for VPS production.
-      quadlet_shell,function,"(tenant:str, domain:str, system:bool) -> None",362-369,false,8,1,Start interactive Quadlet deployment shell.
-      quadlet_api,function,"(host:str, port:int, domain:str, tenant:str) -> None",377-388,false,12,1,Start Quadlet API server for programmatic deployments.
-      quadlet_generate,function,"(markdown_path:str, output:str, domain:str, subdomain:str, tenant:str, tls:bool) -> None",398-429,false,32,2,Generate Quadlet files for a Markdown service.
-      quadlet_init,function,"(domain:str, email:str, system:bool) -> None",436-465,false,30,4,Initialize Quadlet environment with Traefik.
-      quadlet_deploy,function,"(markdown_path:str, domain:str, subdomain:str, tenant:str, tls:bool, image:str) -> None",475-525,false,51,5,Deploy a Markdown file to VPS using Quadlet.
-      quadlet_list,function,"(tenant:str) -> None",530-560,false,31,4,List all Quadlet services for a tenant.
-      quadlet_logs,function,"(service_name:str, tenant:str, lines:int) -> None",567-580,false,14,2,Show logs for a Quadlet service.
-      llm,function,() -> None,584-586,false,3,1,LLM provider management with rotation and fallback.
-      llm_status,function,() -> None,590-656,false,67,17,Show status of all LLM providers.
-      llm_priority,function,"(provider:str, priority:int) -> None",662-678,false,17,3,Set priority for an LLM provider (lower = higher priority).
-      llm_reset,function,"(provider:str) -> None",683-700,false,18,3,Reset an LLM provider's health metrics.
-      llm_test,function,"(provider:str, rotation:bool) -> None",706-736,false,31,5,Test LLM generation with a simple prompt.
-      main,function,(argv=None) -> None,739-741,false,3,1,Main entry point.
+      generate,function,"(folder:str, name:Optional[str], output:str, base_port:int) -> None",256-286,false,31,2,Generate pactown config from a folder of README.md files.
+      deploy,function,"(config_path:str, output:str, production:bool, kubernetes:bool) -> None",294-350,false,57,7,"Generate deployment files (Docker Compose, Kubernetes)."
+      quadlet,function,() -> None,354-356,false,3,1,Podman Quadlet deployment commands for VPS production.
+      quadlet_shell,function,"(tenant:str, domain:str, system:bool) -> None",363-370,false,8,1,Start interactive Quadlet deployment shell.
+      quadlet_api,function,"(host:str, port:int, domain:str, tenant:str) -> None",378-389,false,12,1,Start Quadlet API server for programmatic deployments.
+      quadlet_generate,function,"(markdown_path:str, output:str, domain:str, subdomain:str, tenant:str, tls:bool) -> None",399-430,false,32,2,Generate Quadlet files for a Markdown service.
+      quadlet_init,function,"(domain:str, email:str, system:bool) -> None",437-466,false,30,4,Initialize Quadlet environment with Traefik.
+      quadlet_deploy,function,"(markdown_path:str, domain:str, subdomain:str, tenant:str, tls:bool, image:str) -> None",476-526,false,51,5,Deploy a Markdown file to VPS using Quadlet.
+      quadlet_list,function,"(tenant:str) -> None",531-561,false,31,4,List all Quadlet services for a tenant.
+      quadlet_logs,function,"(service_name:str, tenant:str, lines:int) -> None",568-581,false,14,2,Show logs for a Quadlet service.
+      llm,function,() -> None,585-587,false,3,1,LLM provider management with rotation and fallback.
+      llm_status,function,() -> None,591-657,false,67,17,Show status of all LLM providers.
+      llm_priority,function,"(provider:str, priority:int) -> None",663-679,false,17,3,Set priority for an LLM provider (lower = higher priority).
+      llm_reset,function,"(provider:str) -> None",684-701,false,18,3,Reset an LLM provider's health metrics.
+      llm_test,function,"(provider:str, rotation:bool) -> None",707-737,false,31,5,Test LLM generation with a simple prompt.
+      main,function,(argv=None) -> None,740-742,false,3,1,Main entry point.
   src/pactown/llm.py:
     functions[23]{name,kind,sig,loc,async,lines,cc,does}:
       get_llm,function,"(verbose:bool=False) -> PactownLLM",355-357,false,3,1,Get the global PactownLLM instance.
@@ -412,18 +423,22 @@ function_details:
       ParallelServiceRunner.__init__,method,"(fast_starter:FastServiceStarter, max_parallel:int=4) -> None",466-469,false,4,1,creates
       ParallelServiceRunner.run_parallel,method,"(services:List[Dict[str,Any]], on_service_log:Optional[Callable[Any,None]]=None) -> List[FastStartResult]",471-501,true,31,2,Run multiple services in parallel.
   src/pactown/platform.py:
-    functions[11]{name,kind,sig,loc,async,lines,cc,does}:
+    functions[15]{name,kind,sig,loc,async,lines,cc,does}:
       coerce_subdomain_separator,function,"(value:Optional[str]) -> SubdomainSeparator",11-12,false,2,2,coerce subdomain separator
       normalize_host,function,"(value:str) -> str",15-23,false,9,4,normalize host
       normalize_domain,function,"(value:str) -> str",26-30,false,5,2,normalize domain
-      to_dns_label,function,"(value:str) -> str",33-39,false,7,3,converts dns label
-      parse_project_subdomain,function,"(subdomain:str) -> Optional[ProjectHostParts]",68-80,false,13,5,parses project subdomain
-      build_project_subdomain,function,"(project_id:int, username:str) -> str",83-91,false,9,1,creates project subdomain
-      build_project_host,function,"(project_id:int, username:str) -> str",94-97,false,4,1,creates project host
-      parse_project_host,function,"(host:str) -> Optional[ProjectHostParts]",100-109,false,10,4,parses project host
-      build_service_subdomain,function,"(service_name:str, username:str) -> str",112-121,false,10,2,creates service subdomain
-      DomainConfig._normalize_domain,method,"(v:str) -> str",48-52,false,5,2,normalize domain
-      DomainConfig._normalize_separator,method,"(v:str) -> SubdomainSeparator",56-57,false,2,1,normalize separator
+      is_local_domain,function,"(domain:str) -> bool",33-35,false,3,1,is local domain
+      build_origin,function,"(scheme:Literal[\"http\", \"https\"], host:str) -> str",38-42,false,5,2,creates origin
+      web_base_url,function,"(domain:str, web_host_port:int) -> str",45-48,false,4,2,web base url
+      api_base_url,function,"(domain:str, api_host_port:int) -> str",51-54,false,4,2,api base url
+      to_dns_label,function,"(value:str) -> str",57-63,false,7,3,converts dns label
+      parse_project_subdomain,function,"(subdomain:str) -> Optional[ProjectHostParts]",92-104,false,13,5,parses project subdomain
+      build_project_subdomain,function,"(project_id:int, username:str) -> str",107-115,false,9,1,creates project subdomain
+      build_project_host,function,"(project_id:int, username:str) -> str",118-121,false,4,1,creates project host
+      parse_project_host,function,"(host:str) -> Optional[ProjectHostParts]",124-133,false,10,4,parses project host
+      build_service_subdomain,function,"(service_name:str, username:str) -> str",136-145,false,10,2,creates service subdomain
+      DomainConfig._normalize_domain,method,"(v:str) -> str",72-76,false,5,2,normalize domain
+      DomainConfig._normalize_separator,method,"(v:str) -> SubdomainSeparator",80-81,false,2,1,normalize separator
   src/pactown/markpact_blocks.py:
     functions[2]{name,kind,sig,loc,async,lines,cc,does}:
       parse_blocks,function,"(text:str) -> list[Block]",29-50,false,22,6,parses blocks
@@ -480,25 +495,25 @@ function_details:
       SandboxManager.start_services_parallel,method,"(services:list[tuple[ServiceConfig,Path,dict[str,str]]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, ServiceProcess]",672-729,false,58,6,Start multiple services in parallel.
   src/pactown/runner_api.py:
     functions[19]{name,kind,sig,loc,async,lines,cc,does}:
-      _dns_label,function,"(value:str, fallback:str='user') -> str",22-26,false,5,3,dns label
-      _validate_service_id,function,"(service_id:str) -> str",29-36,false,8,5,validates service id
-      _service_name_for,function,"(service_id:str) -> str",39-41,false,3,1,service name for
-      _validate_rel_path,function,"(path:str) -> Path",44-52,false,9,5,validates rel path
-      _resolve_in_dir,function,"(root:Path, rel:Path) -> Path",55-60,false,6,2,resolve in dir
-      create_runner_api,function,"(runner_service:RunnerService, settings:RunnerApiSettings) -> FastAPI",316-441,false,126,1,creates runner api
-      create_app,function,() -> FastAPI,444-451,false,8,1,creates app
-      main,function,() -> None,454-460,false,7,1,main
-      RunnerApiSettings.__init__,method,() -> None,110-117,false,8,2,creates
-      RunnerService.__init__,method,() -> None,121-131,false,11,1,creates
-      RunnerService._resolve_service_id,method,"(req_service_id:Optional[str], project_id:int, username:Optional[str]) -> str",133-138,false,6,3,resolve service id
-      RunnerService.validate,method,"(readme_content:str) -> ValidationResult",140-141,false,2,1,validates
-      RunnerService._sandbox_path_for,method,"(service_id:str) -> Path",143-144,false,2,1,sandbox path for
-      RunnerService.list_sandbox_files,method,"(service_id:str) -> List[Dict[str, Any]]",146-168,false,23,5,list sandbox files
-      RunnerService.read_sandbox_file,method,"(service_id:str, path:str, limit:int=200000) -> str",170-183,false,14,5,retrieves sandbox file
-      RunnerService.write_sandbox_file,method,"(service_id:str, path:str, content:str) -> None",185-192,false,8,1,logs sandbox file
-      RunnerService.delete_sandbox_file,method,"(service_id:str, path:str) -> None",194-205,false,12,4,deletes sandbox file
-      RunnerService.prepare_sandbox,method,"(service_id:str, content:str, port:int=0) -> Dict[str, Any]",207-240,false,34,4,prepare sandbox
-      RunnerService.run,method,() -> RunResult,242-313,true,72,14,starts
+      _dns_label,function,"(value:str, fallback:str='user') -> str",23-24,false,2,1,dns label
+      _validate_service_id,function,"(service_id:str) -> str",27-34,false,8,5,validates service id
+      _service_name_for,function,"(service_id:str) -> str",37-39,false,3,1,service name for
+      _validate_rel_path,function,"(path:str) -> Path",42-50,false,9,5,validates rel path
+      _resolve_in_dir,function,"(root:Path, rel:Path) -> Path",53-58,false,6,2,resolve in dir
+      create_runner_api,function,"(runner_service:RunnerService, settings:RunnerApiSettings) -> FastAPI",314-439,false,126,1,creates runner api
+      create_app,function,() -> FastAPI,442-449,false,8,1,creates app
+      main,function,() -> None,452-458,false,7,1,main
+      RunnerApiSettings.__init__,method,() -> None,108-115,false,8,2,creates
+      RunnerService.__init__,method,() -> None,119-129,false,11,1,creates
+      RunnerService._resolve_service_id,method,"(req_service_id:Optional[str], project_id:int, username:Optional[str]) -> str",131-136,false,6,3,resolve service id
+      RunnerService.validate,method,"(readme_content:str) -> ValidationResult",138-139,false,2,1,validates
+      RunnerService._sandbox_path_for,method,"(service_id:str) -> Path",141-142,false,2,1,sandbox path for
+      RunnerService.list_sandbox_files,method,"(service_id:str) -> List[Dict[str, Any]]",144-166,false,23,5,list sandbox files
+      RunnerService.read_sandbox_file,method,"(service_id:str, path:str, limit:int=200000) -> str",168-181,false,14,5,retrieves sandbox file
+      RunnerService.write_sandbox_file,method,"(service_id:str, path:str, content:str) -> None",183-190,false,8,1,logs sandbox file
+      RunnerService.delete_sandbox_file,method,"(service_id:str, path:str) -> None",192-203,false,12,4,deletes sandbox file
+      RunnerService.prepare_sandbox,method,"(service_id:str, content:str, port:int=0) -> Dict[str, Any]",205-238,false,34,4,prepare sandbox
+      RunnerService.run,method,() -> RunResult,240-311,true,72,14,starts
   src/pactown/network.py:
     functions[19]{name,kind,sig,loc,async,lines,cc,does}:
       find_free_port,function,"(start:int=10000, end:int=65000) -> int",246-255,false,10,2,Find a single free port.

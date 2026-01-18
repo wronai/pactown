@@ -221,18 +221,40 @@ class TestLLMTest:
                 assert 'rate limited' in result.output
 
 
+class TestLLMDoctor:
+    """Tests for pactown llm doctor command."""
+
+    def test_llm_doctor_outputs_environment_info(self):
+        runner = CliRunner()
+
+        with patch('pactown.llm.get_lolm_info', return_value={
+            'lolm_installed': False,
+            'lolm_version': None,
+            'lolm_import_error': 'No module named lolm',
+            'rotation_available': False,
+            'rotation_import_error': None,
+        }):
+            with patch('subprocess.check_output', return_value='pip 25.0 from /x/y (python 3.13)\n'):
+                result = runner.invoke(cli, ['llm', 'doctor'])
+
+                assert result.exit_code == 0
+                assert 'LLM Doctor' in result.output
+                assert 'Python:' in result.output
+                assert 'pip:' in result.output
+                assert 'lolm' in result.output
+                assert 'Rotation' in result.output
+                assert 'pip install -U pactown[llm]' in result.output
+
+
 class TestLLMModule:
     """Tests for pactown.llm module functions."""
     
     def test_is_lolm_available_false(self):
         """Test is_lolm_available when lolm not installed."""
-        with patch.dict('sys.modules', {'lolm': None}):
-            # Force re-evaluation
-            import importlib
-            from pactown import llm
-            
-            # The module should handle ImportError gracefully
-            assert hasattr(llm, 'is_lolm_available')
+        from pactown.llm import is_lolm_available
+
+        with patch('pactown.llm.LOLM_AVAILABLE', False):
+            assert is_lolm_available() is False
     
     def test_get_llm_status_without_lolm(self):
         """Test get_llm_status returns proper error when lolm unavailable."""
@@ -241,8 +263,10 @@ class TestLLMModule:
             
             status = get_llm_status()
             
-            assert status['available'] == False
-            assert 'error' in status or 'install' in status
+            assert status['lolm_installed'] is False
+            assert status['is_available'] is False
+            assert 'error' in status
+            assert 'install' in status
 
 
 class TestPactownLLMClass:
