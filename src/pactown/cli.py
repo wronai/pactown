@@ -633,7 +633,7 @@ def llm_status():
         if status.get("lolm_import_error"):
             console.print(f"Import error: {status['lolm_import_error']}")
         if status.get("install"):
-            console.print(status["install"], markup=False)
+            click.echo(status["install"])
         console.print("Install/upgrade (same interpreter as pactown):")
         console.print(f"  {sys.executable} -m pip install -U pactown[llm]\n", markup=False)
         console.print("Or install directly:")
