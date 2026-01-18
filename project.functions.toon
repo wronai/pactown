@@ -1,5 +1,5 @@
 project: pactown
-generated: "2026-01-18T08:33:14.181018"
+generated: "2026-01-18T08:49:01.286114"
 modules[47]{path,lang,items}:
   tests/test_deploy_dockerfile.py,python,2
   tests/test_resolver.py,python,10
@@ -12,7 +12,7 @@ modules[47]{path,lang,items}:
   tests/test_registry.py,python,10
   src/pactown/config.py,python,7
   src/pactown/cli.py,python,21
-  src/pactown/user_isolation.py,python,14
+  src/pactown/user_isolation.py,python,16
   src/pactown/events.py,python,75
   src/pactown/generator.py,python,4
   src/pactown/security.py,python,32
@@ -22,7 +22,7 @@ modules[47]{path,lang,items}:
   src/pactown/markpact_blocks.py,python,2
   src/pactown/orchestrator.py,python,18
   src/pactown/resolver.py,python,8
-  src/pactown/sandbox_manager.py,python,17
+  src/pactown/sandbox_manager.py,python,18
   src/pactown/network.py,python,19
   src/pactown/service_runner.py,python,16
   src/pactown/deploy/quadlet_shell.py,python,23
@@ -175,21 +175,23 @@ function_details:
       quadlet_logs,function,"(service_name:str, tenant:str, lines:int) -> None",555-568,false,14,2,Show logs for a Quadlet service.
       main,function,(argv=None) -> None,571-573,false,3,1,Main entry point.
   src/pactown/user_isolation.py:
-    functions[14]{name,kind,sig,loc,async,lines,cc,does}:
-      get_isolation_manager,function,() -> UserIsolationManager,351-356,false,6,2,Get global isolation manager instance.
-      IsolatedUser.to_dict,method,() -> dict,35-43,false,9,1,converts dict
-      UserIsolationManager.__init__,method,"(users_base:Path=Path('/home/pactown_users'), enable_cgroups:bool=False) -> None",66-82,false,17,2,creates
-      UserIsolationManager._load_existing_users,method,() -> None,84-101,false,18,6,Load existing pactown users from system.
-      UserIsolationManager._generate_username,method,"(saas_user_id:str) -> str",103-107,false,5,1,Generate Linux username from SaaS user ID.
-      UserIsolationManager.get_or_create_user,method,"(saas_user_id:str) -> IsolatedUser",109-177,false,69,4,Get or create an isolated Linux user for a SaaS user.
-      UserIsolationManager.get_user,method,"(saas_user_id:str) -> Optional[IsolatedUser]",179-181,false,3,1,Get isolated user without creating.
-      UserIsolationManager.get_sandbox_path,method,"(saas_user_id:str, service_id:str) -> Path",183-193,false,11,2,Get sandbox path for a specific service under user's home.
-      UserIsolationManager.run_as_user,method,"(saas_user_id:str, command:str, cwd:Path, env:Optional[Dict[str,str]]=None) -> subprocess.Popen",195-233,false,39,3,Run a command as the isolated user.
-      UserIsolationManager.list_users,method,"() -> List[IsolatedUser]",235-237,false,3,1,List all isolated users.
-      UserIsolationManager.get_user_stats,method,"(saas_user_id:str) -> Dict[str, Any]",239-264,false,26,5,Get stats for a user's sandboxes.
-      UserIsolationManager.export_user_data,method,"(saas_user_id:str, output_path:Path) -> bool",266-286,false,21,4,Export user's data for migration.
-      UserIsolationManager.import_user_data,method,"(saas_user_id:str, archive_path:Path) -> bool",288-314,false,27,3,Import user's data from migration archive.
-      UserIsolationManager.delete_user,method,"(saas_user_id:str, delete_home:bool=True) -> bool",316-344,false,29,7,Delete an isolated user.
+    functions[16]{name,kind,sig,loc,async,lines,cc,does}:
+      _sanitize_gecos,function,"(value:str) -> str",26-33,false,8,3,sanitize gecos
+      get_isolation_manager,function,() -> UserIsolationManager,451-458,false,8,3,Get global isolation manager instance.
+      IsolatedUser.to_dict,method,() -> dict,46-54,false,9,1,converts dict
+      UserIsolationManager.__init__,method,"(users_base:Path=Path('/home/pactown_users'), enable_cgroups:bool=False) -> None",77-93,false,17,2,creates
+      UserIsolationManager.can_isolate,method,"() -> tuple[bool, str]",95-111,false,17,7,checks isolate
+      UserIsolationManager._load_existing_users,method,() -> None,113-130,false,18,6,Load existing pactown users from system.
+      UserIsolationManager._generate_username,method,"(saas_user_id:str) -> str",132-136,false,5,1,Generate Linux username from SaaS user ID.
+      UserIsolationManager.get_or_create_user,method,"(saas_user_id:str) -> IsolatedUser",138-277,false,140,15,Get or create an isolated Linux user for a SaaS user.
+      UserIsolationManager.get_user,method,"(saas_user_id:str) -> Optional[IsolatedUser]",279-281,false,3,1,Get isolated user without creating.
+      UserIsolationManager.get_sandbox_path,method,"(saas_user_id:str, service_id:str) -> Path",283-293,false,11,2,Get sandbox path for a specific service under user's home.
+      UserIsolationManager.run_as_user,method,"(saas_user_id:str, command:str, cwd:Path, env:Optional[Dict[str,str]]=None) -> subprocess.Popen",295-333,false,39,3,Run a command as the isolated user.
+      UserIsolationManager.list_users,method,"() -> List[IsolatedUser]",335-337,false,3,1,List all isolated users.
+      UserIsolationManager.get_user_stats,method,"(saas_user_id:str) -> Dict[str, Any]",339-364,false,26,5,Get stats for a user's sandboxes.
+      UserIsolationManager.export_user_data,method,"(saas_user_id:str, output_path:Path) -> bool",366-386,false,21,4,Export user's data for migration.
+      UserIsolationManager.import_user_data,method,"(saas_user_id:str, archive_path:Path) -> bool",388-414,false,27,3,Import user's data from migration archive.
+      UserIsolationManager.delete_user,method,"(saas_user_id:str, delete_home:bool=True) -> bool",416-444,false,29,7,Delete an isolated user.
   src/pactown/events.py:
     functions[75]{name,kind,sig,loc,async,lines,cc,does}:
       get_event_store,function,"(persistence_path:Optional[Path]=None) -> EventStore",355-360,false,6,2,Get or create global event store.
@@ -373,24 +375,25 @@ function_details:
       DependencyResolver.validate,method,"() -> list[str]",121-139,false,19,6,Validate the dependency graph and return any issues.
       DependencyResolver.print_graph,method,() -> str,141-160,false,20,6,Return ASCII representation of dependency graph.
   src/pactown/sandbox_manager.py:
-    functions[17]{name,kind,sig,loc,async,lines,cc,does}:
-      _escape_dotenv_value,function,"(value:str) -> str",39-45,false,7,1,escape dotenv value
-      _write_dotenv_file,function,"(sandbox_path:Path, env:dict[str,str]) -> None",48-64,false,17,8,logs dotenv file
-      _sandbox_fallback_ids,function,"() -> tuple[int, int]",67-76,false,10,3,sandbox fallback ids
-      _chown_sandbox_tree,function,"(sandbox_path:Path, uid:int, gid:int) -> None",79-114,false,36,11,chown sandbox tree
-      ServiceProcess.is_running,method,() -> bool,128-135,false,8,3,is running
-      SandboxManager.__init__,method,"(sandbox_root:Any) -> None",141-144,false,4,1,creates
-      SandboxManager.get_sandbox_path,method,"(service_name:str) -> Path",146-148,false,3,1,Get sandbox path for a service.
-      SandboxManager.create_sandbox,method,"(service:ServiceConfig, readme_path:Path, install_dependencies:bool=True) -> Sandbox",150-188,false,39,11,Create a sandbox for a service from its README.
-      SandboxManager.start_service,method,"(service:ServiceConfig, readme_path:Path, env:dict[str,str], verbose:bool=True, restart_if_running:bool=False, on_log:Optional[Callable[Any,None]]=None, user_id:Optional[str]=None) -> ServiceProcess",190-439,false,250,36,Start a service in its sandbox.
-      SandboxManager.stop_service,method,"(service_name:str, timeout:int=10) -> bool",441-491,false,51,10,Stop a running service.
-      SandboxManager.stop_all,method,"(timeout:int=10) -> None",493-496,false,4,2,Stop all running services.
-      SandboxManager.get_status,method,"(service_name:str) -> Optional[dict]",498-511,false,14,2,Get status of a service.
-      SandboxManager.get_all_status,method,"() -> list[dict]",513-519,false,7,3,Get status of all services.
-      SandboxManager.clean_sandbox,method,"(service_name:str) -> None",521-525,false,5,2,Remove sandbox directory for a service.
-      SandboxManager.clean_all,method,() -> None,527-531,false,5,2,Remove all sandbox directories.
-      SandboxManager.create_sandboxes_parallel,method,"(services:list[tuple[ServiceConfig,Path]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, Sandbox]",533-587,false,55,8,Create sandboxes for multiple services in parallel.
-      SandboxManager.start_services_parallel,method,"(services:list[tuple[ServiceConfig,Path,dict[str,str]]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, ServiceProcess]",589-646,false,58,6,Start multiple services in parallel.
+    functions[18]{name,kind,sig,loc,async,lines,cc,does}:
+      _path_debug,function,"(path:Path) -> str",44-61,false,18,7,path debug
+      _escape_dotenv_value,function,"(value:str) -> str",64-70,false,7,1,escape dotenv value
+      _write_dotenv_file,function,"(sandbox_path:Path, env:dict[str,str]) -> None",73-89,false,17,8,logs dotenv file
+      _sandbox_fallback_ids,function,"() -> tuple[int, int]",92-101,false,10,3,sandbox fallback ids
+      _chown_sandbox_tree,function,"(sandbox_path:Path, uid:int, gid:int) -> None",104-139,false,36,11,chown sandbox tree
+      ServiceProcess.is_running,method,() -> bool,153-160,false,8,3,is running
+      SandboxManager.__init__,method,"(sandbox_root:Any) -> None",166-169,false,4,1,creates
+      SandboxManager.get_sandbox_path,method,"(service_name:str) -> Path",171-173,false,3,1,Get sandbox path for a service.
+      SandboxManager.create_sandbox,method,"(service:ServiceConfig, readme_path:Path, install_dependencies:bool=True, on_log:Optional[Callable[Any,None]]=None) -> Sandbox",175-250,false,76,14,Create a sandbox for a service from its README.
+      SandboxManager.start_service,method,"(service:ServiceConfig, readme_path:Path, env:dict[str,str], verbose:bool=True, restart_if_running:bool=False, on_log:Optional[Callable[Any,None]]=None, user_id:Optional[str]=None) -> ServiceProcess",252-515,false,264,37,Start a service in its sandbox.
+      SandboxManager.stop_service,method,"(service_name:str, timeout:int=10) -> bool",517-567,false,51,10,Stop a running service.
+      SandboxManager.stop_all,method,"(timeout:int=10) -> None",569-572,false,4,2,Stop all running services.
+      SandboxManager.get_status,method,"(service_name:str) -> Optional[dict]",574-587,false,14,2,Get status of a service.
+      SandboxManager.get_all_status,method,"() -> list[dict]",589-595,false,7,3,Get status of all services.
+      SandboxManager.clean_sandbox,method,"(service_name:str) -> None",597-601,false,5,2,Remove sandbox directory for a service.
+      SandboxManager.clean_all,method,() -> None,603-607,false,5,2,Remove all sandbox directories.
+      SandboxManager.create_sandboxes_parallel,method,"(services:list[tuple[ServiceConfig,Path]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, Sandbox]",609-663,false,55,8,Create sandboxes for multiple services in parallel.
+      SandboxManager.start_services_parallel,method,"(services:list[tuple[ServiceConfig,Path,dict[str,str]]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, ServiceProcess]",665-722,false,58,6,Start multiple services in parallel.
   src/pactown/network.py:
     functions[19]{name,kind,sig,loc,async,lines,cc,does}:
       find_free_port,function,"(start:int=10000, end:int=65000) -> int",230-233,false,4,1,Find a single free port.

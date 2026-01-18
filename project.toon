@@ -1,4 +1,4 @@
-# pactown | 47f 13568L | python:47
+# pactown | 47f 13746L | python:47
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
 M[47]:
   tests/test_deploy_dockerfile.py,29
@@ -12,7 +12,7 @@ M[47]:
   tests/test_registry.py,110
   src/pactown/config.py,137
   src/pactown/cli.py,462
-  src/pactown/user_isolation.py,284
+  src/pactown/user_isolation.py,380
   src/pactown/events.py,884
   src/pactown/generator.py,164
   src/pactown/security.py,570
@@ -22,7 +22,7 @@ M[47]:
   src/pactown/markpact_blocks.py,35
   src/pactown/orchestrator.py,347
   src/pactown/resolver.py,122
-  src/pactown/sandbox_manager.py,519
+  src/pactown/sandbox_manager.py,590
   src/pactown/network.py,193
   src/pactown/service_runner.py,927
   src/pactown/deploy/quadlet_shell.py,432
@@ -143,10 +143,11 @@ D:
     init(name:str;output:str)->None
     publish(config_path:str;registry:str)->None
   src/pactown/user_isolation.py:
-    i: grp,os,pwd,shutil,subprocess,logging,dataclasses.{dataclass,field},pathlib.Path,typing.Dict
+    i: grp,os,pwd,re,shutil,subprocess,logging,dataclasses.{dataclass,field},pathlib.Path
     e: IsolatedUser,UserIsolationManager,get_isolation_manager
     IsolatedUser: to_dict(0)  # Represents an isolated Linux user for...
-    UserIsolationManager: __init__(2),_load_existing_users(0),_generate_username(1),get_or_create_user(1),get_user(1)  # Manages isolated Linux users for sand...
+    UserIsolationManager: __init__(2),can_isolate(0),_load_existing_users(0),_generate_username(1),get_or_create_user(1)  # Manages isolated Linux users for sand...
+    _sanitize_gecos(value:str)->str
     get_isolation_manager()->UserIsolationManager
   src/pactown/events.py:
     i: datetime,abc.{ABC,abstractmethod},collections.defaultdict,dataclasses.{dataclass,field},datetime.UTC,enum.Enum,pathlib.Path,typing.Any
@@ -219,7 +220,8 @@ D:
     i: json,logging,os,re,shutil,stat,signal,subprocess,time,concurrent.futures.ThreadPoolExecutor
     e: LOG_DIR,ServiceProcess,SandboxManager
     ServiceProcess: is_running(0)  # Represents a running service process.
-    SandboxManager: __init__(1),get_sandbox_path(1),create_sandbox(3),start_service(7),stop_service(2)  # Manages sandboxes for multiple services.
+    SandboxManager: __init__(1),get_sandbox_path(1),create_sandbox(4),start_service(7),stop_service(2)  # Manages sandboxes for multiple services.
+    _path_debug(path:Path)->str
     _escape_dotenv_value(value:str)->str
     _write_dotenv_file(sandbox_path:Path;env:dict[str;str])->None
     _sandbox_fallback_ids()->tuple[int, int]
