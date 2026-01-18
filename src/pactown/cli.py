@@ -594,6 +594,8 @@ def llm_status():
     Example:
         pactown llm status
     """
+    import sys
+
     from .llm import get_llm_status
 
     status = get_llm_status()
@@ -602,8 +604,10 @@ def llm_status():
         console.print("[yellow]lolm library not available[/yellow]")
         if status.get("lolm_import_error"):
             console.print(f"Import error: {status['lolm_import_error']}")
-        console.print("Install/upgrade with: pip install -U pactown[llm]")
-        console.print("Or install directly: pip install -U lolm")
+        console.print("Install/upgrade (same interpreter as pactown):")
+        console.print(f"  {sys.executable} -m pip install -U 'pactown[llm]'\n")
+        console.print("Or install directly:")
+        console.print(f"  {sys.executable} -m pip install -U lolm")
         return
 
     if not status.get('is_available'):
@@ -614,6 +618,7 @@ def llm_status():
             console.print(f"Rotation not available: {status['rotation_import_error']}")
         if 'error' in status:
             console.print(f"Error: {status['error']}")
+        console.print("\n[dim]Tip: run `pactown llm doctor` to check Python/pip mismatch[/dim]")
         return
     
     console.print("[bold]LLM Provider Status[/bold]\n")
@@ -670,6 +675,7 @@ def llm_doctor():
     import importlib.util
     import platform
     import subprocess
+    import shutil
     import sys
 
     from . import __version__
@@ -696,6 +702,12 @@ def llm_doctor():
     except Exception as e:
         console.print(f"  pip: [red]error[/red] ({e})")
 
+    pip_on_path = shutil.which("pip")
+    if pip_on_path:
+        console.print(f"  pip (PATH): {pip_on_path}")
+    else:
+        console.print("  pip (PATH): [dim]not found[/dim]")
+
     console.print("\n[bold]lolm[/bold]")
     info = get_lolm_info()
     console.print(f"  installed: {info.get('lolm_installed')}")
@@ -716,10 +728,10 @@ def llm_doctor():
 
     console.print("\n[bold]Suggested fix[/bold]")
     if not info.get("lolm_installed"):
-        console.print("  pip install -U pactown[llm]")
-        console.print("  # or: pip install -U lolm")
+        console.print(f"  {sys.executable} -m pip install -U 'pactown[llm]'")
+        console.print(f"  {sys.executable} -m pip install -U lolm")
     elif not info.get("rotation_available"):
-        console.print("  pip install -U lolm")
+        console.print(f"  {sys.executable} -m pip install -U lolm")
         console.print("  # rotation will be enabled automatically when supported")
     else:
         console.print("  OK")

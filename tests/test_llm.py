@@ -243,7 +243,7 @@ class TestLLMDoctor:
                 assert 'pip:' in result.output
                 assert 'lolm' in result.output
                 assert 'Rotation' in result.output
-                assert 'pip install -U pactown[llm]' in result.output
+                assert "-m pip install -U 'pactown[llm]'" in result.output
 
 
 class TestLLMModule:
