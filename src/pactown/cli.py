@@ -18,6 +18,36 @@ from .resolver import DependencyResolver
 console = Console()
 
 
+def is_lolm_available() -> bool:
+    from .llm import is_lolm_available as _is_lolm_available
+
+    return _is_lolm_available()
+
+
+def get_llm_status() -> dict:
+    from .llm import get_llm_status as _get_llm_status
+
+    return _get_llm_status()
+
+
+def get_llm(*, verbose: bool = False):
+    from .llm import get_llm as _get_llm
+
+    return _get_llm(verbose=verbose)
+
+
+def set_llm_priority(provider: str, priority: int) -> bool:
+    from .llm import set_provider_priority as _set_provider_priority
+
+    return bool(_set_provider_priority(provider, priority))
+
+
+def reset_llm_provider(provider: str) -> bool:
+    from .llm import reset_provider as _reset_provider
+
+    return bool(_reset_provider(provider))
+
+
 @click.group()
 @click.version_option(version=__version__, prog_name="pactown")
 def cli():
@@ -596,8 +626,6 @@ def llm_status():
     """
     import sys
 
-    from .llm import get_llm_status
-
     status = get_llm_status()
 
     if not status.get("lolm_installed", False):
@@ -605,7 +633,7 @@ def llm_status():
         if status.get("lolm_import_error"):
             console.print(f"Import error: {status['lolm_import_error']}")
         console.print("Install/upgrade (same interpreter as pactown):")
-        console.print(f"  {sys.executable} -m pip install -U 'pactown[llm]'\n")
+        console.print(f"  {sys.executable} -m pip install -U pactown[llm]\n", markup=False)
         console.print("Or install directly:")
         console.print(f"  {sys.executable} -m pip install -U lolm")
         return
@@ -679,7 +707,7 @@ def llm_doctor():
     import sys
 
     from . import __version__
-    from .llm import get_lolm_info
+    from . import llm as llm_mod
 
     console.print("[bold]LLM Doctor[/bold]\n")
 
@@ -709,7 +737,7 @@ def llm_doctor():
         console.print("  pip (PATH): [dim]not found[/dim]")
 
     console.print("\n[bold]lolm[/bold]")
-    info = get_lolm_info()
+    info = llm_mod.get_lolm_info()
     console.print(f"  installed: {info.get('lolm_installed')}")
     if info.get("lolm_version"):
         console.print(f"  version: {info['lolm_version']}")
@@ -728,7 +756,8 @@ def llm_doctor():
 
     console.print("\n[bold]Suggested fix[/bold]")
     if not info.get("lolm_installed"):
-        console.print(f"  {sys.executable} -m pip install -U 'pactown[llm]'")
+        console.print("  python -m pip install -U 'pactown[llm]'", markup=False)
+        console.print(f"  {sys.executable} -m pip install -U 'pactown[llm]'", markup=False)
         console.print(f"  {sys.executable} -m pip install -U lolm")
     elif not info.get("rotation_available"):
         console.print(f"  {sys.executable} -m pip install -U lolm")
@@ -747,8 +776,6 @@ def llm_priority(provider: str, priority: int):
         pactown llm priority openrouter 10
         pactown llm priority groq 20
     """
-    from .llm import set_llm_priority, is_lolm_available
-    
     if not is_lolm_available():
         console.print("[yellow]lolm library not installed[/yellow]")
         return
@@ -769,8 +796,6 @@ def llm_reset(provider: str):
     Example:
         pactown llm reset groq
     """
-    from .llm import reset_llm_provider, is_lolm_available
-    
     if not is_lolm_available():
         console.print("[yellow]lolm library not installed[/yellow]")
         return
@@ -792,8 +817,6 @@ def llm_test(provider: str, rotation: bool):
         pactown llm test --provider openrouter
         pactown llm test --rotation
     """
-    from .llm import get_llm, is_lolm_available
-    
     if not is_lolm_available():
         console.print("[yellow]lolm library not installed[/yellow]")
         return

@@ -20,6 +20,7 @@ def normalize_host(value: str) -> str:
         v = v[len("https://") :]
     v = v.split("/", 1)[0]
     v = v.split(":", 1)[0]
+    v = v.strip(".")
     return v
 
 
