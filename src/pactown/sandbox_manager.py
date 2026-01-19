@@ -15,6 +15,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
 from pathlib import Path
+from threading import Event
+from threading import Thread
 from threading import Lock
 from typing import Callable, Optional, List, Dict, Any
 
@@ -23,10 +25,28 @@ from markpact.runner import install_deps
 
 from .config import ServiceConfig
 from .markpact_blocks import parse_blocks
+from .fast_start import DependencyCache
 
 # Configure detailed logging
 logger = logging.getLogger("pactown.sandbox")
 logger.setLevel(logging.DEBUG)
+
+
+def _heartbeat(
+    *,
+    stop: Event,
+    on_log: Optional[Callable[[str], None]],
+    message: str,
+    interval_s: float = 1.0,
+) -> None:
+    if not on_log:
+        return
+    started = time.monotonic()
+    ticks = 0
+    while not stop.wait(interval_s):
+        ticks += 1
+        elapsed = int(time.monotonic() - started)
+        on_log(f"⏳ {message} (elapsed={elapsed}s)")
 
 # File handler for persistent logs
 LOG_DIR = Path(os.environ.get("PACTOWN_LOG_DIR", tempfile.gettempdir() + "/pactown-logs"))
@@ -175,6 +195,7 @@ class SandboxManager:
         self.sandbox_root = Path(sandbox_root)
         self.sandbox_root.mkdir(parents=True, exist_ok=True)
         self._processes: dict[str, ServiceProcess] = {}
+        self._dep_cache = DependencyCache(self.sandbox_root / ".cache" / "venvs")
 
     def get_sandbox_path(self, service_name: str) -> Path:
         """Get sandbox path for a service."""
@@ -238,18 +259,105 @@ class SandboxManager:
             dbg(f"Wrote requirements.txt: {_path_debug(sandbox.path / 'requirements.txt')}", "DEBUG")
 
             if install_dependencies:
+                cached = None
+                try:
+                    cached = self._dep_cache.get_cached_venv(deps_clean) if self._dep_cache else None
+                except Exception:
+                    cached = None
+
+                if cached:
+                    try:
+                        dbg(f"⚡ Cache hit! Reusing venv ({cached.deps_hash})", "INFO")
+                        venv_dst = sandbox.path / ".venv"
+                        if venv_dst.exists() or venv_dst.is_symlink():
+                            try:
+                                if venv_dst.is_dir() and not venv_dst.is_symlink():
+                                    shutil.rmtree(venv_dst)
+                                else:
+                                    venv_dst.unlink()
+                            except Exception:
+                                pass
+
+                        def _copytree_fast(src_path: Path, dst_path: Path) -> None:
+                            try:
+                                shutil.copytree(src_path, dst_path, copy_function=os.link)
+                            except Exception:
+                                if dst_path.exists():
+                                    shutil.rmtree(dst_path)
+                                shutil.copytree(src_path, dst_path)
+
+                        stop = Event()
+                        thr = Thread(
+                            target=_heartbeat,
+                            kwargs={
+                                "stop": stop,
+                                "on_log": on_log,
+                                "message": f"[deploy] Restoring cached venv ({len(deps_clean)} deps)",
+                                "interval_s": 1.0,
+                            },
+                            daemon=True,
+                        )
+                        thr.start()
+                        _copytree_fast(cached.path, venv_dst)
+                        stop.set()
+                        dbg(f"Venv restored: {_path_debug(venv_dst)}", "DEBUG")
+                        return sandbox
+                    except Exception:
+                        try:
+                            stop.set()
+                        except Exception:
+                            pass
+
                 dbg(f"Creating venv (.venv) in sandbox", "INFO")
                 try:
+                    stop = Event()
+                    thr = Thread(
+                        target=_heartbeat,
+                        kwargs={
+                            "stop": stop,
+                            "on_log": on_log,
+                            "message": f"[deploy] Creating venv (.venv) ({len(deps_clean)} deps)",
+                            "interval_s": 1.0,
+                        },
+                        daemon=True,
+                    )
+                    thr.start()
                     ensure_venv(sandbox, verbose=False)
+                    stop.set()
                     dbg(f"Venv status: {_path_debug(sandbox.path / '.venv')}", "DEBUG")
                 except Exception as e:
+                    try:
+                        stop.set()
+                    except Exception:
+                        pass
                     dbg(f"ensure_venv failed: {e}", "ERROR")
                     raise
                 dbg("Installing dependencies via pip", "INFO")
                 try:
+                    stop = Event()
+                    thr = Thread(
+                        target=_heartbeat,
+                        kwargs={
+                            "stop": stop,
+                            "on_log": on_log,
+                            "message": f"[deploy] Installing dependencies via pip ({len(deps_clean)} deps)",
+                            "interval_s": 1.0,
+                        },
+                        daemon=True,
+                    )
+                    thr.start()
                     install_deps(deps_clean, sandbox, verbose=False)
+                    stop.set()
                     dbg("Dependencies installed", "INFO")
+                    try:
+                        self._dep_cache.save_existing_venv(deps_clean, sandbox.path / ".venv", on_progress=on_log)
+                    except Exception:
+                        pass
                 except Exception as e:
+                    try:
+                        stop.set()
+                    except Exception:
+                        pass
                     dbg(f"install_deps failed: {e}", "ERROR")
                     raise
         else:

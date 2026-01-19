@@ -483,6 +483,16 @@ class ServiceRunner:
         # Validate content
         validation = self.validate_content(content)
         log(f"Found {validation.file_count} files, {validation.deps_count} dependencies")
+
+        if validation.deps_count <= 0:
+            eta_min_s, eta_max_s = 3, 12
+        else:
+            eta_min_s = 15
+            eta_max_s = max(60, min(300, int(validation.deps_count) * 40))
+        log(
+            f"⏱️ Estimated startup time: ~{eta_min_s}-{eta_max_s}s "
+            f"(deps={validation.deps_count}; first run may take longer; next runs may be faster)"
+        )
         
         if not validation.valid:
             for err in validation.errors:
@@ -697,9 +707,18 @@ class ServiceRunner:
         """
         attempts = timeout * 2  # Check every 0.5s
         stderr_output = ""
+
+        started = time.monotonic()
+        last_beat_s = -1
         
         for _ in range(attempts):
             await asyncio.sleep(0.5)
+
+            elapsed_s = int(time.monotonic() - started)
+            if elapsed_s != last_beat_s:
+                last_beat_s = elapsed_s
+                remaining = max(0, int(timeout) - elapsed_s)
+                on_log(f"⏳ [deploy] Waiting for server health... elapsed={elapsed_s}s remaining~{remaining}s")
             
             # Check if process is still running
             if not process.is_running:

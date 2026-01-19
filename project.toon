@@ -1,6 +1,7 @@
-# pactown | 55f 15945L | python:55
+# pactown | 56f 16490L | python:56
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
-M[55]:
+M[56]:
+  tests/test_security.py,208
   tests/test_runner_api.py,84
   tests/test_user_isolation_manager.py,98
   tests/test_llm.py,232
@@ -16,23 +17,23 @@ M[55]:
   tests/test_network.py,87
   tests/test_registry.py,110
   src/pactown/config.py,137
-  src/pactown/cli.py,668
+  src/pactown/cli.py,670
   src/pactown/llm.py,352
-  src/pactown/user_isolation.py,380
+  src/pactown/user_isolation.py,381
   src/pactown/events.py,884
   src/pactown/generator.py,164
-  src/pactown/security.py,570
+  src/pactown/security.py,572
   src/pactown/parallel.py,211
   src/pactown/__init__.py,180
-  src/pactown/fast_start.py,412
+  src/pactown/fast_start.py,506
   src/pactown/platform.py,103
   src/pactown/markpact_blocks.py,35
   src/pactown/orchestrator.py,347
   src/pactown/resolver.py,122
-  src/pactown/sandbox_manager.py,597
-  src/pactown/runner_api.py,381
+  src/pactown/sandbox_manager.py,700
+  src/pactown/runner_api.py,383
   src/pactown/network.py,206
-  src/pactown/service_runner.py,984
+  src/pactown/service_runner.py,1003
   src/pactown/deploy/quadlet_shell.py,432
   src/pactown/deploy/base.py,200
   src/pactown/deploy/docker.py,245
@@ -42,7 +43,7 @@ M[55]:
   src/pactown/deploy/compose.py,279
   src/pactown/deploy/podman.py,323
   src/pactown/deploy/quadlet_api.py,420
-  src/pactown/registry/server.py,167
+  src/pactown/registry/server.py,168
   src/pactown/registry/__init__.py,10
   src/pactown/registry/client.py,217
   src/pactown/registry/models.py,127
@@ -57,6 +58,15 @@ M[55]:
   examples/saas-platform/.pactown-sandboxes/api/app/models.py,15
   examples/saas-platform/.pactown-sandboxes/api/app/main.py,42
 D:
+  tests/test_security.py:
+    i: os,re,subprocess,tempfile,pytest,pathlib.Path,unittest.mock.{MagicMock,patch}
+    e: TestInputSanitization,TestPathTraversal,TestCommandInjection,TestSecretsLeakage,TestNetworkSecurity,TestAuthorizationChecks,TestRateLimiting,TestCryptography
+    TestInputSanitization: test_service_name_rejects_path_traversal(0),test_tenant_id_sanitization(0)  # Test input sanitization functions.
+    TestPathTraversal: test_sandbox_path_stays_within_root(0)  # Test path traversal prevention.
+    TestCommandInjection: test_quadlet_sanitize_name(0),test_env_value_no_newlines(0)  # Test command injection prevention.
+    TestSecretsLeakage: test_config_env_handling(0),test_error_messages_do_not_leak_secrets(0)  # Test that secrets are not leaked.
+    TestNetworkSecurity: test_port_allocation_within_range(0),test_service_endpoint_creation(0)  # Test network-related security.
+    _pip_audit_available()->bool
   tests/test_runner_api.py:
     i: httpx,pytest,pactown.runner_api.{RunnerApiSettings,RunnerService,create_runner_api}
     e: test_validate_ok,test_sandbox_prepare_and_file_ops,test_status_filtering
@@ -202,7 +212,7 @@ D:
     set_provider_priority(name:str;priority:int)->bool
     reset_provider(name:str)->bool
   src/pactown/user_isolation.py:
-    i: grp,os,pwd,re,shutil,subprocess,logging,dataclasses.{dataclass,field},pathlib.Path
+    i: grp,os,pwd,re,shutil,subprocess,logging,tempfile,dataclasses.{dataclass,field}
     e: IsolatedUser,UserIsolationManager,get_isolation_manager
     IsolatedUser: to_dict(0)  # Represents an isolated Linux user for...
     UserIsolationManager: __init__(2),can_isolate(0),_load_existing_users(0),_generate_username(1),get_or_create_user(1)  # Manages isolated Linux users for sand...
@@ -256,8 +266,9 @@ D:
     CachedVenv: is_valid(0)  # Cached virtual environment for a spec...
     PrewarmedSandbox:   # Pre-created sandbox ready for immedia...
     FastStartResult:   # Result of fast startup.
-    DependencyCache: __init__(3),_load_existing(0),_hash_deps(1),get_cached_venv(1),create_and_cache(2)  # Caches virtual environments by depend...
+    DependencyCache: __init__(3),_load_existing(0),_hash_deps(1),get_cached_venv(1),save_existing_venv(3)  # Caches virtual environments by depend...
     SandboxPool: __init__(3),_hash_deps(1),warm_pool(1),get_prewarmed(1),release(1)  # Pool of pre-warmed sandboxes for inst...
+    _heartbeat(stop:Event;on_log:Optional[Callable[[str]; None]];message:str)->None
     get_fast_starter(sandbox_root:Optional[Path]=None)->FastServiceStarter
   src/pactown/platform.py:
     i: re,pydantic.{BaseModel,Field,field_validator},typing.{Literal,Optional}
@@ -289,10 +300,11 @@ D:
     ResolvedDependency:   # A resolved dependency with endpoint i...
     DependencyResolver: __init__(1),_build_graph(0),get_startup_order(0),get_shutdown_order(0),resolve_service_deps(1)  # Resolves dependencies between service...
   src/pactown/sandbox_manager.py:
-    i: json,logging,os,re,shutil,stat,signal,subprocess,time,socket
+    i: json,logging,os,re,shutil,stat,signal,subprocess,tempfile,time
     e: LOG_DIR,ServiceProcess,SandboxManager
     ServiceProcess: is_running(0)  # Represents a running service process.
     SandboxManager: __init__(1),get_sandbox_path(1),create_sandbox(4),start_service(7),stop_service(2)  # Manages sandboxes for multiple services.
+    _heartbeat(stop:Event;on_log:Optional[Callable[[str]; None]];message:str)->None
     _path_debug(path:Path)->str
     _escape_dotenv_value(value:str)->str
     _write_dotenv_file(sandbox_path:Path;env:dict[str;str])->None
@@ -323,7 +335,7 @@ D:
     find_free_port(start:int=10000;end:int=65000)->int
     check_port(port:int)->bool
   src/pactown/service_runner.py:
-    i: asyncio,os,shutil,signal,subprocess,sys,time,dataclasses.{dataclass,field},enum.Enum
+    i: asyncio,os,shutil,signal,subprocess,sys,tempfile,time,dataclasses.{dataclass,field}
     e: ErrorCategory,DiagnosticInfo,AutoFixSuggestion,PROTECTED_PORTS,kill_process_on_port,RunResult,EndpointTestResult,ValidationResult
     ErrorCategory:   # Categorized error types for better di...
     DiagnosticInfo: collect(1)  # Environment diagnostics for debugging.

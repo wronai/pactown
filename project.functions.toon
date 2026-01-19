@@ -1,6 +1,7 @@
 project: pactown
-generated: "2026-01-18T19:31:39.222014"
-modules[55]{path,lang,items}:
+generated: "2026-01-19T17:32:14.916479"
+modules[56]{path,lang,items}:
+  tests/test_security.py,python,16
   tests/test_runner_api.py,python,4
   tests/test_user_isolation_manager.py,python,5
   tests/test_llm.py,python,17
@@ -24,12 +25,12 @@ modules[55]{path,lang,items}:
   src/pactown/security.py,python,32
   src/pactown/parallel.py,python,6
   src/pactown/__init__.py,python,0
-  src/pactown/fast_start.py,python,21
+  src/pactown/fast_start.py,python,23
   src/pactown/platform.py,python,15
   src/pactown/markpact_blocks.py,python,2
   src/pactown/orchestrator.py,python,18
   src/pactown/resolver.py,python,8
-  src/pactown/sandbox_manager.py,python,18
+  src/pactown/sandbox_manager.py,python,19
   src/pactown/runner_api.py,python,19
   src/pactown/network.py,python,19
   src/pactown/service_runner.py,python,17
@@ -58,6 +59,24 @@ modules[55]{path,lang,items}:
   examples/saas-platform/.pactown-sandboxes/api/app/main.py,python,6
 
 function_details:
+  tests/test_security.py:
+    functions[16]{name,kind,sig,loc,async,lines,cc,does}:
+      _pip_audit_available,function,() -> bool,265-271,false,7,2,Check if pip-audit is available.
+      TestInputSanitization.test_service_name_rejects_path_traversal,method,() -> None,24-47,false,24,2,Service names must not allow path traversal.
+      TestInputSanitization.test_tenant_id_sanitization,method,() -> None,49-64,false,16,3,Tenant IDs must be safe for filesystem and systemd.
+      TestPathTraversal.test_sandbox_path_stays_within_root,method,() -> None,70-84,false,15,1,Sandbox operations must stay within designated root.
+      TestCommandInjection.test_quadlet_sanitize_name,method,() -> None,90-112,false,23,2,Quadlet sanitize_name must block dangerous characters.
+      TestCommandInjection.test_env_value_no_newlines,method,() -> None,114-126,false,13,2,Environment variable values must not contain newlines.
+      TestSecretsLeakage.test_config_env_handling,method,() -> None,132-145,false,14,1,Configuration should handle env vars safely.
+      TestSecretsLeakage.test_error_messages_do_not_leak_secrets,method,() -> None,147-165,false,19,4,Error messages must not contain sensitive data.
+      TestNetworkSecurity.test_port_allocation_within_range,method,() -> None,171-177,false,7,1,Port allocation must stay within safe range.
+      TestNetworkSecurity.test_service_endpoint_creation,method,() -> None,179-187,false,9,1,Service endpoints must be valid.
+      TestAuthorizationChecks.test_security_policy_user_profile,method,() -> None,193-202,false,10,1,Security policy should track user profiles.
+      TestAuthorizationChecks.test_service_runner_creates_sandbox,method,() -> None,204-210,false,7,1,Service runner should create isolated sandboxes.
+      TestRateLimiting.test_rate_limiter_exists,method,() -> None,216-223,false,8,1,Rate limiter should be available.
+      TestRateLimiting.test_api_rate_limit_headers,method,() -> None,225-236,false,12,3,API responses should include rate limit headers.
+      TestCryptography.test_no_weak_random,method,() -> None,242-262,false,21,6,Code should not use weak random for security.
+      TestDependencySecurity.test_no_known_vulnerabilities,method,() -> None,281-292,false,12,3,Dependencies should not have known vulnerabilities.
   tests/test_runner_api.py:
     functions[4]{name,kind,sig,loc,async,lines,cc,does}:
       _sample_markdown,function,() -> str,7-17,false,11,1,sample markdown
@@ -232,12 +251,12 @@ function_details:
       quadlet_list,function,"(tenant:str) -> None",561-591,false,31,4,List all Quadlet services for a tenant.
       quadlet_logs,function,"(service_name:str, tenant:str, lines:int) -> None",598-611,false,14,2,Show logs for a Quadlet service.
       llm,function,() -> None,615-617,false,3,1,LLM provider management with rotation and fallback.
-      llm_status,function,() -> None,621-690,false,70,17,Show status of all LLM providers.
-      llm_doctor,function,() -> None,694-766,false,73,12,Diagnose LLM installation and environment issues.
-      llm_priority,function,"(provider:str, priority:int) -> None",772-786,false,15,3,Set priority for an LLM provider (lower = higher priority).
-      llm_reset,function,"(provider:str) -> None",791-806,false,16,3,Reset an LLM provider's health metrics.
-      llm_test,function,"(provider:str, rotation:bool) -> None",812-840,false,29,5,Test LLM generation with a simple prompt.
-      main,function,(argv=None) -> None,843-845,false,3,1,Main entry point.
+      llm_status,function,() -> None,621-692,false,72,18,Show status of all LLM providers.
+      llm_doctor,function,() -> None,696-768,false,73,12,Diagnose LLM installation and environment issues.
+      llm_priority,function,"(provider:str, priority:int) -> None",774-788,false,15,3,Set priority for an LLM provider (lower = higher priority).
+      llm_reset,function,"(provider:str) -> None",793-808,false,16,3,Reset an LLM provider's health metrics.
+      llm_test,function,"(provider:str, rotation:bool) -> None",814-842,false,29,5,Test LLM generation with a simple prompt.
+      main,function,(argv=None) -> None,845-847,false,3,1,Main entry point.
   src/pactown/llm.py:
     functions[23]{name,kind,sig,loc,async,lines,cc,does}:
       get_llm,function,"(verbose:bool=False) -> PactownLLM",355-357,false,3,1,Get the global PactownLLM instance.
@@ -265,22 +284,22 @@ function_details:
       PactownLLM.on_provider_unavailable,method,"(callback:Callable[Any,None]) -> None",349-351,false,3,1,Set callback for when a provider becomes unavailable.
   src/pactown/user_isolation.py:
     functions[16]{name,kind,sig,loc,async,lines,cc,does}:
-      _sanitize_gecos,function,"(value:str) -> str",26-33,false,8,3,sanitize gecos
-      get_isolation_manager,function,() -> UserIsolationManager,451-458,false,8,3,Get global isolation manager instance.
-      IsolatedUser.to_dict,method,() -> dict,46-54,false,9,1,converts dict
-      UserIsolationManager.__init__,method,"(users_base:Path=Path('/home/pactown_users'), enable_cgroups:bool=False) -> None",77-93,false,17,2,creates
-      UserIsolationManager.can_isolate,method,"() -> tuple[bool, str]",95-111,false,17,7,checks isolate
-      UserIsolationManager._load_existing_users,method,() -> None,113-130,false,18,6,Load existing pactown users from system.
-      UserIsolationManager._generate_username,method,"(saas_user_id:str) -> str",132-136,false,5,1,Generate Linux username from SaaS user ID.
-      UserIsolationManager.get_or_create_user,method,"(saas_user_id:str) -> IsolatedUser",138-277,false,140,15,Get or create an isolated Linux user for a SaaS user.
-      UserIsolationManager.get_user,method,"(saas_user_id:str) -> Optional[IsolatedUser]",279-281,false,3,1,Get isolated user without creating.
-      UserIsolationManager.get_sandbox_path,method,"(saas_user_id:str, service_id:str) -> Path",283-293,false,11,2,Get sandbox path for a specific service under user's home.
-      UserIsolationManager.run_as_user,method,"(saas_user_id:str, command:str, cwd:Path, env:Optional[Dict[str,str]]=None) -> subprocess.Popen",295-333,false,39,3,Run a command as the isolated user.
-      UserIsolationManager.list_users,method,"() -> List[IsolatedUser]",335-337,false,3,1,List all isolated users.
-      UserIsolationManager.get_user_stats,method,"(saas_user_id:str) -> Dict[str, Any]",339-364,false,26,5,Get stats for a user's sandboxes.
-      UserIsolationManager.export_user_data,method,"(saas_user_id:str, output_path:Path) -> bool",366-386,false,21,4,Export user's data for migration.
-      UserIsolationManager.import_user_data,method,"(saas_user_id:str, archive_path:Path) -> bool",388-414,false,27,3,Import user's data from migration archive.
-      UserIsolationManager.delete_user,method,"(saas_user_id:str, delete_home:bool=True) -> bool",416-444,false,29,7,Delete an isolated user.
+      _sanitize_gecos,function,"(value:str) -> str",27-34,false,8,3,sanitize gecos
+      get_isolation_manager,function,() -> UserIsolationManager,454-461,false,8,3,Get global isolation manager instance.
+      IsolatedUser.to_dict,method,() -> dict,47-55,false,9,1,converts dict
+      UserIsolationManager.__init__,method,"(users_base:Path=Path('/home/pactown_users'), enable_cgroups:bool=False) -> None",78-94,false,17,2,creates
+      UserIsolationManager.can_isolate,method,"() -> tuple[bool, str]",96-112,false,17,7,checks isolate
+      UserIsolationManager._load_existing_users,method,() -> None,114-131,false,18,6,Load existing pactown users from system.
+      UserIsolationManager._generate_username,method,"(saas_user_id:str) -> str",133-137,false,5,1,Generate Linux username from SaaS user ID.
+      UserIsolationManager.get_or_create_user,method,"(saas_user_id:str) -> IsolatedUser",139-278,false,140,15,Get or create an isolated Linux user for a SaaS user.
+      UserIsolationManager.get_user,method,"(saas_user_id:str) -> Optional[IsolatedUser]",280-282,false,3,1,Get isolated user without creating.
+      UserIsolationManager.get_sandbox_path,method,"(saas_user_id:str, service_id:str) -> Path",284-294,false,11,2,Get sandbox path for a specific service under user's home.
+      UserIsolationManager.run_as_user,method,"(saas_user_id:str, command:str, cwd:Path, env:Optional[Dict[str,str]]=None) -> subprocess.Popen",296-336,false,41,3,Run a command as the isolated user.
+      UserIsolationManager.list_users,method,"() -> List[IsolatedUser]",338-340,false,3,1,List all isolated users.
+      UserIsolationManager.get_user_stats,method,"(saas_user_id:str) -> Dict[str, Any]",342-367,false,26,5,Get stats for a user's sandboxes.
+      UserIsolationManager.export_user_data,method,"(saas_user_id:str, output_path:Path) -> bool",369-389,false,21,4,Export user's data for migration.
+      UserIsolationManager.import_user_data,method,"(saas_user_id:str, archive_path:Path) -> bool",391-417,false,27,3,Import user's data from migration archive.
+      UserIsolationManager.delete_user,method,"(saas_user_id:str, delete_home:bool=True) -> bool",419-447,false,29,7,Delete an isolated user.
   src/pactown/events.py:
     functions[75]{name,kind,sig,loc,async,lines,cc,does}:
       get_event_store,function,"(persistence_path:Optional[Path]=None) -> EventStore",355-360,false,6,2,Get or create global event store.
@@ -366,38 +385,38 @@ function_details:
       print_scan_results,function,"(folder:Path) -> None",185-213,false,29,5,Print scan results in a readable format.
   src/pactown/security.py:
     functions[32]{name,kind,sig,loc,async,lines,cc,does}:
-      get_security_policy,function,() -> SecurityPolicy,671-676,false,6,2,Get the global security policy instance.
-      set_security_policy,function,"(policy:SecurityPolicy) -> None",679-682,false,4,1,Set the global security policy instance.
+      get_security_policy,function,() -> SecurityPolicy,673-678,false,6,2,Get the global security policy instance.
+      set_security_policy,function,"(policy:SecurityPolicy) -> None",681-684,false,4,1,Set the global security policy instance.
       UserProfile.from_tier,method,"(user_id:str, tier:UserTier) -> \"UserProfile\"",64-104,false,41,1,Create profile with tier-based defaults.
       UserProfile.to_dict,method,() -> dict,106-119,false,14,1,Convert to dictionary for API/JSON.
       UserProfile.from_dict,method,"(data:dict) -> \"UserProfile\"",122-136,false,15,1,Create from dictionary.
       AnomalyEvent.to_dict,method,() -> dict,150-159,false,10,1,converts dict
       AnomalyEvent.to_log_line,method,() -> str,161-165,false,5,1,converts log line
-      AnomalyLogger.__init__,method,"(log_path:Optional[Path]=None, max_events:int=10000, on_anomaly:Optional[Callable[Any,None]]=None) -> None",171-181,false,11,2,creates
-      AnomalyLogger.log,method,"(anomaly_type:AnomalyType, details:str, user_id:Optional[str]=None, service_id:Optional[str]=None, severity:str='medium', metadata:Optional[Dict[str,Any]]=None) -> AnomalyEvent",183-231,false,49,6,Log an anomaly event.
-      AnomalyLogger.get_recent,method,"(count:int=100) -> List[AnomalyEvent]",233-236,false,4,1,Get recent anomaly events.
-      AnomalyLogger.get_by_user,method,"(user_id:str, count:int=100) -> List[AnomalyEvent]",238-241,false,4,3,Get anomalies for a specific user.
-      AnomalyLogger.get_by_type,method,"(anomaly_type:AnomalyType, count:int=100) -> List[AnomalyEvent]",243-246,false,4,3,Get anomalies of a specific type.
-      RateLimiter.__init__,method,"(requests_per_minute:int=60, burst_size:int=10) -> None",252-260,false,9,1,creates
-      RateLimiter._get_bucket,method,"(key:str) -> Dict",262-279,false,18,2,Get or create a token bucket for a key.
-      RateLimiter.check,method,"(key:str) -> bool",281-284,false,4,1,Check if request is allowed (doesn't consume token).
-      RateLimiter.consume,method,"(key:str) -> bool",286-293,false,8,2,Try to consume a token.
-      RateLimiter.get_wait_time,method,"(key:str) -> float",295-301,false,7,2,Get seconds to wait before next request is allowed.
-      ResourceMonitor.__init__,method,"(cpu_threshold:float=80.0, memory_threshold:float=85.0, check_interval:float=5.0) -> None",307-318,false,12,1,creates
-      ResourceMonitor._get_cpu_percent,method,() -> float,320-331,false,12,3,Get current CPU usage percentage.
-      ResourceMonitor._get_memory_percent,method,() -> float,333-347,false,15,4,Get current memory usage percentage.
-      ResourceMonitor.check_overload,method,"() -> tuple[bool, Dict[str, float]]",349-372,false,24,3,Check if system is overloaded.
-      ResourceMonitor.get_throttle_delay,method,() -> float,374-386,false,13,2,Get delay in seconds based on current load.
-      SecurityCheckResult.to_dict,method,() -> dict,397-403,false,7,2,converts dict
-      SecurityPolicy.__init__,method,"(anomaly_log_path:Optional[Path]=None, default_rate_limit:int=60, cpu_threshold:float=80.0, memory_threshold:float=85.0, on_anomaly:Optional[Callable[Any,None]]=None) -> None",414-435,false,22,1,creates
-      SecurityPolicy.set_user_profile,method,"(profile:UserProfile) -> None",437-440,false,4,1,Set or update a user profile.
-      SecurityPolicy.get_user_profile,method,"(user_id:str) -> UserProfile",442-447,false,6,2,"Get user profile, creating default if not exists."
-      SecurityPolicy.register_service,method,"(user_id:str, service_id:str) -> None",449-466,false,18,6,Register a running service for a user.
-      SecurityPolicy.unregister_service,method,"(user_id:str, service_id:str) -> None",468-473,false,6,3,Unregister a stopped service.
-      SecurityPolicy.get_user_service_count,method,"(user_id:str) -> int",475-478,false,4,1,Get number of running services for a user.
-      SecurityPolicy.get_services_started_last_hour,method,"(user_id:str) -> int",480-485,false,6,3,Get number of services started in the last hour.
-      SecurityPolicy.check_can_start_service,method,"(user_id:str, service_id:str, port:Optional[int]=None) -> SecurityCheckResult",487-634,true,148,14,Check if a user can start a new service.
-      SecurityPolicy.get_anomaly_summary,method,"(hours:int=24) -> Dict[str, Any]",636-664,false,29,7,Get summary of anomalies for admin dashboard.
+      AnomalyLogger.__init__,method,"(log_path:Optional[Path]=None, max_events:int=10000, on_anomaly:Optional[Callable[Any,None]]=None) -> None",171-183,false,13,2,creates
+      AnomalyLogger.log,method,"(anomaly_type:AnomalyType, details:str, user_id:Optional[str]=None, service_id:Optional[str]=None, severity:str='medium', metadata:Optional[Dict[str,Any]]=None) -> AnomalyEvent",185-233,false,49,6,Log an anomaly event.
+      AnomalyLogger.get_recent,method,"(count:int=100) -> List[AnomalyEvent]",235-238,false,4,1,Get recent anomaly events.
+      AnomalyLogger.get_by_user,method,"(user_id:str, count:int=100) -> List[AnomalyEvent]",240-243,false,4,3,Get anomalies for a specific user.
+      AnomalyLogger.get_by_type,method,"(anomaly_type:AnomalyType, count:int=100) -> List[AnomalyEvent]",245-248,false,4,3,Get anomalies of a specific type.
+      RateLimiter.__init__,method,"(requests_per_minute:int=60, burst_size:int=10) -> None",254-262,false,9,1,creates
+      RateLimiter._get_bucket,method,"(key:str) -> Dict",264-281,false,18,2,Get or create a token bucket for a key.
+      RateLimiter.check,method,"(key:str) -> bool",283-286,false,4,1,Check if request is allowed (doesn't consume token).
+      RateLimiter.consume,method,"(key:str) -> bool",288-295,false,8,2,Try to consume a token.
+      RateLimiter.get_wait_time,method,"(key:str) -> float",297-303,false,7,2,Get seconds to wait before next request is allowed.
+      ResourceMonitor.__init__,method,"(cpu_threshold:float=80.0, memory_threshold:float=85.0, check_interval:float=5.0) -> None",309-320,false,12,1,creates
+      ResourceMonitor._get_cpu_percent,method,() -> float,322-333,false,12,3,Get current CPU usage percentage.
+      ResourceMonitor._get_memory_percent,method,() -> float,335-349,false,15,4,Get current memory usage percentage.
+      ResourceMonitor.check_overload,method,"() -> tuple[bool, Dict[str, float]]",351-374,false,24,3,Check if system is overloaded.
+      ResourceMonitor.get_throttle_delay,method,() -> float,376-388,false,13,2,Get delay in seconds based on current load.
+      SecurityCheckResult.to_dict,method,() -> dict,399-405,false,7,2,converts dict
+      SecurityPolicy.__init__,method,"(anomaly_log_path:Optional[Path]=None, default_rate_limit:int=60, cpu_threshold:float=80.0, memory_threshold:float=85.0, on_anomaly:Optional[Callable[Any,None]]=None) -> None",416-437,false,22,1,creates
+      SecurityPolicy.set_user_profile,method,"(profile:UserProfile) -> None",439-442,false,4,1,Set or update a user profile.
+      SecurityPolicy.get_user_profile,method,"(user_id:str) -> UserProfile",444-449,false,6,2,"Get user profile, creating default if not exists."
+      SecurityPolicy.register_service,method,"(user_id:str, service_id:str) -> None",451-468,false,18,6,Register a running service for a user.
+      SecurityPolicy.unregister_service,method,"(user_id:str, service_id:str) -> None",470-475,false,6,3,Unregister a stopped service.
+      SecurityPolicy.get_user_service_count,method,"(user_id:str) -> int",477-480,false,4,1,Get number of running services for a user.
+      SecurityPolicy.get_services_started_last_hour,method,"(user_id:str) -> int",482-487,false,6,3,Get number of services started in the last hour.
+      SecurityPolicy.check_can_start_service,method,"(user_id:str, service_id:str, port:Optional[int]=None) -> SecurityCheckResult",489-636,true,148,14,Check if a user can start a new service.
+      SecurityPolicy.get_anomaly_summary,method,"(hours:int=24) -> Dict[str, Any]",638-666,false,29,7,Get summary of anomalies for admin dashboard.
   src/pactown/parallel.py:
     functions[6]{name,kind,sig,loc,async,lines,cc,does}:
       run_parallel,function,"(tasks:dict[str,Callable[Any,Any]], max_workers:int=4, show_progress:bool=True, description:str='Running tasks') -> dict[str, TaskResult]",29-112,false,84,8,Run multiple tasks in parallel using ThreadPoolExecutor.
@@ -407,28 +426,30 @@ function_details:
       ParallelSandboxBuilder.__init__,method,"(max_workers:int=4) -> None",217-219,false,3,1,creates
       ParallelSandboxBuilder.build_sandboxes,method,"(services:list[tuple[str,Path,Callable]], on_complete:Optional[Callable[Any,None]]=None) -> dict[str, TaskResult]",221-249,false,29,2,Build sandboxes for multiple services in parallel.
   src/pactown/fast_start.py:
-    functions[21]{name,kind,sig,loc,async,lines,cc,does}:
-      get_fast_starter,function,"(sandbox_root:Optional[Path]=None) -> FastServiceStarter",508-514,false,7,3,Get or create the global fast starter instance.
+    functions[23]{name,kind,sig,loc,async,lines,cc,does}:
+      _heartbeat,function,"(stop:Event, on_log:Optional[Callable[[str], None]], message:str) -> None",61-73,false,13,3,heartbeat
+      get_fast_starter,function,"(sandbox_root:Optional[Path]=None) -> FastServiceStarter",612-619,false,8,3,Get or create the global fast starter instance.
       CachedVenv.is_valid,method,() -> bool,36-38,false,3,1,Check if venv still exists and is valid.
-      DependencyCache.__init__,method,"(cache_root:Path, max_cache_size:int=20, max_age_hours:int=24) -> None",69-81,false,13,1,creates
-      DependencyCache._load_existing,method,() -> None,83-97,false,15,5,Load existing cached venvs from disk.
-      DependencyCache._hash_deps,method,"(deps:List[str]) -> str",99-104,false,6,3,Create hash of dependencies for cache key.
-      DependencyCache.get_cached_venv,method,"(deps:List[str]) -> Optional[CachedVenv]",106-121,false,16,5,Get a cached venv for the given dependencies.
-      DependencyCache.create_and_cache,method,"(deps:List[str], on_progress:Optional[Callable[Any,None]]=None) -> CachedVenv",123-168,false,46,5,Create a new venv with deps and cache it.
-      DependencyCache._cleanup_old,method,() -> None,170-192,false,23,8,Remove old cache entries.
-      DependencyCache.get_stats,method,"() -> Dict[str, Any]",194-208,false,15,2,Get cache statistics.
-      SandboxPool.__init__,method,"(pool_root:Path, dep_cache:DependencyCache, pool_size_per_stack:int=2) -> None",227-238,false,12,1,creates
-      SandboxPool._hash_deps,method,"(deps:List[str]) -> str",240-242,false,3,1,Hash deps for pool key.
-      SandboxPool.warm_pool,method,"(on_progress:Optional[Callable[Any,None]]=None) -> None",244-253,false,10,4,Pre-warm the sandbox pool with common stacks.
-      SandboxPool.get_prewarmed,method,"(deps:List[str]) -> Optional[PrewarmedSandbox]",255-266,false,12,4,Get a pre-warmed sandbox for the given deps if available.
-      SandboxPool.release,method,"(sandbox:PrewarmedSandbox) -> None",268-271,false,4,1,Release a sandbox back to the pool.
-      FastServiceStarter.__init__,method,"(sandbox_root:Path, cache_root:Optional[Path]=None, enable_caching:bool=True, enable_pool:bool=True) -> None",285-312,false,28,4,creates
-      FastServiceStarter.fast_create_sandbox,method,"(service_name:str, content:str, on_log:Optional[Callable[Any,None]]=None) -> FastStartResult",314-422,true,109,17,Create a sandbox as fast as possible.
-      FastServiceStarter._write_files_parallel,method,"(sandbox_path:Path, files:Dict[str,str]) -> None",424-433,false,10,1,Write multiple files in parallel.
-      FastServiceStarter._install_deps_direct,method,"(sandbox_path:Path, deps:List[str]) -> None",435-448,false,14,1,Install deps directly without caching.
-      FastServiceStarter.get_cache_stats,method,"() -> Dict[str, Any]",450-458,false,9,2,Get caching statistics.
-      ParallelServiceRunner.__init__,method,"(fast_starter:FastServiceStarter, max_parallel:int=4) -> None",466-469,false,4,1,creates
-      ParallelServiceRunner.run_parallel,method,"(services:List[Dict[str,Any]], on_service_log:Optional[Callable[Any,None]]=None) -> List[FastStartResult]",471-501,true,31,2,Run multiple services in parallel.
+      DependencyCache.__init__,method,"(cache_root:Path, max_cache_size:int=20, max_age_hours:int=24) -> None",84-96,false,13,1,creates
+      DependencyCache._load_existing,method,() -> None,98-112,false,15,5,Load existing cached venvs from disk.
+      DependencyCache._hash_deps,method,"(deps:List[str]) -> str",114-119,false,6,3,Create hash of dependencies for cache key.
+      DependencyCache.get_cached_venv,method,"(deps:List[str]) -> Optional[CachedVenv]",121-135,false,15,5,Get a cached venv for the given dependencies.
+      DependencyCache.save_existing_venv,method,"(deps:List[str], venv_path:Path, on_progress:Optional[Callable[Any,None]]=None) -> Optional[CachedVenv]",137-195,false,59,5,caches existing venv
+      DependencyCache.create_and_cache,method,"(deps:List[str], on_progress:Optional[Callable[Any,None]]=None) -> CachedVenv",197-272,false,76,5,Create a new venv with deps and cache it.
+      DependencyCache._cleanup_old,method,() -> None,274-296,false,23,8,Remove old cache entries.
+      DependencyCache.get_stats,method,"() -> Dict[str, Any]",298-312,false,15,2,Get cache statistics.
+      SandboxPool.__init__,method,"(pool_root:Path, dep_cache:DependencyCache, pool_size_per_stack:int=2) -> None",331-342,false,12,1,creates
+      SandboxPool._hash_deps,method,"(deps:List[str]) -> str",344-346,false,3,1,Hash deps for pool key.
+      SandboxPool.warm_pool,method,"(on_progress:Optional[Callable[Any,None]]=None) -> None",348-357,false,10,4,Pre-warm the sandbox pool with common stacks.
+      SandboxPool.get_prewarmed,method,"(deps:List[str]) -> Optional[PrewarmedSandbox]",359-370,false,12,4,Get a pre-warmed sandbox for the given deps if available.
+      SandboxPool.release,method,"(sandbox:PrewarmedSandbox) -> None",372-375,false,4,1,Release a sandbox back to the pool.
+      FastServiceStarter.__init__,method,"(sandbox_root:Path, cache_root:Optional[Path]=None, enable_caching:bool=True, enable_pool:bool=True) -> None",389-416,false,28,4,creates
+      FastServiceStarter.fast_create_sandbox,method,"(service_name:str, content:str, on_log:Optional[Callable[Any,None]]=None) -> FastStartResult",418-526,true,109,17,Create a sandbox as fast as possible.
+      FastServiceStarter._write_files_parallel,method,"(sandbox_path:Path, files:Dict[str,str]) -> None",528-537,false,10,1,Write multiple files in parallel.
+      FastServiceStarter._install_deps_direct,method,"(sandbox_path:Path, deps:List[str]) -> None",539-552,false,14,1,Install deps directly without caching.
+      FastServiceStarter.get_cache_stats,method,"() -> Dict[str, Any]",554-562,false,9,2,Get caching statistics.
+      ParallelServiceRunner.__init__,method,"(fast_starter:FastServiceStarter, max_parallel:int=4) -> None",570-573,false,4,1,creates
+      ParallelServiceRunner.run_parallel,method,"(services:List[Dict[str,Any]], on_service_log:Optional[Callable[Any,None]]=None) -> List[FastStartResult]",575-605,true,31,2,Run multiple services in parallel.
   src/pactown/platform.py:
     functions[15]{name,kind,sig,loc,async,lines,cc,does}:
       coerce_subdomain_separator,function,"(value:Optional[str]) -> SubdomainSeparator",11-12,false,2,2,coerce subdomain separator
@@ -481,25 +502,26 @@ function_details:
       DependencyResolver.validate,method,"() -> list[str]",121-139,false,19,6,Validate the dependency graph and return any issues.
       DependencyResolver.print_graph,method,() -> str,141-160,false,20,6,Return ASCII representation of dependency graph.
   src/pactown/sandbox_manager.py:
-    functions[18]{name,kind,sig,loc,async,lines,cc,does}:
-      _path_debug,function,"(path:Path) -> str",45-62,false,18,7,path debug
-      _escape_dotenv_value,function,"(value:str) -> str",65-71,false,7,1,escape dotenv value
-      _write_dotenv_file,function,"(sandbox_path:Path, env:dict[str,str]) -> None",74-90,false,17,8,logs dotenv file
-      _sandbox_fallback_ids,function,"() -> tuple[int, int]",93-102,false,10,3,sandbox fallback ids
-      _chown_sandbox_tree,function,"(sandbox_path:Path, uid:int, gid:int) -> None",105-140,false,36,11,chown sandbox tree
-      ServiceProcess.is_running,method,() -> bool,154-167,false,14,5,is running
-      SandboxManager.__init__,method,"(sandbox_root:Any) -> None",173-176,false,4,1,creates
-      SandboxManager.get_sandbox_path,method,"(service_name:str) -> Path",178-180,false,3,1,Get sandbox path for a service.
-      SandboxManager.create_sandbox,method,"(service:ServiceConfig, readme_path:Path, install_dependencies:bool=True, on_log:Optional[Callable[Any,None]]=None) -> Sandbox",182-257,false,76,14,Create a sandbox for a service from its README.
-      SandboxManager.start_service,method,"(service:ServiceConfig, readme_path:Path, env:dict[str,str], verbose:bool=True, restart_if_running:bool=False, on_log:Optional[Callable[Any,None]]=None, user_id:Optional[str]=None) -> ServiceProcess",259-522,false,264,37,Start a service in its sandbox.
-      SandboxManager.stop_service,method,"(service_name:str, timeout:int=10) -> bool",524-574,false,51,10,Stop a running service.
-      SandboxManager.stop_all,method,"(timeout:int=10) -> None",576-579,false,4,2,Stop all running services.
-      SandboxManager.get_status,method,"(service_name:str) -> Optional[dict]",581-594,false,14,2,Get status of a service.
-      SandboxManager.get_all_status,method,"() -> list[dict]",596-602,false,7,3,Get status of all services.
-      SandboxManager.clean_sandbox,method,"(service_name:str) -> None",604-608,false,5,2,Remove sandbox directory for a service.
-      SandboxManager.clean_all,method,() -> None,610-614,false,5,2,Remove all sandbox directories.
-      SandboxManager.create_sandboxes_parallel,method,"(services:list[tuple[ServiceConfig,Path]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, Sandbox]",616-670,false,55,8,Create sandboxes for multiple services in parallel.
-      SandboxManager.start_services_parallel,method,"(services:list[tuple[ServiceConfig,Path,dict[str,str]]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, ServiceProcess]",672-729,false,58,6,Start multiple services in parallel.
+    functions[19]{name,kind,sig,loc,async,lines,cc,does}:
+      _heartbeat,function,"(stop:Event, on_log:Optional[Callable[[str], None]], message:str) -> None",35-49,false,15,3,heartbeat
+      _path_debug,function,"(path:Path) -> str",66-83,false,18,7,path debug
+      _escape_dotenv_value,function,"(value:str) -> str",86-92,false,7,1,escape dotenv value
+      _write_dotenv_file,function,"(sandbox_path:Path, env:dict[str,str]) -> None",95-111,false,17,8,logs dotenv file
+      _sandbox_fallback_ids,function,"() -> tuple[int, int]",114-123,false,10,3,sandbox fallback ids
+      _chown_sandbox_tree,function,"(sandbox_path:Path, uid:int, gid:int) -> None",126-161,false,36,11,chown sandbox tree
+      ServiceProcess.is_running,method,() -> bool,175-188,false,14,5,is running
+      SandboxManager.__init__,method,"(sandbox_root:Any) -> None",194-198,false,5,1,creates
+      SandboxManager.get_sandbox_path,method,"(service_name:str) -> Path",200-202,false,3,1,Get sandbox path for a service.
+      SandboxManager.create_sandbox,method,"(service:ServiceConfig, readme_path:Path, install_dependencies:bool=True, on_log:Optional[Callable[Any,None]]=None) -> Sandbox",204-366,false,163,27,Create a sandbox for a service from its README.
+      SandboxManager.start_service,method,"(service:ServiceConfig, readme_path:Path, env:dict[str,str], verbose:bool=True, restart_if_running:bool=False, on_log:Optional[Callable[Any,None]]=None, user_id:Optional[str]=None) -> ServiceProcess",368-633,false,266,37,Start a service in its sandbox.
+      SandboxManager.stop_service,method,"(service_name:str, timeout:int=10) -> bool",635-685,false,51,10,Stop a running service.
+      SandboxManager.stop_all,method,"(timeout:int=10) -> None",687-690,false,4,2,Stop all running services.
+      SandboxManager.get_status,method,"(service_name:str) -> Optional[dict]",692-705,false,14,2,Get status of a service.
+      SandboxManager.get_all_status,method,"() -> list[dict]",707-713,false,7,3,Get status of all services.
+      SandboxManager.clean_sandbox,method,"(service_name:str) -> None",715-719,false,5,2,Remove sandbox directory for a service.
+      SandboxManager.clean_all,method,() -> None,721-725,false,5,2,Remove all sandbox directories.
+      SandboxManager.create_sandboxes_parallel,method,"(services:list[tuple[ServiceConfig,Path]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, Sandbox]",727-781,false,55,8,Create sandboxes for multiple services in parallel.
+      SandboxManager.start_services_parallel,method,"(services:list[tuple[ServiceConfig,Path,dict[str,str]]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, ServiceProcess]",783-840,false,58,6,Start multiple services in parallel.
   src/pactown/runner_api.py:
     functions[19]{name,kind,sig,loc,async,lines,cc,does}:
       _dns_label,function,"(value:str, fallback:str='user') -> str",23-24,false,2,1,dns label
@@ -507,20 +529,20 @@ function_details:
       _service_name_for,function,"(service_id:str) -> str",37-39,false,3,1,service name for
       _validate_rel_path,function,"(path:str) -> Path",42-50,false,9,5,validates rel path
       _resolve_in_dir,function,"(root:Path, rel:Path) -> Path",53-58,false,6,2,resolve in dir
-      create_runner_api,function,"(runner_service:RunnerService, settings:RunnerApiSettings) -> FastAPI",314-439,false,126,1,creates runner api
-      create_app,function,() -> FastAPI,442-449,false,8,1,creates app
-      main,function,() -> None,452-458,false,7,1,main
-      RunnerApiSettings.__init__,method,() -> None,108-115,false,8,2,creates
-      RunnerService.__init__,method,() -> None,119-129,false,11,1,creates
-      RunnerService._resolve_service_id,method,"(req_service_id:Optional[str], project_id:int, username:Optional[str]) -> str",131-136,false,6,3,resolve service id
-      RunnerService.validate,method,"(readme_content:str) -> ValidationResult",138-139,false,2,1,validates
-      RunnerService._sandbox_path_for,method,"(service_id:str) -> Path",141-142,false,2,1,sandbox path for
-      RunnerService.list_sandbox_files,method,"(service_id:str) -> List[Dict[str, Any]]",144-166,false,23,5,list sandbox files
-      RunnerService.read_sandbox_file,method,"(service_id:str, path:str, limit:int=200000) -> str",168-181,false,14,5,retrieves sandbox file
-      RunnerService.write_sandbox_file,method,"(service_id:str, path:str, content:str) -> None",183-190,false,8,1,logs sandbox file
-      RunnerService.delete_sandbox_file,method,"(service_id:str, path:str) -> None",192-203,false,12,4,deletes sandbox file
-      RunnerService.prepare_sandbox,method,"(service_id:str, content:str, port:int=0) -> Dict[str, Any]",205-238,false,34,4,prepare sandbox
-      RunnerService.run,method,() -> RunResult,240-311,true,72,14,starts
+      create_runner_api,function,"(runner_service:RunnerService, settings:RunnerApiSettings) -> FastAPI",316-441,false,126,1,creates runner api
+      create_app,function,() -> FastAPI,444-451,false,8,1,creates app
+      main,function,() -> None,454-460,false,7,1,main
+      RunnerApiSettings.__init__,method,() -> None,108-117,false,10,2,creates
+      RunnerService.__init__,method,() -> None,121-131,false,11,1,creates
+      RunnerService._resolve_service_id,method,"(req_service_id:Optional[str], project_id:int, username:Optional[str]) -> str",133-138,false,6,3,resolve service id
+      RunnerService.validate,method,"(readme_content:str) -> ValidationResult",140-141,false,2,1,validates
+      RunnerService._sandbox_path_for,method,"(service_id:str) -> Path",143-144,false,2,1,sandbox path for
+      RunnerService.list_sandbox_files,method,"(service_id:str) -> List[Dict[str, Any]]",146-168,false,23,5,list sandbox files
+      RunnerService.read_sandbox_file,method,"(service_id:str, path:str, limit:int=200000) -> str",170-183,false,14,5,retrieves sandbox file
+      RunnerService.write_sandbox_file,method,"(service_id:str, path:str, content:str) -> None",185-192,false,8,1,logs sandbox file
+      RunnerService.delete_sandbox_file,method,"(service_id:str, path:str) -> None",194-205,false,12,4,deletes sandbox file
+      RunnerService.prepare_sandbox,method,"(service_id:str, content:str, port:int=0) -> Dict[str, Any]",207-240,false,34,4,prepare sandbox
+      RunnerService.run,method,() -> RunResult,242-313,true,72,14,starts
   src/pactown/network.py:
     functions[19]{name,kind,sig,loc,async,lines,cc,does}:
       find_free_port,function,"(start:int=10000, end:int=65000) -> int",246-255,false,10,2,Find a single free port.
@@ -544,23 +566,23 @@ function_details:
       ServiceRegistry.clear,method,() -> None,237-243,false,7,2,Clear all registrations.
   src/pactown/service_runner.py:
     functions[17]{name,kind,sig,loc,async,lines,cc,does}:
-      kill_process_on_port,function,"(port:int, force:bool=False) -> bool",103-189,false,87,25,Kill any process using the specified port.
-      DiagnosticInfo.collect,method,"(sandbox_path:Optional[Path]=None) -> \"DiagnosticInfo\"",47-77,false,31,6,Collect diagnostic information.
-      RunResult.to_dict,method,() -> dict,212-236,false,25,4,Convert to dictionary for JSON serialization.
-      ServiceRunner.__init__,method,"(sandbox_root:Any='/tmp/pactown-sandboxes', default_health_check:str='/health', health_timeout:int=10, security_policy:Optional[SecurityPolicy]=None, enable_fast_start:bool=True) -> None",277-307,false,31,3,creates
-      ServiceRunner.validate_content,method,"(content:str) -> ValidationResult",309-339,false,31,11,Validate markpact content before running.
-      ServiceRunner._prune_stale_user_services,method,"(user_id:str, on_log:Optional[Callable[Any,None]]=None) -> None",341-379,false,39,14,prune stale user services
-      ServiceRunner.run_from_content,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, restart_if_running:bool=True, wait_for_health:bool=True, health_timeout:Optional[int]=None) -> RunResult",381-601,true,221,26,Run a service directly from markdown content.
-      ServiceRunner._generate_suggestions,method,"(error_cat:ErrorCategory, stderr:str, port:int) -> List[AutoFixSuggestion]",603-682,false,80,15,Generate actionable suggestions based on error type.
-      ServiceRunner._wait_for_health,method,"(process:ServiceProcess, port:int, timeout:int, on_log:Callable[Any,None]) -> dict",684-749,true,66,20,Wait for service to pass health check.
-      ServiceRunner.stop,method,"(service_id:str) -> RunResult",751-814,false,64,6,Stop a running service.
-      ServiceRunner.get_status,method,"(service_id:str) -> Optional[Dict]",816-835,false,20,3,Get status of a service.
-      ServiceRunner.list_services,method,"() -> List[Dict]",837-851,false,15,4,List all running services.
-      ServiceRunner.test_endpoints,method,"(service_id:str, endpoints:Optional[List[str]]=None, timeout:float=5.0) -> List[EndpointTestResult]",853-913,true,61,8,Test endpoints of a running service.
-      ServiceRunner.stop_all,method,() -> None,915-918,false,4,2,Stop all running services.
-      ServiceRunner.fast_run,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, user_id:Optional[str]=None, user_profile:Optional[Dict[str,Any]]=None, skip_health_check:bool=False) -> RunResult",920-1172,true,253,25,Fast service startup with dependency caching.
-      ServiceRunner._quick_health_check,method,"(process:Any, port:int, timeout:int=5) -> bool",1174-1195,true,22,5,Quick health check with shorter timeout.
-      ServiceRunner.get_cache_stats,method,"() -> Dict[str, Any]",1197-1201,false,5,2,Get fast start cache statistics.
+      kill_process_on_port,function,"(port:int, force:bool=False) -> bool",104-190,false,87,25,Kill any process using the specified port.
+      DiagnosticInfo.collect,method,"(sandbox_path:Optional[Path]=None) -> \"DiagnosticInfo\"",48-78,false,31,6,Collect diagnostic information.
+      RunResult.to_dict,method,() -> dict,213-237,false,25,4,Convert to dictionary for JSON serialization.
+      ServiceRunner.__init__,method,"(sandbox_root:Any=None, default_health_check:str='/health', health_timeout:int=10, security_policy:Optional[SecurityPolicy]=None, enable_fast_start:bool=True) -> None",278-310,false,33,4,creates
+      ServiceRunner.validate_content,method,"(content:str) -> ValidationResult",312-342,false,31,11,Validate markpact content before running.
+      ServiceRunner._prune_stale_user_services,method,"(user_id:str, on_log:Optional[Callable[Any,None]]=None) -> None",344-382,false,39,14,prune stale user services
+      ServiceRunner.run_from_content,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, restart_if_running:bool=True, wait_for_health:bool=True, health_timeout:Optional[int]=None) -> RunResult",384-614,true,231,27,Run a service directly from markdown content.
+      ServiceRunner._generate_suggestions,method,"(error_cat:ErrorCategory, stderr:str, port:int) -> List[AutoFixSuggestion]",616-695,false,80,15,Generate actionable suggestions based on error type.
+      ServiceRunner._wait_for_health,method,"(process:ServiceProcess, port:int, timeout:int, on_log:Callable[Any,None]) -> dict",697-771,true,75,21,Wait for service to pass health check.
+      ServiceRunner.stop,method,"(service_id:str) -> RunResult",773-836,false,64,6,Stop a running service.
+      ServiceRunner.get_status,method,"(service_id:str) -> Optional[Dict]",838-857,false,20,3,Get status of a service.
+      ServiceRunner.list_services,method,"() -> List[Dict]",859-873,false,15,4,List all running services.
+      ServiceRunner.test_endpoints,method,"(service_id:str, endpoints:Optional[List[str]]=None, timeout:float=5.0) -> List[EndpointTestResult]",875-935,true,61,8,Test endpoints of a running service.
+      ServiceRunner.stop_all,method,() -> None,937-940,false,4,2,Stop all running services.
+      ServiceRunner.fast_run,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, user_id:Optional[str]=None, user_profile:Optional[Dict[str,Any]]=None, skip_health_check:bool=False) -> RunResult",942-1196,true,255,25,Fast service startup with dependency caching.
+      ServiceRunner._quick_health_check,method,"(process:Any, port:int, timeout:int=5) -> bool",1198-1219,true,22,5,Quick health check with shorter timeout.
+      ServiceRunner.get_cache_stats,method,"() -> Dict[str, Any]",1221-1225,false,5,2,Get fast start cache statistics.
   src/pactown/deploy/quadlet_shell.py:
     functions[23]{name,kind,sig,loc,async,lines,cc,does}:
       run_shell,function,"(tenant_id:str='default', domain:str='localhost', user_mode:bool=True) -> None",539-553,false,15,2,Run the interactive Quadlet shell.
@@ -689,8 +711,8 @@ function_details:
       run_api,function,"(host:str='0.0.0.0', port:int=8800, domain:str='localhost', tenant:str='default') -> None",514-529,false,16,1,Run the Quadlet API server.
   src/pactown/registry/server.py:
     functions[2]{name,kind,sig,loc,async,lines,cc,does}:
-      create_app,function,"(storage_path:str='./.pactown-registry') -> FastAPI",50-186,false,137,1,Create the registry FastAPI application.
-      main,function,"(host:str, port:int, storage:str, reload:bool) -> None",194-203,false,10,1,Start the pactown registry server.
+      create_app,function,"(storage_path:str='./.pactown-registry') -> FastAPI",50-189,false,140,1,Create the registry FastAPI application.
+      main,function,"(host:str, port:int, storage:str, reload:bool) -> None",197-206,false,10,1,Start the pactown registry server.
   src/pactown/registry/client.py:
     functions[21]{name,kind,sig,loc,async,lines,cc,does}:
       RegistryClient.__init__,method,"(base_url:str='http://localhost:8800', timeout:float=30.0) -> None",12-15,false,4,1,creates

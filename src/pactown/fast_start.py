@@ -18,7 +18,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
-from threading import Lock
+from threading import Lock, Event, Thread
 from typing import Any, Callable, Dict, List, Optional, Set
 
 from .markpact_blocks import parse_blocks
@@ -56,6 +56,21 @@ class FastStartResult:
     cache_hit: bool
     message: str
     sandbox_path: Optional[Path] = None
+
+
+def _heartbeat(
+    *,
+    stop: Event,
+    on_log: Optional[Callable[[str], None]],
+    message: str,
+    interval_s: float = 1.0,
+) -> None:
+    if not on_log:
+        return
+    started = time.monotonic()
+    while not stop.wait(interval_s):
+        elapsed = int(time.monotonic() - started)
+        on_log(f"⏳ {message} (elapsed={elapsed}s)")
 
 
 class DependencyCache:
@@ -112,13 +127,72 @@ class DependencyCache:
             if cached and cached.is_valid():
                 cached.last_used = time.time()
                 return cached
-            elif cached:
-                # Invalid cache entry, remove it
+            if cached:
                 del self._cache[deps_hash]
                 if cached.path.exists():
                     shutil.rmtree(cached.path)
         
         return None
+
+    def save_existing_venv(
+        self,
+        deps: List[str],
+        venv_path: Path,
+        on_progress: Optional[Callable[[str], None]] = None,
+    ) -> Optional[CachedVenv]:
+        deps_hash = self._hash_deps(deps)
+        src = Path(venv_path)
+        if not src.exists():
+            return None
+
+        dst = self.cache_root / f"venv_{deps_hash}"
+
+        if on_progress:
+            on_progress(f"Caching venv ({deps_hash})")
+
+        if dst.exists():
+            shutil.rmtree(dst)
+
+        def _copytree_fast(src_path: Path, dst_path: Path) -> None:
+            try:
+                shutil.copytree(src_path, dst_path, copy_function=os.link)
+            except Exception:
+                if dst_path.exists():
+                    shutil.rmtree(dst_path)
+                shutil.copytree(src_path, dst_path)
+
+        stop = Event()
+        thr = Thread(
+            target=_heartbeat,
+            kwargs={
+                "stop": stop,
+                "on_log": on_progress,
+                "message": f"[deploy] Caching venv ({deps_hash})",
+                "interval_s": 1.0,
+            },
+            daemon=True,
+        )
+        thr.start()
+        _copytree_fast(src, dst)
+        stop.set()
+        (dst / ".deps").write_text("\n".join(deps))
+
+        cached = CachedVenv(
+            deps_hash=deps_hash,
+            path=dst,
+            created_at=time.time(),
+            last_used=time.time(),
+            deps=deps,
+        )
+
+        with self._lock:
+            self._cache[deps_hash] = cached
+            self._cleanup_old()
+
+        if on_progress:
+            on_progress(f"Venv cached: {deps_hash}")
+
+        return cached
     
     def create_and_cache(self, deps: List[str], on_progress: Optional[Callable[[str], None]] = None) -> CachedVenv:
         """Create a new venv with deps and cache it."""
@@ -131,21 +205,51 @@ class DependencyCache:
         # Create venv
         if venv_path.exists():
             shutil.rmtree(venv_path)
-        
-        subprocess.run(
-            ["python3", "-m", "venv", str(venv_path)],
-            capture_output=True,
-            check=True,
+
+        stop = Event()
+        thr = Thread(
+            target=_heartbeat,
+            kwargs={
+                "stop": stop,
+                "on_log": on_progress,
+                "message": f"[deploy] Creating cached venv ({len(deps)} deps)",
+                "interval_s": 1.0,
+            },
+            daemon=True,
         )
+        thr.start()
+        try:
+            subprocess.run(
+                ["python3", "-m", "venv", str(venv_path)],
+                capture_output=True,
+                check=True,
+            )
+        finally:
+            stop.set()
         
         # Install deps
         if deps:
             pip_path = venv_path / "bin" / "pip"
-            subprocess.run(
-                [str(pip_path), "install", "-q", "--disable-pip-version-check"] + deps,
-                capture_output=True,
-                check=True,
+            stop = Event()
+            thr = Thread(
+                target=_heartbeat,
+                kwargs={
+                    "stop": stop,
+                    "on_log": on_progress,
+                    "message": f"[deploy] Installing cached deps via pip ({len(deps)} deps)",
+                    "interval_s": 1.0,
+                },
+                daemon=True,
             )
+            thr.start()
+            try:
+                subprocess.run(
+                    [str(pip_path), "install", "-q", "--disable-pip-version-check"] + deps,
+                    capture_output=True,
+                    check=True,
+                )
+            finally:
+                stop.set()
         
         # Save deps list
         (venv_path / ".deps").write_text("\n".join(deps))
