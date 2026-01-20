@@ -1,5 +1,5 @@
 project: pactown
-generated: "2026-01-20T21:55:25.321386"
+generated: "2026-01-20T22:19:49.514605"
 modules[65]{path,lang,items}:
   tests/test_security.py,python,16
   tests/test_runner_api.py,python,8
@@ -573,33 +573,33 @@ function_details:
       DependencyResolver.print_graph,method,() -> str,141-160,false,20,6,Return ASCII representation of dependency graph.
   src/pactown/sandbox_manager.py:
     functions[27]{name,kind,sig,loc,async,lines,cc,does}:
-      _ui_log_level,function,() -> int,37-47,false,11,7,ui log level
-      _should_emit_to_ui,function,"(level:str) -> bool",50-55,false,6,2,checks emit to ui
-      _call_on_log,function,"(on_log:Optional[Callable[Ellipsis,None]], msg:str, level:str) -> None",61-77,false,17,7,call on log
-      _heartbeat,function,"(stop:Event, on_log:Optional[Callable[..., None]], message:str) -> None",80-95,false,16,4,heartbeat
-      _beat_every_s,function,() -> int,98-102,false,5,2,beat every s
-      _path_debug,function,"(path:Path) -> str",119-136,false,18,7,path debug
-      _escape_dotenv_value,function,"(value:str) -> str",139-145,false,7,1,escape dotenv value
-      _write_dotenv_file,function,"(sandbox_path:Path, env:dict[str,str]) -> None",148-164,false,17,8,logs dotenv file
-      _sandbox_fallback_ids,function,"() -> tuple[int, int]",167-176,false,10,3,sandbox fallback ids
-      _chown_sandbox_tree,function,"(sandbox_path:Path, uid:int, gid:int) -> None",179-214,false,36,11,chown sandbox tree
-      ServiceProcess.is_running,method,() -> bool,228-241,false,14,5,is running
-      SandboxManager._is_node_lang,method,"(lang:str) -> bool",248-250,false,3,2,is node lang
-      SandboxManager._infer_node_project,method,"(blocks:list, deps:list[str], run_cmd:str) -> bool",253-274,false,22,22,infer node project
-      SandboxManager._ensure_package_json,method,"(sandbox_path:Path, service_name:str, deps:list[str]) -> None",277-313,false,37,11,ensure package json
-      SandboxManager._install_node_deps,method,() -> None,315-392,false,78,20,install node deps
-      SandboxManager.__init__,method,"(sandbox_root:Any) -> None",394-398,false,5,1,creates
-      SandboxManager.get_sandbox_path,method,"(service_name:str) -> Path",400-402,false,3,1,Get sandbox path for a service.
-      SandboxManager.create_sandbox,method,"(service:ServiceConfig, readme_path:Path, install_dependencies:bool=True, on_log:Optional[Callable[Any,None]]=None, env:Optional[dict[str,str]]=None) -> Sandbox",404-742,false,339,67,Create a sandbox for a service from its README.
-      SandboxManager.start_service,method,"(service:ServiceConfig, readme_path:Path, env:dict[str,str], verbose:bool=True, restart_if_running:bool=False, on_log:Optional[Callable[Any,None]]=None, user_id:Optional[str]=None) -> ServiceProcess",744-1028,false,285,39,Start a service in its sandbox.
-      SandboxManager.stop_service,method,"(service_name:str, timeout:int=10) -> bool",1030-1080,false,51,10,Stop a running service.
-      SandboxManager.stop_all,method,"(timeout:int=10) -> None",1082-1085,false,4,2,Stop all running services.
-      SandboxManager.get_status,method,"(service_name:str) -> Optional[dict]",1087-1100,false,14,2,Get status of a service.
-      SandboxManager.get_all_status,method,"() -> list[dict]",1102-1108,false,7,3,Get status of all services.
-      SandboxManager.clean_sandbox,method,"(service_name:str) -> None",1110-1114,false,5,2,Remove sandbox directory for a service.
-      SandboxManager.clean_all,method,() -> None,1116-1120,false,5,2,Remove all sandbox directories.
-      SandboxManager.create_sandboxes_parallel,method,"(services:list[tuple[ServiceConfig,Path]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, Sandbox]",1122-1176,false,55,8,Create sandboxes for multiple services in parallel.
-      SandboxManager.start_services_parallel,method,"(services:list[tuple[ServiceConfig,Path,dict[str,str]]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, ServiceProcess]",1178-1235,false,58,6,Start multiple services in parallel.
+      _ui_log_level,function,() -> int,36-46,false,11,7,ui log level
+      _should_emit_to_ui,function,"(level:str) -> bool",49-54,false,6,2,checks emit to ui
+      _call_on_log,function,"(on_log:Optional[Callable[Ellipsis,None]], msg:str, level:str) -> None",60-76,false,17,7,call on log
+      _heartbeat,function,"(stop:Event, on_log:Optional[Callable[..., None]], message:str) -> None",79-94,false,16,4,heartbeat
+      _beat_every_s,function,() -> int,97-101,false,5,2,beat every s
+      _path_debug,function,"(path:Path) -> str",118-135,false,18,7,path debug
+      _escape_dotenv_value,function,"(value:str) -> str",138-144,false,7,1,escape dotenv value
+      _write_dotenv_file,function,"(sandbox_path:Path, env:dict[str,str]) -> None",147-163,false,17,8,logs dotenv file
+      _sandbox_fallback_ids,function,"() -> tuple[int, int]",166-175,false,10,3,sandbox fallback ids
+      _chown_sandbox_tree,function,"(sandbox_path:Path, uid:int, gid:int) -> None",178-213,false,36,11,chown sandbox tree
+      ServiceProcess.is_running,method,() -> bool,227-240,false,14,5,is running
+      SandboxManager._is_node_lang,method,"(lang:str) -> bool",247-249,false,3,2,is node lang
+      SandboxManager._infer_node_project,method,"(blocks:list, deps:list[str], run_cmd:str) -> bool",252-273,false,22,22,infer node project
+      SandboxManager._ensure_package_json,method,"(sandbox_path:Path, service_name:str, deps:list[str]) -> None",276-312,false,37,11,ensure package json
+      SandboxManager._install_node_deps,method,() -> None,314-391,false,78,20,install node deps
+      SandboxManager.__init__,method,"(sandbox_root:Any) -> None",393-397,false,5,1,creates
+      SandboxManager.get_sandbox_path,method,"(service_name:str) -> Path",399-401,false,3,1,Get sandbox path for a service.
+      SandboxManager.create_sandbox,method,"(service:ServiceConfig, readme_path:Path, install_dependencies:bool=True, on_log:Optional[Callable[Any,None]]=None, env:Optional[dict[str,str]]=None) -> Sandbox",403-743,false,341,67,Create a sandbox for a service from its README.
+      SandboxManager.start_service,method,"(service:ServiceConfig, readme_path:Path, env:dict[str,str], verbose:bool=True, restart_if_running:bool=False, on_log:Optional[Callable[Any,None]]=None, user_id:Optional[str]=None) -> ServiceProcess",745-1029,false,285,39,Start a service in its sandbox.
+      SandboxManager.stop_service,method,"(service_name:str, timeout:int=10) -> bool",1031-1081,false,51,10,Stop a running service.
+      SandboxManager.stop_all,method,"(timeout:int=10) -> None",1083-1086,false,4,2,Stop all running services.
+      SandboxManager.get_status,method,"(service_name:str) -> Optional[dict]",1088-1101,false,14,2,Get status of a service.
+      SandboxManager.get_all_status,method,"() -> list[dict]",1103-1109,false,7,3,Get status of all services.
+      SandboxManager.clean_sandbox,method,"(service_name:str) -> None",1111-1115,false,5,2,Remove sandbox directory for a service.
+      SandboxManager.clean_all,method,() -> None,1117-1121,false,5,2,Remove all sandbox directories.
+      SandboxManager.create_sandboxes_parallel,method,"(services:list[tuple[ServiceConfig,Path]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, Sandbox]",1123-1177,false,55,8,Create sandboxes for multiple services in parallel.
+      SandboxManager.start_services_parallel,method,"(services:list[tuple[ServiceConfig,Path,dict[str,str]]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, ServiceProcess]",1179-1236,false,58,6,Start multiple services in parallel.
   src/pactown/runner_api.py:
     functions[19]{name,kind,sig,loc,async,lines,cc,does}:
       _dns_label,function,"(value:str, fallback:str='user') -> str",27-28,false,2,1,dns label
