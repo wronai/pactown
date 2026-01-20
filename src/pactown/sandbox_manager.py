@@ -782,6 +782,9 @@ class SandboxManager:
         full_env = os.environ.copy()
         full_env.update(env)
         
+        # Log env keys for debugging
+        log(f"Environment keys passed to process: {list(env.keys())}", "DEBUG")
+        
         # Ensure PORT is always set in environment
         full_env["PORT"] = str(service.port)
         full_env["MARKPACT_PORT"] = str(service.port)
