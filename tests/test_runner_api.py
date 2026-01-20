@@ -39,6 +39,72 @@ async def test_validate_ok(tmp_path):
 
 
 @pytest.mark.asyncio
+async def test_run_fails_fast_on_missing_required_env_vars(tmp_path):
+    settings = RunnerApiSettings()
+    settings.require_token = False
+
+    runner_service = RunnerService(sandbox_root=tmp_path, port_start=12000, port_end=12010)
+    app = create_runner_api(runner_service=runner_service, settings=settings)
+
+    readme = """# Ride Sharing App
+
+## Zmienne środowiskowe
+- `DATABASE_URL`: URL bazy danych
+
+```text markpact:file path=.env.example
+DATABASE_URL=
+```
+
+```python markpact:deps
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+geoalchemy2
+```
+
+```python markpact:file path=main.py
+from fastapi import FastAPI
+import os
+
+DATABASE_URL = os.getenv('DATABASE_URL')
+
+app = FastAPI()
+
+@app.get('/health')
+def health():
+    return {'ok': True}
+```
+
+```bash markpact:run
+uvicorn main:app --host 0.0.0.0 --port ${MARKPACT_PORT:-8000}
+```
+"""
+
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        resp = await client.post(
+            "/run",
+            json={
+                "project_id": 1,
+                "readme_content": readme,
+                "port": 0,
+                "env": {},
+                "user_id": "user:1",
+                "username": "user",
+                "fast_mode": False,
+                "skip_health_check": True,
+            },
+        )
+
+        assert resp.status_code == 200
+        payload = resp.json()
+        assert payload["success"] is False
+        assert payload.get("error_category") in {"environment", "ENVIRONMENT"}
+        assert "DATABASE_URL" in (payload.get("message") or "")
+
+
+@pytest.mark.asyncio
 async def test_sandbox_prepare_and_file_ops(tmp_path):
     settings = RunnerApiSettings()
     settings.require_token = False

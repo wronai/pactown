@@ -13,6 +13,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import re
 from dataclasses import asdict, dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -373,6 +374,57 @@ class ServiceRunner:
             has_health=has_health,
         )
 
+    def _extract_required_env_vars(self, content: str) -> set[str]:
+        required: set[str] = set()
+
+        try:
+            blocks = parse_blocks(content)
+        except Exception:
+            blocks = []
+
+        for b in blocks:
+            if getattr(b, "kind", "") != "file":
+                continue
+            try:
+                path = str(b.get_path() or "").strip()
+            except Exception:
+                path = ""
+            if path not in {".env.example", ".env.sample"}:
+                continue
+            body = getattr(b, "body", "") or ""
+            for line in body.splitlines():
+                s = (line or "").strip()
+                if not s or s.startswith("#"):
+                    continue
+                m = re.match(r"^([A-Za-z_][A-Za-z0-9_]*)\s*=", s)
+                if not m:
+                    continue
+                required.add(m.group(1))
+
+        m = re.search(r"^##\s+Zmienne\s+środowiskowe\s*$", content, flags=re.IGNORECASE | re.MULTILINE)
+        if m:
+            start = m.end()
+            rest = content[start:]
+            next_h = re.search(r"^##\s+", rest, flags=re.MULTILINE)
+            section = rest[: next_h.start()] if next_h else rest
+            for var in re.findall(r"`([A-Z][A-Z0-9_]*)`", section):
+                required.add(var)
+
+        return {k for k in required if k and k.strip()}
+
+    def _missing_required_env_vars(self, content: str, effective_env: dict[str, str]) -> list[str]:
+        required = self._extract_required_env_vars(content)
+        missing: list[str] = []
+        for k in sorted(required):
+            v = effective_env.get(k)
+            if v is None:
+                missing.append(k)
+                continue
+            if isinstance(v, str) and not v.strip():
+                missing.append(k)
+                continue
+        return missing
+
     def _prune_stale_user_services(
         self,
         user_id: str,
@@ -547,6 +599,23 @@ class ServiceRunner:
         if env:
             service_env.update(env)
         service_env["PORT"] = str(port)
+
+        effective_env = dict(os.environ)
+        if self._cache_env:
+            effective_env.update(self._cache_env)
+        if env:
+            effective_env.update(env)
+        missing_env = self._missing_required_env_vars(content, effective_env)
+        if missing_env:
+            missing_str = ", ".join(missing_env)
+            log(f"❌ Missing required environment variables: {missing_str}")
+            return RunResult(
+                success=False,
+                port=port,
+                message=f"Missing required environment variables: {missing_str}",
+                logs=logs,
+                error_category=ErrorCategory.ENVIRONMENT,
+            )
         
         service_config = ServiceConfig(
             name=service_name,
