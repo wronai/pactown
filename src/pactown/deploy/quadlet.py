@@ -20,6 +20,7 @@ from pathlib import Path
 from string import Template
 from typing import Any, Optional
 
+from ..config import CacheConfig
 from .base import (
     DeploymentBackend,
     DeploymentConfig,
@@ -647,6 +648,7 @@ class QuadletBackend(DeploymentBackend):
         dockerfile_path: Path,
         context_path: Path,
         tag: Optional[str] = None,
+        build_args: Optional[dict[str, str]] = None,
     ) -> DeploymentResult:
         """Build container image with Podman."""
         image_name = f"{self.config.image_prefix}/{service_name}"
@@ -659,8 +661,21 @@ class QuadletBackend(DeploymentBackend):
             "podman", "build",
             "-t", image_name,
             "-f", str(dockerfile_path),
-            str(context_path),
         ]
+
+        effective_build_args: dict[str, str] = CacheConfig.from_env().to_docker_build_args()
+        if build_args:
+            effective_build_args.update(build_args)
+
+        for key, value in effective_build_args.items():
+            if value is None:
+                continue
+            v = str(value).strip()
+            if not v:
+                continue
+            cmd.extend(["--build-arg", f"{key}={v}"])
+
+        cmd.append(str(context_path))
 
         try:
             result = subprocess.run(

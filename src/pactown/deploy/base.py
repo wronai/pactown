@@ -129,6 +129,7 @@ class DeploymentBackend(ABC):
         dockerfile_path: Path,
         context_path: Path,
         tag: Optional[str] = None,
+        build_args: Optional[dict[str, str]] = None,
     ) -> DeploymentResult:
         """Build a container image."""
         pass
@@ -208,6 +209,20 @@ class DeploymentBackend(ABC):
             "# Security: run as non-root user",
             "RUN useradd -m -u 1000 appuser",
             "",
+            "# Optional cache/proxy settings (build args)",
+            "ARG PIP_INDEX_URL=",
+            "ARG PIP_EXTRA_INDEX_URL=",
+            "ARG PIP_TRUSTED_HOST=",
+            "ARG APT_PROXY=",
+            "",
+            "# Make them available to subsequent RUN steps if provided",
+            "ENV PIP_INDEX_URL=${PIP_INDEX_URL}",
+            "ENV PIP_EXTRA_INDEX_URL=${PIP_EXTRA_INDEX_URL}",
+            "ENV PIP_TRUSTED_HOST=${PIP_TRUSTED_HOST}",
+            "",
+            "# Configure apt proxy (optional)",
+            "RUN if [ -n \"$APT_PROXY\" ]; then \\\n    printf 'Acquire::http::Proxy \"%s\";\\nAcquire::https::Proxy \"%s\";\\n' \"$APT_PROXY\" \"$APT_PROXY\" > /etc/apt/apt.conf.d/01proxy; \\\n    fi",
+            "",
         ]
 
         if has_requirements:
@@ -245,6 +260,12 @@ WORKDIR /app
 
 # Security: run as non-root user
 RUN useradd -m -u 1000 appuser
+
+# Optional cache/proxy settings (build args)
+ARG NPM_CONFIG_REGISTRY=
+
+# Make them available to subsequent RUN steps if provided
+ENV NPM_CONFIG_REGISTRY=${NPM_CONFIG_REGISTRY}
 
 # Install dependencies
 COPY package*.json ./

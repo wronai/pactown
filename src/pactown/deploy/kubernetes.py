@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from pathlib import Path
 from typing import Any, Optional
 
 import yaml
 
+from ..config import CacheConfig
 from .base import (
     DeploymentBackend,
     DeploymentConfig,
@@ -67,6 +69,7 @@ class KubernetesBackend(DeploymentBackend):
         dockerfile_path: Path,
         context_path: Path,
         tag: Optional[str] = None,
+        build_args: Optional[dict[str, str]] = None,
     ) -> DeploymentResult:
         """Build image (delegates to Docker/Podman)."""
         # K8s doesn't build images directly, use Docker or Podman
@@ -76,11 +79,24 @@ class KubernetesBackend(DeploymentBackend):
         else:
             image_name = f"{image_name}:latest"
 
+        effective_build_args: dict[str, str] = CacheConfig.from_env(os.environ).to_docker_build_args()
+        if build_args:
+            effective_build_args.update(build_args)
+
+        build_arg_flags: list[str] = []
+        for key, value in effective_build_args.items():
+            if value is None:
+                continue
+            v = str(value).strip()
+            if not v:
+                continue
+            build_arg_flags.extend(["--build-arg", f"{key}={v}"])
+
         # Try podman first, then docker
         for runtime in ["podman", "docker"]:
             try:
                 result = subprocess.run(
-                    [runtime, "build", "-t", image_name, "-f", str(dockerfile_path), str(context_path)],
+                    [runtime, "build", "-t", image_name, "-f", str(dockerfile_path), *build_arg_flags, str(context_path)],
                     capture_output=True,
                     text=True,
                     timeout=300,

@@ -149,3 +149,15 @@ def test_cache_config_to_env_sets_pip_extra_when_missing() -> None:
     env = cfg.to_env()
     assert env["PIP_INDEX_URL"] == "http://proxy/simple"
     assert env["PIP_EXTRA_INDEX_URL"] == "http://proxy/simple"
+
+
+def test_cache_config_to_docker_build_args_maps_apt_proxy() -> None:
+    cfg = CacheConfig(
+        pip_index_url="http://pypi-proxy/simple",
+        apt_proxy="http://apt-proxy:3142",
+        npm_registry_url="http://verdaccio:4873",
+    )
+    args = cfg.to_docker_build_args()
+    assert args["PIP_INDEX_URL"] == "http://pypi-proxy/simple"
+    assert args["APT_PROXY"] == "http://apt-proxy:3142"
+    assert args["NPM_CONFIG_REGISTRY"] == "http://verdaccio:4873"

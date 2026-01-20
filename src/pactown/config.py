@@ -119,6 +119,24 @@ class CacheConfig:
             env["DOCKER_REGISTRY_MIRROR"] = self.docker_registry_mirror
         return env
 
+    def to_docker_build_args(self) -> dict[str, str]:
+        args: dict[str, str] = {}
+        if self.pip_index_url:
+            args["PIP_INDEX_URL"] = self.pip_index_url
+            if not self.pip_extra_index_url:
+                args["PIP_EXTRA_INDEX_URL"] = self.pip_index_url
+        if self.pip_extra_index_url:
+            args["PIP_EXTRA_INDEX_URL"] = self.pip_extra_index_url
+        if self.pip_trusted_host:
+            args["PIP_TRUSTED_HOST"] = self.pip_trusted_host
+        if self.npm_registry_url:
+            args["NPM_CONFIG_REGISTRY"] = self.npm_registry_url
+        if self.apt_proxy:
+            args["APT_PROXY"] = self.apt_proxy
+        if self.docker_registry_mirror:
+            args["DOCKER_REGISTRY_MIRROR"] = self.docker_registry_mirror
+        return args
+
 
 @dataclass
 class EcosystemConfig:

@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from pathlib import Path
 from typing import Any, Optional
 
+from ..config import CacheConfig
 from .base import (
     DeploymentBackend,
     DeploymentResult,
@@ -40,6 +42,7 @@ class DockerBackend(DeploymentBackend):
         dockerfile_path: Path,
         context_path: Path,
         tag: Optional[str] = None,
+        build_args: Optional[dict[str, str]] = None,
     ) -> DeploymentResult:
         """Build Docker image."""
         image_name = f"{self.config.image_prefix}/{service_name}"
@@ -52,12 +55,25 @@ class DockerBackend(DeploymentBackend):
             "docker", "build",
             "-t", image_name,
             "-f", str(dockerfile_path),
-            str(context_path),
         ]
+
+        effective_build_args: dict[str, str] = CacheConfig.from_env(os.environ).to_docker_build_args()
+        if build_args:
+            effective_build_args.update(build_args)
+
+        for key, value in effective_build_args.items():
+            if value is None:
+                continue
+            v = str(value).strip()
+            if not v:
+                continue
+            cmd.extend(["--build-arg", f"{key}={v}"])
 
         # Add labels
         for key, value in self.config.labels.items():
             cmd.extend(["--label", f"{key}={value}"])
+
+        cmd.append(str(context_path))
 
         try:
             result = subprocess.run(
