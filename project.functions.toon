@@ -1,8 +1,8 @@
 project: pactown
-generated: "2026-01-20T21:31:49.400496"
-modules[63]{path,lang,items}:
+generated: "2026-01-20T21:55:25.321386"
+modules[65]{path,lang,items}:
   tests/test_security.py,python,16
-  tests/test_runner_api.py,python,7
+  tests/test_runner_api.py,python,8
   tests/conftest.py,python,0
   tests/test_sandbox_manager_venv_heal.py,python,1
   tests/test_user_isolation_manager.py,python,5
@@ -16,12 +16,14 @@ modules[63]{path,lang,items}:
   tests/test_service_runner_fast_run_fallback.py,python,1
   tests/test_quadlet_security.py,python,24
   tests/test_platform.py,python,8
+  tests/test_iac_manifest.py,python,2
   tests/test_service_runner_validation.py,python,1
   tests/test_network.py,python,12
   tests/test_sandbox_manager_node_run_env.py,python,1
   tests/test_registry.py,python,10
   tests/test_sandbox_manager_node_deps.py,python,2
   tests/test_sandbox_manager_env_injection.py,python,1
+  src/pactown/iac.py,python,8
   src/pactown/config.py,python,10
   src/pactown/cli.py,python,32
   src/pactown/llm.py,python,23
@@ -85,14 +87,15 @@ function_details:
       TestCryptography.test_no_weak_random,method,() -> None,242-262,false,21,6,Code should not use weak random for security.
       TestDependencySecurity.test_no_known_vulnerabilities,method,() -> None,281-292,false,12,3,Dependencies should not have known vulnerabilities.
   tests/test_runner_api.py:
-    functions[7]{name,kind,sig,loc,async,lines,cc,does}:
-      _sample_markdown,function,() -> str,10-20,false,11,1,sample markdown
-      test_validate_ok,function,(tmp_path) -> None,24-38,true,15,1,checks validate ok
-      test_run_fails_fast_on_missing_required_env_vars,function,(tmp_path) -> None,42-104,true,63,2,checks run fails fast on missing required env vars
-      test_sandbox_prepare_and_file_ops,function,(tmp_path) -> None,108-162,true,55,4,checks sandbox prepare and file ops
-      test_status_filtering,function,(tmp_path) -> None,166-177,true,12,1,checks status filtering
-      test_run_failure_includes_error_report_md,function,"(tmp_path, monkeypatch) -> None",181-247,true,67,1,checks run failure includes error report md
-      test_run_stream_failure_includes_error_report_md,function,"(tmp_path, monkeypatch) -> None",251-319,true,69,5,checks run stream failure includes error report md
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+      _sample_markdown,function,() -> str,14-24,false,11,1,sample markdown
+      test_validate_ok,function,(tmp_path) -> None,28-42,true,15,1,checks validate ok
+      test_run_fails_fast_on_missing_required_env_vars,function,(tmp_path) -> None,46-108,true,63,2,checks run fails fast on missing required env vars
+      test_run_passes_pip_timeout_and_retries_to_pip_install,function,"(tmp_path, monkeypatch:Any) -> None",112-226,true,115,1,checks run passes pip timeout and retries to pip install
+      test_sandbox_prepare_and_file_ops,function,(tmp_path) -> None,230-284,true,55,4,checks sandbox prepare and file ops
+      test_status_filtering,function,(tmp_path) -> None,288-299,true,12,1,checks status filtering
+      test_run_failure_includes_error_report_md,function,"(tmp_path, monkeypatch) -> None",303-369,true,67,1,checks run failure includes error report md
+      test_run_stream_failure_includes_error_report_md,function,"(tmp_path, monkeypatch) -> None",373-441,true,69,5,checks run stream failure includes error report md
   tests/test_sandbox_manager_venv_heal.py:
     functions[1]{name,kind,sig,loc,async,lines,cc,does}:
       test_self_heal_corrupted_cache,function,"(tmp_path:Path, caplog) -> None",13-179,false,167,8,Regression test for self-healing corrupted venv cache.
@@ -211,6 +214,10 @@ function_details:
       test_build_project_subdomain_limits_length,function,() -> None,45-48,false,4,1,checks build project subdomain limits length
       test_build_service_subdomain_dash,function,() -> None,51-52,false,2,1,checks build service subdomain dash
       test_build_service_subdomain_dot,function,() -> None,55-56,false,2,1,checks build service subdomain dot
+  tests/test_iac_manifest.py:
+    functions[2]{name,kind,sig,loc,async,lines,cc,does}:
+      test_create_sandbox_writes_iac_manifest_and_compose_and_dockerfile,function,() -> None,12-55,false,44,1,checks create sandbox writes iac manifest and compose and dockerfile
+      test_create_sandbox_node_inferred_writes_manifest,function,() -> None,58-84,false,27,1,checks create sandbox node inferred writes manifest
   tests/test_service_runner_validation.py:
     functions[1]{name,kind,sig,loc,async,lines,cc,does}:
       test_validate_content_dependency_mismatch,function,() -> None,4-77,false,74,3,checks validate content dependency mismatch
@@ -250,6 +257,16 @@ function_details:
   tests/test_sandbox_manager_env_injection.py:
     functions[1]{name,kind,sig,loc,async,lines,cc,does}:
       test_sandbox_manager_passes_env_to_pip_install,function,"(tmp_path:Path, monkeypatch:Any) -> None",11-61,false,51,1,checks sandbox manager passes env to pip install
+  src/pactown/iac.py:
+    functions[8]{name,kind,sig,loc,async,lines,cc,does}:
+      _runtime_type,function,"(is_node:bool) -> str",44-45,false,2,2,runtime type
+      _default_base_image,function,"(is_node:bool) -> str",48-49,false,2,2,default base image
+      build_sandbox_spec,function,"(service_name:str, readme_path:Path, sandbox_path:Path, port:Optional[int], run_cmd:str, is_node:bool, python_deps:list[str], node_deps:list[str]) -> dict[str, Any]",52-122,false,71,17,creates sandbox spec
+      write_sandbox_manifest,function,"(sandbox_path:Path, spec:dict[str, Any]) -> Path",125-128,false,4,1,logs sandbox manifest
+      build_single_service_compose,function,"(service_name:str, port:Optional[int], health_path:str, is_node:bool) -> dict[str, Any]",131-197,false,67,8,creates single service compose
+      write_single_service_compose,function,"(sandbox_path:Path, compose:dict[str, Any]) -> Path",200-203,false,4,1,logs single service compose
+      write_sandbox_iac,function,"(service_name:str, readme_path:Path, sandbox_path:Path, port:Optional[int], run_cmd:str, is_node:bool, python_deps:list[str], node_deps:list[str]) -> dict[str, Path]",206-258,false,53,5,logs sandbox iac
+      SandboxIacOptions.from_env,method,"(env:Optional[dict[str,str]]=None) -> \"SandboxIacOptions\"",22-41,false,20,5,from env
   src/pactown/config.py:
     functions[10]{name,kind,sig,loc,async,lines,cc,does}:
       load_config,function,"(path:Any) -> EcosystemConfig",241-246,false,6,2,Load ecosystem configuration from file.
@@ -556,33 +573,33 @@ function_details:
       DependencyResolver.print_graph,method,() -> str,141-160,false,20,6,Return ASCII representation of dependency graph.
   src/pactown/sandbox_manager.py:
     functions[27]{name,kind,sig,loc,async,lines,cc,does}:
-      _ui_log_level,function,() -> int,36-46,false,11,7,ui log level
-      _should_emit_to_ui,function,"(level:str) -> bool",49-54,false,6,2,checks emit to ui
-      _call_on_log,function,"(on_log:Optional[Callable[Ellipsis,None]], msg:str, level:str) -> None",60-76,false,17,7,call on log
-      _heartbeat,function,"(stop:Event, on_log:Optional[Callable[..., None]], message:str) -> None",79-94,false,16,4,heartbeat
-      _beat_every_s,function,() -> int,97-101,false,5,2,beat every s
-      _path_debug,function,"(path:Path) -> str",118-135,false,18,7,path debug
-      _escape_dotenv_value,function,"(value:str) -> str",138-144,false,7,1,escape dotenv value
-      _write_dotenv_file,function,"(sandbox_path:Path, env:dict[str,str]) -> None",147-163,false,17,8,logs dotenv file
-      _sandbox_fallback_ids,function,"() -> tuple[int, int]",166-175,false,10,3,sandbox fallback ids
-      _chown_sandbox_tree,function,"(sandbox_path:Path, uid:int, gid:int) -> None",178-213,false,36,11,chown sandbox tree
-      ServiceProcess.is_running,method,() -> bool,227-240,false,14,5,is running
-      SandboxManager._is_node_lang,method,"(lang:str) -> bool",247-249,false,3,2,is node lang
-      SandboxManager._infer_node_project,method,"(blocks:list, deps:list[str], run_cmd:str) -> bool",252-273,false,22,22,infer node project
-      SandboxManager._ensure_package_json,method,"(sandbox_path:Path, service_name:str, deps:list[str]) -> None",276-312,false,37,11,ensure package json
-      SandboxManager._install_node_deps,method,() -> None,314-391,false,78,20,install node deps
-      SandboxManager.__init__,method,"(sandbox_root:Any) -> None",393-397,false,5,1,creates
-      SandboxManager.get_sandbox_path,method,"(service_name:str) -> Path",399-401,false,3,1,Get sandbox path for a service.
-      SandboxManager.create_sandbox,method,"(service:ServiceConfig, readme_path:Path, install_dependencies:bool=True, on_log:Optional[Callable[Any,None]]=None, env:Optional[dict[str,str]]=None) -> Sandbox",403-719,false,317,66,Create a sandbox for a service from its README.
-      SandboxManager.start_service,method,"(service:ServiceConfig, readme_path:Path, env:dict[str,str], verbose:bool=True, restart_if_running:bool=False, on_log:Optional[Callable[Any,None]]=None, user_id:Optional[str]=None) -> ServiceProcess",721-1005,false,285,39,Start a service in its sandbox.
-      SandboxManager.stop_service,method,"(service_name:str, timeout:int=10) -> bool",1007-1057,false,51,10,Stop a running service.
-      SandboxManager.stop_all,method,"(timeout:int=10) -> None",1059-1062,false,4,2,Stop all running services.
-      SandboxManager.get_status,method,"(service_name:str) -> Optional[dict]",1064-1077,false,14,2,Get status of a service.
-      SandboxManager.get_all_status,method,"() -> list[dict]",1079-1085,false,7,3,Get status of all services.
-      SandboxManager.clean_sandbox,method,"(service_name:str) -> None",1087-1091,false,5,2,Remove sandbox directory for a service.
-      SandboxManager.clean_all,method,() -> None,1093-1097,false,5,2,Remove all sandbox directories.
-      SandboxManager.create_sandboxes_parallel,method,"(services:list[tuple[ServiceConfig,Path]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, Sandbox]",1099-1153,false,55,8,Create sandboxes for multiple services in parallel.
-      SandboxManager.start_services_parallel,method,"(services:list[tuple[ServiceConfig,Path,dict[str,str]]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, ServiceProcess]",1155-1212,false,58,6,Start multiple services in parallel.
+      _ui_log_level,function,() -> int,37-47,false,11,7,ui log level
+      _should_emit_to_ui,function,"(level:str) -> bool",50-55,false,6,2,checks emit to ui
+      _call_on_log,function,"(on_log:Optional[Callable[Ellipsis,None]], msg:str, level:str) -> None",61-77,false,17,7,call on log
+      _heartbeat,function,"(stop:Event, on_log:Optional[Callable[..., None]], message:str) -> None",80-95,false,16,4,heartbeat
+      _beat_every_s,function,() -> int,98-102,false,5,2,beat every s
+      _path_debug,function,"(path:Path) -> str",119-136,false,18,7,path debug
+      _escape_dotenv_value,function,"(value:str) -> str",139-145,false,7,1,escape dotenv value
+      _write_dotenv_file,function,"(sandbox_path:Path, env:dict[str,str]) -> None",148-164,false,17,8,logs dotenv file
+      _sandbox_fallback_ids,function,"() -> tuple[int, int]",167-176,false,10,3,sandbox fallback ids
+      _chown_sandbox_tree,function,"(sandbox_path:Path, uid:int, gid:int) -> None",179-214,false,36,11,chown sandbox tree
+      ServiceProcess.is_running,method,() -> bool,228-241,false,14,5,is running
+      SandboxManager._is_node_lang,method,"(lang:str) -> bool",248-250,false,3,2,is node lang
+      SandboxManager._infer_node_project,method,"(blocks:list, deps:list[str], run_cmd:str) -> bool",253-274,false,22,22,infer node project
+      SandboxManager._ensure_package_json,method,"(sandbox_path:Path, service_name:str, deps:list[str]) -> None",277-313,false,37,11,ensure package json
+      SandboxManager._install_node_deps,method,() -> None,315-392,false,78,20,install node deps
+      SandboxManager.__init__,method,"(sandbox_root:Any) -> None",394-398,false,5,1,creates
+      SandboxManager.get_sandbox_path,method,"(service_name:str) -> Path",400-402,false,3,1,Get sandbox path for a service.
+      SandboxManager.create_sandbox,method,"(service:ServiceConfig, readme_path:Path, install_dependencies:bool=True, on_log:Optional[Callable[Any,None]]=None, env:Optional[dict[str,str]]=None) -> Sandbox",404-742,false,339,67,Create a sandbox for a service from its README.
+      SandboxManager.start_service,method,"(service:ServiceConfig, readme_path:Path, env:dict[str,str], verbose:bool=True, restart_if_running:bool=False, on_log:Optional[Callable[Any,None]]=None, user_id:Optional[str]=None) -> ServiceProcess",744-1028,false,285,39,Start a service in its sandbox.
+      SandboxManager.stop_service,method,"(service_name:str, timeout:int=10) -> bool",1030-1080,false,51,10,Stop a running service.
+      SandboxManager.stop_all,method,"(timeout:int=10) -> None",1082-1085,false,4,2,Stop all running services.
+      SandboxManager.get_status,method,"(service_name:str) -> Optional[dict]",1087-1100,false,14,2,Get status of a service.
+      SandboxManager.get_all_status,method,"() -> list[dict]",1102-1108,false,7,3,Get status of all services.
+      SandboxManager.clean_sandbox,method,"(service_name:str) -> None",1110-1114,false,5,2,Remove sandbox directory for a service.
+      SandboxManager.clean_all,method,() -> None,1116-1120,false,5,2,Remove all sandbox directories.
+      SandboxManager.create_sandboxes_parallel,method,"(services:list[tuple[ServiceConfig,Path]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, Sandbox]",1122-1176,false,55,8,Create sandboxes for multiple services in parallel.
+      SandboxManager.start_services_parallel,method,"(services:list[tuple[ServiceConfig,Path,dict[str,str]]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, ServiceProcess]",1178-1235,false,58,6,Start multiple services in parallel.
   src/pactown/runner_api.py:
     functions[19]{name,kind,sig,loc,async,lines,cc,does}:
       _dns_label,function,"(value:str, fallback:str='user') -> str",27-28,false,2,1,dns label

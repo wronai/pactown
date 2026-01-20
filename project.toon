@@ -1,8 +1,8 @@
-# pactown | 63f 18965L | python:63
+# pactown | 65f 19454L | python:65
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
-M[63]:
+M[65]:
   tests/test_security.py,208
-  tests/test_runner_api.py,261
+  tests/test_runner_api.py,358
   tests/conftest.py,6
   tests/test_sandbox_manager_venv_heal.py,120
   tests/test_user_isolation_manager.py,98
@@ -16,12 +16,14 @@ M[63]:
   tests/test_service_runner_fast_run_fallback.py,62
   tests/test_quadlet_security.py,500
   tests/test_platform.py,39
+  tests/test_iac_manifest.py,63
   tests/test_service_runner_validation.py,64
   tests/test_network.py,87
   tests/test_sandbox_manager_node_run_env.py,63
   tests/test_registry.py,110
   tests/test_sandbox_manager_node_deps.py,84
   tests/test_sandbox_manager_env_injection.py,45
+  src/pactown/iac.py,225
   src/pactown/config.py,216
   src/pactown/cli.py,670
   src/pactown/llm.py,352
@@ -37,7 +39,7 @@ M[63]:
   src/pactown/markpact_blocks.py,35
   src/pactown/orchestrator.py,347
   src/pactown/resolver.py,122
-  src/pactown/sandbox_manager.py,1027
+  src/pactown/sandbox_manager.py,1049
   src/pactown/runner_api.py,540
   src/pactown/network.py,206
   src/pactown/service_runner.py,1198
@@ -75,11 +77,12 @@ D:
     TestNetworkSecurity: test_port_allocation_within_range(0),test_service_endpoint_creation(0)  # Test network-related security.
     _pip_audit_available()->bool
   tests/test_runner_api.py:
-    i: json,httpx,pytest,pactown.runner_api.{RunnerApiSettings,RunnerService,create_runner_api},pactown.service_runner.{ErrorCategory,RunResult}
-    e: test_validate_ok,test_run_fails_fast_on_missing_required_env_vars,test_sandbox_prepare_and_file_ops,test_status_filtering,test_run_failure_includes_error_report_md,test_run_stream_failure_includes_error_report_md
+    i: json,time,httpx,pytest,pactown.runner_api.{RunnerApiSettings,RunnerService,create_runner_api},pactown.service_runner.ErrorCategory,pathlib.Path,types.SimpleNamespace
+    e: test_validate_ok,test_run_fails_fast_on_missing_required_env_vars,test_run_passes_pip_timeout_and_retries_to_pip_install,test_sandbox_prepare_and_file_ops,test_status_filtering,test_run_failure_includes_error_report_md,test_run_stream_failure_includes_error_report_md
     _sample_markdown()->str
     test_validate_ok(tmp_path)->None
     test_run_fails_fast_on_missing_required_env_vars(tmp_path)->None
+    test_run_passes_pip_timeout_and_retries_to_pip_install(tmp_path;monkeypatch:Any)->None
     test_sandbox_prepare_and_file_ops(tmp_path)->None
     test_status_filtering(tmp_path)->None
     test_run_failure_includes_error_report_md(tmp_path;monkeypatch)->None
@@ -175,6 +178,11 @@ D:
     test_build_project_subdomain_limits_length()->None
     test_build_service_subdomain_dash()->None
     test_build_service_subdomain_dot()->None
+  tests/test_iac_manifest.py:
+    i: yaml,pactown.config.ServiceConfig,pactown.sandbox_manager.SandboxManager,pathlib.Path,tempfile.TemporaryDirectory
+    e: test_create_sandbox_writes_iac_manifest_and_compose_and_dockerfile,test_create_sandbox_node_inferred_writes_manifest
+    test_create_sandbox_writes_iac_manifest_and_compose_and_dockerfile()->None
+    test_create_sandbox_node_inferred_writes_manifest()->None
   tests/test_service_runner_validation.py:
     i: pytest,pactown.service_runner.{ServiceRunner,ValidationResult}
     e: test_validate_content_dependency_mismatch
@@ -214,6 +222,17 @@ D:
     i: os,pytest,pactown.config.ServiceConfig,pactown.sandbox_manager.SandboxManager,pathlib.Path,types.SimpleNamespace
     e: test_sandbox_manager_passes_env_to_pip_install
     test_sandbox_manager_passes_env_to_pip_install(tmp_path:Path;monkeypatch:Any)->None
+  src/pactown/iac.py:
+    i: datetime,os,yaml,dataclasses.dataclass,datetime.UTC,deploy.base.DeploymentConfig,deploy.docker.DockerBackend,pathlib.Path,typing.{Any,Optional}
+    e: SandboxIacOptions,build_sandbox_spec,write_sandbox_manifest,build_single_service_compose,write_single_service_compose,write_sandbox_iac
+    SandboxIacOptions: from_env(1)
+    _runtime_type(is_node:bool)->str
+    _default_base_image(is_node:bool)->str
+    build_sandbox_spec(service_name:str;readme_path:Path;sandbox_path:Path;port:Optional[int];run_cmd:str;is_node:bool;...+1)->dict[str, Any]
+    write_sandbox_manifest(sandbox_path:Path;spec:dict[str; Any])->Path
+    build_single_service_compose(service_name:str;port:Optional[int];health_path:str;is_node:bool)->dict[str, Any]
+    write_single_service_compose(sandbox_path:Path;compose:dict[str; Any])->Path
+    write_sandbox_iac(service_name:str;readme_path:Path;sandbox_path:Path;port:Optional[int];run_cmd:str;is_node:bool;...+1)->dict[str, Path]
   src/pactown/config.py:
     i: os,yaml,dataclasses.{dataclass,field},pathlib.Path,typing.Optional
     e: DependencyConfig,ServiceConfig,RegistryConfig,CacheConfig,EcosystemConfig,load_config
