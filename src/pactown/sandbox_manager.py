@@ -25,7 +25,6 @@ from typing import Callable, Optional, List, Dict, Any
 from markpact import Sandbox, ensure_venv
 
 from .config import ServiceConfig
-from .iac import write_sandbox_iac
 from .markpact_blocks import parse_blocks
 from .fast_start import DependencyCache
 
@@ -417,6 +416,8 @@ class SandboxManager:
 
         def _write_iac(*, is_node: bool, python_deps: list[str], node_deps: list[str], run_cmd: str) -> None:
             try:
+                from .iac import write_sandbox_iac
+
                 write_sandbox_iac(
                     service_name=service.name,
                     readme_path=readme_path,
