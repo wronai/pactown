@@ -1037,7 +1037,34 @@ class ServiceRunner:
             log(f"Killed orphan on port {port}")
         
         # Use fast starter if available
-        if self.fast_starter:
+        use_fast_starter = self.fast_starter is not None
+        if use_fast_starter:
+            try:
+                probe_blocks = parse_blocks(content)
+                probe_run = ""
+                probe_deps: list[str] = []
+                probe_node_deps: list[str] = []
+                for b in probe_blocks:
+                    if b.kind == "deps":
+                        if getattr(self.sandbox_manager, "_is_node_lang", lambda _x: False)(getattr(b, "lang", "")):
+                            probe_node_deps.extend(b.body.strip().split("\n"))
+                        else:
+                            probe_deps.extend(b.body.strip().split("\n"))
+                    elif b.kind == "run":
+                        probe_run = b.body.strip()
+
+                is_node_project = getattr(self.sandbox_manager, "_infer_node_project", lambda **_k: False)(
+                    blocks=probe_blocks,
+                    deps=[d.strip() for d in (probe_node_deps or probe_deps) if str(d).strip()],
+                    run_cmd=probe_run,
+                )
+                if is_node_project:
+                    log("⚠️ Node.js project detected - disabling fast start")
+                    use_fast_starter = False
+            except Exception:
+                pass
+
+        if use_fast_starter and self.fast_starter:
             log("⚡ Fast start mode enabled")
             fast_result = await self.fast_starter.fast_create_sandbox(
                 service_name=service_name,
