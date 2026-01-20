@@ -345,6 +345,9 @@ class SandboxManager:
                 check=True,
                 env=install_env,
             )
+        except FileNotFoundError as e:
+            dbg("npm not found in PATH (Node.js runtime missing)", "ERROR")
+            raise e
         except subprocess.CalledProcessError as e:
             stderr = ((e.stderr or "") + "\n" + (e.stdout or ""))[:2000]
             if stderr.strip():
