@@ -134,3 +134,41 @@ node server.js
         assert "npm install" in dockerfile
         assert "CMD" in dockerfile
         assert "node server.js" in dockerfile
+
+
+def test_markpact_readme_static_web_no_deps_generates_cmd_from_run_block() -> None:
+    backend = DockerBackend(DeploymentConfig.for_development())
+
+    readme = """# Static Web
+
+```html markpact:file path=public/index.html
+<!doctype html>
+<html>
+  <head><meta charset=\"utf-8\" /><title>OK</title></head>
+  <body>hello</body>
+</html>
+```
+
+```bash markpact:run
+python -m http.server ${MARKPACT_PORT:-8000} --directory public
+```
+"""
+
+    with TemporaryDirectory() as tmp:
+        root = Path(tmp)
+        sandbox_root = root / "sandboxes"
+        readme_path = root / "README.md"
+        readme_path.write_text(readme)
+
+        svc = ServiceConfig(name="web", readme=str(readme_path), port=8003)
+        manager = SandboxManager(sandbox_root)
+        sandbox = manager.create_sandbox(svc, readme_path, install_dependencies=False)
+
+        assert (sandbox.path / "public" / "index.html").exists()
+        assert not (sandbox.path / "requirements.txt").exists()
+
+        run_cmd = "python -m http.server ${MARKPACT_PORT:-8000} --directory public"
+        dockerfile = backend._create_dockerfile(sandbox.path, base_image="python:3.12-slim", run_cmd=run_cmd)
+
+        assert "CMD" in dockerfile
+        assert "http.server" in dockerfile
