@@ -92,6 +92,13 @@ def _heartbeat(
         if _should_emit_to_ui("INFO"):
             _call_on_log(on_log, f"⏳ {message} (elapsed={elapsed}s)", "INFO")
 
+
+def _beat_every_s(*, default: int = 5) -> int:
+    try:
+        return max(1, int(os.environ.get("PACTOWN_HEALTH_HEARTBEAT_S", str(default))))
+    except Exception:
+        return default
+
 # File handler for persistent logs
 LOG_DIR = Path(os.environ.get("PACTOWN_LOG_DIR", tempfile.gettempdir() + "/pactown-logs"))
 LOG_DIR.mkdir(parents=True, exist_ok=True)
@@ -551,7 +558,7 @@ class SandboxManager:
                                 "stop": stop,
                                 "on_log": on_log,
                                 "message": f"[deploy] Restoring cached venv ({len(deps_clean)} deps)",
-                                "interval_s": 1.0,
+                                "interval_s": float(_beat_every_s()),
                             },
                             daemon=True,
                         )
@@ -586,7 +593,7 @@ class SandboxManager:
                             "stop": stop,
                             "on_log": on_log,
                             "message": f"[deploy] Creating venv (.venv) ({len(deps_clean)} deps)",
-                            "interval_s": 5.0,
+                            "interval_s": float(_beat_every_s()),
                         },
                         daemon=True,
                     )
@@ -604,17 +611,17 @@ class SandboxManager:
                 dbg("Installing dependencies via pip", "INFO")
                 try:
                     pip_stop = Event()
-                    pip_thr = Thread(
+                    thr = Thread(
                         target=_heartbeat,
                         kwargs={
                             "stop": pip_stop,
                             "on_log": on_log,
                             "message": f"[deploy] Installing dependencies via pip ({len(deps_clean)} deps)",
-                            "interval_s": 5.0,
+                            "interval_s": float(_beat_every_s()),
                         },
                         daemon=True,
                     )
-                    pip_thr.start()
+                    thr.start()
                     install_env = os.environ.copy()
                     for k, v in (env or {}).items():
                         if k is None or v is None:
