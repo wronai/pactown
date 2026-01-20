@@ -2,7 +2,7 @@
 
 __version__ = "0.1.59"
 
-from .config import DependencyConfig, EcosystemConfig, ServiceConfig
+from .config import CacheConfig, DependencyConfig, EcosystemConfig, ServiceConfig
 from .network import PortAllocator, ServiceEndpoint, ServiceRegistry, find_free_port
 from .orchestrator import Orchestrator
 from .resolver import DependencyResolver
@@ -152,6 +152,7 @@ __all__ = [
     # Orchestration
     "EcosystemConfig",
     "ServiceConfig",
+    "CacheConfig",
     "DependencyConfig",
     "Orchestrator",
     "DependencyResolver",

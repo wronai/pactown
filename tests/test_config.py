@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from pactown.config import (
+    CacheConfig,
     DependencyConfig,
     EcosystemConfig,
     RegistryConfig,
@@ -131,3 +132,20 @@ def test_registry_config_defaults():
     assert config.url == "http://localhost:8800"
     assert config.namespace == "default"
     assert config.auth_token is None
+
+
+def test_cache_config_from_env_prefers_pactown_prefixed_vars(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("PIP_INDEX_URL", "http://global/simple")
+    monkeypatch.setenv("PACTOWN_PIP_INDEX_URL", "http://pactown/simple")
+    monkeypatch.setenv("PACTOWN_NPM_REGISTRY_URL", "http://npm.local")
+
+    cfg = CacheConfig.from_env()
+    assert cfg.pip_index_url == "http://pactown/simple"
+    assert cfg.npm_registry_url == "http://npm.local"
+
+
+def test_cache_config_to_env_sets_pip_extra_when_missing() -> None:
+    cfg = CacheConfig(pip_index_url="http://proxy/simple")
+    env = cfg.to_env()
+    assert env["PIP_INDEX_URL"] == "http://proxy/simple"
+    assert env["PIP_EXTRA_INDEX_URL"] == "http://proxy/simple"
