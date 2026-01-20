@@ -31,6 +31,36 @@ logger = logging.getLogger("pactown.sandbox")
 logger.setLevel(logging.DEBUG)
 
 
+def _ui_log_level() -> int:
+    raw = str(os.environ.get("PACTOWN_UI_LOG_LEVEL", "INFO") or "INFO").strip().upper()
+    if raw == "DEBUG":
+        return logging.DEBUG
+    if raw == "WARNING" or raw == "WARN":
+        return logging.WARNING
+    if raw == "ERROR":
+        return logging.ERROR
+    if raw == "CRITICAL":
+        return logging.CRITICAL
+    return logging.INFO
+
+
+def _should_emit_to_ui(level: str) -> bool:
+    try:
+        lvl = int(getattr(logging, str(level).upper()))
+    except Exception:
+        lvl = logging.INFO
+    return lvl >= _ui_log_level()
+
+
+def _call_on_log(on_log: Optional[Callable[..., None]], msg: str, level: str) -> None:
+    if not on_log:
+        return
+    try:
+        on_log(msg, level)
+    except TypeError:
+        on_log(msg)
+
+
 def _heartbeat(
     *,
     stop: Event,
@@ -211,7 +241,7 @@ class SandboxManager:
         """Create a sandbox for a service from its README."""
         def dbg(msg: str, level: str = "DEBUG"):
             if on_log:
-                on_log(msg)
+                _call_on_log(on_log, msg, level)
             else:
                 logger.log(getattr(logging, level), f"[{service.name}] {msg}")
 
@@ -334,18 +364,6 @@ class SandboxManager:
                     raise
                 dbg("Installing dependencies via pip", "INFO")
                 try:
-                    stop = Event()
-                    thr = Thread(
-                        target=_heartbeat,
-                        kwargs={
-                            "stop": stop,
-                            "on_log": on_log,
-                            "message": f"[deploy] Installing dependencies via pip ({len(deps_clean)} deps)",
-                            "interval_s": 1.0,
-                        },
-                        daemon=True,
-                    )
-                    thr.start()
                     install_env = os.environ.copy()
                     for k, v in (env or {}).items():
                         if k is None or v is None:
@@ -356,20 +374,35 @@ class SandboxManager:
                     requirements_path = sandbox.path / "requirements.txt"
 
                     try:
-                        subprocess.run(
-                            [str(pip_path), "install", "-q", "--disable-pip-version-check", "-r", str(requirements_path)],
-                            capture_output=True,
+                        proc = subprocess.Popen(
+                            [
+                                str(pip_path),
+                                "install",
+                                "--disable-pip-version-check",
+                                "--progress-bar",
+                                "off",
+                                "-r",
+                                str(requirements_path),
+                            ],
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT,
                             text=True,
-                            check=True,
+                            bufsize=1,
                             env=install_env,
                         )
+                        if proc.stdout:
+                            for line in proc.stdout:
+                                s = (line or "").rstrip("\n")
+                                if not s:
+                                    continue
+                                if on_log:
+                                    _call_on_log(on_log, s, "INFO")
+                        rc = proc.wait()
+                        if rc != 0:
+                            raise subprocess.CalledProcessError(rc, proc.args)
                     except subprocess.CalledProcessError as e:
-                        stderr = (e.stderr or "")[:2000]
-                        if stderr:
-                            dbg(f"pip install stderr: {stderr}", "ERROR")
+                        dbg(f"pip install failed: {e}", "ERROR")
                         raise
-                    finally:
-                        stop.set()
                     dbg("Dependencies installed", "INFO")
                     try:
                         self._dep_cache.save_existing_venv(deps_clean, sandbox.path / ".venv", on_progress=on_log)
@@ -410,9 +443,9 @@ class SandboxManager:
         """
         def log(msg: str, level: str = "INFO"):
             logger.log(getattr(logging, level), f"[{service.name}] {msg}")
-            if on_log:
-                on_log(msg)
-            if verbose:
+            if on_log and _should_emit_to_ui(level):
+                _call_on_log(on_log, msg, level)
+            if verbose and _should_emit_to_ui(level):
                 print(msg)
         
         log(f"Starting service: {service.name}", "INFO")
