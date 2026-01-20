@@ -25,6 +25,7 @@ from typing import Callable, Optional, List, Dict, Any
 from markpact import Sandbox, ensure_venv
 
 from .config import ServiceConfig
+from .iac import write_sandbox_iac
 from .markpact_blocks import parse_blocks
 from .fast_start import DependencyCache
 
@@ -414,6 +415,24 @@ class SandboxManager:
             if on_log and _should_emit_to_ui(level):
                 _call_on_log(on_log, msg, level)
 
+        def _write_iac(*, is_node: bool, python_deps: list[str], node_deps: list[str], run_cmd: str) -> None:
+            try:
+                write_sandbox_iac(
+                    service_name=service.name,
+                    readme_path=readme_path,
+                    sandbox_path=sandbox.path,
+                    port=service.port,
+                    run_cmd=run_cmd,
+                    is_node=is_node,
+                    python_deps=python_deps,
+                    node_deps=node_deps,
+                    health_path=service.health_check or "/",
+                    env_keys=list((env or {}).keys()),
+                    env=None,
+                )
+            except Exception as e:
+                dbg(f"Failed to write IaC artifacts: {e}", "WARNING")
+
         def _verify_restored_venv(*, venv_path: Path, deps: list[str], run_cmd: str) -> bool:
             py = venv_path / "bin" / "python"
             if not py.exists():
@@ -517,14 +536,16 @@ class SandboxManager:
         is_node = self._infer_node_project(blocks=blocks, deps=(deps_node_clean or deps_clean), run_cmd=run_cmd)
         effective_node_deps = deps_node_clean if deps_node_clean else (deps_clean if is_node else [])
 
-        if is_node and effective_node_deps:
-            dbg(f"Dependencies detected: count={len(effective_node_deps)}", "INFO")
+        if is_node:
+            if effective_node_deps:
+                dbg(f"Dependencies detected: count={len(effective_node_deps)}", "INFO")
             self._ensure_package_json(sandbox_path=sandbox.path, service_name=service.name, deps=effective_node_deps)
             dbg(f"Wrote package.json: {_path_debug(sandbox.path / 'package.json')}", "DEBUG")
 
-            if install_dependencies:
+            if install_dependencies and effective_node_deps:
                 self._install_node_deps(sandbox=sandbox, deps=effective_node_deps, on_log=on_log, env=env)
 
+            _write_iac(is_node=True, python_deps=[], node_deps=effective_node_deps, run_cmd=run_cmd)
             return sandbox
 
         if deps_clean:
@@ -587,6 +608,7 @@ class SandboxManager:
                         stop.set()
                         dbg(f"Venv restored: {_path_debug(venv_dst)}", "DEBUG")
                         if _verify_restored_venv(venv_path=venv_dst, deps=deps_clean, run_cmd=run_cmd):
+                            _write_iac(is_node=False, python_deps=deps_clean, node_deps=[], run_cmd=run_cmd)
                             return sandbox
                         dbg("Cached venv appears corrupted - rebuilding", "WARNING")
                         try:
@@ -716,6 +738,7 @@ class SandboxManager:
         else:
             dbg("No dependencies block found", "DEBUG")
 
+        _write_iac(is_node=False, python_deps=deps_clean, node_deps=[], run_cmd=run_cmd)
         return sandbox
 
     def start_service(
