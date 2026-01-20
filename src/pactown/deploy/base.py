@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+import json
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -175,10 +176,13 @@ class DeploymentBackend(ABC):
         service_name: str,
         sandbox_path: Path,
         base_image: str = "python:3.12-slim",
+        run_cmd: Optional[str] = None,
     ) -> Path:
         """Generate Dockerfile for a service."""
         dockerfile_content = self._create_dockerfile(
-            sandbox_path, base_image
+            sandbox_path,
+            base_image,
+            run_cmd=run_cmd,
         )
 
         dockerfile_path = sandbox_path / "Dockerfile"
@@ -189,6 +193,7 @@ class DeploymentBackend(ABC):
         self,
         sandbox_path: Path,
         base_image: str,
+        run_cmd: Optional[str] = None,
     ) -> str:
         """Create Dockerfile content."""
         # Check for requirements.txt
@@ -198,7 +203,7 @@ class DeploymentBackend(ABC):
         has_package_json = (sandbox_path / "package.json").exists()
 
         if has_package_json:
-            return self._create_node_dockerfile(sandbox_path)
+            return self._create_node_dockerfile(sandbox_path, run_cmd=run_cmd)
 
         # Default Python Dockerfile
         lines = [
@@ -247,13 +252,22 @@ class DeploymentBackend(ABC):
             "urllib.request.urlopen('http://localhost:%s/health' % port, timeout=5)\"",
             "",
             "# Default command",
-            'CMD ["python", "main.py"]',
+            (
+                f'CMD {json.dumps(["sh", "-lc", run_cmd.strip()])}'
+                if run_cmd and run_cmd.strip()
+                else 'CMD ["python", "main.py"]'
+            ),
         ])
 
         return "\n".join(lines)
 
-    def _create_node_dockerfile(self, sandbox_path: Path) -> str:
+    def _create_node_dockerfile(self, sandbox_path: Path, run_cmd: Optional[str] = None) -> str:
         """Create Dockerfile for Node.js service."""
+        cmd_line = (
+            f"CMD {json.dumps(['sh', '-lc', run_cmd.strip()])}"
+            if run_cmd and run_cmd.strip()
+            else 'CMD ["node", "server.js"]'
+        )
         return """FROM node:20-slim
 
 WORKDIR /app
@@ -282,5 +296,5 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 \\
     CMD node -e "require('http').get('http://localhost:'+(process.env.MARKPACT_PORT||3000)+'/health',res=>process.exit(res.statusCode===200?0:1)).on('error',()=>process.exit(1));"
 
 # Default command
-CMD ["node", "server.js"]
+""" + cmd_line + """
 """

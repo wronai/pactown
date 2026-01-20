@@ -1,4 +1,4 @@
-# pactown | 63f 18536L | python:63
+# pactown | 63f 18550L | python:63
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
 M[63]:
   tests/test_security.py,208
@@ -42,7 +42,7 @@ M[63]:
   src/pactown/network.py,206
   src/pactown/service_runner.py,1136
   src/pactown/deploy/quadlet_shell.py,432
-  src/pactown/deploy/base.py,217
+  src/pactown/deploy/base.py,231
   src/pactown/deploy/docker.py,258
   src/pactown/deploy/__init__.py,29
   src/pactown/deploy/kubernetes.py,410
@@ -396,7 +396,7 @@ D:
     QuadletShell: __init__(3),do_status(1),do_config(1),do_generate(1),do_generate_container(1)  # Interactive shell for Quadlet deploym...
     run_shell(tenant_id:str='default';domain:str='localhost';user_mode:bool=True)->None
   src/pactown/deploy/base.py:
-    i: abc.{ABC,abstractmethod},dataclasses.{dataclass,field},enum.Enum,pathlib.Path,typing.{Any,Optional}
+    i: json,abc.{ABC,abstractmethod},dataclasses.{dataclass,field},enum.Enum,pathlib.Path,typing.{Any,Optional}
     e: RuntimeType,DeploymentMode,DeploymentConfig,DeploymentResult,DeploymentBackend
     RuntimeType:   # Container runtime types.
     DeploymentMode:   # Deployment environment modes.

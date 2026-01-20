@@ -1,5 +1,5 @@
 project: pactown
-generated: "2026-01-20T18:11:44.278070"
+generated: "2026-01-20T20:31:19.733314"
 modules[63]{path,lang,items}:
   tests/test_security.py,python,16
   tests/test_runner_api.py,python,6
@@ -663,20 +663,20 @@ function_details:
       QuadletShell.emptyline,method,() -> None,534-536,false,3,1,Do nothing on empty line.
   src/pactown/deploy/base.py:
     functions[14]{name,kind,sig,loc,async,lines,cc,does}:
-      DeploymentConfig.for_production,method,"() -> \"DeploymentConfig\"",70-82,false,13,1,Create production-ready configuration.
-      DeploymentConfig.for_development,method,"() -> \"DeploymentConfig\"",85-92,false,8,1,Create development configuration.
-      DeploymentBackend.__init__,method,"(config:DeploymentConfig) -> None",111-112,false,2,1,creates
-      DeploymentBackend.runtime_type,method,() -> RuntimeType,116-118,false,3,1,Return the runtime type.
-      DeploymentBackend.is_available,method,() -> bool,121-123,false,3,1,Check if the runtime is available.
-      DeploymentBackend.build_image,method,"(service_name:str, dockerfile_path:Path, context_path:Path, tag:Optional[str]=None, build_args:Optional[dict[str,str]]=None) -> DeploymentResult",126-135,false,10,1,Build a container image.
-      DeploymentBackend.push_image,method,"(image_name:str, registry:Optional[str]=None) -> DeploymentResult",138-144,false,7,1,Push image to registry.
-      DeploymentBackend.deploy,method,"(service_name:str, image_name:str, port:int, env:dict[str,str], health_check:Optional[str]=None) -> DeploymentResult",147-156,false,10,1,Deploy a service.
-      DeploymentBackend.stop,method,"(service_name:str) -> DeploymentResult",159-161,false,3,1,Stop a deployed service.
-      DeploymentBackend.logs,method,"(service_name:str, tail:int=100) -> str",164-166,false,3,1,Get logs from a service.
-      DeploymentBackend.status,method,"(service_name:str) -> dict[str, Any]",169-171,false,3,1,Get status of a service.
-      DeploymentBackend.generate_dockerfile,method,"(service_name:str, sandbox_path:Path, base_image:str='python:3.12-slim') -> Path",173-186,false,14,1,Generate Dockerfile for a service.
-      DeploymentBackend._create_dockerfile,method,"(sandbox_path:Path, base_image:str) -> str",188-253,false,66,3,Create Dockerfile content.
-      DeploymentBackend._create_node_dockerfile,method,"(sandbox_path:Path) -> str",255-286,false,32,1,Create Dockerfile for Node.js service.
+      DeploymentConfig.for_production,method,"() -> \"DeploymentConfig\"",71-83,false,13,1,Create production-ready configuration.
+      DeploymentConfig.for_development,method,"() -> \"DeploymentConfig\"",86-93,false,8,1,Create development configuration.
+      DeploymentBackend.__init__,method,"(config:DeploymentConfig) -> None",112-113,false,2,1,creates
+      DeploymentBackend.runtime_type,method,() -> RuntimeType,117-119,false,3,1,Return the runtime type.
+      DeploymentBackend.is_available,method,() -> bool,122-124,false,3,1,Check if the runtime is available.
+      DeploymentBackend.build_image,method,"(service_name:str, dockerfile_path:Path, context_path:Path, tag:Optional[str]=None, build_args:Optional[dict[str,str]]=None) -> DeploymentResult",127-136,false,10,1,Build a container image.
+      DeploymentBackend.push_image,method,"(image_name:str, registry:Optional[str]=None) -> DeploymentResult",139-145,false,7,1,Push image to registry.
+      DeploymentBackend.deploy,method,"(service_name:str, image_name:str, port:int, env:dict[str,str], health_check:Optional[str]=None) -> DeploymentResult",148-157,false,10,1,Deploy a service.
+      DeploymentBackend.stop,method,"(service_name:str) -> DeploymentResult",160-162,false,3,1,Stop a deployed service.
+      DeploymentBackend.logs,method,"(service_name:str, tail:int=100) -> str",165-167,false,3,1,Get logs from a service.
+      DeploymentBackend.status,method,"(service_name:str) -> dict[str, Any]",170-172,false,3,1,Get status of a service.
+      DeploymentBackend.generate_dockerfile,method,"(service_name:str, sandbox_path:Path, base_image:str='python:3.12-slim', run_cmd:Optional[str]=None) -> Path",174-190,false,17,1,Generate Dockerfile for a service.
+      DeploymentBackend._create_dockerfile,method,"(sandbox_path:Path, base_image:str, run_cmd:Optional[str]=None) -> str",192-262,false,71,5,Create Dockerfile content.
+      DeploymentBackend._create_node_dockerfile,method,"(sandbox_path:Path, run_cmd:Optional[str]=None) -> str",264-300,false,37,3,Create Dockerfile for Node.js service.
   src/pactown/deploy/docker.py:
     functions[8]{name,kind,sig,loc,async,lines,cc,does}:
       DockerBackend.runtime_type,method,() -> RuntimeType,23-24,false,2,1,runtime type
