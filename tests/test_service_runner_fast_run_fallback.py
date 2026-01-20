@@ -25,9 +25,10 @@ def test_fast_run_fallback_sets_serviceconfig_readme_and_cleans_temp_file(
 
     captured = {}
 
-    def fake_create_sandbox(config, readme_path, install_dependencies=True, on_log=None):
+    def fake_create_sandbox(config, readme_path, install_dependencies=True, on_log=None, env=None):
         captured["config_readme"] = config.readme
         captured["readme_path"] = readme_path
+        captured["env"] = env
         # Readme file should exist while sandbox is being created
         assert Path(config.readme).exists()
         assert readme_path.exists()
@@ -63,6 +64,7 @@ python main.py
             service_id="svc",
             content=content,
             port=8123,
+            env={"PIP_INDEX_URL": "http://pypi-proxy.local/simple"},
             skip_health_check=True,
         )
     )
@@ -70,6 +72,7 @@ python main.py
     assert result.success is True
     assert "readme_path" in captured
     assert captured["config_readme"] == str(captured["readme_path"])
+    assert captured["env"] == {"PIP_INDEX_URL": "http://pypi-proxy.local/simple"}
 
     # The temp file should be removed by the finally block
     assert not captured["readme_path"].exists()

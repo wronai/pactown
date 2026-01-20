@@ -1,5 +1,7 @@
 """Configuration models for pactown ecosystems."""
 
+import os
+
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
@@ -66,6 +68,56 @@ class RegistryConfig:
     url: str = "http://localhost:8800"
     auth_token: Optional[str] = None
     namespace: str = "default"
+
+
+@dataclass
+class CacheConfig:
+    pip_index_url: Optional[str] = None
+    pip_extra_index_url: Optional[str] = None
+    pip_trusted_host: Optional[str] = None
+    npm_registry_url: Optional[str] = None
+    apt_proxy: Optional[str] = None
+    docker_registry_mirror: Optional[str] = None
+
+    @classmethod
+    def from_env(cls, env: Optional[dict[str, str]] = None) -> "CacheConfig":
+        src = env or os.environ
+
+        def clean(value: Optional[str]) -> Optional[str]:
+            if value is None:
+                return None
+            v = str(value).strip()
+            return v or None
+
+        return cls(
+            pip_index_url=clean(src.get("PACTOWN_PIP_INDEX_URL") or src.get("PIP_INDEX_URL")),
+            pip_extra_index_url=clean(src.get("PACTOWN_PIP_EXTRA_INDEX_URL") or src.get("PIP_EXTRA_INDEX_URL")),
+            pip_trusted_host=clean(src.get("PACTOWN_PIP_TRUSTED_HOST") or src.get("PIP_TRUSTED_HOST")),
+            npm_registry_url=clean(src.get("PACTOWN_NPM_REGISTRY_URL") or src.get("NPM_CONFIG_REGISTRY")),
+            apt_proxy=clean(src.get("PACTOWN_APT_PROXY") or src.get("APT_PROXY")),
+            docker_registry_mirror=clean(
+                src.get("PACTOWN_DOCKER_REGISTRY_MIRROR") or src.get("DOCKER_REGISTRY_MIRROR")
+            ),
+        )
+
+    def to_env(self) -> dict[str, str]:
+        env: dict[str, str] = {}
+        if self.pip_index_url:
+            env["PIP_INDEX_URL"] = self.pip_index_url
+            if not self.pip_extra_index_url:
+                env["PIP_EXTRA_INDEX_URL"] = self.pip_index_url
+        if self.pip_extra_index_url:
+            env["PIP_EXTRA_INDEX_URL"] = self.pip_extra_index_url
+        if self.pip_trusted_host:
+            env["PIP_TRUSTED_HOST"] = self.pip_trusted_host
+        if self.npm_registry_url:
+            env["NPM_CONFIG_REGISTRY"] = self.npm_registry_url
+        if self.apt_proxy:
+            env["ACQUIRE::HTTP::PROXY"] = self.apt_proxy
+            env["ACQUIRE::HTTPS::PROXY"] = self.apt_proxy
+        if self.docker_registry_mirror:
+            env["DOCKER_REGISTRY_MIRROR"] = self.docker_registry_mirror
+        return env
 
 
 @dataclass

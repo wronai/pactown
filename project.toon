@@ -1,4 +1,4 @@
-# pactown | 56f 16490L | python:56
+# pactown | 56f 16585L | python:56
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
 M[56]:
   tests/test_security.py,208
@@ -11,12 +11,12 @@ M[56]:
   tests/test_parallel.py,106
   tests/test_config.py,110
   tests/test_markpact_blocks.py,36
-  tests/test_service_runner_fast_run_fallback.py,54
+  tests/test_service_runner_fast_run_fallback.py,57
   tests/test_quadlet_security.py,500
   tests/test_platform.py,39
   tests/test_network.py,87
   tests/test_registry.py,110
-  src/pactown/config.py,137
+  src/pactown/config.py,182
   src/pactown/cli.py,670
   src/pactown/llm.py,352
   src/pactown/user_isolation.py,381
@@ -25,15 +25,15 @@ M[56]:
   src/pactown/security.py,572
   src/pactown/parallel.py,211
   src/pactown/__init__.py,180
-  src/pactown/fast_start.py,506
+  src/pactown/fast_start.py,522
   src/pactown/platform.py,103
   src/pactown/markpact_blocks.py,35
   src/pactown/orchestrator.py,347
   src/pactown/resolver.py,122
-  src/pactown/sandbox_manager.py,700
+  src/pactown/sandbox_manager.py,721
   src/pactown/runner_api.py,383
   src/pactown/network.py,206
-  src/pactown/service_runner.py,1003
+  src/pactown/service_runner.py,1004
   src/pactown/deploy/quadlet_shell.py,432
   src/pactown/deploy/base.py,200
   src/pactown/deploy/docker.py,245
@@ -180,11 +180,12 @@ D:
     test_registry_storage_list()->None
     test_registry_storage_delete()->None
   src/pactown/config.py:
-    i: yaml,dataclasses.{dataclass,field},pathlib.Path,typing.Optional
-    e: DependencyConfig,ServiceConfig,RegistryConfig,EcosystemConfig,load_config
+    i: os,yaml,dataclasses.{dataclass,field},pathlib.Path,typing.Optional
+    e: DependencyConfig,ServiceConfig,RegistryConfig,CacheConfig,EcosystemConfig,load_config
     DependencyConfig: from_dict(1)  # Configuration for a service dependency.
     ServiceConfig: from_dict(2)  # Configuration for a single service in...
     RegistryConfig:   # Configuration for artifact registry.
+    CacheConfig: from_env(1),to_env(0)
     EcosystemConfig: from_yaml(1),from_dict(2),to_dict(0),to_yaml(1)  # Configuration for a complete pactown...
     load_config(path:Any)->EcosystemConfig
   src/pactown/cli.py:
@@ -303,7 +304,7 @@ D:
     i: json,logging,os,re,shutil,stat,signal,subprocess,tempfile,time
     e: LOG_DIR,ServiceProcess,SandboxManager
     ServiceProcess: is_running(0)  # Represents a running service process.
-    SandboxManager: __init__(1),get_sandbox_path(1),create_sandbox(4),start_service(7),stop_service(2)  # Manages sandboxes for multiple services.
+    SandboxManager: __init__(1),get_sandbox_path(1),create_sandbox(5),start_service(7),stop_service(2)  # Manages sandboxes for multiple services.
     _heartbeat(stop:Event;on_log:Optional[Callable[[str]; None]];message:str)->None
     _path_debug(path:Path)->str
     _escape_dotenv_value(value:str)->str

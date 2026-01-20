@@ -194,7 +194,12 @@ class DependencyCache:
 
         return cached
     
-    def create_and_cache(self, deps: List[str], on_progress: Optional[Callable[[str], None]] = None) -> CachedVenv:
+    def create_and_cache(
+        self,
+        deps: List[str],
+        on_progress: Optional[Callable[[str], None]] = None,
+        env: Optional[Dict[str, str]] = None,
+    ) -> CachedVenv:
         """Create a new venv with deps and cache it."""
         deps_hash = self._hash_deps(deps)
         venv_path = self.cache_root / f"venv_{deps_hash}"
@@ -243,10 +248,14 @@ class DependencyCache:
             )
             thr.start()
             try:
+                install_env = os.environ.copy()
+                if env:
+                    install_env.update(env)
                 subprocess.run(
                     [str(pip_path), "install", "-q", "--disable-pip-version-check"] + deps,
                     capture_output=True,
                     check=True,
+                    env=install_env,
                 )
             finally:
                 stop.set()
@@ -420,6 +429,7 @@ class FastServiceStarter:
         service_name: str,
         content: str,
         on_log: Optional[Callable[[str], None]] = None,
+        env: Optional[Dict[str, str]] = None,
     ) -> FastStartResult:
         """
         Create a sandbox as fast as possible.
@@ -496,6 +506,7 @@ class FastServiceStarter:
                     self.dep_cache.create_and_cache,
                     deps,
                     log,
+                    env,
                 )
                 venv_path = cached.path
                 venv_link = sandbox_path / ".venv"
@@ -508,6 +519,7 @@ class FastServiceStarter:
                 self._install_deps_direct,
                 sandbox_path,
                 deps,
+                env,
             )
             venv_path = sandbox_path / ".venv"
         
@@ -536,7 +548,7 @@ class FastServiceStarter:
         with ThreadPoolExecutor(max_workers=4) as executor:
             list(executor.map(write_file, files.items()))
     
-    def _install_deps_direct(self, sandbox_path: Path, deps: List[str]):
+    def _install_deps_direct(self, sandbox_path: Path, deps: List[str], env: Optional[Dict[str, str]] = None):
         """Install deps directly without caching."""
         venv_path = sandbox_path / ".venv"
         subprocess.run(
@@ -545,10 +557,14 @@ class FastServiceStarter:
             check=True,
         )
         pip_path = venv_path / "bin" / "pip"
+        install_env = os.environ.copy()
+        if env:
+            install_env.update(env)
         subprocess.run(
             [str(pip_path), "install", "-q", "--disable-pip-version-check"] + deps,
             capture_output=True,
             check=True,
+            env=install_env,
         )
     
     def get_cache_stats(self) -> Dict[str, Any]:

@@ -21,7 +21,6 @@ from threading import Lock
 from typing import Callable, Optional, List, Dict, Any
 
 from markpact import Sandbox, ensure_venv
-from markpact.runner import install_deps
 
 from .config import ServiceConfig
 from .markpact_blocks import parse_blocks
@@ -207,6 +206,7 @@ class SandboxManager:
         readme_path: Path,
         install_dependencies: bool = True,
         on_log: Optional[Callable[[str], None]] = None,
+        env: Optional[dict[str, str]] = None,
     ) -> Sandbox:
         """Create a sandbox for a service from its README."""
         def dbg(msg: str, level: str = "DEBUG"):
@@ -346,8 +346,30 @@ class SandboxManager:
                         daemon=True,
                     )
                     thr.start()
-                    install_deps(deps_clean, sandbox, verbose=False)
-                    stop.set()
+                    install_env = os.environ.copy()
+                    for k, v in (env or {}).items():
+                        if k is None or v is None:
+                            continue
+                        install_env[str(k)] = str(v)
+
+                    pip_path = sandbox.venv_bin / "pip"
+                    requirements_path = sandbox.path / "requirements.txt"
+
+                    try:
+                        subprocess.run(
+                            [str(pip_path), "install", "-q", "--disable-pip-version-check", "-r", str(requirements_path)],
+                            capture_output=True,
+                            text=True,
+                            check=True,
+                            env=install_env,
+                        )
+                    except subprocess.CalledProcessError as e:
+                        stderr = (e.stderr or "")[:2000]
+                        if stderr:
+                            dbg(f"pip install stderr: {stderr}", "ERROR")
+                        raise
+                    finally:
+                        stop.set()
                     dbg("Dependencies installed", "INFO")
                     try:
                         self._dep_cache.save_existing_venv(deps_clean, sandbox.path / ".venv", on_progress=on_log)
@@ -418,6 +440,7 @@ class SandboxManager:
                 readme_path,
                 install_dependencies=True,
                 on_log=log,
+                env=env,
             )
             log(f"Sandbox created at: {sandbox.path}", "INFO")
         except Exception as e:

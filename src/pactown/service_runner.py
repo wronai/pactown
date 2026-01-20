@@ -1021,6 +1021,7 @@ class ServiceRunner:
                 service_name=service_name,
                 content=content,
                 on_log=log,
+                env=env,
             )
             
             if not fast_result.success:
@@ -1056,7 +1057,7 @@ class ServiceRunner:
             config = ServiceConfig(name=service_name, readme=str(readme_path), port=port)
             
             try:
-                sandbox = self.sandbox_manager.create_sandbox(config, readme_path)
+                sandbox = self.sandbox_manager.create_sandbox(config, readme_path, env=env)
                 sandbox_path = sandbox.path
             finally:
                 readme_path.unlink()
