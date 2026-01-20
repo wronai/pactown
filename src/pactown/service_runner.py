@@ -542,9 +542,6 @@ class ServiceRunner:
                 user_id=effective_user_id if effective_user_id != "anonymous" else None,
             )
             
-            log(f"Sandbox created: {process.sandbox_path}")
-            log(f"Process started with PID: {process.pid}")
-            
             # Check if process died immediately after startup
             if process.process and process.process.poll() is not None:
                 exit_code = process.process.returncode
@@ -567,6 +564,7 @@ class ServiceRunner:
                     process=process,
                     port=port,
                     timeout=timeout,
+                    health_path=service_config.health_check or "/",
                     on_log=log,
                 )
                 
@@ -706,6 +704,7 @@ class ServiceRunner:
         process: ServiceProcess,
         port: int,
         timeout: int,
+        health_path: str,
         on_log: Callable[[str], None],
     ) -> dict:
         """Wait for service to pass health check.
@@ -717,51 +716,61 @@ class ServiceRunner:
 
         started = time.monotonic()
         last_beat_s = -1
-        
-        for _ in range(attempts):
-            await asyncio.sleep(0.5)
 
-            elapsed_s = int(time.monotonic() - started)
-            if elapsed_s != last_beat_s:
-                last_beat_s = elapsed_s
-                remaining = max(0, int(timeout) - elapsed_s)
-                on_log(f"⏳ [deploy] Waiting for server health... elapsed={elapsed_s}s remaining~{remaining}s")
-            
-            # Check if process is still running
-            if not process.is_running:
-                exit_code = process.process.returncode if process.process else "unknown"
-                on_log(f"❌ Process died (exit code: {exit_code})")
-                
-                # Try to get error output
-                if process.process and process.process.stderr:
-                    try:
-                        stderr_bytes = process.process.stderr.read()
-                        if stderr_bytes:
-                            stderr_output = stderr_bytes.decode()[:1000]
-                            on_log(f"Error output: {stderr_output[:500]}")
-                    except:
-                        pass
-                
-                # Categorize error based on stderr
-                error_cat = ErrorCategory.PROCESS_CRASH
-                if "Address already in use" in stderr_output:
-                    error_cat = ErrorCategory.PORT_CONFLICT
-                elif "ModuleNotFoundError" in stderr_output or "No module named" in stderr_output:
-                    error_cat = ErrorCategory.DEPENDENCY
-                elif "SyntaxError" in stderr_output:
-                    error_cat = ErrorCategory.VALIDATION
-                
-                return {"success": False, "error_category": error_cat, "stderr": stderr_output}
-            
-            # Try to connect
-            try:
-                async with httpx.AsyncClient(timeout=1.0) as client:
-                    resp = await client.get(f"http://localhost:{port}/")
-                    if resp.status_code < 500:
-                        on_log(f"✓ Server responding (status {resp.status_code})")
-                        return {"success": True, "error_category": ErrorCategory.NONE, "stderr": ""}
-            except:
-                pass  # Keep trying
+        health_path = (health_path or "/").strip()
+        if not health_path.startswith("/"):
+            health_path = "/" + health_path
+        probe_paths = [health_path]
+        if health_path != "/":
+            probe_paths.append("/")
+
+        try:
+            async with httpx.AsyncClient(timeout=1.0) as client:
+                for _ in range(attempts):
+                    await asyncio.sleep(0.5)
+
+                    elapsed_s = int(time.monotonic() - started)
+                    if elapsed_s != last_beat_s:
+                        last_beat_s = elapsed_s
+                        remaining = max(0, int(timeout) - elapsed_s)
+                        on_log(f"⏳ [deploy] Waiting for server health... elapsed={elapsed_s}s remaining~{remaining}s")
+
+                    # Check if process is still running
+                    if not process.is_running:
+                        exit_code = process.process.returncode if process.process else "unknown"
+                        on_log(f"❌ Process died (exit code: {exit_code})")
+
+                        # Try to get error output
+                        if process.process and process.process.stderr:
+                            try:
+                                stderr_bytes = process.process.stderr.read()
+                                if stderr_bytes:
+                                    stderr_output = stderr_bytes.decode()[:1000]
+                                    on_log(f"Error output: {stderr_output[:500]}")
+                            except:
+                                pass
+
+                        # Categorize error based on stderr
+                        error_cat = ErrorCategory.PROCESS_CRASH
+                        if "Address already in use" in stderr_output:
+                            error_cat = ErrorCategory.PORT_CONFLICT
+                        elif "ModuleNotFoundError" in stderr_output or "No module named" in stderr_output:
+                            error_cat = ErrorCategory.DEPENDENCY
+                        elif "SyntaxError" in stderr_output:
+                            error_cat = ErrorCategory.VALIDATION
+
+                        return {"success": False, "error_category": error_cat, "stderr": stderr_output}
+
+                    for path in probe_paths:
+                        try:
+                            resp = await client.get(f"http://localhost:{port}{path}")
+                            if resp.status_code < 500 and not (path != "/" and resp.status_code == 404):
+                                on_log(f"✓ Server responding on {path} (status {resp.status_code})")
+                                return {"success": True, "error_category": ErrorCategory.NONE, "stderr": ""}
+                        except:
+                            pass
+        except Exception:
+            pass
         
         # Timeout reached - try to capture any stderr
         if process.is_running and process.process and process.process.stderr:
@@ -1160,7 +1169,12 @@ class ServiceRunner:
             
             # Quick health check (max 5s for fast mode)
             log("Quick health check...")
-            health_ok = await self._quick_health_check(process, port, timeout=5)
+            health_ok = await self._quick_health_check(
+                process,
+                port,
+                timeout=5,
+                health_path=self.default_health_check,
+            )
             
             total_time_ms = (time_module.time() - start_time) * 1000
             
@@ -1213,21 +1227,33 @@ class ServiceRunner:
         process: subprocess.Popen,
         port: int,
         timeout: int = 5,
+        health_path: str = "/",
     ) -> bool:
         """Quick health check with shorter timeout."""
-        for _ in range(timeout * 4):  # Check every 250ms
-            await asyncio.sleep(0.25)
-            
-            if process.poll() is not None:
-                return False
-            
-            try:
-                async with httpx.AsyncClient(timeout=0.5) as client:
-                    resp = await client.get(f"http://localhost:{port}/")
-                    if resp.status_code < 500:
-                        return True
-            except:
-                pass
+        health_path = (health_path or "/").strip()
+        if not health_path.startswith("/"):
+            health_path = "/" + health_path
+        probe_paths = [health_path]
+        if health_path != "/":
+            probe_paths.append("/")
+
+        try:
+            async with httpx.AsyncClient(timeout=0.5) as client:
+                for _ in range(timeout * 4):  # Check every 250ms
+                    await asyncio.sleep(0.25)
+
+                    if process.poll() is not None:
+                        return False
+
+                    for path in probe_paths:
+                        try:
+                            resp = await client.get(f"http://localhost:{port}{path}")
+                            if resp.status_code < 500 and not (path != "/" and resp.status_code == 404):
+                                return True
+                        except:
+                            pass
+        except Exception:
+            pass
         
         return False
     
