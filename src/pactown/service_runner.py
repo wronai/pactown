@@ -20,6 +20,10 @@ from typing import Any, Callable, Dict, List, Optional
 
 import httpx
 
+from .config import CacheConfig, ServiceConfig
+from .markpact_blocks import parse_blocks
+from .sandbox_manager import SandboxManager, ServiceProcess, _write_dotenv_file
+
 
 class ErrorCategory(str, Enum):
     """Categorized error types for better diagnostics."""
@@ -189,10 +193,6 @@ def kill_process_on_port(port: int, force: bool = False) -> bool:
     
     return killed
 
-from .config import ServiceConfig
-from .markpact_blocks import parse_blocks, Block
-from .sandbox_manager import SandboxManager, ServiceProcess, _write_dotenv_file
-
 
 @dataclass
 class RunResult:
@@ -282,6 +282,7 @@ class ServiceRunner:
         health_timeout: int = 10,
         security_policy: Optional["SecurityPolicy"] = None,
         enable_fast_start: bool = True,
+        cache_config: Optional[CacheConfig] = None,
     ):
         if sandbox_root is None:
             sandbox_root = os.environ.get("PACTOWN_SANDBOX_ROOT", tempfile.gettempdir() + "/pactown-sandboxes")
@@ -292,6 +293,9 @@ class ServiceRunner:
         self.health_timeout = health_timeout
         self._services: Dict[str, str] = {}  # external_id -> service_name
         self._service_users: Dict[str, str] = {}  # service_id -> user_id
+
+        self.cache_config = cache_config or CacheConfig.from_env()
+        self._cache_env: Dict[str, str] = self.cache_config.to_env()
         
         # Security policy - use provided or get global default
         from .security import get_security_policy
@@ -509,9 +513,12 @@ class ServiceRunner:
         readme_path.write_text(content)
         
         # Create ServiceConfig
-        service_env = {"PORT": str(port)}
+        service_env: Dict[str, str] = {}
+        if self._cache_env:
+            service_env.update(self._cache_env)
         if env:
             service_env.update(env)
+        service_env["PORT"] = str(port)
         
         service_config = ServiceConfig(
             name=service_name,
@@ -974,6 +981,12 @@ class ServiceRunner:
         logs: List[str] = []
         service_name = f"service_{service_id}"
         effective_user_id = user_id or "anonymous"
+
+        effective_env: Dict[str, str] = {}
+        if self._cache_env:
+            effective_env.update(self._cache_env)
+        if env:
+            effective_env.update(env)
         
         def log(msg: str):
             logs.append(msg)
@@ -1021,7 +1034,7 @@ class ServiceRunner:
                 service_name=service_name,
                 content=content,
                 on_log=log,
-                env=env,
+                env=effective_env,
             )
             
             if not fast_result.success:
@@ -1053,11 +1066,10 @@ class ServiceRunner:
                 readme_path = Path(f.name)
 
             # Use sandbox manager for regular creation
-            from .config import ServiceConfig
             config = ServiceConfig(name=service_name, readme=str(readme_path), port=port)
             
             try:
-                sandbox = self.sandbox_manager.create_sandbox(config, readme_path, env=env)
+                sandbox = self.sandbox_manager.create_sandbox(config, readme_path, env=effective_env)
                 sandbox_path = sandbox.path
             finally:
                 readme_path.unlink()
@@ -1082,10 +1094,10 @@ class ServiceRunner:
         run_env = os.environ.copy()
         run_env["PORT"] = str(port)
         run_env["HOST"] = "0.0.0.0"  # nosec B104: bind all interfaces for container/service access
-        if env:
-            run_env.update(env)
+        if effective_env:
+            run_env.update(effective_env)
 
-        dotenv_env = dict(env or {})
+        dotenv_env = dict(effective_env or {})
         dotenv_env["PORT"] = str(port)
         dotenv_env["MARKPACT_PORT"] = str(port)
         _write_dotenv_file(sandbox_path, dotenv_env)

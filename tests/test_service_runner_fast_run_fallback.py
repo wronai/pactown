@@ -6,13 +6,18 @@ from types import SimpleNamespace
 
 import pytest
 
+from pactown.config import CacheConfig
 from pactown.service_runner import ServiceRunner
 
 
 def test_fast_run_fallback_sets_serviceconfig_readme_and_cleans_temp_file(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    runner = ServiceRunner(sandbox_root=tmp_path / "sandboxes", enable_fast_start=False)
+    runner = ServiceRunner(
+        sandbox_root=tmp_path / "sandboxes",
+        enable_fast_start=False,
+        cache_config=CacheConfig(),
+    )
 
     async def allow(*args, **kwargs):
         return SimpleNamespace(allowed=True, reason=None, delay_seconds=0.0)
