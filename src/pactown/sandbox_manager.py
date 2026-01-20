@@ -335,7 +335,7 @@ class SandboxManager:
                 "stop": stop,
                 "on_log": on_log,
                 "message": f"[deploy] Installing dependencies via npm ({len(deps_clean)} deps)",
-                "interval_s": 5.0,
+                "interval_s": float(_beat_every_s()),
             },
             daemon=True,
         )
