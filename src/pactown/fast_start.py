@@ -73,6 +73,13 @@ def _heartbeat(
         on_log(f"⏳ {message} (elapsed={elapsed}s)")
 
 
+def _beat_every_s(*, default: int = 5) -> int:
+    try:
+        return max(1, int(os.environ.get("PACTOWN_HEALTH_HEARTBEAT_S", str(default))))
+    except Exception:
+        return default
+
+
 def _run_streamed(
     cmd: List[str],
     *,
@@ -211,7 +218,7 @@ class DependencyCache:
                 "stop": stop,
                 "on_log": on_progress,
                 "message": f"[deploy] Caching venv ({deps_hash})",
-                "interval_s": 1.0,
+                "interval_s": float(_beat_every_s()),
             },
             daemon=True,
         )
@@ -261,7 +268,7 @@ class DependencyCache:
                 "stop": stop,
                 "on_log": on_progress,
                 "message": f"[deploy] Creating cached venv ({len(deps)} deps)",
-                "interval_s": 3.0,
+                "interval_s": float(_beat_every_s()),
             },
             daemon=True,
         )
@@ -285,7 +292,7 @@ class DependencyCache:
                     "stop": stop,
                     "on_log": on_progress,
                     "message": f"[deploy] Installing cached deps via pip ({len(deps)} deps)",
-                    "interval_s": 3.0,
+                    "interval_s": float(_beat_every_s()),
                 },
                 daemon=True,
             )
@@ -485,6 +492,52 @@ class FastServiceStarter:
         def log(msg: str):
             if on_log:
                 on_log(msg)
+
+        def verify_cached_venv(*, venv_path: Path) -> bool:
+            py = venv_path / "bin" / "python"
+            if not py.exists():
+                return False
+
+            deps_l = {d.strip().lower() for d in deps if d.strip()}
+            rc = (run_cmd or "").strip().lower()
+
+            imports: list[str] = []
+            if rc.startswith("uvicorn ") or " uvicorn " in f" {rc} ":
+                imports.extend(["uvicorn", "click"])
+            elif rc.startswith("gunicorn ") or " gunicorn " in f" {rc} ":
+                imports.append("gunicorn")
+
+            if "fastapi" in deps_l and "fastapi" not in imports:
+                imports.append("fastapi")
+            if "flask" in deps_l and "flask" not in imports:
+                imports.append("flask")
+
+            if not imports:
+                return True
+
+            code = "import importlib\n" + "\n".join([f"importlib.import_module({m!r})" for m in imports])
+            check_env = os.environ.copy()
+            if env:
+                check_env.update({str(k): str(v) for k, v in env.items() if k is not None and v is not None})
+
+            try:
+                res = subprocess.run(
+                    [str(py), "-c", code],
+                    capture_output=True,
+                    text=True,
+                    env=check_env,
+                    timeout=20,
+                )
+            except (FileNotFoundError, subprocess.TimeoutExpired):
+                return False
+
+            if res.returncode != 0:
+                out = ((res.stderr or "") + "\n" + (res.stdout or "")).strip()[:2000]
+                if out:
+                    log(f"Cached venv verification failed: {out}")
+                return False
+
+            return True
         
         # Parse content
         try:
@@ -531,12 +584,25 @@ class FastServiceStarter:
         venv_path = None
         if deps and self.enable_caching and self.dep_cache:
             cached = self.dep_cache.get_cached_venv(deps)
-            
+
+            if cached:
+                ok = await asyncio.get_event_loop().run_in_executor(
+                    self._executor,
+                    lambda: verify_cached_venv(venv_path=cached.path),
+                )
+                if not ok:
+                    log("⚠️ Cached venv appears corrupted - rebuilding")
+                    try:
+                        self.dep_cache.invalidate(deps)
+                    except Exception:
+                        pass
+                    cached = None
+
             if cached:
                 cache_hit = True
                 venv_path = cached.path
                 log(f"⚡ Cache hit! Reusing venv ({cached.deps_hash})")
-                
+
                 # Symlink to cached venv instead of copying
                 venv_link = sandbox_path / ".venv"
                 venv_link.symlink_to(cached.path)
