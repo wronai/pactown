@@ -341,8 +341,31 @@ class ServiceRunner:
         if not has_run:
             errors.append("No run command. Add ```bash markpact:run``` block.")
         
+        # Check for dependency mismatches
+        common_node_pkgs = {"express", "react", "next", "vue", "axios", "lodash", "mongoose", "sequelize", "pg", "socket.io"}
+        common_py_pkgs = {"fastapi", "flask", "django", "requests", "httpx", "sqlalchemy", "pandas", "numpy", "pydantic"}
+        
+        for b in blocks:
+            if b.kind == "deps":
+                lang = getattr(b, "lang", "").lower()
+                deps = [d.strip() for d in b.body.strip().splitlines() if d.strip()]
+                
+                # Check Python deps
+                if lang in ("python", "py", "pip"):
+                    for dep in deps:
+                        pkg_name = dep.split("==")[0].split(">")[0].split("<")[0].strip().lower()
+                        if pkg_name in common_node_pkgs:
+                            errors.append(f"Warning: Found Node.js package '{pkg_name}' in Python dependency block. Did you mean ```javascript markpact:deps```?")
+                
+                # Check Node deps
+                if lang in ("javascript", "js", "typescript", "ts", "node", "npm"):
+                    for dep in deps:
+                        pkg_name = dep.split("@")[0].strip().lower()
+                        if pkg_name in common_py_pkgs:
+                            errors.append(f"Warning: Found Python package '{pkg_name}' in Node.js dependency block. Did you mean ```python markpact:deps```?")
+
         return ValidationResult(
-            valid=len(errors) == 0,
+            valid=len(errors) == 0 or all(e.startswith("Warning:") for e in errors), # Warnings don't block run
             errors=errors,
             file_count=file_count,
             deps_count=deps_count,
