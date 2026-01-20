@@ -21,17 +21,15 @@ def test_node_project_uses_npm_instead_of_pip_even_if_deps_lang_is_wrong(
 
     captured: dict[str, object] = {"npm": 0, "pip": 0}
 
-    def fake_run(cmd, capture_output=False, text=False, check=False, env=None, cwd=None, **kwargs):
+    def fake_popen(cmd, stdout=None, stderr=None, text=False, bufsize=0, env=None, cwd=None, **kwargs):
         cmd0 = str(cmd[0]) if isinstance(cmd, list) and cmd else str(cmd)
         if isinstance(cmd, list) and cmd0 == "npm":
             captured["npm"] = int(captured["npm"]) + 1
-            return SimpleNamespace(returncode=0, stdout="", stderr="")
         if isinstance(cmd, list) and "pip" in cmd0 and "install" in cmd:
             captured["pip"] = int(captured["pip"]) + 1
-            return SimpleNamespace(returncode=0, stdout="", stderr="")
-        return SimpleNamespace(returncode=0, stdout="", stderr="")
+        return SimpleNamespace(stdout=[], wait=lambda: 0, args=cmd)
 
-    monkeypatch.setattr(sm_module.subprocess, "run", fake_run)
+    monkeypatch.setattr(sm_module.subprocess, "Popen", fake_popen)
 
     readme = """# Express Hello
 
@@ -78,12 +76,12 @@ def test_node_deps_block_creates_package_json_and_calls_npm(
 
     captured: dict[str, object] = {"npm": 0}
 
-    def fake_run(cmd, capture_output=False, text=False, check=False, env=None, cwd=None, **kwargs):
+    def fake_popen(cmd, stdout=None, stderr=None, text=False, bufsize=0, env=None, cwd=None, **kwargs):
         if isinstance(cmd, list) and cmd and str(cmd[0]) == "npm":
             captured["npm"] = int(captured["npm"]) + 1
-        return SimpleNamespace(returncode=0, stdout="", stderr="")
+        return SimpleNamespace(stdout=[], wait=lambda: 0, args=cmd)
 
-    monkeypatch.setattr(sm_module.subprocess, "run", fake_run)
+    monkeypatch.setattr(sm_module.subprocess, "Popen", fake_popen)
 
     readme = """# Express Hello
 

@@ -13,7 +13,7 @@ import subprocess
 import sys
 import tempfile
 import time
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
@@ -21,6 +21,7 @@ from typing import Any, Callable, Dict, List, Optional
 import httpx
 
 from .config import CacheConfig, ServiceConfig
+from .error_context import build_error_context, render_error_report_md
 from .markpact_blocks import parse_blocks
 from .sandbox_manager import SandboxManager, ServiceProcess, _write_dotenv_file
 
@@ -209,6 +210,8 @@ class RunResult:
     diagnostics: Optional[DiagnosticInfo] = None
     suggestions: List[AutoFixSuggestion] = field(default_factory=list)
     stderr_output: str = ""  # Captured stderr for debugging
+    error_context: Optional[Dict[str, Any]] = None
+    error_report_md: Optional[str] = None
     
     def to_dict(self) -> dict:
         """Convert to dictionary for JSON serialization."""
@@ -234,6 +237,8 @@ class RunResult:
                 for s in self.suggestions
             ],
             "stderr_output": self.stderr_output,
+            "error_context": self.error_context,
+            "error_report_md": self.error_report_md,
         }
 
 
@@ -569,13 +574,44 @@ class ServiceRunner:
                 )
                 
                 if not health_result["success"]:
-                    # Cleanup
-                    self.sandbox_manager.stop_service(service_name)
-                    self.sandbox_manager.clean_sandbox(service_name)
-                    
                     error_cat = health_result.get("error_category", ErrorCategory.STARTUP_TIMEOUT)
                     stderr_out = health_result.get("stderr", "")
                     suggestions = self._generate_suggestions(error_cat, stderr_out, port)
+                    diagnostics = DiagnosticInfo.collect(process.sandbox_path)
+
+                    trace_override = None
+                    if env:
+                        trace_override = env.get("TRACE_ID") or env.get("PACTOWN_TRACE_ID")
+
+                    error_context = None
+                    error_report_md = None
+                    try:
+                        error_context = build_error_context(
+                            sandbox_path=process.sandbox_path if process.sandbox_path and process.sandbox_path.exists() else None,
+                            logs=logs,
+                            stderr=stderr_out,
+                            trace_id_override=trace_override,
+                        )
+                        error_report_md = render_error_report_md(
+                            error_context,
+                            meta={
+                                "message": f"Server failed to start within {timeout} seconds",
+                                "error_category": error_cat.value,
+                                "port": port,
+                                "pid": process.pid,
+                                "service_id": service_id,
+                                "service_name": service_name,
+                                "suggestions": [asdict(s) for s in suggestions],
+                                "diagnostics": asdict(diagnostics) if diagnostics else None,
+                            },
+                        )
+                    except Exception:
+                        error_context = None
+                        error_report_md = None
+
+                    # Cleanup
+                    self.sandbox_manager.stop_service(service_name)
+                    self.sandbox_manager.clean_sandbox(service_name)
                     
                     log("❌ Server failed to start - check dependencies and code")
                     return RunResult(
@@ -586,7 +622,11 @@ class ServiceRunner:
                         error_category=error_cat,
                         stderr_output=stderr_out,
                         suggestions=suggestions,
-                        diagnostics=DiagnosticInfo.collect(process.sandbox_path),
+                        diagnostics=diagnostics,
+                        service_name=service_name,
+                        sandbox_path=process.sandbox_path,
+                        error_context=error_context,
+                        error_report_md=error_report_md,
                     )
             
             # Track mapping

@@ -1,7 +1,10 @@
+import json
+
 import httpx
 import pytest
 
 from pactown.runner_api import RunnerApiSettings, RunnerService, create_runner_api
+from pactown.service_runner import ErrorCategory, RunResult
 
 
 def _sample_markdown() -> str:
@@ -106,3 +109,145 @@ async def test_status_filtering(tmp_path):
         resp = await client.get("/status", params={"user_id": "user:1"})
         assert resp.status_code == 200
         assert resp.json().get("services") == []
+
+
+@pytest.mark.asyncio
+async def test_run_failure_includes_error_report_md(tmp_path, monkeypatch):
+    settings = RunnerApiSettings()
+    settings.require_token = False
+
+    runner_service = RunnerService(sandbox_root=tmp_path, port_start=12000, port_end=12010)
+    app = create_runner_api(runner_service=runner_service, settings=settings)
+
+    service_id = "1-user"
+    sandbox_path = runner_service._sandbox_path_for(service_id)
+    sandbox_path.mkdir(parents=True, exist_ok=True)
+    (sandbox_path / "main.py").write_text("print('hello')\n", encoding="utf-8")
+
+    file_path = sandbox_path / "main.py"
+    stderr = (
+        "Traceback (most recent call last):\n"
+        f"  File \"{file_path}\", line 1, in <module>\n"
+        "    raise RuntimeError('boom')\n"
+        "RuntimeError: boom\n"
+        "trace_id=abc123\n"
+    )
+
+    async def fake_run(
+        *,
+        service_id: str,
+        content: str,
+        port: int,
+        env,
+        user_id,
+        username,
+        user_profile,
+        fast_mode: bool,
+        skip_health_check: bool,
+        on_log=None,
+    ) -> RunResult:
+        return RunResult(
+            success=False,
+            port=int(port or 0),
+            pid=None,
+            message="boom",
+            logs=[],
+            error_category=ErrorCategory.PROCESS_CRASH,
+            stderr_output=stderr,
+        )
+
+    monkeypatch.setattr(runner_service, "run", fake_run)
+
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        resp = await client.post(
+            "/run",
+            json={
+                "project_id": 1,
+                "service_id": service_id,
+                "readme_content": _sample_markdown(),
+                "port": 12000,
+            },
+        )
+        assert resp.status_code == 200
+        payload = resp.json()
+        assert payload.get("error_context") is not None
+        assert payload.get("error_report_md")
+
+        md = payload["error_report_md"]
+        assert "## Summary" in md
+        assert "abc123" in md
+        assert "### `main.py`" in md
+        assert "print('hello')" in md
+
+
+@pytest.mark.asyncio
+async def test_run_stream_failure_includes_error_report_md(tmp_path, monkeypatch):
+    settings = RunnerApiSettings()
+    settings.require_token = False
+
+    runner_service = RunnerService(sandbox_root=tmp_path, port_start=12000, port_end=12010)
+    app = create_runner_api(runner_service=runner_service, settings=settings)
+
+    service_id = "1-user"
+    sandbox_path = runner_service._sandbox_path_for(service_id)
+    sandbox_path.mkdir(parents=True, exist_ok=True)
+    (sandbox_path / "main.py").write_text("print('hello')\n", encoding="utf-8")
+
+    file_path = sandbox_path / "main.py"
+    stderr = (
+        "Traceback (most recent call last):\n"
+        f"  File \"{file_path}\", line 1, in <module>\n"
+        "    raise RuntimeError('boom')\n"
+        "RuntimeError: boom\n"
+        "trace_id=abc123\n"
+    )
+
+    async def fake_run(
+        *,
+        service_id: str,
+        content: str,
+        port: int,
+        env,
+        user_id,
+        username,
+        user_profile,
+        fast_mode: bool,
+        skip_health_check: bool,
+        on_log=None,
+    ) -> RunResult:
+        return RunResult(
+            success=False,
+            port=int(port or 0),
+            pid=None,
+            message="boom",
+            logs=[],
+            error_category=ErrorCategory.PROCESS_CRASH,
+            stderr_output=stderr,
+        )
+
+    monkeypatch.setattr(runner_service, "run", fake_run)
+
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        async with client.stream(
+            "POST",
+            "/run/stream",
+            json={
+                "project_id": 1,
+                "service_id": service_id,
+                "readme_content": _sample_markdown(),
+                "port": 12000,
+            },
+        ) as resp:
+            assert resp.status_code == 200
+            items = []
+            async for line in resp.aiter_lines():
+                if not line:
+                    continue
+                items.append(json.loads(line))
+
+        result_item = next(i for i in items if i.get("type") == "result")
+        result_payload = result_item["result"]
+        assert result_payload.get("error_report_md")
+        assert "### `main.py`" in result_payload["error_report_md"]

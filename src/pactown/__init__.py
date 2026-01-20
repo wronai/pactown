@@ -100,6 +100,8 @@ from .llm import (
     reset_provider as reset_llm_provider,
 )
 
+from .error_context import build_error_context
+
 __all__ = [
     # High-level API
     "ServiceRunner",
@@ -194,5 +196,6 @@ __all__ = [
     "get_llm_status",
     "set_llm_priority",
     "reset_llm_provider",
+    "build_error_context",
     "__version__",
 ]

@@ -29,12 +29,12 @@ def test_sandbox_manager_passes_env_to_pip_install(tmp_path: Path, monkeypatch: 
 
     captured = {}
 
-    def fake_run(cmd, capture_output=False, text=False, check=False, env=None, **kwargs):
-        if isinstance(cmd, list) and "pip" in str(cmd[0]) and "install" in cmd:
+    def fake_popen(cmd, stdout=None, stderr=None, text=False, bufsize=0, env=None, **kwargs):
+        if isinstance(cmd, list) and cmd and "pip" in str(cmd[0]) and "install" in cmd:
             captured["pip_env"] = dict(env or {})
-        return SimpleNamespace(returncode=0, stdout="", stderr="")
+        return SimpleNamespace(stdout=[], wait=lambda: 0, args=cmd)
 
-    monkeypatch.setattr(sm_module.subprocess, "run", fake_run)
+    monkeypatch.setattr(sm_module.subprocess, "Popen", fake_popen)
 
     readme = """```python markpact:file path=main.py
 print('hi')

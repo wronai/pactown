@@ -19,6 +19,7 @@ from .network import PortAllocator
 from .platform import to_dns_label
 from .security import UserProfile
 from .service_runner import RunResult, ServiceRunner, ValidationResult
+from .error_context import build_error_context, render_error_report_md
 
 logger = logging.getLogger(__name__)
 
@@ -381,6 +382,36 @@ def create_runner_api(*, runner_service: RunnerService, settings: RunnerApiSetti
             fast_mode=req.fast_mode,
             skip_health_check=req.skip_health_check,
         )
+
+        sandbox_path = runner_service._sandbox_path_for(service_id)
+        error_context = result.error_context
+        error_report_md = result.error_report_md
+        try:
+            if not result.success and error_context is None:
+                error_context = build_error_context(
+                    sandbox_path=sandbox_path if sandbox_path.exists() else None,
+                    logs=result.logs or [],
+                    stderr=result.stderr_output or "",
+                )
+            if not result.success and error_report_md is None and error_context is not None:
+                error_report_md = render_error_report_md(
+                    error_context,
+                    meta={
+                        "message": result.message,
+                        "error_category": result.error_category.value
+                        if hasattr(result.error_category, "value")
+                        else str(result.error_category),
+                        "port": result.port,
+                        "pid": result.pid,
+                        "service_id": service_id,
+                        "service_name": result.service_name,
+                        "suggestions": [asdict(s) for s in (result.suggestions or [])],
+                        "diagnostics": asdict(result.diagnostics) if result.diagnostics else None,
+                    },
+                )
+        except Exception:
+            error_context = None
+            error_report_md = None
         return {
             "success": result.success,
             "port": result.port,
@@ -389,6 +420,8 @@ def create_runner_api(*, runner_service: RunnerService, settings: RunnerApiSetti
             "logs": result.logs or [],
             "error_category": result.error_category.value if hasattr(result.error_category, "value") else str(result.error_category),
             "stderr_output": result.stderr_output,
+            "error_context": error_context,
+            "error_report_md": error_report_md,
             "suggestions": [asdict(s) for s in (result.suggestions or [])],
             "diagnostics": asdict(result.diagnostics) if result.diagnostics else None,
             "service_name": result.service_name,
@@ -412,6 +445,7 @@ def create_runner_api(*, runner_service: RunnerService, settings: RunnerApiSetti
                 pass
 
         async def run_job() -> None:
+            payload: Dict[str, Any]
             try:
                 def _run_in_thread() -> RunResult:
                     return asyncio.run(
@@ -430,14 +464,49 @@ def create_runner_api(*, runner_service: RunnerService, settings: RunnerApiSetti
                     )
 
                 result = await asyncio.to_thread(_run_in_thread)
+                sandbox_path = runner_service._sandbox_path_for(service_id)
+
+                error_context = result.error_context
+                error_report_md = result.error_report_md
+                try:
+                    if not result.success and error_context is None:
+                        error_context = build_error_context(
+                            sandbox_path=sandbox_path if sandbox_path.exists() else None,
+                            logs=result.logs or [],
+                            stderr=result.stderr_output or "",
+                        )
+                    if not result.success and error_report_md is None and error_context is not None:
+                        error_report_md = render_error_report_md(
+                            error_context,
+                            meta={
+                                "message": result.message,
+                                "error_category": result.error_category.value
+                                if hasattr(result.error_category, "value")
+                                else str(result.error_category),
+                                "port": result.port,
+                                "pid": result.pid,
+                                "service_id": service_id,
+                                "service_name": result.service_name,
+                                "suggestions": [asdict(s) for s in (result.suggestions or [])],
+                                "diagnostics": asdict(result.diagnostics) if result.diagnostics else None,
+                            },
+                        )
+                except Exception:
+                    error_context = None
+                    error_report_md = None
+
                 payload = {
                     "success": result.success,
                     "port": result.port,
                     "pid": result.pid,
                     "message": result.message,
                     "logs": result.logs or [],
-                    "error_category": result.error_category.value if hasattr(result.error_category, "value") else str(result.error_category),
+                    "error_category": result.error_category.value
+                    if hasattr(result.error_category, "value")
+                    else str(result.error_category),
                     "stderr_output": result.stderr_output,
+                    "error_context": error_context,
+                    "error_report_md": error_report_md,
                     "suggestions": [asdict(s) for s in (result.suggestions or [])],
                     "diagnostics": asdict(result.diagnostics) if result.diagnostics else None,
                     "service_name": result.service_name,
@@ -445,29 +514,26 @@ def create_runner_api(*, runner_service: RunnerService, settings: RunnerApiSetti
                     "user_id": req.user_id,
                     "service_id": service_id,
                 }
-                await q.put({"type": "result", "result": payload})
             except Exception as e:
-                await q.put(
-                    {
-                        "type": "result",
-                        "result": {
-                            "success": False,
-                            "port": int(req.port or 0),
-                            "pid": None,
-                            "message": f"Runner exception: {type(e).__name__}: {e}",
-                            "logs": [],
-                            "error_category": "exception",
-                            "stderr_output": "",
-                            "suggestions": [],
-                            "diagnostics": None,
-                            "service_name": None,
-                            "sandbox_path": None,
-                            "user_id": req.user_id,
-                            "service_id": service_id,
-                        },
-                    }
-                )
+                payload = {
+                    "success": False,
+                    "port": int(req.port or 0),
+                    "pid": None,
+                    "message": f"Runner exception: {type(e).__name__}: {e}",
+                    "logs": [],
+                    "error_category": "exception",
+                    "stderr_output": "",
+                    "error_context": None,
+                    "error_report_md": None,
+                    "suggestions": [],
+                    "diagnostics": None,
+                    "service_name": None,
+                    "sandbox_path": None,
+                    "user_id": req.user_id,
+                    "service_id": service_id,
+                }
             finally:
+                await q.put({"type": "result", "result": payload})
                 await q.put({"type": "eof"})
 
         task = asyncio.create_task(run_job())

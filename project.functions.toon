@@ -1,9 +1,10 @@
 project: pactown
-generated: "2026-01-20T14:28:30.707009"
-modules[59]{path,lang,items}:
+generated: "2026-01-20T16:49:01.085535"
+modules[61]{path,lang,items}:
   tests/test_security.py,python,16
-  tests/test_runner_api.py,python,4
+  tests/test_runner_api.py,python,6
   tests/conftest.py,python,0
+  tests/test_sandbox_manager_venv_heal.py,python,1
   tests/test_user_isolation_manager.py,python,5
   tests/test_llm.py,python,17
   tests/test_deploy_dockerfile.py,python,2
@@ -29,6 +30,7 @@ modules[59]{path,lang,items}:
   src/pactown/parallel.py,python,6
   src/pactown/__init__.py,python,0
   src/pactown/fast_start.py,python,26
+  src/pactown/error_context.py,python,9
   src/pactown/platform.py,python,15
   src/pactown/markpact_blocks.py,python,2
   src/pactown/orchestrator.py,python,18
@@ -81,11 +83,16 @@ function_details:
       TestCryptography.test_no_weak_random,method,() -> None,242-262,false,21,6,Code should not use weak random for security.
       TestDependencySecurity.test_no_known_vulnerabilities,method,() -> None,281-292,false,12,3,Dependencies should not have known vulnerabilities.
   tests/test_runner_api.py:
-    functions[4]{name,kind,sig,loc,async,lines,cc,does}:
-      _sample_markdown,function,() -> str,7-17,false,11,1,sample markdown
-      test_validate_ok,function,(tmp_path) -> None,21-35,true,15,1,checks validate ok
-      test_sandbox_prepare_and_file_ops,function,(tmp_path) -> None,39-93,true,55,4,checks sandbox prepare and file ops
-      test_status_filtering,function,(tmp_path) -> None,97-108,true,12,1,checks status filtering
+    functions[6]{name,kind,sig,loc,async,lines,cc,does}:
+      _sample_markdown,function,() -> str,10-20,false,11,1,sample markdown
+      test_validate_ok,function,(tmp_path) -> None,24-38,true,15,1,checks validate ok
+      test_sandbox_prepare_and_file_ops,function,(tmp_path) -> None,42-96,true,55,4,checks sandbox prepare and file ops
+      test_status_filtering,function,(tmp_path) -> None,100-111,true,12,1,checks status filtering
+      test_run_failure_includes_error_report_md,function,"(tmp_path, monkeypatch) -> None",115-181,true,67,1,checks run failure includes error report md
+      test_run_stream_failure_includes_error_report_md,function,"(tmp_path, monkeypatch) -> None",185-253,true,69,5,checks run stream failure includes error report md
+  tests/test_sandbox_manager_venv_heal.py:
+    functions[1]{name,kind,sig,loc,async,lines,cc,does}:
+      test_self_heal_corrupted_cache,function,"(tmp_path:Path, caplog) -> None",13-183,false,171,8,Regression test for self-healing corrupted venv cache.
   tests/test_user_isolation_manager.py:
     functions[5]{name,kind,sig,loc,async,lines,cc,does}:
       test_sanitize_gecos_removes_colon_and_control_chars,function,() -> None,10-13,false,4,1,checks sanitize gecos removes colon and control chars
@@ -222,8 +229,8 @@ function_details:
       test_registry_storage_persistence,function,() -> None,136-153,false,18,1,checks registry storage persistence
   tests/test_sandbox_manager_node_deps.py:
     functions[2]{name,kind,sig,loc,async,lines,cc,does}:
-      test_node_project_uses_npm_instead_of_pip_even_if_deps_lang_is_wrong,function,"(tmp_path:Path, monkeypatch:Any) -> None",12-66,false,55,1,checks node project uses npm instead of pip even if deps lang is wrong
-      test_node_deps_block_creates_package_json_and_calls_npm,function,"(tmp_path:Path, monkeypatch:Any) -> None",69-119,false,51,1,checks node deps block creates package json and calls npm
+      test_node_project_uses_npm_instead_of_pip_even_if_deps_lang_is_wrong,function,"(tmp_path:Path, monkeypatch:Any) -> None",12-64,false,53,1,checks node project uses npm instead of pip even if deps lang is wrong
+      test_node_deps_block_creates_package_json_and_calls_npm,function,"(tmp_path:Path, monkeypatch:Any) -> None",67-117,false,51,1,checks node deps block creates package json and calls npm
   tests/test_sandbox_manager_env_injection.py:
     functions[1]{name,kind,sig,loc,async,lines,cc,does}:
       test_sandbox_manager_passes_env_to_pip_install,function,"(tmp_path:Path, monkeypatch:Any) -> None",11-61,false,51,1,checks sandbox manager passes env to pip install
@@ -469,6 +476,17 @@ function_details:
       FastServiceStarter.get_cache_stats,method,"() -> Dict[str, Any]",673-681,false,9,2,Get caching statistics.
       ParallelServiceRunner.__init__,method,"(fast_starter:FastServiceStarter, max_parallel:int=4) -> None",689-692,false,4,1,creates
       ParallelServiceRunner.run_parallel,method,"(services:List[Dict[str,Any]], on_service_log:Optional[Callable[Any,None]]=None) -> List[FastStartResult]",694-724,true,31,2,Run multiple services in parallel.
+  src/pactown/error_context.py:
+    functions[9]{name,kind,sig,loc,async,lines,cc,does}:
+      _truncate_text,function,"(value:str) -> str",31-37,false,7,4,truncate text
+      extract_trace_ids,function,"(text:str) -> List[str]",40-49,false,10,6,parses trace ids
+      extract_file_paths,function,"(text:str) -> List[str]",52-65,false,14,9,parses file paths
+      most_probable_file,function,"(paths:List[str]) -> Optional[str]",68-83,false,16,7,most probable file
+      _is_noise_path,function,"(path_str:str) -> bool",86-98,false,13,3,is noise path
+      _safe_resolve_under,function,"(root:Path, path_str:str) -> Optional[Path]",101-112,false,12,4,safe resolve under
+      _read_text_limited,function,"(path:Path) -> str",115-127,false,13,5,retrieves text limited
+      build_error_context,function,"(sandbox_path:Optional[Path]) -> Dict[str, Any]",130-233,false,104,41,creates error context
+      render_error_report_md,function,"(context:Dict[str,Any]) -> str",236-375,false,140,43,formats error report md
   src/pactown/platform.py:
     functions[15]{name,kind,sig,loc,async,lines,cc,does}:
       coerce_subdomain_separator,function,"(value:Optional[str]) -> SubdomainSeparator",11-12,false,2,2,coerce subdomain separator
@@ -551,25 +569,25 @@ function_details:
       SandboxManager.start_services_parallel,method,"(services:list[tuple[ServiceConfig,Path,dict[str,str]]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, ServiceProcess]",1137-1194,false,58,6,Start multiple services in parallel.
   src/pactown/runner_api.py:
     functions[19]{name,kind,sig,loc,async,lines,cc,does}:
-      _dns_label,function,"(value:str, fallback:str='user') -> str",26-27,false,2,1,dns label
-      _validate_service_id,function,"(service_id:str) -> str",30-37,false,8,5,validates service id
-      _service_name_for,function,"(service_id:str) -> str",40-42,false,3,1,service name for
-      _validate_rel_path,function,"(path:str) -> Path",45-53,false,9,5,validates rel path
-      _resolve_in_dir,function,"(root:Path, rel:Path) -> Path",56-61,false,6,2,resolve in dir
-      create_runner_api,function,"(runner_service:RunnerService, settings:RunnerApiSettings) -> FastAPI",322-543,false,222,1,creates runner api
-      create_app,function,() -> FastAPI,546-553,false,8,1,creates app
-      main,function,() -> None,556-562,false,7,1,main
-      RunnerApiSettings.__init__,method,() -> None,111-120,false,10,2,creates
-      RunnerService.__init__,method,() -> None,124-134,false,11,1,creates
-      RunnerService._resolve_service_id,method,"(req_service_id:Optional[str], project_id:int, username:Optional[str]) -> str",136-141,false,6,3,resolve service id
-      RunnerService.validate,method,"(readme_content:str) -> ValidationResult",143-144,false,2,1,validates
-      RunnerService._sandbox_path_for,method,"(service_id:str) -> Path",146-147,false,2,1,sandbox path for
-      RunnerService.list_sandbox_files,method,"(service_id:str) -> List[Dict[str, Any]]",149-171,false,23,5,list sandbox files
-      RunnerService.read_sandbox_file,method,"(service_id:str, path:str, limit:int=200000) -> str",173-186,false,14,5,retrieves sandbox file
-      RunnerService.write_sandbox_file,method,"(service_id:str, path:str, content:str) -> None",188-195,false,8,1,logs sandbox file
-      RunnerService.delete_sandbox_file,method,"(service_id:str, path:str) -> None",197-208,false,12,4,deletes sandbox file
-      RunnerService.prepare_sandbox,method,"(service_id:str, content:str, port:int=0) -> Dict[str, Any]",210-243,false,34,4,prepare sandbox
-      RunnerService.run,method,() -> RunResult,245-319,true,75,14,starts
+      _dns_label,function,"(value:str, fallback:str='user') -> str",27-28,false,2,1,dns label
+      _validate_service_id,function,"(service_id:str) -> str",31-38,false,8,5,validates service id
+      _service_name_for,function,"(service_id:str) -> str",41-43,false,3,1,service name for
+      _validate_rel_path,function,"(path:str) -> Path",46-54,false,9,5,validates rel path
+      _resolve_in_dir,function,"(root:Path, rel:Path) -> Path",57-62,false,6,2,resolve in dir
+      create_runner_api,function,"(runner_service:RunnerService, settings:RunnerApiSettings) -> FastAPI",323-609,false,287,1,creates runner api
+      create_app,function,() -> FastAPI,612-619,false,8,1,creates app
+      main,function,() -> None,622-628,false,7,1,main
+      RunnerApiSettings.__init__,method,() -> None,112-121,false,10,2,creates
+      RunnerService.__init__,method,() -> None,125-135,false,11,1,creates
+      RunnerService._resolve_service_id,method,"(req_service_id:Optional[str], project_id:int, username:Optional[str]) -> str",137-142,false,6,3,resolve service id
+      RunnerService.validate,method,"(readme_content:str) -> ValidationResult",144-145,false,2,1,validates
+      RunnerService._sandbox_path_for,method,"(service_id:str) -> Path",147-148,false,2,1,sandbox path for
+      RunnerService.list_sandbox_files,method,"(service_id:str) -> List[Dict[str, Any]]",150-172,false,23,5,list sandbox files
+      RunnerService.read_sandbox_file,method,"(service_id:str, path:str, limit:int=200000) -> str",174-187,false,14,5,retrieves sandbox file
+      RunnerService.write_sandbox_file,method,"(service_id:str, path:str, content:str) -> None",189-196,false,8,1,logs sandbox file
+      RunnerService.delete_sandbox_file,method,"(service_id:str, path:str) -> None",198-209,false,12,4,deletes sandbox file
+      RunnerService.prepare_sandbox,method,"(service_id:str, content:str, port:int=0) -> Dict[str, Any]",211-244,false,34,4,prepare sandbox
+      RunnerService.run,method,() -> RunResult,246-320,true,75,14,starts
   src/pactown/network.py:
     functions[19]{name,kind,sig,loc,async,lines,cc,does}:
       find_free_port,function,"(start:int=10000, end:int=65000) -> int",246-255,false,10,2,Find a single free port.
@@ -593,23 +611,23 @@ function_details:
       ServiceRegistry.clear,method,() -> None,237-243,false,7,2,Clear all registrations.
   src/pactown/service_runner.py:
     functions[17]{name,kind,sig,loc,async,lines,cc,does}:
-      kill_process_on_port,function,"(port:int, force:bool=False) -> bool",108-194,false,87,25,Kill any process using the specified port.
-      DiagnosticInfo.collect,method,"(sandbox_path:Optional[Path]=None) -> \"DiagnosticInfo\"",52-82,false,31,6,Collect diagnostic information.
-      RunResult.to_dict,method,() -> dict,213-237,false,25,4,Convert to dictionary for JSON serialization.
-      ServiceRunner.__init__,method,"(sandbox_root:Any=None, default_health_check:str='/health', health_timeout:int=10, security_policy:Optional[SecurityPolicy]=None, enable_fast_start:bool=True, cache_config:Optional[CacheConfig]=None) -> None",278-314,false,37,5,creates
-      ServiceRunner.validate_content,method,"(content:str) -> ValidationResult",316-346,false,31,11,Validate markpact content before running.
-      ServiceRunner._prune_stale_user_services,method,"(user_id:str, on_log:Optional[Callable[Any,None]]=None) -> None",348-386,false,39,14,prune stale user services
-      ServiceRunner.run_from_content,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, restart_if_running:bool=True, wait_for_health:bool=True, health_timeout:Optional[int]=None) -> RunResult",388-619,true,232,29,Run a service directly from markdown content.
-      ServiceRunner._generate_suggestions,method,"(error_cat:ErrorCategory, stderr:str, port:int) -> List[AutoFixSuggestion]",621-713,false,93,18,Generate actionable suggestions based on error type.
-      ServiceRunner._wait_for_health,method,"(process:ServiceProcess, port:int, timeout:int, health_path:str, on_log:Callable[Any,None]) -> dict",715-805,true,91,30,Wait for service to pass health check.
-      ServiceRunner.stop,method,"(service_id:str) -> RunResult",807-870,false,64,6,Stop a running service.
-      ServiceRunner.get_status,method,"(service_id:str) -> Optional[Dict]",872-891,false,20,3,Get status of a service.
-      ServiceRunner.list_services,method,"() -> List[Dict]",893-907,false,15,4,List all running services.
-      ServiceRunner.test_endpoints,method,"(service_id:str, endpoints:Optional[List[str]]=None, timeout:float=5.0) -> List[EndpointTestResult]",909-969,true,61,8,Test endpoints of a running service.
-      ServiceRunner.stop_all,method,() -> None,971-974,false,4,2,Stop all running services.
-      ServiceRunner.fast_run,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, user_id:Optional[str]=None, user_profile:Optional[Dict[str,Any]]=None, skip_health_check:bool=False) -> RunResult",976-1268,true,293,38,Fast service startup with dependency caching.
-      ServiceRunner._quick_health_check,method,"(process:Any, port:int, timeout:int=5, health_path:str='/') -> bool",1270-1303,true,34,12,Quick health check with shorter timeout.
-      ServiceRunner.get_cache_stats,method,"() -> Dict[str, Any]",1305-1309,false,5,2,Get fast start cache statistics.
+      kill_process_on_port,function,"(port:int, force:bool=False) -> bool",109-195,false,87,25,Kill any process using the specified port.
+      DiagnosticInfo.collect,method,"(sandbox_path:Optional[Path]=None) -> \"DiagnosticInfo\"",53-83,false,31,6,Collect diagnostic information.
+      RunResult.to_dict,method,() -> dict,216-242,false,27,4,Convert to dictionary for JSON serialization.
+      ServiceRunner.__init__,method,"(sandbox_root:Any=None, default_health_check:str='/health', health_timeout:int=10, security_policy:Optional[SecurityPolicy]=None, enable_fast_start:bool=True, cache_config:Optional[CacheConfig]=None) -> None",283-319,false,37,5,creates
+      ServiceRunner.validate_content,method,"(content:str) -> ValidationResult",321-351,false,31,11,Validate markpact content before running.
+      ServiceRunner._prune_stale_user_services,method,"(user_id:str, on_log:Optional[Callable[Any,None]]=None) -> None",353-391,false,39,14,prune stale user services
+      ServiceRunner.run_from_content,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, restart_if_running:bool=True, wait_for_health:bool=True, health_timeout:Optional[int]=None) -> RunResult",393-659,true,267,36,Run a service directly from markdown content.
+      ServiceRunner._generate_suggestions,method,"(error_cat:ErrorCategory, stderr:str, port:int) -> List[AutoFixSuggestion]",661-753,false,93,18,Generate actionable suggestions based on error type.
+      ServiceRunner._wait_for_health,method,"(process:ServiceProcess, port:int, timeout:int, health_path:str, on_log:Callable[Any,None]) -> dict",755-845,true,91,30,Wait for service to pass health check.
+      ServiceRunner.stop,method,"(service_id:str) -> RunResult",847-910,false,64,6,Stop a running service.
+      ServiceRunner.get_status,method,"(service_id:str) -> Optional[Dict]",912-931,false,20,3,Get status of a service.
+      ServiceRunner.list_services,method,"() -> List[Dict]",933-947,false,15,4,List all running services.
+      ServiceRunner.test_endpoints,method,"(service_id:str, endpoints:Optional[List[str]]=None, timeout:float=5.0) -> List[EndpointTestResult]",949-1009,true,61,8,Test endpoints of a running service.
+      ServiceRunner.stop_all,method,() -> None,1011-1014,false,4,2,Stop all running services.
+      ServiceRunner.fast_run,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, user_id:Optional[str]=None, user_profile:Optional[Dict[str,Any]]=None, skip_health_check:bool=False) -> RunResult",1016-1308,true,293,38,Fast service startup with dependency caching.
+      ServiceRunner._quick_health_check,method,"(process:Any, port:int, timeout:int=5, health_path:str='/') -> bool",1310-1343,true,34,12,Quick health check with shorter timeout.
+      ServiceRunner.get_cache_stats,method,"() -> Dict[str, Any]",1345-1349,false,5,2,Get fast start cache statistics.
   src/pactown/deploy/quadlet_shell.py:
     functions[23]{name,kind,sig,loc,async,lines,cc,does}:
       run_shell,function,"(tenant_id:str='default', domain:str='localhost', user_mode:bool=True) -> None",539-553,false,15,2,Run the interactive Quadlet shell.

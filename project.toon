@@ -1,9 +1,10 @@
-# pactown | 59f 17533L | python:59
+# pactown | 61f 18346L | python:61
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
-M[59]:
+M[61]:
   tests/test_security.py,208
-  tests/test_runner_api.py,84
+  tests/test_runner_api.py,210
   tests/conftest.py,6
+  tests/test_sandbox_manager_venv_heal.py,120
   tests/test_user_isolation_manager.py,98
   tests/test_llm.py,232
   tests/test_deploy_dockerfile.py,29
@@ -17,7 +18,7 @@ M[59]:
   tests/test_platform.py,39
   tests/test_network.py,87
   tests/test_registry.py,110
-  tests/test_sandbox_manager_node_deps.py,86
+  tests/test_sandbox_manager_node_deps.py,84
   tests/test_sandbox_manager_env_injection.py,45
   src/pactown/config.py,199
   src/pactown/cli.py,670
@@ -27,16 +28,17 @@ M[59]:
   src/pactown/generator.py,164
   src/pactown/security.py,572
   src/pactown/parallel.py,211
-  src/pactown/__init__.py,181
+  src/pactown/__init__.py,183
   src/pactown/fast_start.py,610
+  src/pactown/error_context.py,310
   src/pactown/platform.py,103
   src/pactown/markpact_blocks.py,35
   src/pactown/orchestrator.py,347
   src/pactown/resolver.py,122
   src/pactown/sandbox_manager.py,1012
-  src/pactown/runner_api.py,477
+  src/pactown/runner_api.py,540
   src/pactown/network.py,206
-  src/pactown/service_runner.py,1082
+  src/pactown/service_runner.py,1120
   src/pactown/deploy/quadlet_shell.py,432
   src/pactown/deploy/base.py,217
   src/pactown/deploy/docker.py,258
@@ -71,12 +73,18 @@ D:
     TestNetworkSecurity: test_port_allocation_within_range(0),test_service_endpoint_creation(0)  # Test network-related security.
     _pip_audit_available()->bool
   tests/test_runner_api.py:
-    i: httpx,pytest,pactown.runner_api.{RunnerApiSettings,RunnerService,create_runner_api}
-    e: test_validate_ok,test_sandbox_prepare_and_file_ops,test_status_filtering
+    i: json,httpx,pytest,pactown.runner_api.{RunnerApiSettings,RunnerService,create_runner_api},pactown.service_runner.{ErrorCategory,RunResult}
+    e: test_validate_ok,test_sandbox_prepare_and_file_ops,test_status_filtering,test_run_failure_includes_error_report_md,test_run_stream_failure_includes_error_report_md
     _sample_markdown()->str
     test_validate_ok(tmp_path)->None
     test_sandbox_prepare_and_file_ops(tmp_path)->None
     test_status_filtering(tmp_path)->None
+    test_run_failure_includes_error_report_md(tmp_path;monkeypatch)->None
+    test_run_stream_failure_includes_error_report_md(tmp_path;monkeypatch)->None
+  tests/test_sandbox_manager_venv_heal.py:
+    i: os,sys,shutil,logging,pytest,pactown.config.ServiceConfig,pactown.sandbox_manager.SandboxManager,pathlib.Path,unittest.mock.{MagicMock,patch}
+    e: test_self_heal_corrupted_cache
+    test_self_heal_corrupted_cache(tmp_path:Path;caplog)->None
   tests/test_user_isolation_manager.py:
     i: os,pytest,pactown.user_isolation.{IsolatedUser,UserIsolationManager,_sanitize_gecos},pathlib.Path,types.SimpleNamespace
     e: test_sanitize_gecos_removes_colon_and_control_chars,test_get_or_create_user_non_root_virtual_user,test_get_or_create_user_reuses_existing_linux_user,test_get_or_create_user_root_creates_user_with_sanitized_comment,test_delete_user_root_builds_userdel_cmd
@@ -285,6 +293,18 @@ D:
     _beat_every_s()->int
     _run_streamed(cmd:List[str])->None
     get_fast_starter(sandbox_root:Optional[Path]=None)->FastServiceStarter
+  src/pactown/error_context.py:
+    i: os,re,datetime,dataclasses.dataclass,pathlib.Path,typing.{Any,Dict,Iterable,List,Optional}
+    e: _TRACE_ID_PATTERN,_PY_TRACE_FILE_PATTERN,_GENERIC_PATH_PATTERN,ErrorContextConfig,extract_trace_ids,extract_file_paths,most_probable_file,build_error_context
+    ErrorContextConfig: 
+    _truncate_text(value:str)->str
+    extract_trace_ids(text:str)->List[str]
+    extract_file_paths(text:str)->List[str]
+    most_probable_file(paths:List[str])->Optional[str]
+    _is_noise_path(path_str:str)->bool
+    _safe_resolve_under(root:Path;path_str:str)->Optional[Path]
+    _read_text_limited(path:Path)->str
+    build_error_context(sandbox_path:Optional[Path])->Dict[str, Any]
   src/pactown/platform.py:
     i: re,pydantic.{BaseModel,Field,field_validator},typing.{Literal,Optional}
     e: coerce_subdomain_separator,normalize_host,normalize_domain,is_local_domain,build_origin,web_base_url,api_base_url,to_dns_label
@@ -352,7 +372,7 @@ D:
     find_free_port(start:int=10000;end:int=65000)->int
     check_port(port:int)->bool
   src/pactown/service_runner.py:
-    i: asyncio,os,shutil,signal,subprocess,sys,tempfile,time,dataclasses.{dataclass,field}
+    i: asyncio,os,shutil,signal,subprocess,sys,tempfile,time,dataclasses.{asdict,dataclass}
     e: ErrorCategory,DiagnosticInfo,AutoFixSuggestion,PROTECTED_PORTS,kill_process_on_port,RunResult,EndpointTestResult,ValidationResult
     ErrorCategory:   # Categorized error types for better di...
     DiagnosticInfo: collect(1)  # Environment diagnostics for debugging.
