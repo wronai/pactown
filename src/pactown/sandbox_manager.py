@@ -651,6 +651,20 @@ class SandboxManager:
                     pip_path = sandbox.venv_bin / "pip"
                     requirements_path = sandbox.path / "requirements.txt"
 
+                    pip_flags: list[str] = []
+                    try:
+                        t = str(install_env.get("PIP_DEFAULT_TIMEOUT") or "").strip()
+                        if t:
+                            pip_flags.extend(["--timeout", t])
+                    except Exception:
+                        pass
+                    try:
+                        r = str(install_env.get("PIP_RETRIES") or "").strip()
+                        if r:
+                            pip_flags.extend(["--retries", r])
+                    except Exception:
+                        pass
+
                     try:
                         proc = subprocess.Popen(
                             [
@@ -659,6 +673,7 @@ class SandboxManager:
                                 "--disable-pip-version-check",
                                 "--progress-bar",
                                 "off",
+                                *pip_flags,
                                 "-r",
                                 str(requirements_path),
                             ],

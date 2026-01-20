@@ -161,3 +161,28 @@ def test_cache_config_to_docker_build_args_maps_apt_proxy() -> None:
     assert args["PIP_INDEX_URL"] == "http://pypi-proxy/simple"
     assert args["APT_PROXY"] == "http://apt-proxy:3142"
     assert args["NPM_CONFIG_REGISTRY"] == "http://verdaccio:4873"
+
+
+def test_cache_config_from_env_reads_pip_timeout_and_retries(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("PIP_DEFAULT_TIMEOUT", "15")
+    monkeypatch.setenv("PIP_RETRIES", "2")
+    monkeypatch.setenv("PACTOWN_PIP_DEFAULT_TIMEOUT", "60")
+    monkeypatch.setenv("PACTOWN_PIP_RETRIES", "5")
+
+    cfg = CacheConfig.from_env()
+    assert cfg.pip_default_timeout == "60"
+    assert cfg.pip_retries == "5"
+
+
+def test_cache_config_to_env_includes_timeout_and_retries() -> None:
+    cfg = CacheConfig(pip_default_timeout="45", pip_retries="4")
+    env = cfg.to_env()
+    assert env["PIP_DEFAULT_TIMEOUT"] == "45"
+    assert env["PIP_RETRIES"] == "4"
+
+
+def test_cache_config_to_docker_build_args_includes_timeout_and_retries() -> None:
+    cfg = CacheConfig(pip_default_timeout="45", pip_retries="4")
+    args = cfg.to_docker_build_args()
+    assert args["PIP_DEFAULT_TIMEOUT"] == "45"
+    assert args["PIP_RETRIES"] == "4"

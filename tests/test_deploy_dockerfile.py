@@ -26,6 +26,21 @@ def test_python_dockerfile_healthcheck_does_not_use_curl() -> None:
     assert "MARKPACT_PORT" in dockerfile
 
 
+def test_python_dockerfile_supports_pip_timeout_and_retries_build_args() -> None:
+    backend = DockerBackend(DeploymentConfig.for_development())
+
+    with TemporaryDirectory() as tmp:
+        sandbox_path = Path(tmp)
+        (sandbox_path / "requirements.txt").write_text("fastapi\n")
+
+        dockerfile = backend._create_dockerfile(sandbox_path, base_image="python:3.12-slim")
+
+    assert "ARG PIP_DEFAULT_TIMEOUT" in dockerfile
+    assert "ARG PIP_RETRIES" in dockerfile
+    assert "ENV PIP_DEFAULT_TIMEOUT" in dockerfile
+    assert "ENV PIP_RETRIES" in dockerfile
+
+
 def test_node_dockerfile_falls_back_when_package_lock_missing() -> None:
     backend = DockerBackend(DeploymentConfig.for_development())
 

@@ -1,17 +1,17 @@
-# pactown | 63f 18716L | python:63
+# pactown | 63f 18965L | python:63
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
 M[63]:
   tests/test_security.py,208
-  tests/test_runner_api.py,210
+  tests/test_runner_api.py,261
   tests/conftest.py,6
   tests/test_sandbox_manager_venv_heal.py,120
   tests/test_user_isolation_manager.py,98
   tests/test_llm.py,232
-  tests/test_deploy_dockerfile.py,97
+  tests/test_deploy_dockerfile.py,135
   tests/test_resolver.py,109
   tests/__init__.py,1
   tests/test_parallel.py,106
-  tests/test_config.py,133
+  tests/test_config.py,151
   tests/test_markpact_blocks.py,36
   tests/test_service_runner_fast_run_fallback.py,62
   tests/test_quadlet_security.py,500
@@ -22,7 +22,7 @@ M[63]:
   tests/test_registry.py,110
   tests/test_sandbox_manager_node_deps.py,84
   tests/test_sandbox_manager_env_injection.py,45
-  src/pactown/config.py,199
+  src/pactown/config.py,216
   src/pactown/cli.py,670
   src/pactown/llm.py,352
   src/pactown/user_isolation.py,381
@@ -37,12 +37,12 @@ M[63]:
   src/pactown/markpact_blocks.py,35
   src/pactown/orchestrator.py,347
   src/pactown/resolver.py,122
-  src/pactown/sandbox_manager.py,1013
+  src/pactown/sandbox_manager.py,1027
   src/pactown/runner_api.py,540
   src/pactown/network.py,206
-  src/pactown/service_runner.py,1136
+  src/pactown/service_runner.py,1198
   src/pactown/deploy/quadlet_shell.py,432
-  src/pactown/deploy/base.py,231
+  src/pactown/deploy/base.py,235
   src/pactown/deploy/docker.py,258
   src/pactown/deploy/__init__.py,29
   src/pactown/deploy/kubernetes.py,410
@@ -76,9 +76,10 @@ D:
     _pip_audit_available()->bool
   tests/test_runner_api.py:
     i: json,httpx,pytest,pactown.runner_api.{RunnerApiSettings,RunnerService,create_runner_api},pactown.service_runner.{ErrorCategory,RunResult}
-    e: test_validate_ok,test_sandbox_prepare_and_file_ops,test_status_filtering,test_run_failure_includes_error_report_md,test_run_stream_failure_includes_error_report_md
+    e: test_validate_ok,test_run_fails_fast_on_missing_required_env_vars,test_sandbox_prepare_and_file_ops,test_status_filtering,test_run_failure_includes_error_report_md,test_run_stream_failure_includes_error_report_md
     _sample_markdown()->str
     test_validate_ok(tmp_path)->None
+    test_run_fails_fast_on_missing_required_env_vars(tmp_path)->None
     test_sandbox_prepare_and_file_ops(tmp_path)->None
     test_status_filtering(tmp_path)->None
     test_run_failure_includes_error_report_md(tmp_path;monkeypatch)->None
@@ -105,11 +106,13 @@ D:
     TestLLMDoctor: test_llm_doctor_outputs_environment_info(0)  # Tests for pactown llm doctor command.
   tests/test_deploy_dockerfile.py:
     i: pactown.config.ServiceConfig,pactown.deploy.base.DeploymentConfig,pactown.deploy.docker.DockerBackend,pactown.sandbox_manager.SandboxManager,pathlib.Path,tempfile.TemporaryDirectory
-    e: test_python_dockerfile_healthcheck_does_not_use_curl,test_node_dockerfile_falls_back_when_package_lock_missing,test_markpact_readme_python_materializes_and_generates_cmd_from_run_block,test_markpact_readme_node_materializes_package_json_and_generates_cmd_from_run_block
+    e: test_python_dockerfile_healthcheck_does_not_use_curl,test_python_dockerfile_supports_pip_timeout_and_retries_build_args,test_node_dockerfile_falls_back_when_package_lock_missing,test_markpact_readme_python_materializes_and_generates_cmd_from_run_block,test_markpact_readme_node_materializes_package_json_and_generates_cmd_from_run_block,test_markpact_readme_static_web_no_deps_generates_cmd_from_run_block
     test_python_dockerfile_healthcheck_does_not_use_curl()->None
+    test_python_dockerfile_supports_pip_timeout_and_retries_build_args()->None
     test_node_dockerfile_falls_back_when_package_lock_missing()->None
     test_markpact_readme_python_materializes_and_generates_cmd_from_run_block()->None
     test_markpact_readme_node_materializes_package_json_and_generates_cmd_from_run_block()->None
+    test_markpact_readme_static_web_no_deps_generates_cmd_from_run_block()->None
   tests/test_resolver.py:
     i: pytest,pactown.config.{DependencyConfig,EcosystemConfig,ServiceConfig},pactown.resolver.DependencyResolver
     e: make_config,test_startup_order_no_deps,test_startup_order_linear,test_startup_order_diamond,test_circular_dependency_detection,test_shutdown_order,test_resolve_service_deps,test_get_environment
@@ -384,7 +387,7 @@ D:
     find_free_port(start:int=10000;end:int=65000)->int
     check_port(port:int)->bool
   src/pactown/service_runner.py:
-    i: asyncio,os,shutil,signal,subprocess,sys,tempfile,time,dataclasses.{asdict,dataclass}
+    i: asyncio,os,shutil,signal,subprocess,sys,tempfile,time,re,dataclasses.asdict
     e: ErrorCategory,DiagnosticInfo,AutoFixSuggestion,PROTECTED_PORTS,kill_process_on_port,RunResult,EndpointTestResult,ValidationResult
     ErrorCategory:   # Categorized error types for better di...
     DiagnosticInfo: collect(1)  # Environment diagnostics for debugging.

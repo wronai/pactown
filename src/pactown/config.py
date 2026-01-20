@@ -75,6 +75,8 @@ class CacheConfig:
     pip_index_url: Optional[str] = None
     pip_extra_index_url: Optional[str] = None
     pip_trusted_host: Optional[str] = None
+    pip_default_timeout: Optional[str] = None
+    pip_retries: Optional[str] = None
     npm_registry_url: Optional[str] = None
     apt_proxy: Optional[str] = None
     docker_registry_mirror: Optional[str] = None
@@ -93,6 +95,13 @@ class CacheConfig:
             pip_index_url=clean(src.get("PACTOWN_PIP_INDEX_URL") or src.get("PIP_INDEX_URL")),
             pip_extra_index_url=clean(src.get("PACTOWN_PIP_EXTRA_INDEX_URL") or src.get("PIP_EXTRA_INDEX_URL")),
             pip_trusted_host=clean(src.get("PACTOWN_PIP_TRUSTED_HOST") or src.get("PIP_TRUSTED_HOST")),
+            pip_default_timeout=clean(
+                src.get("PACTOWN_PIP_DEFAULT_TIMEOUT")
+                or src.get("PIP_DEFAULT_TIMEOUT")
+                or src.get("PACTOWN_PIP_TIMEOUT")
+                or src.get("PIP_TIMEOUT")
+            ),
+            pip_retries=clean(src.get("PACTOWN_PIP_RETRIES") or src.get("PIP_RETRIES")),
             npm_registry_url=clean(src.get("PACTOWN_NPM_REGISTRY_URL") or src.get("NPM_CONFIG_REGISTRY")),
             apt_proxy=clean(src.get("PACTOWN_APT_PROXY") or src.get("APT_PROXY")),
             docker_registry_mirror=clean(
@@ -110,6 +119,10 @@ class CacheConfig:
             env["PIP_EXTRA_INDEX_URL"] = self.pip_extra_index_url
         if self.pip_trusted_host:
             env["PIP_TRUSTED_HOST"] = self.pip_trusted_host
+        if self.pip_default_timeout:
+            env["PIP_DEFAULT_TIMEOUT"] = str(self.pip_default_timeout)
+        if self.pip_retries:
+            env["PIP_RETRIES"] = str(self.pip_retries)
         if self.npm_registry_url:
             env["NPM_CONFIG_REGISTRY"] = self.npm_registry_url
         if self.apt_proxy:
@@ -129,6 +142,10 @@ class CacheConfig:
             args["PIP_EXTRA_INDEX_URL"] = self.pip_extra_index_url
         if self.pip_trusted_host:
             args["PIP_TRUSTED_HOST"] = self.pip_trusted_host
+        if self.pip_default_timeout:
+            args["PIP_DEFAULT_TIMEOUT"] = str(self.pip_default_timeout)
+        if self.pip_retries:
+            args["PIP_RETRIES"] = str(self.pip_retries)
         if self.npm_registry_url:
             args["NPM_CONFIG_REGISTRY"] = self.npm_registry_url
         if self.apt_proxy:
