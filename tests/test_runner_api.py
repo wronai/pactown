@@ -1,10 +1,14 @@
 import json
+import time
+from pathlib import Path
+from types import SimpleNamespace
 
 import httpx
 import pytest
 
 from pactown.runner_api import RunnerApiSettings, RunnerService, create_runner_api
 from pactown.service_runner import ErrorCategory, RunResult
+from pactown.sandbox_manager import SandboxManager, ServiceProcess
 
 
 def _sample_markdown() -> str:
@@ -102,6 +106,124 @@ uvicorn main:app --host 0.0.0.0 --port ${MARKPACT_PORT:-8000}
         assert payload["success"] is False
         assert payload.get("error_category") in {"environment", "ENVIRONMENT"}
         assert "DATABASE_URL" in (payload.get("message") or "")
+
+
+@pytest.mark.asyncio
+async def test_run_passes_pip_timeout_and_retries_to_pip_install(tmp_path, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setenv("PACTOWN_PIP_DEFAULT_TIMEOUT", "60")
+    monkeypatch.setenv("PACTOWN_PIP_RETRIES", "5")
+
+    import pactown.service_runner as sr_module
+
+    monkeypatch.setattr(sr_module, "kill_process_on_port", lambda _port, force=False: False)
+
+    settings = RunnerApiSettings()
+    settings.require_token = False
+
+    runner_service = RunnerService(sandbox_root=tmp_path, port_start=12000, port_end=12010)
+    app = create_runner_api(runner_service=runner_service, settings=settings)
+
+    # Avoid using cached venvs to ensure pip install path is exercised.
+    monkeypatch.setattr(runner_service.runner.sandbox_manager._dep_cache, "get_cached_venv", lambda _deps: None)
+    monkeypatch.setattr(runner_service.runner.sandbox_manager._dep_cache, "save_existing_venv", lambda *_args, **_kwargs: None)
+
+    import pactown.sandbox_manager as sm_module
+
+    def fake_ensure_venv(sandbox, verbose=False):
+        venv_bin = Path(sandbox.path) / ".venv" / "bin"
+        venv_bin.mkdir(parents=True, exist_ok=True)
+        (venv_bin / "pip").write_text("#!/bin/sh\necho pip\n")
+        try:
+            (venv_bin / "pip").chmod(0o755)
+        except Exception:
+            pass
+
+    monkeypatch.setattr(sm_module, "ensure_venv", fake_ensure_venv)
+
+    captured: dict[str, object] = {}
+
+    def fake_popen(cmd, stdout=None, stderr=None, text=False, bufsize=0, env=None, **kwargs):
+        if isinstance(cmd, list) and cmd and "pip" in str(cmd[0]) and "install" in cmd:
+            captured["pip_cmd"] = list(cmd)
+            captured["pip_env"] = dict(env or {})
+        return SimpleNamespace(stdout=[], wait=lambda: 0, args=cmd)
+
+    monkeypatch.setattr(sm_module.subprocess, "Popen", fake_popen)
+
+    # Don't start a real process; we only care about pip invocation.
+    def fake_start_service(
+        self,
+        service,
+        readme_path,
+        env,
+        verbose: bool = True,
+        restart_if_running: bool = False,
+        on_log=None,
+        user_id=None,
+    ) -> ServiceProcess:
+        sandbox = self.create_sandbox(
+            service=service,
+            readme_path=readme_path,
+            install_dependencies=True,
+            on_log=on_log,
+            env=env,
+        )
+        dummy_proc = SimpleNamespace(pid=9999, poll=lambda: None, returncode=None, stderr=None, stdout=None)
+        return ServiceProcess(
+            name=service.name,
+            pid=9999,
+            port=service.port,
+            sandbox_path=sandbox.path,
+            process=dummy_proc,
+            started_at=time.time(),
+        )
+
+    monkeypatch.setattr(SandboxManager, "start_service", fake_start_service)
+
+    readme = """# Pip Flags Demo
+
+```python markpact:file path=main.py
+print('hi')
+```
+
+```python markpact:deps
+requests
+```
+
+```bash markpact:run
+python main.py
+```
+"""
+
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        resp = await client.post(
+            "/run",
+            json={
+                "project_id": 1,
+                "readme_content": readme,
+                "port": 0,
+                "env": {},
+                "user_id": "user:1",
+                "username": "user",
+                "fast_mode": False,
+                "skip_health_check": True,
+            },
+        )
+
+    assert resp.status_code == 200
+    payload = resp.json()
+    assert payload["success"] is True
+
+    assert "pip_cmd" in captured
+    pip_cmd = captured["pip_cmd"]
+    assert "--timeout" in pip_cmd
+    assert "--retries" in pip_cmd
+
+    assert "pip_env" in captured
+    pip_env = captured["pip_env"]
+    assert pip_env.get("PIP_DEFAULT_TIMEOUT") == "60"
+    assert pip_env.get("PIP_RETRIES") == "5"
 
 
 @pytest.mark.asyncio

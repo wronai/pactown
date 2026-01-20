@@ -36,3 +36,16 @@
 ### Packaging
 
 - Ustalić docelowy flow dla `make dev` i `make lint` (czy zawsze venv, czy pipx fallback).
+
+
+
+Trzeba zrobić reprezentację IaC wszystkich generowanycch  środowisk w sandboxach
+aby był ustandaryzowany format określacjący techstack, CI CD dla kążdego uruchamianego sandboxa
+na poczatek może to być opis w formacie Dockerfile / docker compose, ale zapropopnuj na bazie tego co mamy aktualnie jakieś rozwiązanie
+aby zejść z kodu imperatywnego w python na deklaratywnych w ustandaryzowanej formie IaC
+aby podczas uruchamiania róznych sandboxów móc lepiej stwierdzić, gdzie pojawiają się błedy
+oraz móc łatwiej testować i zabezpieczyć środowiska
+
+wykorzystaj pliki indeksujące projektu z których będziesz korzystał aby rozwinąć pactown
+/home/tom/github/wronai/pactown/project.functions.toon
+/home/tom/github/wronai/pactown-com/project.functions.toon
