@@ -3,13 +3,16 @@ from __future__ import annotations
 import logging
 import os
 import re
+import asyncio
+import json
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Callable
 
 import httpx
 from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel
+from starlette.responses import StreamingResponse
 
 from .config import ServiceConfig
 from .network import PortAllocator
@@ -251,6 +254,7 @@ class RunnerService:
         user_profile: Optional[Dict[str, Any]],
         fast_mode: bool,
         skip_health_check: bool,
+        on_log: Optional[Callable[[str], None]] = None,
     ) -> RunResult:
         effective_port = int(port)
         if effective_port <= 0:
@@ -271,6 +275,7 @@ class RunnerService:
                 user_id=user_id,
                 user_profile=user_profile,
                 skip_health_check=skip_health_check,
+                on_log=on_log,
             )
         else:
             result = await self.runner.run_from_content(
@@ -282,6 +287,7 @@ class RunnerService:
                 wait_for_health=not skip_health_check,
                 user_id=user_id,
                 user_profile=user_profile,
+                on_log=on_log,
             )
 
         result.logs = result.logs or []
@@ -390,6 +396,102 @@ def create_runner_api(*, runner_service: RunnerService, settings: RunnerApiSetti
             "user_id": req.user_id,
             "service_id": service_id,
         }
+
+    @app.post("/run/stream", dependencies=[Depends(require_token)])
+    async def run_stream(req: RunRequest) -> StreamingResponse:
+        service_id = runner_service._resolve_service_id(req.service_id, req.project_id, req.username)
+        user_profile_dict = req.user_profile.model_dump() if req.user_profile else None
+
+        q: asyncio.Queue[Dict[str, Any]] = asyncio.Queue()
+        loop = asyncio.get_running_loop()
+
+        def on_log(msg: str) -> None:
+            try:
+                loop.call_soon_threadsafe(q.put_nowait, {"type": "log", "message": msg})
+            except Exception:
+                pass
+
+        async def run_job() -> None:
+            try:
+                def _run_in_thread() -> RunResult:
+                    return asyncio.run(
+                        runner_service.run(
+                            service_id=service_id,
+                            content=req.readme_content,
+                            port=req.port,
+                            env=req.env,
+                            user_id=req.user_id,
+                            username=req.username,
+                            user_profile=user_profile_dict,
+                            fast_mode=req.fast_mode,
+                            skip_health_check=req.skip_health_check,
+                            on_log=on_log,
+                        )
+                    )
+
+                result = await asyncio.to_thread(_run_in_thread)
+                payload = {
+                    "success": result.success,
+                    "port": result.port,
+                    "pid": result.pid,
+                    "message": result.message,
+                    "logs": result.logs or [],
+                    "error_category": result.error_category.value if hasattr(result.error_category, "value") else str(result.error_category),
+                    "stderr_output": result.stderr_output,
+                    "suggestions": [asdict(s) for s in (result.suggestions or [])],
+                    "diagnostics": asdict(result.diagnostics) if result.diagnostics else None,
+                    "service_name": result.service_name,
+                    "sandbox_path": str(result.sandbox_path) if getattr(result, "sandbox_path", None) else None,
+                    "user_id": req.user_id,
+                    "service_id": service_id,
+                }
+                await q.put({"type": "result", "result": payload})
+            except Exception as e:
+                await q.put(
+                    {
+                        "type": "result",
+                        "result": {
+                            "success": False,
+                            "port": int(req.port or 0),
+                            "pid": None,
+                            "message": f"Runner exception: {type(e).__name__}: {e}",
+                            "logs": [],
+                            "error_category": "exception",
+                            "stderr_output": "",
+                            "suggestions": [],
+                            "diagnostics": None,
+                            "service_name": None,
+                            "sandbox_path": None,
+                            "user_id": req.user_id,
+                            "service_id": service_id,
+                        },
+                    }
+                )
+            finally:
+                await q.put({"type": "eof"})
+
+        task = asyncio.create_task(run_job())
+
+        async def stream():
+            try:
+                while True:
+                    item = await q.get()
+                    if item.get("type") == "eof":
+                        break
+                    yield (json.dumps(item, ensure_ascii=False) + "\n").encode("utf-8")
+            finally:
+                if not task.done():
+                    task.cancel()
+
+        return StreamingResponse(
+            stream(),
+            media_type="application/x-ndjson",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no",
+            },
+        )
 
     @app.get("/test/{service_id}", dependencies=[Depends(require_token)])
     async def test_endpoints(service_id: str) -> Dict[str, Any]:
