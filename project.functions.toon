@@ -1,5 +1,5 @@
 project: pactown
-generated: "2026-01-20T20:31:19.733314"
+generated: "2026-01-20T20:35:02.336008"
 modules[63]{path,lang,items}:
   tests/test_security.py,python,16
   tests/test_runner_api.py,python,6
@@ -7,7 +7,7 @@ modules[63]{path,lang,items}:
   tests/test_sandbox_manager_venv_heal.py,python,1
   tests/test_user_isolation_manager.py,python,5
   tests/test_llm.py,python,17
-  tests/test_deploy_dockerfile.py,python,2
+  tests/test_deploy_dockerfile.py,python,4
   tests/test_resolver.py,python,10
   tests/__init__.py,python,0
   tests/test_parallel.py,python,6
@@ -122,9 +122,11 @@ function_details:
       TestPactownLLMClass.test_pactown_llm_singleton,method,() -> None,275-289,false,15,1,Test PactownLLM singleton pattern.
       TestPactownLLMClass.test_pactown_llm_generate_with_rotation,method,() -> None,291-311,false,21,1,Test generate_with_rotation delegates to manager.
   tests/test_deploy_dockerfile.py:
-    functions[2]{name,kind,sig,loc,async,lines,cc,does}:
-      test_python_dockerfile_healthcheck_does_not_use_curl,function,() -> None,12-24,false,13,1,checks python dockerfile healthcheck does not use curl
-      test_node_dockerfile_falls_back_when_package_lock_missing,function,() -> None,27-42,false,16,1,checks node dockerfile falls back when package lock missing
+    functions[4]{name,kind,sig,loc,async,lines,cc,does}:
+      test_python_dockerfile_healthcheck_does_not_use_curl,function,() -> None,14-26,false,13,1,checks python dockerfile healthcheck does not use curl
+      test_node_dockerfile_falls_back_when_package_lock_missing,function,() -> None,29-44,false,16,1,checks node dockerfile falls back when package lock missing
+      test_markpact_readme_python_materializes_and_generates_cmd_from_run_block,function,() -> None,47-90,false,44,1,checks markpact readme python materializes and generates cmd from run block
+      test_markpact_readme_node_materializes_package_json_and_generates_cmd_from_run_block,function,() -> None,93-136,false,44,1,checks markpact readme node materializes package json and generates cmd from run block
   tests/test_resolver.py:
     functions[10]{name,kind,sig,loc,async,lines,cc,does}:
       make_config,function,"(services:dict) -> EcosystemConfig",9-20,false,12,3,Helper to create test config.
@@ -739,13 +741,13 @@ function_details:
       QuadletBackend.list_services,method,"() -> list[dict[str, Any]]",896-911,false,16,3,List all Quadlet services for the tenant.
   src/pactown/deploy/compose.py:
     functions[7]{name,kind,sig,loc,async,lines,cc,does}:
-      generate_compose_from_config,function,"(config_path:Path, output_dir:Optional[Path]=None, production:bool=False) -> dict",311-360,false,50,4,Convenience function to generate compose files from pactown config.
-      ComposeGenerator.__init__,method,"(ecosystem:EcosystemConfig, deploy_config:DeploymentConfig, base_path:Path) -> None",41-49,false,9,1,creates
-      ComposeGenerator.generate,method,"(output_path:Optional[Path]=None, include_registry:bool=False) -> dict",51-102,false,52,6,Generate docker-compose.yaml content.
-      ComposeGenerator._create_service,method,"(name:str, service:ServiceConfig) -> dict",104-199,false,96,14,Create compose service definition.
-      ComposeGenerator._create_registry_service,method,() -> dict,201-220,false,20,1,Create pactown registry service.
-      ComposeGenerator.generate_override,method,"(output_path:Optional[Path]=None, dev_mode:bool=True) -> dict",222-266,false,45,5,Generate docker-compose.override.yaml for development.
-      ComposeGenerator.generate_production,method,"(output_path:Optional[Path]=None, replicas:int=2) -> dict",268-308,false,41,3,Generate docker-compose.prod.yaml for production/swarm deployment.
+      generate_compose_from_config,function,"(config_path:Path, output_dir:Optional[Path]=None, production:bool=False) -> dict",348-432,false,85,4,Convenience function to generate compose files from pactown config.
+      ComposeGenerator.__init__,method,"(ecosystem:EcosystemConfig, deploy_config:DeploymentConfig, base_path:Path) -> None",44-52,false,9,1,creates
+      ComposeGenerator.generate,method,"(output_path:Optional[Path]=None, include_registry:bool=False) -> dict",54-105,false,52,6,Generate docker-compose.yaml content.
+      ComposeGenerator._create_service,method,"(name:str, service:ServiceConfig) -> dict",107-236,false,130,18,Create compose service definition.
+      ComposeGenerator._create_registry_service,method,() -> dict,238-257,false,20,1,Create pactown registry service.
+      ComposeGenerator.generate_override,method,"(output_path:Optional[Path]=None, dev_mode:bool=True) -> dict",259-303,false,45,5,Generate docker-compose.override.yaml for development.
+      ComposeGenerator.generate_production,method,"(output_path:Optional[Path]=None, replicas:int=2) -> dict",305-345,false,41,3,Generate docker-compose.prod.yaml for production/swarm deployment.
   src/pactown/deploy/podman.py:
     functions[10]{name,kind,sig,loc,async,lines,cc,does}:
       PodmanBackend.runtime_type,method,() -> RuntimeType,35-36,false,2,1,runtime type

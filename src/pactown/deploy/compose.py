@@ -9,7 +9,10 @@ from typing import Optional
 import yaml
 
 from ..config import EcosystemConfig, ServiceConfig
+from ..markpact_blocks import parse_blocks
+from ..sandbox_manager import SandboxManager
 from .base import DeploymentConfig, DeploymentMode
+from .docker import DockerBackend
 
 
 @dataclass
@@ -148,13 +151,47 @@ class ComposeGenerator:
 
         # Health check
         if service.health_check:
-            svc["healthcheck"] = {
-                "test": ["CMD", "curl", "-f", f"http://localhost:{service.port}{service.health_check}"],
-                "interval": self.deploy_config.health_check_interval,
-                "timeout": self.deploy_config.health_check_timeout,
-                "retries": self.deploy_config.health_check_retries,
-                "start_period": "10s",
-            }
+            health_path = (service.health_check or "/").strip() or "/"
+            if not health_path.startswith("/"):
+                health_path = "/" + health_path
+
+            if (sandbox_path / "package.json").exists():
+                # Node.js image: node -e HTTP probe
+                svc["healthcheck"] = {
+                    "test": [
+                        "CMD",
+                        "node",
+                        "-e",
+                        (
+                            "const http=require('http');"
+                            "const port=process.env.MARKPACT_PORT||process.env.PORT||3000;"
+                            f"http.get('http://localhost:'+port+'{health_path}',res=>process.exit(res.statusCode<400?0:1))"
+                            ".on('error',()=>process.exit(1));"
+                        ),
+                    ],
+                    "interval": self.deploy_config.health_check_interval,
+                    "timeout": self.deploy_config.health_check_timeout,
+                    "retries": self.deploy_config.health_check_retries,
+                    "start_period": "10s",
+                }
+            else:
+                # Python image: python -c HTTP probe
+                svc["healthcheck"] = {
+                    "test": [
+                        "CMD",
+                        "python",
+                        "-c",
+                        (
+                            "import os,urllib.request; "
+                            "port=os.environ.get('MARKPACT_PORT') or os.environ.get('PORT','8000'); "
+                            f"urllib.request.urlopen('http://localhost:%s{health_path}' % port, timeout=5)"
+                        ),
+                    ],
+                    "interval": self.deploy_config.health_check_interval,
+                    "timeout": self.deploy_config.health_check_timeout,
+                    "retries": self.deploy_config.health_check_retries,
+                    "start_period": "10s",
+                }
 
         # Production settings
         if self.deploy_config.mode == DeploymentMode.PRODUCTION:
@@ -329,15 +366,50 @@ def generate_compose_from_config(
     config_path = Path(config_path)
     ecosystem = load_config(config_path)
 
+    base_path = config_path.parent
+
+    def _extract_run_cmd(*, readme_content: str) -> str:
+        blocks = parse_blocks(readme_content)
+        for b in blocks:
+            if getattr(b, "kind", "") == "run":
+                return (getattr(b, "body", "") or "").strip()
+        return ""
+
+    def _materialize_sandboxes() -> None:
+        sandbox_root = (base_path / ecosystem.sandbox_root).resolve()
+        sandbox_manager = SandboxManager(sandbox_root)
+        backend = DockerBackend(deploy_config)
+
+        for name, service in ecosystem.services.items():
+            readme_path = (base_path / service.readme).resolve()
+            readme_content = readme_path.read_text(encoding="utf-8")
+            run_cmd = _extract_run_cmd(readme_content=readme_content)
+            if not run_cmd:
+                raise ValueError(f"No markpact:run block found in {readme_path}")
+
+            sandbox = sandbox_manager.create_sandbox(
+                service,
+                readme_path,
+                install_dependencies=False,
+                env=service.env,
+            )
+            backend.generate_dockerfile(
+                service_name=name,
+                sandbox_path=sandbox.path,
+                run_cmd=run_cmd,
+            )
+
     deploy_config = (
         DeploymentConfig.for_production() if production
         else DeploymentConfig.for_development()
     )
 
+    _materialize_sandboxes()
+
     generator = ComposeGenerator(
         ecosystem=ecosystem,
         deploy_config=deploy_config,
-        base_path=config_path.parent,
+        base_path=base_path,
     )
 
     output_dir = output_dir or config_path.parent

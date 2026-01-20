@@ -1,4 +1,4 @@
-# pactown | 63f 18550L | python:63
+# pactown | 63f 18716L | python:63
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
 M[63]:
   tests/test_security.py,208
@@ -7,7 +7,7 @@ M[63]:
   tests/test_sandbox_manager_venv_heal.py,120
   tests/test_user_isolation_manager.py,98
   tests/test_llm.py,232
-  tests/test_deploy_dockerfile.py,29
+  tests/test_deploy_dockerfile.py,97
   tests/test_resolver.py,109
   tests/__init__.py,1
   tests/test_parallel.py,106
@@ -47,7 +47,7 @@ M[63]:
   src/pactown/deploy/__init__.py,29
   src/pactown/deploy/kubernetes.py,410
   src/pactown/deploy/quadlet.py,748
-  src/pactown/deploy/compose.py,279
+  src/pactown/deploy/compose.py,342
   src/pactown/deploy/podman.py,336
   src/pactown/deploy/quadlet_api.py,420
   src/pactown/registry/server.py,168
@@ -104,10 +104,12 @@ D:
     TestLLMTest: test_llm_test_basic(0),test_llm_test_with_rotation(0),test_llm_test_with_provider(0),test_llm_test_error(0)  # Tests for pactown llm test command.
     TestLLMDoctor: test_llm_doctor_outputs_environment_info(0)  # Tests for pactown llm doctor command.
   tests/test_deploy_dockerfile.py:
-    i: pactown.deploy.base.DeploymentConfig,pactown.deploy.docker.DockerBackend,pathlib.Path,tempfile.TemporaryDirectory
-    e: test_python_dockerfile_healthcheck_does_not_use_curl,test_node_dockerfile_falls_back_when_package_lock_missing
+    i: pactown.config.ServiceConfig,pactown.deploy.base.DeploymentConfig,pactown.deploy.docker.DockerBackend,pactown.sandbox_manager.SandboxManager,pathlib.Path,tempfile.TemporaryDirectory
+    e: test_python_dockerfile_healthcheck_does_not_use_curl,test_node_dockerfile_falls_back_when_package_lock_missing,test_markpact_readme_python_materializes_and_generates_cmd_from_run_block,test_markpact_readme_node_materializes_package_json_and_generates_cmd_from_run_block
     test_python_dockerfile_healthcheck_does_not_use_curl()->None
     test_node_dockerfile_falls_back_when_package_lock_missing()->None
+    test_markpact_readme_python_materializes_and_generates_cmd_from_run_block()->None
+    test_markpact_readme_node_materializes_package_json_and_generates_cmd_from_run_block()->None
   tests/test_resolver.py:
     i: pytest,pactown.config.{DependencyConfig,EcosystemConfig,ServiceConfig},pactown.resolver.DependencyResolver
     e: make_config,test_startup_order_no_deps,test_startup_order_linear,test_startup_order_diamond,test_circular_dependency_detection,test_shutdown_order,test_resolve_service_deps,test_get_environment
@@ -427,7 +429,7 @@ D:
     sanitize_health_check(endpoint:str)->str
     validate_volume(volume:str)->tuple[bool, str]
   src/pactown/deploy/compose.py:
-    i: yaml,base.{DeploymentConfig,DeploymentMode},config.{EcosystemConfig,ServiceConfig},dataclasses.dataclass,pathlib.Path,typing.Optional
+    i: yaml,base.{DeploymentConfig,DeploymentMode},config.{EcosystemConfig,ServiceConfig},dataclasses.dataclass,markpact_blocks.parse_blocks,pathlib.Path,sandbox_manager.SandboxManager,typing.Optional
     e: ComposeService,ComposeGenerator,generate_compose_from_config
     ComposeService:   # Represents a service in docker-compos...
     ComposeGenerator: __init__(3),generate(2),_create_service(2),_create_registry_service(0),generate_override(2)  # Generate Docker Compose / Podman Comp...
