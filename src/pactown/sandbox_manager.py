@@ -245,6 +245,15 @@ class SandboxManager:
         for b in blocks:
             if getattr(b, "kind", "") == "deps" and SandboxManager._is_node_lang(getattr(b, "lang", "")):
                 return True
+            if getattr(b, "kind", "") == "file":
+                try:
+                    p = str(b.get_path() or "").strip()
+                except Exception:
+                    p = ""
+                if p:
+                    pl = p.lower()
+                    if pl == "package.json" or pl.endswith((".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx")):
+                        return True
         rc = (run_cmd or "").strip().lower()
         if rc.startswith("node ") or rc.startswith("npm ") or rc.startswith("pnpm ") or rc.startswith("yarn "):
             return True
@@ -319,7 +328,7 @@ class SandboxManager:
                 "stop": stop,
                 "on_log": on_log,
                 "message": f"[deploy] Installing dependencies via npm ({len(deps_clean)} deps)",
-                "interval_s": 1.0,
+                "interval_s": 5.0,
             },
             daemon=True,
         )
@@ -331,27 +340,43 @@ class SandboxManager:
                     continue
                 install_env[str(k)] = str(v)
 
-            subprocess.run(
+            proc = subprocess.Popen(
                 [
                     "npm",
                     "install",
-                    "--silent",
                     "--no-audit",
                     "--no-fund",
+                    "--progress=false",
                 ],
                 cwd=str(sandbox.path),
-                capture_output=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
                 text=True,
-                check=True,
+                bufsize=1,
                 env=install_env,
             )
+            try:
+                if proc.stdout:
+                    for line in proc.stdout:
+                        s = (line or "").rstrip("\n")
+                        if not s:
+                            continue
+                        if on_log and _should_emit_to_ui("INFO"):
+                            _call_on_log(on_log, s, "INFO")
+                rc = proc.wait()
+                if rc != 0:
+                    raise subprocess.CalledProcessError(rc, proc.args)
+            finally:
+                try:
+                    if proc.stdout:
+                        proc.stdout.close()
+                except Exception:
+                    pass
         except FileNotFoundError as e:
             dbg("npm not found in PATH (Node.js runtime missing)", "ERROR")
             raise e
         except subprocess.CalledProcessError as e:
-            stderr = ((e.stderr or "") + "\n" + (e.stdout or ""))[:2000]
-            if stderr.strip():
-                dbg(f"npm install output: {stderr}", "ERROR")
+            dbg(f"npm install failed: {e}", "ERROR")
             raise
         finally:
             stop.set()
@@ -502,7 +527,7 @@ class SandboxManager:
                             "stop": stop,
                             "on_log": on_log,
                             "message": f"[deploy] Creating venv (.venv) ({len(deps_clean)} deps)",
-                            "interval_s": 1.0,
+                            "interval_s": 5.0,
                         },
                         daemon=True,
                     )
