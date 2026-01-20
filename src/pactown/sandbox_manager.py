@@ -235,6 +235,125 @@ class ServiceProcess:
 class SandboxManager:
     """Manages sandboxes for multiple services."""
 
+    @staticmethod
+    def _is_node_lang(lang: str) -> bool:
+        l = (lang or "").strip().lower()
+        return l in {"node", "js", "javascript", "npm"}
+
+    @staticmethod
+    def _infer_node_project(*, blocks: list, deps: list[str], run_cmd: str) -> bool:
+        for b in blocks:
+            if getattr(b, "kind", "") == "deps" and SandboxManager._is_node_lang(getattr(b, "lang", "")):
+                return True
+        rc = (run_cmd or "").strip().lower()
+        if rc.startswith("node ") or rc.startswith("npm ") or rc.startswith("pnpm ") or rc.startswith("yarn "):
+            return True
+        if " node " in f" {rc} ":
+            return True
+        deps_l = {d.strip().lower() for d in (deps or []) if str(d).strip()}
+        if "express" in deps_l and ("node" in rc or "npm" in rc):
+            return True
+        return False
+
+    @staticmethod
+    def _ensure_package_json(*, sandbox_path: Path, service_name: str, deps: list[str]) -> None:
+        pkg_path = sandbox_path / "package.json"
+        if pkg_path.exists():
+            return
+
+        deps_obj: dict[str, str] = {}
+        for dep in deps:
+            d = str(dep).strip()
+            if not d:
+                continue
+            if d.startswith("#"):
+                continue
+            if " " in d:
+                d = d.split()[0]
+            if "@" in d and not d.startswith("@"):  # e.g. express@4
+                name, version = d.rsplit("@", 1)
+                name = name.strip()
+                version = version.strip()
+                if name:
+                    deps_obj[name] = version or "latest"
+            else:
+                deps_obj[d] = "latest"
+
+        pkg_path.write_text(
+            json.dumps(
+                {
+                    "name": re.sub(r"[^a-z0-9-_]", "-", str(service_name).lower()) or "pactown-app",
+                    "version": "1.0.0",
+                    "private": True,
+                    "dependencies": deps_obj,
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+    def _install_node_deps(
+        self,
+        *,
+        sandbox: Sandbox,
+        deps: list[str],
+        on_log: Optional[Callable[[str], None]] = None,
+        env: Optional[dict[str, str]] = None,
+    ) -> None:
+        def dbg(msg: str, level: str = "DEBUG"):
+            logger.log(getattr(logging, level), f"[{sandbox.path.name}] {msg}")
+            if on_log and _should_emit_to_ui(level):
+                _call_on_log(on_log, msg, level)
+
+        deps_clean = [str(d).strip() for d in (deps or []) if str(d).strip()]
+        if not deps_clean:
+            return
+
+        dbg("Installing dependencies via npm", "INFO")
+        stop = Event()
+        thr = Thread(
+            target=_heartbeat,
+            kwargs={
+                "stop": stop,
+                "on_log": on_log,
+                "message": f"[deploy] Installing dependencies via npm ({len(deps_clean)} deps)",
+                "interval_s": 1.0,
+            },
+            daemon=True,
+        )
+        thr.start()
+        try:
+            install_env = os.environ.copy()
+            for k, v in (env or {}).items():
+                if k is None or v is None:
+                    continue
+                install_env[str(k)] = str(v)
+
+            subprocess.run(
+                [
+                    "npm",
+                    "install",
+                    "--silent",
+                    "--no-audit",
+                    "--no-fund",
+                ],
+                cwd=str(sandbox.path),
+                capture_output=True,
+                text=True,
+                check=True,
+                env=install_env,
+            )
+        except subprocess.CalledProcessError as e:
+            stderr = ((e.stderr or "") + "\n" + (e.stdout or ""))[:2000]
+            if stderr.strip():
+                dbg(f"npm install output: {stderr}", "ERROR")
+            raise
+        finally:
+            stop.set()
+        dbg("Dependencies installed", "INFO")
+
     def __init__(self, sandbox_root: str | Path):
         self.sandbox_root = Path(sandbox_root)
         self.sandbox_root.mkdir(parents=True, exist_ok=True)
@@ -284,18 +403,37 @@ class SandboxManager:
         dbg(f"Parsed markpact blocks: total={len(blocks)} kinds={kind_counts}", "DEBUG")
 
         deps: list[str] = []
+        deps_node: list[str] = []
+        run_cmd: str = ""
 
         for block in blocks:
             if block.kind == "deps":
-                deps.extend(block.body.strip().split("\n"))
+                if self._is_node_lang(getattr(block, "lang", "")):
+                    deps_node.extend(block.body.strip().split("\n"))
+                else:
+                    deps.extend(block.body.strip().split("\n"))
             elif block.kind == "file":
                 file_path = block.get_path() or "main.py"
                 dbg(f"Writing file: {file_path} (chars={len(block.body)})", "DEBUG")
                 sandbox.write_file(file_path, block.body)
             elif block.kind == "run":
-                block.body.strip()
+                run_cmd = block.body.strip()
 
         deps_clean = [d.strip() for d in deps if d.strip()]
+        deps_node_clean = [d.strip() for d in deps_node if d.strip()]
+        is_node = self._infer_node_project(blocks=blocks, deps=(deps_node_clean or deps_clean), run_cmd=run_cmd)
+        effective_node_deps = deps_node_clean if deps_node_clean else (deps_clean if is_node else [])
+
+        if is_node and effective_node_deps:
+            dbg(f"Dependencies detected: count={len(effective_node_deps)}", "INFO")
+            self._ensure_package_json(sandbox_path=sandbox.path, service_name=service.name, deps=effective_node_deps)
+            dbg(f"Wrote package.json: {_path_debug(sandbox.path / 'package.json')}", "DEBUG")
+
+            if install_dependencies:
+                self._install_node_deps(sandbox=sandbox, deps=effective_node_deps, on_log=on_log, env=env)
+
+            return sandbox
+
         if deps_clean:
             # Always write requirements.txt so the sandbox can be used as a container build context
             dbg(f"Dependencies detected: count={len(deps_clean)}", "INFO")
