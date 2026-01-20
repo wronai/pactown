@@ -716,6 +716,10 @@ class ServiceRunner:
 
         started = time.monotonic()
         last_beat_s = -1
+        try:
+            beat_every_s = max(1, int(os.environ.get("PACTOWN_HEALTH_HEARTBEAT_S", "5")))
+        except Exception:
+            beat_every_s = 5
 
         health_path = (health_path or "/").strip()
         if not health_path.startswith("/"):
@@ -730,7 +734,7 @@ class ServiceRunner:
                     await asyncio.sleep(0.5)
 
                     elapsed_s = int(time.monotonic() - started)
-                    if elapsed_s != last_beat_s:
+                    if elapsed_s == 0 or (elapsed_s - last_beat_s) >= beat_every_s:
                         last_beat_s = elapsed_s
                         remaining = max(0, int(timeout) - elapsed_s)
                         on_log(f"⏳ [deploy] Waiting for server health... elapsed={elapsed_s}s remaining~{remaining}s")
@@ -745,8 +749,9 @@ class ServiceRunner:
                             try:
                                 stderr_bytes = process.process.stderr.read()
                                 if stderr_bytes:
-                                    stderr_output = stderr_bytes.decode()[:1000]
-                                    on_log(f"Error output: {stderr_output[:500]}")
+                                    stderr_output = stderr_bytes.decode("utf-8", errors="replace")
+                                    trimmed = stderr_output[:4000]
+                                    on_log(f"Error output: {trimmed}")
                             except:
                                 pass
 

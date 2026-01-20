@@ -406,6 +406,54 @@ class SandboxManager:
             if on_log and _should_emit_to_ui(level):
                 _call_on_log(on_log, msg, level)
 
+        def _verify_restored_venv(*, venv_path: Path, deps: list[str], run_cmd: str) -> bool:
+            py = venv_path / "bin" / "python"
+            if not py.exists():
+                return False
+
+            deps_l = {d.strip().lower() for d in deps if d.strip()}
+            rc = (run_cmd or "").strip().lower()
+
+            imports: list[str] = []
+            if rc.startswith("uvicorn ") or " uvicorn " in f" {rc} ":
+                imports.extend(["uvicorn", "click"])
+            elif rc.startswith("gunicorn ") or " gunicorn " in f" {rc} ":
+                imports.append("gunicorn")
+
+            if "fastapi" in deps_l and "fastapi" not in imports:
+                imports.append("fastapi")
+            if "flask" in deps_l and "flask" not in imports:
+                imports.append("flask")
+
+            if not imports:
+                return True
+
+            code = "import importlib\n" + "\n".join([f"importlib.import_module({m!r})" for m in imports])
+
+            try:
+                check_env = os.environ.copy()
+                for k, v in (env or {}).items():
+                    if k is None or v is None:
+                        continue
+                    check_env[str(k)] = str(v)
+                res = subprocess.run(
+                    [str(py), "-c", code],
+                    capture_output=True,
+                    text=True,
+                    env=check_env,
+                    timeout=20,
+                )
+            except (FileNotFoundError, subprocess.TimeoutExpired):
+                return False
+
+            if res.returncode != 0:
+                out = ((res.stderr or "") + "\n" + (res.stdout or "")).strip()[:2000]
+                if out:
+                    dbg(f"Cached venv verification failed: {out}", "WARNING")
+                return False
+
+            return True
+
         sandbox_path = self.get_sandbox_path(service.name)
 
         dbg(f"Sandbox root: {_path_debug(self.sandbox_root)}", "DEBUG")
@@ -511,7 +559,18 @@ class SandboxManager:
                         _copytree_fast(cached.path, venv_dst)
                         stop.set()
                         dbg(f"Venv restored: {_path_debug(venv_dst)}", "DEBUG")
-                        return sandbox
+                        if _verify_restored_venv(venv_path=venv_dst, deps=deps_clean, run_cmd=run_cmd):
+                            return sandbox
+                        dbg("Cached venv appears corrupted - rebuilding", "WARNING")
+                        try:
+                            shutil.rmtree(venv_dst)
+                        except Exception:
+                            pass
+                        try:
+                            if self._dep_cache:
+                                self._dep_cache.invalidate(deps_clean)
+                        except Exception:
+                            pass
                     except Exception:
                         try:
                             stop.set()

@@ -169,6 +169,14 @@ class DependencyCache:
         
         return None
 
+    def invalidate(self, deps: List[str]) -> None:
+        deps_hash = self._hash_deps(deps)
+        cached: Optional[CachedVenv] = None
+        with self._lock:
+            cached = self._cache.pop(deps_hash, None)
+        if cached and cached.path.exists():
+            shutil.rmtree(cached.path)
+
     def save_existing_venv(
         self,
         deps: List[str],
