@@ -647,6 +647,19 @@ class ServiceRunner:
                     action="check_package_name",
                     description=f"Package '{pkg}' not found - check spelling or availability",
                 ))
+
+            if "ModuleNotFoundError" in stderr or "No module named" in stderr:
+                if "No module named" in stderr:
+                    module = stderr.split("No module named")[-1].strip().split()[0].strip("'\"")
+                    suggestions.append(AutoFixSuggestion(
+                        action="add_dependency",
+                        description=f"Add '{module}' to dependencies block",
+                    ))
+                else:
+                    suggestions.append(AutoFixSuggestion(
+                        action="check_imports",
+                        description="Check that all imported modules are in dependencies",
+                    ))
             suggestions.append(AutoFixSuggestion(
                 action="clear_cache",
                 description="Clear pip cache and retry",

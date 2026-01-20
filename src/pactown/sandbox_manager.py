@@ -12,6 +12,7 @@ import subprocess
 import tempfile
 import time
 import socket
+import shlex
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
@@ -504,6 +505,15 @@ class SandboxManager:
 
         deps_clean = [d.strip() for d in deps if d.strip()]
         deps_node_clean = [d.strip() for d in deps_node if d.strip()]
+
+        def _dep_name(raw: str) -> str:
+            s = (raw or "").strip()
+            if not s:
+                return ""
+            s = s.split(";")[0].strip()  # markers
+            s = s.split("[")[0].strip()  # extras
+            s = re.split(r"[<>=!~]", s, maxsplit=1)[0].strip()
+            return s.lower()
         is_node = self._infer_node_project(blocks=blocks, deps=(deps_node_clean or deps_clean), run_cmd=run_cmd)
         effective_node_deps = deps_node_clean if deps_node_clean else (deps_clean if is_node else [])
 
@@ -520,6 +530,16 @@ class SandboxManager:
         if deps_clean:
             # Always write requirements.txt so the sandbox can be used as a container build context
             dbg(f"Dependencies detected: count={len(deps_clean)}", "INFO")
+
+            run_l = (run_cmd or "").strip().lower()
+            dep_names = {_dep_name(d) for d in deps_clean}
+            if (run_l.startswith("uvicorn ") or " uvicorn " in f" {run_l} ") and "uvicorn" not in dep_names:
+                deps_clean.append("uvicorn")
+                dbg("Added implicit dependency: uvicorn (based on run command)", "INFO")
+            if (run_l.startswith("gunicorn ") or " gunicorn " in f" {run_l} ") and "gunicorn" not in dep_names:
+                deps_clean.append("gunicorn")
+                dbg("Added implicit dependency: gunicorn (based on run command)", "INFO")
+
             sandbox.write_requirements(deps_clean)
             dbg(f"Wrote requirements.txt: {_path_debug(sandbox.path / 'requirements.txt')}", "DEBUG")
 
@@ -813,6 +833,21 @@ class SandboxManager:
         if "--reload" in expanded_cmd and "uvicorn" in expanded_cmd:
             expanded_cmd = re.sub(r'\s*--reload\s*', ' ', expanded_cmd)
             log(f"Removed --reload flag (not compatible with sandbox): {expanded_cmd}", "INFO")
+
+        if sandbox.has_venv():
+            venv_python = sandbox.venv_bin / "python"
+            venv_python_q = shlex.quote(str(venv_python))
+
+            # Prefer venv python for common Python entrypoints. This is more robust than
+            # relying on PATH when running under user isolation.
+            rewritten = expanded_cmd
+            rewritten = re.sub(r"^\s*uvicorn(\s+)", rf"{venv_python_q} -m uvicorn\1", rewritten, count=1)
+            rewritten = re.sub(r"^\s*gunicorn(\s+)", rf"{venv_python_q} -m gunicorn\1", rewritten, count=1)
+            rewritten = re.sub(r"^\s*python3?(\s+)", rf"{venv_python_q}\1", rewritten, count=1)
+
+            if rewritten != expanded_cmd:
+                expanded_cmd = rewritten
+                log(f"Rewriting run command to use venv python: {expanded_cmd}", "DEBUG")
 
         log(f"Starting process...", "INFO")
 
