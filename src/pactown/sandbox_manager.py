@@ -3,6 +3,7 @@
 import json
 import logging
 import os
+import inspect
 import re
 import shutil
 import stat
@@ -52,19 +53,32 @@ def _should_emit_to_ui(level: str) -> bool:
     return lvl >= _ui_log_level()
 
 
+_ON_LOG_ACCEPTS_LEVEL: dict[int, bool] = {}
+
+
 def _call_on_log(on_log: Optional[Callable[..., None]], msg: str, level: str) -> None:
     if not on_log:
         return
-    try:
+    key = id(on_log)
+    accepts = _ON_LOG_ACCEPTS_LEVEL.get(key)
+    if accepts is None:
+        try:
+            sig = inspect.signature(on_log)
+            params = list(sig.parameters.values())
+            accepts = any(p.kind == inspect.Parameter.VAR_POSITIONAL for p in params) or len(params) >= 2
+        except Exception:
+            accepts = False
+        _ON_LOG_ACCEPTS_LEVEL[key] = accepts
+    if accepts:
         on_log(msg, level)
-    except TypeError:
+    else:
         on_log(msg)
 
 
 def _heartbeat(
     *,
     stop: Event,
-    on_log: Optional[Callable[[str], None]],
+    on_log: Optional[Callable[..., None]],
     message: str,
     interval_s: float = 1.0,
 ) -> None:
@@ -75,7 +89,8 @@ def _heartbeat(
     while not stop.wait(interval_s):
         ticks += 1
         elapsed = int(time.monotonic() - started)
-        on_log(f"⏳ {message} (elapsed={elapsed}s)")
+        if _should_emit_to_ui("INFO"):
+            _call_on_log(on_log, f"⏳ {message} (elapsed={elapsed}s)", "INFO")
 
 # File handler for persistent logs
 LOG_DIR = Path(os.environ.get("PACTOWN_LOG_DIR", tempfile.gettempdir() + "/pactown-logs"))
@@ -240,10 +255,9 @@ class SandboxManager:
     ) -> Sandbox:
         """Create a sandbox for a service from its README."""
         def dbg(msg: str, level: str = "DEBUG"):
-            if on_log:
+            logger.log(getattr(logging, level), f"[{service.name}] {msg}")
+            if on_log and _should_emit_to_ui(level):
                 _call_on_log(on_log, msg, level)
-            else:
-                logger.log(getattr(logging, level), f"[{service.name}] {msg}")
 
         sandbox_path = self.get_sandbox_path(service.name)
 
@@ -364,6 +378,18 @@ class SandboxManager:
                     raise
                 dbg("Installing dependencies via pip", "INFO")
                 try:
+                    pip_stop = Event()
+                    pip_thr = Thread(
+                        target=_heartbeat,
+                        kwargs={
+                            "stop": pip_stop,
+                            "on_log": on_log,
+                            "message": f"[deploy] Installing dependencies via pip ({len(deps_clean)} deps)",
+                            "interval_s": 5.0,
+                        },
+                        daemon=True,
+                    )
+                    pip_thr.start()
                     install_env = os.environ.copy()
                     for k, v in (env or {}).items():
                         if k is None or v is None:
@@ -403,6 +429,11 @@ class SandboxManager:
                     except subprocess.CalledProcessError as e:
                         dbg(f"pip install failed: {e}", "ERROR")
                         raise
+                    finally:
+                        try:
+                            pip_stop.set()
+                        except Exception:
+                            pass
                     dbg("Dependencies installed", "INFO")
                     try:
                         self._dep_cache.save_existing_venv(deps_clean, sandbox.path / ".venv", on_progress=on_log)
@@ -410,7 +441,7 @@ class SandboxManager:
                         pass
                 except Exception as e:
                     try:
-                        stop.set()
+                        pip_stop.set()
                     except Exception:
                         pass
                     dbg(f"install_deps failed: {e}", "ERROR")

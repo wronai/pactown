@@ -73,6 +73,41 @@ def _heartbeat(
         on_log(f"⏳ {message} (elapsed={elapsed}s)")
 
 
+def _run_streamed(
+    cmd: List[str],
+    *,
+    on_log: Optional[Callable[[str], None]] = None,
+    env: Optional[Dict[str, str]] = None,
+    cwd: Optional[Path] = None,
+) -> None:
+    proc = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1,
+        env=env,
+        cwd=str(cwd) if cwd is not None else None,
+    )
+    try:
+        if proc.stdout:
+            for line in proc.stdout:
+                s = (line or "").rstrip("\n")
+                if not s:
+                    continue
+                if on_log:
+                    on_log(s)
+        rc = proc.wait()
+        if rc != 0:
+            raise subprocess.CalledProcessError(rc, cmd)
+    finally:
+        try:
+            if proc.stdout:
+                proc.stdout.close()
+        except Exception:
+            pass
+
+
 class DependencyCache:
     """
     Caches virtual environments by dependency hash.
@@ -218,16 +253,16 @@ class DependencyCache:
                 "stop": stop,
                 "on_log": on_progress,
                 "message": f"[deploy] Creating cached venv ({len(deps)} deps)",
-                "interval_s": 1.0,
+                "interval_s": 3.0,
             },
             daemon=True,
         )
         thr.start()
         try:
-            subprocess.run(
+            _run_streamed(
                 ["python3", "-m", "venv", str(venv_path)],
-                capture_output=True,
-                check=True,
+                on_log=on_progress,
+                env=os.environ.copy(),
             )
         finally:
             stop.set()
@@ -242,7 +277,7 @@ class DependencyCache:
                     "stop": stop,
                     "on_log": on_progress,
                     "message": f"[deploy] Installing cached deps via pip ({len(deps)} deps)",
-                    "interval_s": 1.0,
+                    "interval_s": 3.0,
                 },
                 daemon=True,
             )
@@ -251,10 +286,9 @@ class DependencyCache:
                 install_env = os.environ.copy()
                 if env:
                     install_env.update(env)
-                subprocess.run(
-                    [str(pip_path), "install", "-q", "--disable-pip-version-check"] + deps,
-                    capture_output=True,
-                    check=True,
+                _run_streamed(
+                    [str(pip_path), "install", "--disable-pip-version-check", "--progress-bar", "off"] + deps,
+                    on_log=on_progress,
                     env=install_env,
                 )
             finally:
@@ -551,19 +585,14 @@ class FastServiceStarter:
     def _install_deps_direct(self, sandbox_path: Path, deps: List[str], env: Optional[Dict[str, str]] = None):
         """Install deps directly without caching."""
         venv_path = sandbox_path / ".venv"
-        subprocess.run(
-            ["python3", "-m", "venv", str(venv_path)],
-            capture_output=True,
-            check=True,
-        )
+        _run_streamed(["python3", "-m", "venv", str(venv_path)], on_log=None, env=os.environ.copy())
         pip_path = venv_path / "bin" / "pip"
         install_env = os.environ.copy()
         if env:
             install_env.update(env)
-        subprocess.run(
-            [str(pip_path), "install", "-q", "--disable-pip-version-check"] + deps,
-            capture_output=True,
-            check=True,
+        _run_streamed(
+            [str(pip_path), "install", "--disable-pip-version-check", "--progress-bar", "off"] + deps,
+            on_log=None,
             env=install_env,
         )
     
