@@ -1,4 +1,4 @@
-# pactown | 59f 17412L | python:59
+# pactown | 59f 17533L | python:59
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
 M[59]:
   tests/test_security.py,208
@@ -28,15 +28,15 @@ M[59]:
   src/pactown/security.py,572
   src/pactown/parallel.py,211
   src/pactown/__init__.py,181
-  src/pactown/fast_start.py,556
+  src/pactown/fast_start.py,610
   src/pactown/platform.py,103
   src/pactown/markpact_blocks.py,35
   src/pactown/orchestrator.py,347
   src/pactown/resolver.py,122
-  src/pactown/sandbox_manager.py,980
+  src/pactown/sandbox_manager.py,1012
   src/pactown/runner_api.py,477
   src/pactown/network.py,206
-  src/pactown/service_runner.py,1070
+  src/pactown/service_runner.py,1082
   src/pactown/deploy/quadlet_shell.py,432
   src/pactown/deploy/base.py,217
   src/pactown/deploy/docker.py,258
@@ -282,6 +282,7 @@ D:
     DependencyCache: __init__(3),_load_existing(0),_hash_deps(1),get_cached_venv(1),invalidate(1)  # Caches virtual environments by depend...
     SandboxPool: __init__(3),_hash_deps(1),warm_pool(1),get_prewarmed(1),release(1)  # Pool of pre-warmed sandboxes for inst...
     _heartbeat(stop:Event;on_log:Optional[Callable[[str]; None]];message:str)->None
+    _beat_every_s()->int
     _run_streamed(cmd:List[str])->None
     get_fast_starter(sandbox_root:Optional[Path]=None)->FastServiceStarter
   src/pactown/platform.py:
@@ -322,10 +323,10 @@ D:
     _should_emit_to_ui(level:str)->bool
     _call_on_log(on_log:Optional[Callable[Ellipsis;None]];msg:str;level:str)->None
     _heartbeat(stop:Event;on_log:Optional[Callable[...; None]];message:str)->None
+    _beat_every_s()->int
     _path_debug(path:Path)->str
     _escape_dotenv_value(value:str)->str
     _write_dotenv_file(sandbox_path:Path;env:dict[str;str])->None
-    _sandbox_fallback_ids()->tuple[int, int]
   src/pactown/runner_api.py:
     i: logging,os,re,asyncio,json,dataclasses.asdict,pathlib.Path,typing.{Any,Dict,List}
     e: UserProfileRequest,RunRequest,StopRequest,ValidateRequest,SandboxPrepareRequest,SandboxFileWriteRequest,RunnerApiSettings,RunnerService
