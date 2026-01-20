@@ -1,6 +1,6 @@
-# pactown | 61f 18346L | python:61
+# pactown | 63f 18536L | python:63
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
-M[61]:
+M[63]:
   tests/test_security.py,208
   tests/test_runner_api.py,210
   tests/conftest.py,6
@@ -16,7 +16,9 @@ M[61]:
   tests/test_service_runner_fast_run_fallback.py,62
   tests/test_quadlet_security.py,500
   tests/test_platform.py,39
+  tests/test_service_runner_validation.py,64
   tests/test_network.py,87
+  tests/test_sandbox_manager_node_run_env.py,63
   tests/test_registry.py,110
   tests/test_sandbox_manager_node_deps.py,84
   tests/test_sandbox_manager_env_injection.py,45
@@ -35,10 +37,10 @@ M[61]:
   src/pactown/markpact_blocks.py,35
   src/pactown/orchestrator.py,347
   src/pactown/resolver.py,122
-  src/pactown/sandbox_manager.py,1012
+  src/pactown/sandbox_manager.py,1013
   src/pactown/runner_api.py,540
   src/pactown/network.py,206
-  src/pactown/service_runner.py,1120
+  src/pactown/service_runner.py,1136
   src/pactown/deploy/quadlet_shell.py,432
   src/pactown/deploy/base.py,217
   src/pactown/deploy/docker.py,258
@@ -168,6 +170,10 @@ D:
     test_build_project_subdomain_limits_length()->None
     test_build_service_subdomain_dash()->None
     test_build_service_subdomain_dot()->None
+  tests/test_service_runner_validation.py:
+    i: pytest,pactown.service_runner.{ServiceRunner,ValidationResult}
+    e: test_validate_content_dependency_mismatch
+    test_validate_content_dependency_mismatch()->None
   tests/test_network.py:
     i: tempfile,pactown.network.{PortAllocator,ServiceEndpoint,ServiceRegistry,check_port,find_free_port},pathlib.Path
     e: test_port_allocator_allocate,test_port_allocator_preferred_port,test_port_allocator_release,test_service_endpoint,test_service_registry_register,test_service_registry_get,test_service_registry_get_url,test_service_registry_environment
@@ -179,6 +185,10 @@ D:
     test_service_registry_get()->None
     test_service_registry_get_url()->None
     test_service_registry_environment()->None
+  tests/test_sandbox_manager_node_run_env.py:
+    i: os,sys,pytest,pactown.config.ServiceConfig,pactown.sandbox_manager.SandboxManager,pathlib.Path,types.SimpleNamespace,unittest.mock.{MagicMock,patch}
+    e: test_sandbox_manager_passes_env_to_node_run
+    test_sandbox_manager_passes_env_to_node_run(tmp_path:Path;monkeypatch:Any)->None
   tests/test_registry.py:
     i: tempfile,pactown.registry.models.{Artifact,ArtifactVersion,RegistryStorage},pathlib.Path
     e: test_artifact_version_to_dict,test_artifact_version_from_dict,test_artifact_full_name,test_artifact_add_version,test_artifact_get_version,test_registry_storage_save_and_get,test_registry_storage_list,test_registry_storage_delete
