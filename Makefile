@@ -1,4 +1,4 @@
-.PHONY: help install dev test test-cov lint format build clean registry up down status examples check-pypi-deps publish-pypi bump-patch bump-minor bump-major release security security-sast security-deps security-secrets security-all
+.PHONY: help install dev test test-cov lint format build clean registry up down status examples check-pypi-deps publish-pypi bump-patch bump-minor bump-major release sync-pactown-com security security-sast security-deps security-secrets security-all
 
 PYTHON ?= $(shell if [ -x ./venv/bin/python3 ]; then echo ./venv/bin/python3; elif [ -x ./.venv/bin/python3 ]; then echo ./.venv/bin/python3; else echo python3; fi)
 CONFIG ?= saas.pactown.yaml
@@ -105,6 +105,7 @@ check-pypi-deps: ## Check dependencies for building/publishing
 publish-pypi: ## Publish to PyPI production (uses ~/.pypirc credentials)
 	@$(MAKE) check-pypi-deps
 	@$(MAKE) bump-patch
+	@$(MAKE) sync-pactown-com
 	@$(MAKE) build
 	$(PYTHON) -m twine upload dist/*
 
@@ -125,6 +126,10 @@ bump-major: ## Bump major version (0.1.0 → 1.0.0)
 	@echo "Bumped to $$(grep -m1 'version = ' pyproject.toml | cut -d'"' -f2)"
 
 release: publish-pypi ## Bump patch and publish
+
+
+sync-pactown-com:
+	$(PYTHON) tools/sync_pactown_com_dependency.py
 
 # Security targets
 security: security-sast security-deps ## Run all security checks (SAST + deps)
