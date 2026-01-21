@@ -73,6 +73,9 @@ node index.js
         "SUPABASE_ANON_KEY": "secret-key"
     }
 
+    # Host env should not leak into sandbox by default
+    monkeypatch.setenv("OPENROUTER_API_KEY", "host-secret-should-not-leak")
+
     # Run start_service
     manager.start_service(
         service=service,
@@ -88,3 +91,4 @@ node index.js
     assert env_passed.get("SUPABASE_URL") == "https://example.supabase.co"
     assert env_passed.get("SUPABASE_ANON_KEY") == "secret-key"
     assert env_passed.get("PORT") == "8000"
+    assert env_passed.get("OPENROUTER_API_KEY") is None

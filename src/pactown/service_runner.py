@@ -24,7 +24,7 @@ import httpx
 from .config import CacheConfig, ServiceConfig
 from .error_context import build_error_context, render_error_report_md
 from .markpact_blocks import parse_blocks
-from .sandbox_manager import SandboxManager, ServiceProcess, _write_dotenv_file
+from .sandbox_manager import SandboxManager, ServiceProcess, _sanitize_inherited_env, _write_dotenv_file
 
 
 class ErrorCategory(str, Enum):
@@ -600,11 +600,8 @@ class ServiceRunner:
             service_env.update(env)
         service_env["PORT"] = str(port)
 
-        effective_env = dict(os.environ)
-        if self._cache_env:
-            effective_env.update(self._cache_env)
-        if env:
-            effective_env.update(env)
+        effective_env = _sanitize_inherited_env(dict(os.environ), service_env)
+        effective_env.update(service_env)
         missing_env = self._missing_required_env_vars(content, effective_env)
         if missing_env:
             missing_str = ", ".join(missing_env)
@@ -1277,7 +1274,7 @@ class ServiceRunner:
             )
         
         # Prepare environment
-        run_env = os.environ.copy()
+        run_env = _sanitize_inherited_env(os.environ.copy(), effective_env)
         run_env["PORT"] = str(port)
         run_env["HOST"] = "0.0.0.0"  # nosec B104: bind all interfaces for container/service access
         if effective_env:

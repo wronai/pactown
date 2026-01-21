@@ -76,6 +76,27 @@ def _call_on_log(on_log: Optional[Callable[..., None]], msg: str, level: str) ->
         on_log(msg)
 
 
+_SENSITIVE_ENV_KEY_RE = re.compile(r"(?:^|_)(?:API_KEY|SECRET|PASSWORD|TOKEN|PRIVATE_KEY)(?:$|_)", re.IGNORECASE)
+
+
+def _sanitize_inherited_env(parent_env: Optional[dict[str, str]], explicit_env: Optional[dict[str, str]] = None) -> dict[str, str]:
+    out = dict(parent_env or {})
+    raw_flag = str(os.environ.get("PACTOWN_INHERIT_SENSITIVE_ENV", "") or "").strip().lower()
+    if raw_flag in {"1", "true", "yes", "on"}:
+        return out
+
+    keep = {str(k) for k in (explicit_env or {}).keys() if k is not None}
+    for k in list(out.keys()):
+        if k in keep:
+            continue
+        try:
+            if _SENSITIVE_ENV_KEY_RE.search(str(k)):
+                out.pop(k, None)
+        except Exception:
+            continue
+    return out
+
+
 def _heartbeat(
     *,
     stop: Event,
@@ -342,7 +363,7 @@ class SandboxManager:
         )
         thr.start()
         try:
-            install_env = os.environ.copy()
+            install_env = _sanitize_inherited_env(os.environ.copy(), env)
             for k, v in (env or {}).items():
                 if k is None or v is None:
                     continue
@@ -665,7 +686,7 @@ class SandboxManager:
                         daemon=True,
                     )
                     thr.start()
-                    install_env = os.environ.copy()
+                    install_env = _sanitize_inherited_env(os.environ.copy(), env)
                     for k, v in (env or {}).items():
                         if k is None or v is None:
                             continue
@@ -818,7 +839,7 @@ class SandboxManager:
 
         log(f"Run command: {run_command}", "DEBUG")
 
-        full_env = os.environ.copy()
+        full_env = _sanitize_inherited_env(os.environ.copy(), env)
         full_env.update(env)
         
         # Log env keys for debugging
