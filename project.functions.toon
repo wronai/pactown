@@ -1,5 +1,5 @@
 project: pactown
-generated: "2026-01-20T22:19:49.514605"
+generated: "2026-01-21T09:26:38.065503"
 modules[65]{path,lang,items}:
   tests/test_security.py,python,16
   tests/test_runner_api.py,python,8
@@ -591,15 +591,15 @@ function_details:
       SandboxManager.__init__,method,"(sandbox_root:Any) -> None",393-397,false,5,1,creates
       SandboxManager.get_sandbox_path,method,"(service_name:str) -> Path",399-401,false,3,1,Get sandbox path for a service.
       SandboxManager.create_sandbox,method,"(service:ServiceConfig, readme_path:Path, install_dependencies:bool=True, on_log:Optional[Callable[Any,None]]=None, env:Optional[dict[str,str]]=None) -> Sandbox",403-743,false,341,67,Create a sandbox for a service from its README.
-      SandboxManager.start_service,method,"(service:ServiceConfig, readme_path:Path, env:dict[str,str], verbose:bool=True, restart_if_running:bool=False, on_log:Optional[Callable[Any,None]]=None, user_id:Optional[str]=None) -> ServiceProcess",745-1029,false,285,39,Start a service in its sandbox.
-      SandboxManager.stop_service,method,"(service_name:str, timeout:int=10) -> bool",1031-1081,false,51,10,Stop a running service.
-      SandboxManager.stop_all,method,"(timeout:int=10) -> None",1083-1086,false,4,2,Stop all running services.
-      SandboxManager.get_status,method,"(service_name:str) -> Optional[dict]",1088-1101,false,14,2,Get status of a service.
-      SandboxManager.get_all_status,method,"() -> list[dict]",1103-1109,false,7,3,Get status of all services.
-      SandboxManager.clean_sandbox,method,"(service_name:str) -> None",1111-1115,false,5,2,Remove sandbox directory for a service.
-      SandboxManager.clean_all,method,() -> None,1117-1121,false,5,2,Remove all sandbox directories.
-      SandboxManager.create_sandboxes_parallel,method,"(services:list[tuple[ServiceConfig,Path]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, Sandbox]",1123-1177,false,55,8,Create sandboxes for multiple services in parallel.
-      SandboxManager.start_services_parallel,method,"(services:list[tuple[ServiceConfig,Path,dict[str,str]]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, ServiceProcess]",1179-1236,false,58,6,Start multiple services in parallel.
+      SandboxManager.start_service,method,"(service:ServiceConfig, readme_path:Path, env:dict[str,str], verbose:bool=True, restart_if_running:bool=False, on_log:Optional[Callable[Any,None]]=None, user_id:Optional[str]=None) -> ServiceProcess",745-1038,false,294,42,Start a service in its sandbox.
+      SandboxManager.stop_service,method,"(service_name:str, timeout:int=10) -> bool",1040-1090,false,51,10,Stop a running service.
+      SandboxManager.stop_all,method,"(timeout:int=10) -> None",1092-1095,false,4,2,Stop all running services.
+      SandboxManager.get_status,method,"(service_name:str) -> Optional[dict]",1097-1110,false,14,2,Get status of a service.
+      SandboxManager.get_all_status,method,"() -> list[dict]",1112-1118,false,7,3,Get status of all services.
+      SandboxManager.clean_sandbox,method,"(service_name:str) -> None",1120-1124,false,5,2,Remove sandbox directory for a service.
+      SandboxManager.clean_all,method,() -> None,1126-1130,false,5,2,Remove all sandbox directories.
+      SandboxManager.create_sandboxes_parallel,method,"(services:list[tuple[ServiceConfig,Path]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, Sandbox]",1132-1186,false,55,8,Create sandboxes for multiple services in parallel.
+      SandboxManager.start_services_parallel,method,"(services:list[tuple[ServiceConfig,Path,dict[str,str]]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, ServiceProcess]",1188-1245,false,58,6,Start multiple services in parallel.
   src/pactown/runner_api.py:
     functions[19]{name,kind,sig,loc,async,lines,cc,does}:
       _dns_label,function,"(value:str, fallback:str='user') -> str",27-28,false,2,1,dns label

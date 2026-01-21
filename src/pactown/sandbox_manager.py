@@ -912,6 +912,15 @@ class SandboxManager:
                 full_env["USER"] = user.linux_username
                 full_env["LOGNAME"] = user.linux_username
                 
+                if os.geteuid() == 0:
+                    try:
+                        dotenv_path = sandbox.path / ".env"
+                        if dotenv_path.exists():
+                            os.chown(dotenv_path, user.linux_uid, user.linux_gid)
+                    except Exception:
+                        pass
+                    _chown_sandbox_tree(sandbox.path, user.linux_uid, user.linux_gid)
+                
                 # Create preexec function for user switching
                 def preexec():
                     os.setsid()
