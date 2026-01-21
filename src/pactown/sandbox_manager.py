@@ -78,14 +78,82 @@ def _call_on_log(on_log: Optional[Callable[..., None]], msg: str, level: str) ->
 
 _SENSITIVE_ENV_KEY_RE = re.compile(r"(?:^|_)(?:API_KEY|SECRET|PASSWORD|TOKEN|PRIVATE_KEY)(?:$|_)", re.IGNORECASE)
 
+_BASE_INHERITED_ENV_KEYS = {
+    "PATH",
+    "HOME",
+    "USER",
+    "LOGNAME",
+    "SHELL",
+    "LANG",
+    "LANGUAGE",
+    "LC_ALL",
+    "TERM",
+    "COLORTERM",
+    "TZ",
+    "TMPDIR",
+    "TEMP",
+    "TMP",
+    "SSL_CERT_FILE",
+    "SSL_CERT_DIR",
+    "REQUESTS_CA_BUNDLE",
+    "CURL_CA_BUNDLE",
+    "PIP_DISABLE_PIP_VERSION_CHECK",
+    "PIP_NO_CACHE_DIR",
+}
+
+_BASE_INHERITED_ENV_PREFIXES = (
+    "LC_",
+)
+
+
+def _filter_runtime_env(explicit_env: Optional[dict[str, str]]) -> dict[str, str]:
+    src = dict(explicit_env or {})
+    deny_keys = {
+        "PIP_INDEX_URL",
+        "PIP_EXTRA_INDEX_URL",
+        "PIP_TRUSTED_HOST",
+        "PIP_DEFAULT_TIMEOUT",
+        "PIP_RETRIES",
+        "NPM_CONFIG_REGISTRY",
+        "DOCKER_REGISTRY_MIRROR",
+        "ACQUIRE::HTTP::PROXY",
+        "ACQUIRE::HTTPS::PROXY",
+    }
+    deny_prefixes = (
+        "PACTOWN_",
+    )
+    out: dict[str, str] = {}
+    for k, v in src.items():
+        if k is None or v is None:
+            continue
+        kk = str(k)
+        if kk in {"PORT", "MARKPACT_PORT"}:
+            out[kk] = str(v)
+            continue
+        if kk in deny_keys:
+            continue
+        if any(kk.startswith(p) for p in deny_prefixes):
+            continue
+        out[kk] = str(v)
+    return out
+
 
 def _sanitize_inherited_env(parent_env: Optional[dict[str, str]], explicit_env: Optional[dict[str, str]] = None) -> dict[str, str]:
-    out = dict(parent_env or {})
+    parent = dict(parent_env or {})
     raw_flag = str(os.environ.get("PACTOWN_INHERIT_SENSITIVE_ENV", "") or "").strip().lower()
     if raw_flag in {"1", "true", "yes", "on"}:
-        return out
+        return parent
 
     keep = {str(k) for k in (explicit_env or {}).keys() if k is not None}
+    out: dict[str, str] = {}
+    for k, v in parent.items():
+        kk = str(k)
+        if kk in keep:
+            out[kk] = str(v)
+            continue
+        if kk in _BASE_INHERITED_ENV_KEYS or any(kk.startswith(p) for p in _BASE_INHERITED_ENV_PREFIXES):
+            out[kk] = str(v)
+
     for k in list(out.keys()):
         if k in keep:
             continue
@@ -480,7 +548,7 @@ class SandboxManager:
             code = "import importlib\n" + "\n".join([f"importlib.import_module({m!r})" for m in imports])
 
             try:
-                check_env = os.environ.copy()
+                check_env = _sanitize_inherited_env(os.environ.copy(), env)
                 for k, v in (env or {}).items():
                     if k is None or v is None:
                         continue
@@ -839,17 +907,18 @@ class SandboxManager:
 
         log(f"Run command: {run_command}", "DEBUG")
 
-        full_env = _sanitize_inherited_env(os.environ.copy(), env)
-        full_env.update(env)
+        runtime_env = _filter_runtime_env(env)
+        full_env = _sanitize_inherited_env(os.environ.copy(), runtime_env)
+        full_env.update(runtime_env)
         
         # Log env keys for debugging
-        log(f"Environment keys passed to process: {list(env.keys())}", "DEBUG")
+        log(f"Environment keys passed to process: {list(runtime_env.keys())}", "DEBUG")
         
         # Ensure PORT is always set in environment
         full_env["PORT"] = str(service.port)
         full_env["MARKPACT_PORT"] = str(service.port)
 
-        dotenv_env = dict(env or {})
+        dotenv_env = dict(runtime_env or {})
         dotenv_env["PORT"] = str(service.port)
         dotenv_env["MARKPACT_PORT"] = str(service.port)
         _write_dotenv_file(sandbox.path, dotenv_env)

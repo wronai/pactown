@@ -24,7 +24,13 @@ import httpx
 from .config import CacheConfig, ServiceConfig
 from .error_context import build_error_context, render_error_report_md
 from .markpact_blocks import parse_blocks
-from .sandbox_manager import SandboxManager, ServiceProcess, _sanitize_inherited_env, _write_dotenv_file
+from .sandbox_manager import (
+    SandboxManager,
+    ServiceProcess,
+    _filter_runtime_env,
+    _sanitize_inherited_env,
+    _write_dotenv_file,
+)
 
 
 class ErrorCategory(str, Enum):
@@ -1273,14 +1279,16 @@ class ServiceRunner:
                 logs=logs,
             )
         
+        runtime_env = _filter_runtime_env(effective_env)
+
         # Prepare environment
-        run_env = _sanitize_inherited_env(os.environ.copy(), effective_env)
+        run_env = _sanitize_inherited_env(os.environ.copy(), runtime_env)
         run_env["PORT"] = str(port)
         run_env["HOST"] = "0.0.0.0"  # nosec B104: bind all interfaces for container/service access
-        if effective_env:
-            run_env.update(effective_env)
+        if runtime_env:
+            run_env.update(runtime_env)
 
-        dotenv_env = dict(effective_env or {})
+        dotenv_env = dict(runtime_env or {})
         dotenv_env["PORT"] = str(port)
         dotenv_env["MARKPACT_PORT"] = str(port)
         _write_dotenv_file(sandbox_path, dotenv_env)
