@@ -1,6 +1,6 @@
 project: pactown
-generated: "2026-01-21T09:26:38.065503"
-modules[65]{path,lang,items}:
+generated: "2026-01-21T12:28:21.626170"
+modules[66]{path,lang,items}:
   tests/test_security.py,python,16
   tests/test_runner_api.py,python,8
   tests/conftest.py,python,0
@@ -23,6 +23,7 @@ modules[65]{path,lang,items}:
   tests/test_registry.py,python,10
   tests/test_sandbox_manager_node_deps.py,python,2
   tests/test_sandbox_manager_env_injection.py,python,1
+  tools/sync_pactown_com_dependency.py,python,3
   src/pactown/iac.py,python,8
   src/pactown/config.py,python,10
   src/pactown/cli.py,python,32
@@ -39,7 +40,7 @@ modules[65]{path,lang,items}:
   src/pactown/markpact_blocks.py,python,2
   src/pactown/orchestrator.py,python,18
   src/pactown/resolver.py,python,8
-  src/pactown/sandbox_manager.py,python,27
+  src/pactown/sandbox_manager.py,python,29
   src/pactown/runner_api.py,python,19
   src/pactown/network.py,python,19
   src/pactown/service_runner.py,python,19
@@ -237,7 +238,7 @@ function_details:
       test_check_port,function,() -> None,139-142,false,4,1,checks check port
   tests/test_sandbox_manager_node_run_env.py:
     functions[1]{name,kind,sig,loc,async,lines,cc,does}:
-      test_sandbox_manager_passes_env_to_node_run,function,"(tmp_path:Path, monkeypatch:Any) -> None",11-90,false,80,2,checks sandbox manager passes env to node run
+      test_sandbox_manager_passes_env_to_node_run,function,"(tmp_path:Path, monkeypatch:Any) -> None",11-94,false,84,2,checks sandbox manager passes env to node run
   tests/test_registry.py:
     functions[10]{name,kind,sig,loc,async,lines,cc,does}:
       test_artifact_version_to_dict,function,() -> None,9-18,false,10,1,checks artifact version to dict
@@ -257,6 +258,11 @@ function_details:
   tests/test_sandbox_manager_env_injection.py:
     functions[1]{name,kind,sig,loc,async,lines,cc,does}:
       test_sandbox_manager_passes_env_to_pip_install,function,"(tmp_path:Path, monkeypatch:Any) -> None",11-61,false,51,1,checks sandbox manager passes env to pip install
+  tools/sync_pactown_com_dependency.py:
+    functions[3]{name,kind,sig,loc,async,lines,cc,does}:
+      _read_pactown_version,function,"(pyproject_path:Path) -> str",6-11,false,6,2,retrieves pactown version
+      _update_requirements_pin,function,"(req_path:Path) -> bool",14-43,false,30,8,updates requirements pin
+      main,function,() -> int,46-85,false,40,8,main
   src/pactown/iac.py:
     functions[8]{name,kind,sig,loc,async,lines,cc,does}:
       _runtime_type,function,"(is_node:bool) -> str",44-45,false,2,2,runtime type
@@ -572,34 +578,36 @@ function_details:
       DependencyResolver.validate,method,"() -> list[str]",121-139,false,19,6,Validate the dependency graph and return any issues.
       DependencyResolver.print_graph,method,() -> str,141-160,false,20,6,Return ASCII representation of dependency graph.
   src/pactown/sandbox_manager.py:
-    functions[27]{name,kind,sig,loc,async,lines,cc,does}:
+    functions[29]{name,kind,sig,loc,async,lines,cc,does}:
       _ui_log_level,function,() -> int,36-46,false,11,7,ui log level
       _should_emit_to_ui,function,"(level:str) -> bool",49-54,false,6,2,checks emit to ui
       _call_on_log,function,"(on_log:Optional[Callable[Ellipsis,None]], msg:str, level:str) -> None",60-76,false,17,7,call on log
-      _heartbeat,function,"(stop:Event, on_log:Optional[Callable[..., None]], message:str) -> None",79-94,false,16,4,heartbeat
-      _beat_every_s,function,() -> int,97-101,false,5,2,beat every s
-      _path_debug,function,"(path:Path) -> str",118-135,false,18,7,path debug
-      _escape_dotenv_value,function,"(value:str) -> str",138-144,false,7,1,escape dotenv value
-      _write_dotenv_file,function,"(sandbox_path:Path, env:dict[str,str]) -> None",147-163,false,17,8,logs dotenv file
-      _sandbox_fallback_ids,function,"() -> tuple[int, int]",166-175,false,10,3,sandbox fallback ids
-      _chown_sandbox_tree,function,"(sandbox_path:Path, uid:int, gid:int) -> None",178-213,false,36,11,chown sandbox tree
-      ServiceProcess.is_running,method,() -> bool,227-240,false,14,5,is running
-      SandboxManager._is_node_lang,method,"(lang:str) -> bool",247-249,false,3,2,is node lang
-      SandboxManager._infer_node_project,method,"(blocks:list, deps:list[str], run_cmd:str) -> bool",252-273,false,22,22,infer node project
-      SandboxManager._ensure_package_json,method,"(sandbox_path:Path, service_name:str, deps:list[str]) -> None",276-312,false,37,11,ensure package json
-      SandboxManager._install_node_deps,method,() -> None,314-391,false,78,20,install node deps
-      SandboxManager.__init__,method,"(sandbox_root:Any) -> None",393-397,false,5,1,creates
-      SandboxManager.get_sandbox_path,method,"(service_name:str) -> Path",399-401,false,3,1,Get sandbox path for a service.
-      SandboxManager.create_sandbox,method,"(service:ServiceConfig, readme_path:Path, install_dependencies:bool=True, on_log:Optional[Callable[Any,None]]=None, env:Optional[dict[str,str]]=None) -> Sandbox",403-743,false,341,67,Create a sandbox for a service from its README.
-      SandboxManager.start_service,method,"(service:ServiceConfig, readme_path:Path, env:dict[str,str], verbose:bool=True, restart_if_running:bool=False, on_log:Optional[Callable[Any,None]]=None, user_id:Optional[str]=None) -> ServiceProcess",745-1038,false,294,42,Start a service in its sandbox.
-      SandboxManager.stop_service,method,"(service_name:str, timeout:int=10) -> bool",1040-1090,false,51,10,Stop a running service.
-      SandboxManager.stop_all,method,"(timeout:int=10) -> None",1092-1095,false,4,2,Stop all running services.
-      SandboxManager.get_status,method,"(service_name:str) -> Optional[dict]",1097-1110,false,14,2,Get status of a service.
-      SandboxManager.get_all_status,method,"() -> list[dict]",1112-1118,false,7,3,Get status of all services.
-      SandboxManager.clean_sandbox,method,"(service_name:str) -> None",1120-1124,false,5,2,Remove sandbox directory for a service.
-      SandboxManager.clean_all,method,() -> None,1126-1130,false,5,2,Remove all sandbox directories.
-      SandboxManager.create_sandboxes_parallel,method,"(services:list[tuple[ServiceConfig,Path]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, Sandbox]",1132-1186,false,55,8,Create sandboxes for multiple services in parallel.
-      SandboxManager.start_services_parallel,method,"(services:list[tuple[ServiceConfig,Path,dict[str,str]]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, ServiceProcess]",1188-1245,false,58,6,Start multiple services in parallel.
+      _filter_runtime_env,function,"(explicit_env:Optional[dict[str,str]]) -> dict[str, str]",109-138,false,30,9,filters runtime env
+      _sanitize_inherited_env,function,"(parent_env:Optional[dict[str,str]], explicit_env:Optional[dict[str,str]]=None) -> dict[str, str]",141-165,false,25,16,sanitize inherited env
+      _heartbeat,function,"(stop:Event, on_log:Optional[Callable[..., None]], message:str) -> None",168-183,false,16,4,heartbeat
+      _beat_every_s,function,() -> int,186-190,false,5,2,beat every s
+      _path_debug,function,"(path:Path) -> str",207-224,false,18,7,path debug
+      _escape_dotenv_value,function,"(value:str) -> str",227-233,false,7,1,escape dotenv value
+      _write_dotenv_file,function,"(sandbox_path:Path, env:dict[str,str]) -> None",236-252,false,17,8,logs dotenv file
+      _sandbox_fallback_ids,function,"() -> tuple[int, int]",255-264,false,10,3,sandbox fallback ids
+      _chown_sandbox_tree,function,"(sandbox_path:Path, uid:int, gid:int) -> None",267-302,false,36,11,chown sandbox tree
+      ServiceProcess.is_running,method,() -> bool,316-329,false,14,5,is running
+      SandboxManager._is_node_lang,method,"(lang:str) -> bool",336-338,false,3,2,is node lang
+      SandboxManager._infer_node_project,method,"(blocks:list, deps:list[str], run_cmd:str) -> bool",341-362,false,22,22,infer node project
+      SandboxManager._ensure_package_json,method,"(sandbox_path:Path, service_name:str, deps:list[str]) -> None",365-401,false,37,11,ensure package json
+      SandboxManager._install_node_deps,method,() -> None,403-480,false,78,20,install node deps
+      SandboxManager.__init__,method,"(sandbox_root:Any) -> None",482-486,false,5,1,creates
+      SandboxManager.get_sandbox_path,method,"(service_name:str) -> Path",488-490,false,3,1,Get sandbox path for a service.
+      SandboxManager.create_sandbox,method,"(service:ServiceConfig, readme_path:Path, install_dependencies:bool=True, on_log:Optional[Callable[Any,None]]=None, env:Optional[dict[str,str]]=None) -> Sandbox",492-832,false,341,67,Create a sandbox for a service from its README.
+      SandboxManager.start_service,method,"(service:ServiceConfig, readme_path:Path, env:dict[str,str], verbose:bool=True, restart_if_running:bool=False, on_log:Optional[Callable[Any,None]]=None, user_id:Optional[str]=None) -> ServiceProcess",834-1128,false,295,42,Start a service in its sandbox.
+      SandboxManager.stop_service,method,"(service_name:str, timeout:int=10) -> bool",1130-1180,false,51,10,Stop a running service.
+      SandboxManager.stop_all,method,"(timeout:int=10) -> None",1182-1185,false,4,2,Stop all running services.
+      SandboxManager.get_status,method,"(service_name:str) -> Optional[dict]",1187-1200,false,14,2,Get status of a service.
+      SandboxManager.get_all_status,method,"() -> list[dict]",1202-1208,false,7,3,Get status of all services.
+      SandboxManager.clean_sandbox,method,"(service_name:str) -> None",1210-1214,false,5,2,Remove sandbox directory for a service.
+      SandboxManager.clean_all,method,() -> None,1216-1220,false,5,2,Remove all sandbox directories.
+      SandboxManager.create_sandboxes_parallel,method,"(services:list[tuple[ServiceConfig,Path]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, Sandbox]",1222-1276,false,55,8,Create sandboxes for multiple services in parallel.
+      SandboxManager.start_services_parallel,method,"(services:list[tuple[ServiceConfig,Path,dict[str,str]]], max_workers:int=4, on_complete:Optional[Callable[Any,None]]=None) -> dict[str, ServiceProcess]",1278-1335,false,58,6,Start multiple services in parallel.
   src/pactown/runner_api.py:
     functions[19]{name,kind,sig,loc,async,lines,cc,does}:
       _dns_label,function,"(value:str, fallback:str='user') -> str",27-28,false,2,1,dns label
@@ -644,25 +652,25 @@ function_details:
       ServiceRegistry.clear,method,() -> None,237-243,false,7,2,Clear all registrations.
   src/pactown/service_runner.py:
     functions[19]{name,kind,sig,loc,async,lines,cc,does}:
-      kill_process_on_port,function,"(port:int, force:bool=False) -> bool",110-196,false,87,25,Kill any process using the specified port.
-      DiagnosticInfo.collect,method,"(sandbox_path:Optional[Path]=None) -> \"DiagnosticInfo\"",54-84,false,31,6,Collect diagnostic information.
-      RunResult.to_dict,method,() -> dict,217-243,false,27,4,Convert to dictionary for JSON serialization.
-      ServiceRunner.__init__,method,"(sandbox_root:Any=None, default_health_check:str='/health', health_timeout:int=10, security_policy:Optional[SecurityPolicy]=None, enable_fast_start:bool=True, cache_config:Optional[CacheConfig]=None) -> None",284-320,false,37,5,creates
-      ServiceRunner.validate_content,method,"(content:str) -> ValidationResult",322-375,false,54,23,Validate markpact content before running.
-      ServiceRunner._extract_required_env_vars,method,"(content:str) -> set[str]",377-413,false,37,19,parses required env vars
-      ServiceRunner._missing_required_env_vars,method,"(content:str, effective_env:dict[str,str]) -> list[str]",415-426,false,12,5,missing required env vars
-      ServiceRunner._prune_stale_user_services,method,"(user_id:str, on_log:Optional[Callable[Any,None]]=None) -> None",428-466,false,39,14,prune stale user services
-      ServiceRunner.run_from_content,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, restart_if_running:bool=True, wait_for_health:bool=True, health_timeout:Optional[int]=None) -> RunResult",468-751,true,284,39,Run a service directly from markdown content.
-      ServiceRunner._generate_suggestions,method,"(error_cat:ErrorCategory, stderr:str, port:int) -> List[AutoFixSuggestion]",753-845,false,93,18,Generate actionable suggestions based on error type.
-      ServiceRunner._wait_for_health,method,"(process:ServiceProcess, port:int, timeout:int, health_path:str, on_log:Callable[Any,None]) -> dict",847-937,true,91,30,Wait for service to pass health check.
-      ServiceRunner.stop,method,"(service_id:str) -> RunResult",939-1002,false,64,6,Stop a running service.
-      ServiceRunner.get_status,method,"(service_id:str) -> Optional[Dict]",1004-1023,false,20,3,Get status of a service.
-      ServiceRunner.list_services,method,"() -> List[Dict]",1025-1039,false,15,4,List all running services.
-      ServiceRunner.test_endpoints,method,"(service_id:str, endpoints:Optional[List[str]]=None, timeout:float=5.0) -> List[EndpointTestResult]",1041-1101,true,61,8,Test endpoints of a running service.
-      ServiceRunner.stop_all,method,() -> None,1103-1106,false,4,2,Stop all running services.
-      ServiceRunner.fast_run,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, user_id:Optional[str]=None, user_profile:Optional[Dict[str,Any]]=None, skip_health_check:bool=False) -> RunResult",1108-1400,true,293,38,Fast service startup with dependency caching.
-      ServiceRunner._quick_health_check,method,"(process:Any, port:int, timeout:int=5, health_path:str='/') -> bool",1402-1435,true,34,12,Quick health check with shorter timeout.
-      ServiceRunner.get_cache_stats,method,"() -> Dict[str, Any]",1437-1441,false,5,2,Get fast start cache statistics.
+      kill_process_on_port,function,"(port:int, force:bool=False) -> bool",116-202,false,87,25,Kill any process using the specified port.
+      DiagnosticInfo.collect,method,"(sandbox_path:Optional[Path]=None) -> \"DiagnosticInfo\"",60-90,false,31,6,Collect diagnostic information.
+      RunResult.to_dict,method,() -> dict,223-249,false,27,4,Convert to dictionary for JSON serialization.
+      ServiceRunner.__init__,method,"(sandbox_root:Any=None, default_health_check:str='/health', health_timeout:int=10, security_policy:Optional[SecurityPolicy]=None, enable_fast_start:bool=True, cache_config:Optional[CacheConfig]=None) -> None",290-326,false,37,5,creates
+      ServiceRunner.validate_content,method,"(content:str) -> ValidationResult",328-381,false,54,23,Validate markpact content before running.
+      ServiceRunner._extract_required_env_vars,method,"(content:str) -> set[str]",383-419,false,37,19,parses required env vars
+      ServiceRunner._missing_required_env_vars,method,"(content:str, effective_env:dict[str,str]) -> list[str]",421-432,false,12,5,missing required env vars
+      ServiceRunner._prune_stale_user_services,method,"(user_id:str, on_log:Optional[Callable[Any,None]]=None) -> None",434-472,false,39,14,prune stale user services
+      ServiceRunner.run_from_content,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, restart_if_running:bool=True, wait_for_health:bool=True, health_timeout:Optional[int]=None) -> RunResult",474-754,true,281,37,Run a service directly from markdown content.
+      ServiceRunner._generate_suggestions,method,"(error_cat:ErrorCategory, stderr:str, port:int) -> List[AutoFixSuggestion]",756-848,false,93,18,Generate actionable suggestions based on error type.
+      ServiceRunner._wait_for_health,method,"(process:ServiceProcess, port:int, timeout:int, health_path:str, on_log:Callable[Any,None]) -> dict",850-940,true,91,30,Wait for service to pass health check.
+      ServiceRunner.stop,method,"(service_id:str) -> RunResult",942-1005,false,64,6,Stop a running service.
+      ServiceRunner.get_status,method,"(service_id:str) -> Optional[Dict]",1007-1026,false,20,3,Get status of a service.
+      ServiceRunner.list_services,method,"() -> List[Dict]",1028-1042,false,15,4,List all running services.
+      ServiceRunner.test_endpoints,method,"(service_id:str, endpoints:Optional[List[str]]=None, timeout:float=5.0) -> List[EndpointTestResult]",1044-1104,true,61,8,Test endpoints of a running service.
+      ServiceRunner.stop_all,method,() -> None,1106-1109,false,4,2,Stop all running services.
+      ServiceRunner.fast_run,method,"(service_id:str, content:str, port:int, env:Optional[Dict[str,str]]=None, user_id:Optional[str]=None, user_profile:Optional[Dict[str,Any]]=None, skip_health_check:bool=False) -> RunResult",1111-1405,true,295,38,Fast service startup with dependency caching.
+      ServiceRunner._quick_health_check,method,"(process:Any, port:int, timeout:int=5, health_path:str='/') -> bool",1407-1440,true,34,12,Quick health check with shorter timeout.
+      ServiceRunner.get_cache_stats,method,"() -> Dict[str, Any]",1442-1446,false,5,2,Get fast start cache statistics.
   src/pactown/deploy/quadlet_shell.py:
     functions[23]{name,kind,sig,loc,async,lines,cc,does}:
       run_shell,function,"(tenant_id:str='default', domain:str='localhost', user_mode:bool=True) -> None",539-553,false,15,2,Run the interactive Quadlet shell.

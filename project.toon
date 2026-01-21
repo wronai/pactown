@@ -1,6 +1,6 @@
-# pactown | 65f 19464L | python:65
+# pactown | 66f 19653L | python:66
 # Keys: M=modules, D=details, i=imports, c=classes, f=functions, m=methods
-M[65]:
+M[66]:
   tests/test_security.py,208
   tests/test_runner_api.py,358
   tests/conftest.py,6
@@ -19,10 +19,11 @@ M[65]:
   tests/test_iac_manifest.py,63
   tests/test_service_runner_validation.py,64
   tests/test_network.py,87
-  tests/test_sandbox_manager_node_run_env.py,63
+  tests/test_sandbox_manager_node_run_env.py,65
   tests/test_registry.py,110
   tests/test_sandbox_manager_node_deps.py,84
   tests/test_sandbox_manager_env_injection.py,45
+  tools/sync_pactown_com_dependency.py,70
   src/pactown/iac.py,225
   src/pactown/config.py,216
   src/pactown/cli.py,670
@@ -39,10 +40,10 @@ M[65]:
   src/pactown/markpact_blocks.py,35
   src/pactown/orchestrator.py,347
   src/pactown/resolver.py,122
-  src/pactown/sandbox_manager.py,1057
+  src/pactown/sandbox_manager.py,1137
   src/pactown/runner_api.py,540
   src/pactown/network.py,206
-  src/pactown/service_runner.py,1198
+  src/pactown/service_runner.py,1202
   src/pactown/deploy/quadlet_shell.py,432
   src/pactown/deploy/base.py,235
   src/pactown/deploy/docker.py,258
@@ -222,6 +223,12 @@ D:
     i: os,pytest,pactown.config.ServiceConfig,pactown.sandbox_manager.SandboxManager,pathlib.Path,types.SimpleNamespace
     e: test_sandbox_manager_passes_env_to_pip_install
     test_sandbox_manager_passes_env_to_pip_install(tmp_path:Path;monkeypatch:Any)->None
+  tools/sync_pactown_com_dependency.py:
+    i: argparse,re,pathlib.Path
+    e: main
+    _read_pactown_version(pyproject_path:Path)->str
+    _update_requirements_pin(req_path:Path)->bool
+    main()->int
   src/pactown/iac.py:
     i: datetime,os,yaml,dataclasses.dataclass,datetime.UTC,deploy.base.DeploymentConfig,deploy.docker.DockerBackend,pathlib.Path,typing.{Any,Optional}
     e: SandboxIacOptions,build_sandbox_spec,write_sandbox_manifest,build_single_service_compose,write_single_service_compose,write_sandbox_iac
@@ -370,17 +377,17 @@ D:
     DependencyResolver: __init__(1),_build_graph(0),get_startup_order(0),get_shutdown_order(0),resolve_service_deps(1)  # Resolves dependencies between service...
   src/pactown/sandbox_manager.py:
     i: json,logging,os,inspect,re,shutil,stat,signal,subprocess,tempfile
-    e: _ON_LOG_ACCEPTS_LEVEL,LOG_DIR,ServiceProcess,SandboxManager
+    e: _ON_LOG_ACCEPTS_LEVEL,_SENSITIVE_ENV_KEY_RE,_BASE_INHERITED_ENV_KEYS,_BASE_INHERITED_ENV_PREFIXES,LOG_DIR,ServiceProcess,SandboxManager
     ServiceProcess: is_running(0)  # Represents a running service process.
     SandboxManager: _is_node_lang(1),_infer_node_project(3),_ensure_package_json(3),_install_node_deps(0),__init__(1)  # Manages sandboxes for multiple services.
     _ui_log_level()->int
     _should_emit_to_ui(level:str)->bool
     _call_on_log(on_log:Optional[Callable[Ellipsis;None]];msg:str;level:str)->None
+    _filter_runtime_env(explicit_env:Optional[dict[str;str]])->dict[str, str]
+    _sanitize_inherited_env(parent_env:Optional[dict[str;str]];explicit_env:Optional[dict[str;str]]=None)->dict[str, str]
     _heartbeat(stop:Event;on_log:Optional[Callable[...; None]];message:str)->None
     _beat_every_s()->int
     _path_debug(path:Path)->str
-    _escape_dotenv_value(value:str)->str
-    _write_dotenv_file(sandbox_path:Path;env:dict[str;str])->None
   src/pactown/runner_api.py:
     i: logging,os,re,asyncio,json,dataclasses.asdict,pathlib.Path,typing.{Any,Dict,List}
     e: UserProfileRequest,RunRequest,StopRequest,ValidateRequest,SandboxPrepareRequest,SandboxFileWriteRequest,RunnerApiSettings,RunnerService
