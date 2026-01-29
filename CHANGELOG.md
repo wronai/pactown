@@ -1,3 +1,14 @@
+## [0.1.98] - 2026-01-29
+
+### Summary
+
+chore(config): add database, performance and more
+
+### Config
+
+- config: update goal.yaml
+
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
