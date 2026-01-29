@@ -1,3 +1,15 @@
+## [0.1.100] - 2026-01-29
+
+### Summary
+
+fix(None): deep code analysis engine with 2 supporting modules
+
+### Core
+
+- update src/pactown/error_context.py
+- update src/pactown/registry/server.py
+
+
 ## [0.1.99] - 2026-01-29
 
 ### Summary

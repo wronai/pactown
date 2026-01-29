@@ -1,6 +1,7 @@
 """FastAPI server for pactown registry."""
 
 import hashlib
+import os
 from pathlib import Path
 from typing import Optional
 

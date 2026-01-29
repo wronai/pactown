@@ -1,6 +1,6 @@
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
@@ -238,7 +238,7 @@ def render_error_report_md(context: Dict[str, Any], *, meta: Optional[Dict[str, 
     meta_d = dict(meta or {})
 
     title = str(meta_d.get("title") or "Error Report")
-    generated = datetime.utcnow().isoformat() + "Z"
+    generated = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
     message = meta_d.get("message")
     error_category = meta_d.get("error_category")
