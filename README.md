@@ -229,7 +229,7 @@ INFO:     127.0.0.1:54012 - "GET /api/users HTTP/1.1" 200 OK
 
 ## Registry
 
-Pactown includes a local registry for sharing markpact artifacts:
+Pactown includes a local registry for sharing markpact artifacts using **JSON-based storage** (no database required):
 
 ```bash
 # Start registry
@@ -241,6 +241,15 @@ pactown publish saas.pactown.yaml --registry http://localhost:8800
 # Pull dependencies
 pactown pull saas.pactown.yaml --registry http://localhost:8800
 ```
+
+### Storage Architecture
+
+The registry uses **file-based JSON storage** instead of a database:
+
+- **Location**: `.pactown-registry/index.json` in your project directory
+- **Format**: Single JSON file containing all artifacts and versions
+- **Content**: Full README content, metadata, checksums, and version history
+- **Benefits**: No database setup, portable, version-controllable
 
 ### Registry API
 
