@@ -54,22 +54,15 @@ def _should_emit_to_ui(level: str) -> bool:
     return lvl >= _ui_log_level()
 
 
-_ON_LOG_ACCEPTS_LEVEL: dict[int, bool] = {}
-
-
 def _call_on_log(on_log: Optional[Callable[..., None]], msg: str, level: str) -> None:
     if not on_log:
         return
-    key = id(on_log)
-    accepts = _ON_LOG_ACCEPTS_LEVEL.get(key)
-    if accepts is None:
-        try:
-            sig = inspect.signature(on_log)
-            params = list(sig.parameters.values())
-            accepts = any(p.kind == inspect.Parameter.VAR_POSITIONAL for p in params) or len(params) >= 2
-        except Exception:
-            accepts = False
-        _ON_LOG_ACCEPTS_LEVEL[key] = accepts
+    try:
+        sig = inspect.signature(on_log)
+        params = list(sig.parameters.values())
+        accepts = any(p.kind == inspect.Parameter.VAR_POSITIONAL for p in params) or len(params) >= 2
+    except Exception:
+        accepts = False
     if accepts:
         on_log(msg, level)
     else:
