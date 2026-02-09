@@ -101,6 +101,27 @@ from .llm import (
 )
 
 from .error_context import build_error_context
+from .targets import (
+    TargetPlatform,
+    TargetConfig,
+    DesktopFramework,
+    MobileFramework,
+    WebFramework,
+    FrameworkMeta,
+    get_framework_meta,
+    list_frameworks,
+    infer_target_from_deps,
+)
+from .builders import (
+    Builder,
+    BuildResult,
+    BuildError,
+    DesktopBuilder,
+    MobileBuilder,
+    WebBuilder,
+    get_builder,
+    get_builder_for_target,
+)
 
 __all__ = [
     # High-level API
@@ -197,5 +218,23 @@ __all__ = [
     "set_llm_priority",
     "reset_llm_provider",
     "build_error_context",
+    # Targets & Builders
+    "TargetPlatform",
+    "TargetConfig",
+    "DesktopFramework",
+    "MobileFramework",
+    "WebFramework",
+    "FrameworkMeta",
+    "get_framework_meta",
+    "list_frameworks",
+    "infer_target_from_deps",
+    "Builder",
+    "BuildResult",
+    "BuildError",
+    "DesktopBuilder",
+    "MobileBuilder",
+    "WebBuilder",
+    "get_builder",
+    "get_builder_for_target",
     "__version__",
 ]

@@ -317,6 +317,138 @@ def generate(folder: str, name: Optional[str], output: str, base_port: int):
 
 
 @cli.command()
+@click.argument("readme_path", type=click.Path(exists=True))
+@click.option("--output", "-o", default="./build-output", help="Output directory for artifacts")
+@click.option("--framework", "-f", default=None, help="Override framework (electron, tauri, capacitor, ...)")
+@click.option("--target", "-t", multiple=True, help="Build targets (linux, windows, mac, android, ios)")
+def build(readme_path: str, output: str, framework: Optional[str], target: tuple):
+    """Build a desktop or mobile app from a markpact README.
+
+    The README should contain a markpact:target block specifying the platform
+    and framework, plus the usual markpact:file, markpact:deps blocks, and
+    optionally a markpact:build block with a custom build command.
+
+    \b
+    Examples:
+        pactown build desktop-app/README.md
+        pactown build mobile-app/README.md --target android --target ios
+        pactown build app/README.md --framework electron -o ./dist
+    """
+    from .markpact_blocks import parse_blocks, extract_target_config, extract_build_cmd
+    from .targets import TargetConfig, TargetPlatform
+    from .sandbox_manager import SandboxManager
+    from .config import ServiceConfig
+
+    try:
+        readme = Path(readme_path).resolve()
+        content = readme.read_text()
+        blocks = parse_blocks(content)
+
+        # Resolve target
+        target_cfg = extract_target_config(blocks)
+        if target_cfg is None:
+            target_cfg = TargetConfig()
+
+        if framework:
+            target_cfg.framework = framework.strip().lower()
+        if target:
+            target_cfg.targets = list(target)
+
+        # Auto-detect platform from framework if still 'web'
+        if target_cfg.is_web and target_cfg.framework:
+            from .targets import get_framework_meta
+            meta = get_framework_meta(target_cfg.framework)
+            if meta:
+                target_cfg.platform = meta.platform
+
+        platform_label = target_cfg.platform.value
+        fw_label = target_cfg.framework or "auto"
+        targets_label = ", ".join(target_cfg.effective_build_targets()) or "default"
+
+        console.print(f"[bold]Building: {readme.name}[/bold]")
+        console.print(f"  Platform:  {platform_label}")
+        console.print(f"  Framework: {fw_label}")
+        console.print(f"  Targets:   {targets_label}")
+        console.print()
+
+        # Create sandbox manager
+        output_dir = Path(output).resolve()
+        output_dir.mkdir(parents=True, exist_ok=True)
+        sandbox_root = output_dir / ".pactown-sandboxes"
+
+        sandbox_manager = SandboxManager(sandbox_root)
+
+        service_config = ServiceConfig(
+            name=readme.parent.name or "app",
+            readme=str(readme),
+            target=target_cfg.platform.value,
+            framework=target_cfg.framework,
+            build_targets=target_cfg.effective_build_targets(),
+        )
+
+        result = sandbox_manager.build_service(
+            service_config,
+            readme,
+            env={},
+            on_log=lambda msg: console.print(f"  [dim]{msg}[/dim]"),
+        )
+
+        if result.success:
+            console.print(f"\n[green]✓ Build succeeded[/green]")
+            console.print(f"  Artifacts: {len(result.artifacts)}")
+            for a in result.artifacts:
+                console.print(f"    {a}")
+            if result.output_dir:
+                console.print(f"  Output: {result.output_dir}")
+            console.print(f"  Time: {result.elapsed_seconds:.1f}s")
+        else:
+            console.print(f"\n[red]✗ Build failed: {result.message}[/red]")
+            sys.exit(1)
+
+    except Exception as e:
+        console.print(f"[red]Error: {e}[/red]")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+
+
+@cli.command()
+@click.option("--platform", "-p", default=None, type=click.Choice(["web", "desktop", "mobile"]), help="Filter by platform")
+def targets(platform: Optional[str]):
+    """List available target platforms and frameworks.
+
+    \b
+    Examples:
+        pactown targets
+        pactown targets --platform desktop
+        pactown targets --platform mobile
+    """
+    from rich.table import Table
+    from .targets import TargetPlatform, list_frameworks
+
+    tp = TargetPlatform(platform) if platform else None
+    frameworks = list_frameworks(tp)
+
+    table = Table(title="Available Frameworks")
+    table.add_column("Platform", style="cyan")
+    table.add_column("Framework", style="bold")
+    table.add_column("Language")
+    table.add_column("Default Build Command", style="dim")
+    table.add_column("Artifacts", style="dim")
+
+    for fw in frameworks:
+        table.add_row(
+            fw.platform.value,
+            fw.name,
+            fw.language,
+            fw.default_build_cmd or "-",
+            ", ".join(fw.artifact_patterns[:2]) or "-",
+        )
+
+    console.print(table)
+
+
+@cli.command()
 @click.argument("config_path", type=click.Path(exists=True))
 @click.option("--output", "-o", default=".", help="Output directory")
 @click.option("--production", "-p", is_flag=True, help="Generate production config")

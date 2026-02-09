@@ -831,6 +831,101 @@ class SandboxManager:
         _write_iac(is_node=False, python_deps=deps_clean, node_deps=[], run_cmd=run_cmd)
         return sandbox
 
+    def build_service(
+        self,
+        service: ServiceConfig,
+        readme_path: Path,
+        *,
+        env: Optional[dict[str, str]] = None,
+        on_log: Optional[Callable[[str], None]] = None,
+    ) -> "BuildResult":
+        """Build a desktop or mobile application from its markpact README.
+
+        Unlike ``start_service`` (which launches a long-running server process),
+        ``build_service`` runs a one-shot build command and returns a
+        ``BuildResult`` with artifact paths.
+
+        Works for *any* target (web build steps are supported too) but is
+        primarily intended for ``desktop`` and ``mobile`` targets defined via a
+        ``markpact:target`` block.
+        """
+        from .builders import get_builder_for_target, BuildResult
+        from .markpact_blocks import extract_target_config, extract_build_cmd
+        from .targets import TargetConfig
+
+        def dbg(msg: str, level: str = "DEBUG"):
+            logger.log(getattr(logging, level), f"[{service.name}] {msg}")
+            if on_log and _should_emit_to_ui(level):
+                _call_on_log(on_log, msg, level)
+
+        dbg(f"Building service: {service.name} (target={service.target})", "INFO")
+
+        # 1. Create sandbox (install deps, write files)
+        sandbox = self.create_sandbox(
+            service,
+            readme_path,
+            install_dependencies=True,
+            on_log=on_log,
+            env=env,
+        )
+        dbg(f"Sandbox created at: {sandbox.path}", "INFO")
+
+        # 2. Resolve target config from markpact:target block or ServiceConfig
+        readme_content = readme_path.read_text()
+        blocks = parse_blocks(readme_content)
+        target_cfg = extract_target_config(blocks)
+
+        if target_cfg is None:
+            target_cfg = TargetConfig.from_dict({
+                "platform": service.target,
+                "framework": service.framework,
+                "targets": service.build_targets,
+            })
+
+        # 3. Resolve build command: explicit markpact:build > service config > framework default
+        build_cmd = extract_build_cmd(blocks) or service.build_cmd
+
+        # 4. Get builder, scaffold, build
+        builder = get_builder_for_target(target_cfg)
+        dbg(f"Using builder: {builder.platform_name} framework={target_cfg.framework}", "INFO")
+
+        app_name = target_cfg.app_name or service.name
+        extra_scaffold: dict[str, Any] = dict(target_cfg.extra)
+        if target_cfg.app_id:
+            extra_scaffold["app_id"] = target_cfg.app_id
+        if target_cfg.window_width:
+            extra_scaffold["window_width"] = target_cfg.window_width
+        if target_cfg.window_height:
+            extra_scaffold["window_height"] = target_cfg.window_height
+        if target_cfg.icon:
+            extra_scaffold["icon"] = target_cfg.icon
+        if target_cfg.fullscreen:
+            extra_scaffold["fullscreen"] = target_cfg.fullscreen
+
+        builder.scaffold(
+            sandbox.path,
+            framework=target_cfg.framework or "",
+            app_name=app_name,
+            extra=extra_scaffold,
+            on_log=on_log,
+        )
+
+        result = builder.build(
+            sandbox.path,
+            build_cmd=build_cmd,
+            framework=target_cfg.framework or "",
+            targets=target_cfg.effective_build_targets(),
+            env=env,
+            on_log=on_log,
+        )
+
+        if result.success:
+            dbg(f"Build succeeded: {len(result.artifacts)} artifact(s)", "INFO")
+        else:
+            dbg(f"Build failed: {result.message}", "ERROR")
+
+        return result
+
     def start_service(
         self,
         service: ServiceConfig,

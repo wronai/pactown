@@ -41,12 +41,20 @@ class ServiceConfig:
     sandbox_path: Optional[str] = None
     auto_restart: bool = True
     timeout: int = 60
+    target: str = "web"  # web | desktop | mobile
+    framework: Optional[str] = None  # e.g. electron, tauri, capacitor, kivy
+    build_cmd: Optional[str] = None  # explicit build command
+    build_targets: list[str] = field(default_factory=list)  # e.g. ["linux", "windows"] or ["android", "ios"]
 
     @classmethod
     def from_dict(cls, name: str, data: dict) -> "ServiceConfig":
         deps = []
         for dep in data.get("depends_on", []):
             deps.append(DependencyConfig.from_dict(dep))
+
+        raw_targets = data.get("build_targets", [])
+        if isinstance(raw_targets, str):
+            raw_targets = [t.strip() for t in raw_targets.split(",") if t.strip()]
 
         return cls(
             name=name,
@@ -59,6 +67,10 @@ class ServiceConfig:
             sandbox_path=data.get("sandbox_path"),
             auto_restart=data.get("auto_restart", True),
             timeout=data.get("timeout", 60),
+            target=data.get("target", "web"),
+            framework=data.get("framework"),
+            build_cmd=data.get("build_cmd"),
+            build_targets=raw_targets,
         )
 
 
@@ -227,6 +239,16 @@ class EcosystemConfig:
                     ],
                     "health_check": svc.health_check,
                     "replicas": svc.replicas,
+                    "target": svc.target,
+                    **({
+                        "framework": svc.framework,
+                    } if svc.framework else {}),
+                    **({
+                        "build_cmd": svc.build_cmd,
+                    } if svc.build_cmd else {}),
+                    **({
+                        "build_targets": svc.build_targets,
+                    } if svc.build_targets else {}),
                 }
                 for name, svc in self.services.items()
             },
