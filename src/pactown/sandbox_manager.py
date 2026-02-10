@@ -205,6 +205,39 @@ def _build_web_preview_cmd(
     # Find the directory containing web assets to serve
     serve_dir = _find_web_assets_dir(sandbox_path)
     log(f"Web preview: serving from {serve_dir}", "DEBUG")
+    
+    # For Python desktop apps (tkinter, pyinstaller) without web assets, create a fallback HTML
+    if not (serve_dir / "index.html").exists():
+        framework = getattr(target_cfg, "framework", "").lower() if target_cfg else ""
+        if framework in ("tkinter", "pyinstaller", "pyqt"):
+            log("Creating fallback HTML for Python desktop app", "INFO")
+            fallback_html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <title>Desktop App - Web Preview</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; padding: 40px; text-align: center; }}
+        .notice {{ background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 20px; margin: 20px auto; max-width: 600px; }}
+        .error {{ background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }}
+        h1 {{ color: #333; }}
+        code {{ background: #f8f9fa; padding: 2px 6px; border-radius: 4px; }}
+    </style>
+</head>
+<body>
+    <h1>🖥️ Desktop App Preview</h1>
+    <div class="notice">
+        <p>This is a <strong>{framework}</strong> desktop application.</p>
+        <p>Desktop apps require a graphical display server and cannot run directly in a browser.</p>
+        <p>To run this app natively, install it on your local machine:</p>
+        <pre><code>pactown build README.md</code></pre>
+    </div>
+    <div class="notice error">
+        <p><strong>Error:</strong> The app failed to start because tkinter libraries are missing.</p>
+        <p>On Ubuntu/Debian, install with: <code>sudo apt install python3-tk</code></p>
+    </div>
+</body>
+</html>"""
+            (serve_dir / "index.html").write_text(fallback_html)
 
     # Prefer npx serve for Node.js projects (better MIME types, SPA support)
     node_modules = sandbox_path / "node_modules"
