@@ -167,6 +167,7 @@ class DesktopBuilder(Builder):
                 changed = True
             # electron-builder requires electron/electron-builder in devDependencies
             changed = self._move_to_dev_deps(pkg) or changed
+            changed = self._ensure_electron_dev_deps(pkg) or changed
             if changed:
                 pkg_json.write_text(json.dumps(pkg, indent=2))
         else:
