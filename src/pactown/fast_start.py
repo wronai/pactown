@@ -380,10 +380,15 @@ class SandboxPool:
     """
     
     COMMON_STACKS = [
+        # Python web
         ["fastapi", "uvicorn"],  # Basic FastAPI
         ["fastapi", "uvicorn", "pydantic"],  # FastAPI with Pydantic
         ["fastapi", "uvicorn", "sqlalchemy"],  # FastAPI with DB
         ["flask", "gunicorn"],  # Flask
+        # Python desktop
+        ["pyinstaller"],  # PyInstaller standalone
+        ["PyQt6", "pyinstaller"],  # PyQt desktop
+        ["kivy", "buildozer"],  # Kivy mobile
     ]
     
     def __init__(
