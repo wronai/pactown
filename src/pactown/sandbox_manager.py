@@ -636,15 +636,15 @@ class SandboxManager:
             npm_cache.mkdir(parents=True, exist_ok=True)
             install_env.setdefault("npm_config_cache", str(npm_cache))
 
+            # npm ci is faster and deterministic when package-lock.json exists
+            has_lock = (sandbox.path / "package-lock.json").exists()
+            npm_cmd = ["npm", "ci"] if has_lock else ["npm", "install"]
+            npm_flags = ["--no-audit", "--no-fund", "--progress=false"]
+            if not has_lock:
+                npm_flags.append("--prefer-offline")
+
             proc = subprocess.Popen(
-                [
-                    "npm",
-                    "install",
-                    "--no-audit",
-                    "--no-fund",
-                    "--progress=false",
-                    "--prefer-offline",
-                ],
+                [*npm_cmd, *npm_flags],
                 cwd=str(sandbox.path),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
@@ -1084,14 +1084,35 @@ class SandboxManager:
         # Node deps are handled separately after scaffold.
         need_python_deps = target_cfg.is_web
 
-        # 1. Create sandbox (write files; optionally install Python deps)
-        sandbox = self.create_sandbox(
-            service,
-            readme_path,
-            install_dependencies=need_python_deps,
-            on_log=on_log,
-            env=env,
-        )
+        # Incremental build: skip sandbox recreation if README content is unchanged.
+        sandbox_path = self.get_sandbox_path(service.name)
+        _hash_file = sandbox_path / ".pactown_readme_hash"
+        import hashlib as _hashlib
+        content_hash = _hashlib.sha256(readme_content.encode()).hexdigest()[:16]
+        incremental = False
+        if _hash_file.exists() and sandbox_path.is_dir():
+            try:
+                if _hash_file.read_text().strip() == content_hash:
+                    incremental = True
+                    dbg("⚡ Incremental build – reusing existing sandbox", "INFO")
+            except Exception:
+                pass
+
+        if incremental:
+            sandbox = Sandbox(sandbox_path)
+        else:
+            # 1. Create sandbox (write files; optionally install Python deps)
+            sandbox = self.create_sandbox(
+                service,
+                readme_path,
+                install_dependencies=need_python_deps,
+                on_log=on_log,
+                env=env,
+            )
+            try:
+                _hash_file.write_text(content_hash)
+            except Exception:
+                pass
         dbg(f"Sandbox created at: {sandbox.path}", "INFO")
 
         # 2. Resolve build command: explicit markpact:build > service config > framework default

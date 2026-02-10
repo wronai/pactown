@@ -6,6 +6,7 @@ import json
 import platform
 import shutil
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any, Callable, Optional
 
@@ -125,6 +126,20 @@ class DesktopBuilder(Builder):
     # Packages that electron-builder requires in devDependencies, not dependencies.
     _ELECTRON_DEV_ONLY = {"electron", "electron-builder", "electron-packager"}
 
+    @staticmethod
+    def _electron_already_scaffolded(sandbox_path: Path) -> bool:
+        """Quick check whether Electron scaffold was already applied."""
+        pkg_json = sandbox_path / "package.json"
+        main_js = sandbox_path / "main.js"
+        if not pkg_json.exists() or not main_js.exists():
+            return False
+        try:
+            pkg = json.loads(pkg_json.read_text())
+        except Exception:
+            return False
+        dev = pkg.get("devDependencies", {})
+        return "electron" in dev and "electron-builder" in dev
+
     def _scaffold_electron(
         self,
         sandbox_path: Path,
@@ -133,6 +148,9 @@ class DesktopBuilder(Builder):
         extra: Optional[dict[str, Any]],
         on_log: Optional[Callable[[str], None]],
     ) -> None:
+        if self._electron_already_scaffolded(sandbox_path):
+            self._log(on_log, "[desktop] Electron scaffold already applied – skipping")
+            return
         self._log(on_log, "[desktop] Scaffolding Electron app")
         pkg_json = sandbox_path / "package.json"
         if pkg_json.exists():
@@ -369,6 +387,108 @@ exe = EXE(pyz, a.scripts, a.binaries, a.datas, [], name='{app_name}', debug=Fals
             t = (targets or ["linux"])[0]
             return f"flutter build {t}"
         return ""
+
+    def build_parallel(
+        self,
+        sandbox_path: Path,
+        *,
+        build_cmd: Optional[str] = None,
+        framework: str = "",
+        targets: Optional[list[str]] = None,
+        env: Optional[dict[str, str]] = None,
+        on_log: Optional[Callable[[str], None]] = None,
+        max_workers: int = 3,
+    ) -> BuildResult:
+        """Build for multiple targets in parallel (Electron only).
+
+        Each target (linux, windows, mac) is built in a separate thread.
+        Falls back to sequential build for non-Electron frameworks or
+        single-target builds.
+        """
+        fw = (framework or "").strip().lower()
+        effective_targets = targets or ["linux"]
+
+        # Only parallelize Electron multi-target builds
+        if fw != "electron" or len(effective_targets) <= 1 or build_cmd:
+            return self.build(
+                sandbox_path, build_cmd=build_cmd, framework=framework,
+                targets=targets, env=env, on_log=on_log,
+            )
+
+        t0 = time.monotonic()
+        logs: list[str] = []
+        all_artifacts: list[Path] = []
+
+        def _log(msg: str) -> None:
+            logs.append(msg)
+            self._log(on_log, msg)
+
+        _log(f"[desktop] Parallel build: framework={fw} targets={effective_targets}")
+
+        flags_per_target = {}
+        for t in effective_targets:
+            flags = self._electron_builder_flags([t])
+            if flags and flags != ["--linux"] or t.lower() == "linux":
+                flags_per_target[t] = flags[0]
+
+        if not flags_per_target:
+            flags_per_target = {"linux": "--linux"}
+
+        results: dict[str, tuple[int, str, str]] = {}
+
+        def _build_one(target_name: str, flag: str) -> tuple[str, int, str, str]:
+            cmd = f"npx electron-builder {flag}"
+            rc, stdout, stderr = self._run_shell(cmd, cwd=sandbox_path, env=env)
+            return target_name, rc, stdout, stderr
+
+        with ThreadPoolExecutor(max_workers=min(max_workers, len(flags_per_target))) as pool:
+            futures = {
+                pool.submit(_build_one, t, f): t
+                for t, f in flags_per_target.items()
+            }
+            for future in as_completed(futures):
+                target_name = futures[future]
+                try:
+                    name, rc, stdout, stderr = future.result()
+                    results[name] = (rc, stdout, stderr)
+                    if rc == 0:
+                        _log(f"[desktop] ✓ {name} build succeeded")
+                    else:
+                        _log(f"[desktop] ✗ {name} build failed (exit {rc})")
+                except Exception as exc:
+                    _log(f"[desktop] ✗ {target_name} build error: {exc}")
+                    results[target_name] = (1, "", str(exc))
+
+        elapsed = time.monotonic() - t0
+        all_artifacts = self._collect_artifacts(sandbox_path, fw)
+        failed = [t for t, (rc, _, _) in results.items() if rc != 0]
+
+        if failed:
+            _log(f"[desktop] Parallel build: {len(failed)} target(s) failed: {failed}")
+            return BuildResult(
+                success=False,
+                platform="desktop",
+                framework=fw,
+                artifacts=all_artifacts,
+                output_dir=sandbox_path / "dist",
+                message=f"Build failed for targets: {', '.join(failed)}",
+                logs=logs,
+                build_cmd=f"npx electron-builder (parallel: {list(flags_per_target.values())})",
+                elapsed_seconds=elapsed,
+            )
+
+        _log(f"[desktop] Parallel build OK – {len(all_artifacts)} artifact(s) in {elapsed:.1f}s")
+        return BuildResult(
+            success=True,
+            platform="desktop",
+            framework=fw,
+            artifacts=all_artifacts,
+            output_dir=sandbox_path / "dist",
+            message=f"Desktop parallel build succeeded ({len(all_artifacts)} artifacts)",
+            logs=logs,
+            build_cmd=f"npx electron-builder (parallel: {list(flags_per_target.values())})",
+            elapsed_seconds=elapsed,
+        )
 
     @staticmethod
     def _collect_artifacts(sandbox_path: Path, framework: str) -> list[Path]:

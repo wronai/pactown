@@ -100,12 +100,12 @@ class Builder(ABC):
             cwd=str(cwd),
             env=run_env,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             text=True,
+            bufsize=1,
         )
 
         stdout_lines: list[str] = []
-        stderr_lines: list[str] = []
 
         if proc.stdout:
             for line in proc.stdout:
@@ -117,8 +117,5 @@ class Builder(ABC):
                     except Exception:
                         pass
 
-        if proc.stderr:
-            stderr_lines = proc.stderr.read().splitlines()
-
         rc = proc.wait(timeout=timeout)
-        return rc, "\n".join(stdout_lines), "\n".join(stderr_lines)
+        return rc, "\n".join(stdout_lines), ""
