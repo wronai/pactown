@@ -1124,13 +1124,29 @@ class SandboxManager:
             from .targets import get_framework_meta
             meta = get_framework_meta(target_cfg.framework or "")
             if meta and meta.needs_node:
-                dbg("Installing node dependencies after scaffold", "INFO")
-                self._install_node_deps(
-                    sandbox=sandbox,
-                    deps=[],  # deps already in package.json – npm install reads it
-                    on_log=on_log,
-                    env=env,
-                )
+                pkg_content = pkg_json.read_text()
+                # Try to restore node_modules from cache (hardlink-copy, ~0.5s)
+                cache_hit = False
+                try:
+                    cache_hit = self._node_cache.restore(pkg_content, sandbox.path, on_log=on_log)
+                except Exception:
+                    pass
+
+                if not cache_hit:
+                    dbg("Installing node dependencies after scaffold", "INFO")
+                    self._install_node_deps(
+                        sandbox=sandbox,
+                        deps=[],  # deps already in package.json – npm install reads it
+                        on_log=on_log,
+                        env=env,
+                    )
+                    # Cache the installed node_modules for future builds
+                    try:
+                        self._node_cache.save(pkg_content, sandbox.path, on_log=on_log)
+                    except Exception:
+                        pass
+                else:
+                    dbg("⚡ node_modules restored from cache", "INFO")
 
         # 6. Prepare build env – share caches across builds
         build_env = dict(env or {})
