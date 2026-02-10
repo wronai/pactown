@@ -23,7 +23,7 @@ import httpx
 
 from .config import CacheConfig, ServiceConfig
 from .error_context import build_error_context, render_error_report_md
-from .markpact_blocks import parse_blocks
+from .markpact_blocks import extract_run_command, parse_blocks
 from .sandbox_manager import (
     SandboxManager,
     ServiceProcess,
@@ -345,7 +345,7 @@ class ServiceRunner:
         if file_count == 0:
             errors.append("No files found. Add ```python markpact:file path=main.py``` blocks.")
         
-        if not has_run:
+        if not has_run and not extract_run_command(blocks):
             errors.append("No run command. Add ```bash markpact:run``` block.")
         
         # Check for dependency mismatches
@@ -376,7 +376,7 @@ class ServiceRunner:
             errors=errors,
             file_count=file_count,
             deps_count=deps_count,
-            has_run=has_run,
+            has_run=has_run or extract_run_command(blocks) is not None,
             has_health=has_health,
         )
 
@@ -1265,11 +1265,7 @@ class ServiceRunner:
         
         # Start the service process
         blocks = parse_blocks(content)
-        run_cmd = None
-        for block in blocks:
-            if block.kind == "run":
-                run_cmd = block.body.strip()
-                break
+        run_cmd = extract_run_command(blocks)
         
         if not run_cmd:
             return RunResult(

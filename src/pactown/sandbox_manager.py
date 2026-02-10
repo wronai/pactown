@@ -25,7 +25,7 @@ from typing import Callable, Optional, List, Dict, Any
 from markpact import Sandbox, ensure_venv
 
 from .config import ServiceConfig
-from .markpact_blocks import parse_blocks
+from .markpact_blocks import extract_run_command, parse_blocks
 from .fast_start import DependencyCache
 
 # Configure detailed logging
@@ -983,11 +983,7 @@ class SandboxManager:
         readme_content = readme_path.read_text()
         blocks = parse_blocks(readme_content)
 
-        run_command = None
-        for block in blocks:
-            if block.kind == "run":
-                run_command = block.body.strip()
-                break
+        run_command = extract_run_command(blocks)
 
         if not run_command:
             log(f"No run command found in README", "ERROR")
