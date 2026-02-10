@@ -69,6 +69,10 @@ class DesktopBuilder(Builder):
         if not cmd:
             cmd = self._default_build_cmd(fw, targets)
 
+        # Always filter electron-builder commands (explicit or generated)
+        if cmd and "electron-builder" in cmd:
+            cmd = self._filter_electron_builder_cmd(cmd)
+
         if not cmd:
             return BuildResult(
                 success=False,
@@ -303,6 +307,25 @@ exe = EXE(pyz, a.scripts, a.binaries, a.datas, [], name='{app_name}', debug=Fals
     # ------------------------------------------------------------------
     # Defaults & artifact collection
     # ------------------------------------------------------------------
+
+    @staticmethod
+    def _filter_electron_builder_cmd(cmd: str) -> str:
+        """Strip unsupported platform flags from an explicit electron-builder command."""
+        host = platform.system().lower()
+        has_wine = shutil.which("wine") is not None or shutil.which("wine64") is not None
+        parts = cmd.split()
+        filtered: list[str] = []
+        for p in parts:
+            if p == "--windows" and host != "windows" and not has_wine:
+                continue
+            if p == "--mac" and host != "darwin":
+                continue
+            filtered.append(p)
+        # Ensure at least one platform flag remains
+        has_platform = any(f in filtered for f in ("--linux", "--windows", "--mac"))
+        if not has_platform:
+            filtered.append("--linux")
+        return " ".join(filtered)
 
     @staticmethod
     def _electron_builder_flags(targets: Optional[list[str]]) -> list[str]:

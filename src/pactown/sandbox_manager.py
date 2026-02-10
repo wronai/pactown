@@ -604,7 +604,11 @@ class SandboxManager:
                 _call_on_log(on_log, msg, level)
 
         deps_clean = [str(d).strip() for d in (deps or []) if str(d).strip()]
-        if not deps_clean:
+
+        # When deps is empty but package.json exists, we still run npm install
+        # so that packages declared in package.json get installed.
+        has_pkg_json = (sandbox.path / "package.json").exists()
+        if not deps_clean and not has_pkg_json:
             return
 
         dbg("Installing dependencies via npm", "INFO")
@@ -1134,17 +1138,23 @@ class SandboxManager:
 
                 if not cache_hit:
                     dbg("Installing node dependencies after scaffold", "INFO")
-                    self._install_node_deps(
-                        sandbox=sandbox,
-                        deps=[],  # deps already in package.json – npm install reads it
-                        on_log=on_log,
-                        env=env,
-                    )
-                    # Cache the installed node_modules for future builds
                     try:
-                        self._node_cache.save(pkg_content, sandbox.path, on_log=on_log)
-                    except Exception:
-                        pass
+                        self._install_node_deps(
+                            sandbox=sandbox,
+                            deps=[],  # deps already in package.json – npm install reads it
+                            on_log=on_log,
+                            env=env,
+                        )
+                    except FileNotFoundError:
+                        dbg("npm not available – skipping node_modules install (build may still succeed)", "WARNING")
+                    except Exception as exc:
+                        dbg(f"npm install failed – continuing to build: {exc}", "WARNING")
+                    else:
+                        # Cache the installed node_modules for future builds
+                        try:
+                            self._node_cache.save(pkg_content, sandbox.path, on_log=on_log)
+                        except Exception:
+                            pass
                 else:
                     dbg("⚡ node_modules restored from cache", "INFO")
 
