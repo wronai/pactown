@@ -133,6 +133,135 @@ class ServiceProcess:
             return False
 
 
+def _detect_web_preview_needed(
+    expanded_cmd: str,
+    target_cfg: "Optional[Any]",
+    full_env: dict[str, str],
+    sandbox_path: Path,
+) -> bool:
+    """Return True when a desktop/mobile app should be served via HTTP instead of launched natively.
+
+    Conditions:
+    - The target is desktop or mobile (from markpact:target block), OR
+      the run command is a known native launcher (electron, capacitor, etc.)
+    - No DISPLAY is set (headless server)
+    - xvfb-run is not available
+    """
+    cmd_lower = expanded_cmd.lower()
+
+    # Detect native desktop/mobile commands
+    _native_cmd_patterns = (
+        "npx electron",
+        "electron .",
+        "npx cap run",
+        "npx cap open",
+        "npx tauri dev",
+        "flutter run",
+        "npx react-native run",
+        "python main.py",  # only when target is desktop/mobile
+    )
+
+    is_native_cmd = any(p in cmd_lower for p in _native_cmd_patterns[:6])
+
+    # For python main.py, only treat as native if target says desktop/mobile
+    if not is_native_cmd and "python main.py" in cmd_lower:
+        if target_cfg and hasattr(target_cfg, "is_buildable") and target_cfg.is_buildable:
+            is_native_cmd = True
+
+    # Also check via target_cfg
+    if not is_native_cmd and target_cfg:
+        if hasattr(target_cfg, "is_buildable") and target_cfg.is_buildable:
+            fw = getattr(target_cfg, "framework", "") or ""
+            if fw.lower() in ("electron", "tauri", "capacitor", "react-native", "flutter", "kivy"):
+                is_native_cmd = True
+
+    if not is_native_cmd:
+        return False
+
+    # If DISPLAY is available, no need for web preview
+    if full_env.get("DISPLAY"):
+        return False
+
+    # If xvfb-run is available, prefer that for Electron
+    if shutil.which("xvfb-run"):
+        return False
+
+    return True
+
+
+def _build_web_preview_cmd(
+    sandbox_path: Path,
+    port: int,
+    target_cfg: "Optional[Any]",
+    log: Callable[[str, str], None],
+) -> Optional[str]:
+    """Build a command that serves the app's web assets via HTTP on the given port.
+
+    Tries in order:
+    1. npx serve (if node_modules exists or npm is available)
+    2. python -m http.server (always available)
+
+    Returns None if no suitable server can be determined.
+    """
+    # Find the directory containing web assets to serve
+    serve_dir = _find_web_assets_dir(sandbox_path)
+    log(f"Web preview: serving from {serve_dir}", "DEBUG")
+
+    # Prefer npx serve for Node.js projects (better MIME types, SPA support)
+    node_modules = sandbox_path / "node_modules"
+    if node_modules.is_dir() or shutil.which("npx"):
+        # Install serve if not already present
+        serve_bin = node_modules / ".bin" / "serve"
+        if not serve_bin.exists():
+            log("Installing 'serve' for web preview...", "INFO")
+            try:
+                subprocess.run(
+                    ["npm", "install", "--no-save", "--no-audit", "--no-fund", "serve"],
+                    cwd=str(sandbox_path),
+                    capture_output=True,
+                    timeout=60,
+                )
+            except Exception as e:
+                log(f"Could not install serve: {e}", "WARNING")
+
+        serve_bin = node_modules / ".bin" / "serve"
+        if serve_bin.exists():
+            rel = os.path.relpath(serve_dir, sandbox_path) if serve_dir != sandbox_path else "."
+            return f"npx serve -s {shlex.quote(rel)} -l {port} --no-clipboard"
+
+    # Fallback: python -m http.server
+    python_bin = shutil.which("python3") or shutil.which("python") or "python3"
+    venv_python = sandbox_path / ".venv" / "bin" / "python"
+    if venv_python.exists():
+        python_bin = str(venv_python)
+    rel = os.path.relpath(serve_dir, sandbox_path) if serve_dir != sandbox_path else "."
+    return f"{shlex.quote(python_bin)} -m http.server {port} --directory {shlex.quote(rel)} --bind 0.0.0.0"
+
+
+def _find_web_assets_dir(sandbox_path: Path) -> Path:
+    """Locate the directory containing the app's web assets (index.html, etc.).
+
+    Search order:
+    1. www/          (Capacitor convention)
+    2. dist/         (common build output)
+    3. build/        (CRA convention)
+    4. public/       (static assets)
+    5. src/          (source with index.html)
+    6. sandbox root  (fallback)
+    """
+    for subdir in ("www", "dist", "build", "public", "src"):
+        candidate = sandbox_path / subdir
+        if candidate.is_dir() and (candidate / "index.html").exists():
+            return candidate
+
+    # If index.html is at root, serve from root
+    if (sandbox_path / "index.html").exists():
+        return sandbox_path
+
+    # Last resort: serve from root anyway (user might have other HTML files)
+    return sandbox_path
+
+
 class SandboxManager:
     """Manages sandboxes for multiple services."""
 
@@ -904,19 +1033,21 @@ class SandboxManager:
                 expanded_cmd = rewritten
                 log(f"Rewriting run command to use venv python: {expanded_cmd}", "DEBUG")
 
-        # Wrap Electron commands with xvfb-run on headless servers
-        _is_electron_cmd = (
-            "electron" in expanded_cmd.lower()
-            and ("npx electron" in expanded_cmd.lower() or "electron ." in expanded_cmd.lower())
+        # Web-preview mode for desktop/mobile apps on headless servers.
+        # Instead of launching the native app (Electron, Capacitor, etc.)
+        # serve the web assets via HTTP so the app is accessible in a browser
+        # under its subdomain.
+        _needs_web_preview = _detect_web_preview_needed(
+            expanded_cmd, target_cfg, full_env, sandbox.path
         )
-        if _is_electron_cmd and not full_env.get("DISPLAY"):
-            xvfb = shutil.which("xvfb-run")
-            if xvfb:
-                expanded_cmd = f"xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' {expanded_cmd}"
-                log(f"Headless server detected – wrapping with xvfb-run: {expanded_cmd}", "INFO")
-            else:
-                log("⚠️ Electron requires a display server but DISPLAY is not set and xvfb-run is not installed. "
-                    "Install xvfb (apt install xvfb) or set DISPLAY.", "WARNING")
+        if _needs_web_preview:
+            preview_cmd = _build_web_preview_cmd(
+                sandbox.path, service.port, target_cfg, log
+            )
+            if preview_cmd:
+                log(f"🌐 Web preview mode – serving app in browser instead of native launch", "INFO")
+                log(f"Preview command: {preview_cmd}", "DEBUG")
+                expanded_cmd = preview_cmd
 
         log(f"Starting process...", "INFO")
 

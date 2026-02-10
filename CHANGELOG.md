@@ -1,3 +1,19 @@
+## [0.1.116] - 2026-02-10
+
+### Summary
+
+feat(tests): configuration management system
+
+### Core
+
+- update src/pactown/sandbox_helpers.py
+- update src/pactown/sandbox_manager.py
+
+### Test
+
+- update tests/test_electron_xvfb.py
+
+
 ## [0.1.115] - 2026-02-10
 
 ### Summary
