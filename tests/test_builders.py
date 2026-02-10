@@ -110,7 +110,9 @@ def test_desktop_scaffold_electron_merges_main_into_minimal_package_json(tmp_pat
     pkg = json.loads(pkg_json.read_text())
     assert pkg["main"] == "main.js"
     assert pkg["name"] == "service-54-tom-sapletta-com"  # not overwritten
-    assert pkg["dependencies"] == {"electron": "latest"}  # preserved
+    assert "electron" not in pkg.get("dependencies", {}), "electron must be moved to devDependencies"
+    assert "electron" in pkg.get("devDependencies", {}), "electron must be in devDependencies"
+    assert pkg["devDependencies"]["electron"] == "latest"  # version preserved
 
     # main.js should also be created
     assert (tmp_path / "main.js").exists()

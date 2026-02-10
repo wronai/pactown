@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import platform
+import shutil
 import time
 from pathlib import Path
 from typing import Any, Callable, Optional
@@ -65,12 +67,7 @@ class DesktopBuilder(Builder):
         # Resolve build command
         cmd = build_cmd
         if not cmd:
-            from ..targets import get_framework_meta
-            meta = get_framework_meta(fw)
-            if meta and meta.default_build_cmd:
-                cmd = meta.default_build_cmd
-            else:
-                cmd = self._default_build_cmd(fw, targets)
+            cmd = self._default_build_cmd(fw, targets)
 
         if not cmd:
             return BuildResult(
@@ -153,7 +150,7 @@ class DesktopBuilder(Builder):
             if "scripts" not in pkg:
                 pkg["scripts"] = {
                     "start": "electron .",
-                    "build": "electron-builder --linux --windows --mac",
+                    "build": "electron-builder --linux",
                 }
                 changed = True
             if "build" not in pkg:
@@ -181,7 +178,7 @@ class DesktopBuilder(Builder):
                 "main": "main.js",
                 "scripts": {
                     "start": "electron .",
-                    "build": "electron-builder --linux --windows --mac",
+                    "build": "electron-builder --linux",
                 },
                 "devDependencies": {},
                 "build": {
@@ -307,10 +304,39 @@ exe = EXE(pyz, a.scripts, a.binaries, a.datas, [], name='{app_name}', debug=Fals
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _default_build_cmd(framework: str, targets: Optional[list[str]]) -> str:
+    def _electron_builder_flags(targets: Optional[list[str]]) -> list[str]:
+        """Map target names to electron-builder CLI flags, skipping unsupported cross-compilation."""
+        _FLAG_MAP = {
+            "linux": "--linux",
+            "windows": "--windows",
+            "win": "--windows",
+            "macos": "--mac",
+            "mac": "--mac",
+            "darwin": "--mac",
+        }
+        host = platform.system().lower()  # 'linux', 'darwin', 'windows'
+        has_wine = shutil.which("wine") is not None or shutil.which("wine64") is not None
+
+        flags: list[str] = []
+        for t in (targets or ["linux"]):
+            flag = _FLAG_MAP.get(t.lower())
+            if not flag:
+                continue
+            # Cross-compilation checks
+            if flag == "--windows" and host != "windows" and not has_wine:
+                continue
+            if flag == "--mac" and host != "darwin":
+                continue
+            if flag not in flags:
+                flags.append(flag)
+        return flags or ["--linux"]
+
+    @classmethod
+    def _default_build_cmd(cls, framework: str, targets: Optional[list[str]]) -> str:
         fw = (framework or "").strip().lower()
         if fw == "electron":
-            return "npx electron-builder --linux"
+            flags = cls._electron_builder_flags(targets)
+            return "npx electron-builder " + " ".join(flags)
         if fw == "tauri":
             return "npx tauri build"
         if fw in ("pyinstaller", "tkinter", "pyqt"):
