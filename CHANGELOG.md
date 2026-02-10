@@ -1,3 +1,15 @@
+## [0.1.132] - 2026-02-10
+
+### Summary
+
+feat(None): configuration management system
+
+### Core
+
+- update src/pactown/builders/desktop.py
+- update src/pactown/sandbox_manager.py
+
+
 ## [0.1.124] - 2026-02-10
 
 ### Summary

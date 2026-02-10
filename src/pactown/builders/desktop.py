@@ -239,11 +239,12 @@ app.on('window-all-closed', () => {{ if (process.platform !== 'darwin') app.quit
 
         Returns True if any entry was added.
         """
+        _PINNED = {"electron": "^33.0.0", "electron-builder": "^25.0.0"}
         dev_deps = pkg.setdefault("devDependencies", {})
         added = False
-        for name in ("electron", "electron-builder"):
+        for name, version in _PINNED.items():
             if name not in dev_deps:
-                dev_deps[name] = "latest"
+                dev_deps[name] = version
                 added = True
         return added
 

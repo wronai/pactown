@@ -1130,12 +1130,18 @@ class SandboxManager:
                     env=env,
                 )
 
+        # 6. Prepare build env – share caches across builds
+        build_env = dict(env or {})
+        eb_cache = self.sandbox_root / ".cache" / "electron-builder"
+        eb_cache.mkdir(parents=True, exist_ok=True)
+        build_env.setdefault("ELECTRON_BUILDER_CACHE", str(eb_cache))
+
         result = builder.build(
             sandbox.path,
             build_cmd=build_cmd,
             framework=target_cfg.framework or "",
             targets=target_cfg.effective_build_targets(),
-            env=env,
+            env=build_env,
             on_log=on_log,
         )
 
