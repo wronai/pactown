@@ -188,6 +188,96 @@ def _detect_web_preview_needed(
     return True
 
 
+# ── System dependency auto-install ──────────────────────────────────
+# Maps framework names and Python imports to apt packages that must be
+# present on the host for the app to run.  Called before starting a
+# service so that *all* dependencies are resolved dynamically.
+
+_FRAMEWORK_SYSTEM_DEPS: dict[str, list[str]] = {
+    # Python GUI toolkits
+    "tkinter":     ["python3-tk"],
+    "pyinstaller": ["python3-tk"],          # common tkinter dependency
+    "pyqt":        ["python3-pyqt5"],
+    # Electron / Node desktop
+    "electron":    ["libgtk-3-0", "libnotify4", "libnss3", "libxss1",
+                    "libasound2t64", "libatk-bridge2.0-0"],
+    "tauri":       ["libgtk-3-dev", "libwebkit2gtk-4.1-dev", "libayatana-appindicator3-dev"],
+    # Mobile
+    "kivy":        ["python3-sdl2", "libsdl2-dev", "libsdl2-image-dev",
+                    "libsdl2-mixer-dev", "libsdl2-ttf-dev"],
+}
+
+# Extra mapping: Python import → apt package (for import errors)
+_IMPORT_TO_APT: dict[str, str] = {
+    "tkinter":   "python3-tk",
+    "_tkinter":  "python3-tk",
+    "PyQt5":     "python3-pyqt5",
+    "gi":        "python3-gi",
+    "sdl2":      "python3-sdl2",
+}
+
+
+def _install_system_deps(
+    framework: str,
+    log: Callable[[str, str], None],
+) -> None:
+    """Install system (apt) packages required by *framework* if missing.
+
+    Runs ``apt-get install -y`` with ``--no-install-recommends`` to keep
+    the footprint small.  Non-fatal: logs a warning on failure so that
+    the service can still attempt to start (or fall back to web preview).
+    """
+    pkgs = _FRAMEWORK_SYSTEM_DEPS.get(framework.lower(), [])
+    if not pkgs:
+        return
+
+    # Quick check: skip if dpkg says all packages are installed
+    missing: list[str] = []
+    for pkg in pkgs:
+        try:
+            result = subprocess.run(
+                ["dpkg", "-s", pkg],
+                capture_output=True, timeout=5,
+            )
+            if result.returncode != 0:
+                missing.append(pkg)
+        except Exception:
+            missing.append(pkg)
+
+    if not missing:
+        return
+
+    log(f"📦 Installing system dependencies: {', '.join(missing)}", "INFO")
+
+    # Prefer PACTOWN_APT_PROXY if configured (local cache)
+    apt_env = os.environ.copy()
+    apt_proxy = os.environ.get("PACTOWN_APT_PROXY")
+    if apt_proxy:
+        apt_env["http_proxy"] = apt_proxy
+        apt_env["https_proxy"] = apt_proxy
+
+    try:
+        subprocess.run(
+            ["apt-get", "update", "-qq"],
+            capture_output=True, timeout=60, env=apt_env,
+        )
+        result = subprocess.run(
+            ["apt-get", "install", "-y", "--no-install-recommends", *missing],
+            capture_output=True, timeout=120, env=apt_env,
+        )
+        if result.returncode == 0:
+            log(f"✅ System dependencies installed: {', '.join(missing)}", "INFO")
+        else:
+            stderr = result.stderr.decode(errors="replace")[:300]
+            log(f"⚠️ apt-get install failed (rc={result.returncode}): {stderr}", "WARNING")
+    except FileNotFoundError:
+        log("⚠️ apt-get not found – skipping system dependency install", "WARNING")
+    except subprocess.TimeoutExpired:
+        log("⚠️ apt-get timed out – skipping system dependency install", "WARNING")
+    except Exception as e:
+        log(f"⚠️ System dependency install failed: {e}", "WARNING")
+
+
 def _build_web_preview_cmd(
     sandbox_path: Path,
     port: int,
@@ -982,6 +1072,10 @@ class SandboxManager:
                 log(f"Scaffolded {builder.platform_name} app (framework={target_cfg.framework})", "INFO")
             except Exception as e:
                 log(f"Desktop/mobile scaffold failed (non-fatal): {e}", "WARNING")
+
+        # Auto-install system dependencies for desktop/mobile frameworks
+        if target_cfg is not None and target_cfg.framework:
+            _install_system_deps(target_cfg.framework, log)
 
         run_command = extract_run_command(blocks)
 

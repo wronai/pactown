@@ -33,6 +33,9 @@ from pactown.sandbox_manager import (
     _build_web_preview_cmd,
     _detect_web_preview_needed,
     _find_web_assets_dir,
+    _install_system_deps,
+    _FRAMEWORK_SYSTEM_DEPS,
+    _IMPORT_TO_APT,
 )
 from pactown.targets import TargetConfig, TargetPlatform
 
@@ -781,3 +784,80 @@ class TestE2EDetectionPerFramework:
     def test_web_target_not_affected(self):
         cfg = TargetConfig(platform=TargetPlatform.WEB, framework="fastapi")
         assert not _detect_web_preview_needed("uvicorn main:app", cfg, {}, Path("/tmp"))
+
+
+# ===================================================================
+# System dependency auto-install
+# ===================================================================
+
+class TestE2ESystemDeps:
+
+    def test_framework_system_deps_registry_has_tkinter(self):
+        assert "tkinter" in _FRAMEWORK_SYSTEM_DEPS
+        assert "python3-tk" in _FRAMEWORK_SYSTEM_DEPS["tkinter"]
+
+    def test_framework_system_deps_registry_has_electron(self):
+        assert "electron" in _FRAMEWORK_SYSTEM_DEPS
+        pkgs = _FRAMEWORK_SYSTEM_DEPS["electron"]
+        assert any("gtk" in p for p in pkgs)
+
+    def test_framework_system_deps_registry_has_kivy(self):
+        assert "kivy" in _FRAMEWORK_SYSTEM_DEPS
+        pkgs = _FRAMEWORK_SYSTEM_DEPS["kivy"]
+        assert any("sdl2" in p for p in pkgs)
+
+    def test_import_to_apt_maps_tkinter(self):
+        assert _IMPORT_TO_APT["tkinter"] == "python3-tk"
+        assert _IMPORT_TO_APT["_tkinter"] == "python3-tk"
+
+    def test_install_system_deps_skips_unknown_framework(self, monkeypatch):
+        calls = []
+        monkeypatch.setattr("subprocess.run", lambda *a, **kw: calls.append(a))
+        _install_system_deps("unknown_framework_xyz", lambda m, l: None)
+        assert calls == []
+
+    def test_install_system_deps_skips_when_all_installed(self, monkeypatch):
+        # dpkg -s returns 0 for all packages -> nothing to install
+        apt_calls = []
+        def fake_run(cmd, **kw):
+            if cmd[0] == "dpkg":
+                m = MagicMock()
+                m.returncode = 0
+                return m
+            apt_calls.append(cmd)
+            m = MagicMock()
+            m.returncode = 0
+            return m
+        monkeypatch.setattr("subprocess.run", fake_run)
+        _install_system_deps("tkinter", lambda m, l: None)
+        # Should NOT have called apt-get
+        assert not any("apt-get" in str(c) for c in apt_calls)
+
+    def test_install_system_deps_calls_apt_when_missing(self, monkeypatch):
+        apt_install_calls = []
+        def fake_run(cmd, **kw):
+            m = MagicMock()
+            if cmd[0] == "dpkg":
+                m.returncode = 1  # package not installed
+                return m
+            if cmd[0] == "apt-get" and "install" in cmd:
+                apt_install_calls.append(cmd)
+            m.returncode = 0
+            m.stderr = b""
+            return m
+        monkeypatch.setattr("subprocess.run", fake_run)
+        _install_system_deps("tkinter", lambda m, l: None)
+        assert len(apt_install_calls) == 1
+        assert "python3-tk" in apt_install_calls[0]
+
+    def test_install_system_deps_nonfatal_on_apt_missing(self, monkeypatch):
+        def fake_run(cmd, **kw):
+            if cmd[0] == "dpkg":
+                m = MagicMock()
+                m.returncode = 1
+                return m
+            raise FileNotFoundError("apt-get not found")
+        monkeypatch.setattr("subprocess.run", fake_run)
+        logs = []
+        _install_system_deps("tkinter", lambda m, l: logs.append((m, l)))
+        assert any("apt-get not found" in msg for msg, _ in logs)
