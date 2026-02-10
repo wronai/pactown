@@ -278,6 +278,136 @@ def _install_system_deps(
         log(f"⚠️ System dependency install failed: {e}", "WARNING")
 
 
+def _inject_electron_web_polyfill(
+    serve_dir: Path,
+    target_cfg: "Optional[Any]",
+    log: Callable[[str, str], None],
+) -> None:
+    """Inject a localStorage-backed ``window.api`` polyfill into index.html.
+
+    Electron apps use a preload script that exposes ``window.api`` for IPC
+    communication (e.g. ``window.api.getNotes()``).  In web-preview mode there
+    is no Electron runtime, so those calls crash with *"window.api is
+    undefined"*.  This function detects Electron projects and prepends a small
+    ``<script>`` shim that proxies every ``window.api.*`` call to localStorage
+    so the app remains functional in the browser.
+    """
+    framework = getattr(target_cfg, "framework", "").lower() if target_cfg else ""
+    is_electron = framework == "electron"
+
+    # Also detect Electron by the presence of main.js + preload.js
+    if not is_electron:
+        parent = serve_dir.parent if serve_dir.name in ("dist", "build", "www", "public") else serve_dir
+        if (parent / "main.js").exists() and (parent / "package.json").exists():
+            try:
+                pkg_text = (parent / "package.json").read_text()
+                if '"electron"' in pkg_text or "'electron'" in pkg_text:
+                    is_electron = True
+            except Exception:
+                pass
+
+    if not is_electron:
+        return
+
+    index_html = serve_dir / "index.html"
+    if not index_html.exists():
+        return
+
+    html = index_html.read_text()
+
+    # Don't inject twice
+    if "window.api polyfill" in html or "__pactown_api_polyfill" in html:
+        return
+
+    polyfill = """\
+<script>
+/* window.api polyfill for Electron web-preview mode (pactown) */
+if (typeof window.api === 'undefined') {
+  (function() {
+    var STORAGE_PREFIX = '__pactown_api_';
+    function _key(name) { return STORAGE_PREFIX + name; }
+    function _getJSON(key, fallback) {
+      try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+      catch(e) { return fallback; }
+    }
+    function _setJSON(key, val) {
+      try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+    }
+    window.api = new Proxy({}, {
+      get: function(_target, prop) {
+        /* Common Electron IPC patterns – localStorage backed */
+        if (prop === 'getNotes' || prop === 'getItems' || prop === 'getList' || prop === 'getTodos') {
+          return function() { return Promise.resolve(_getJSON(_key(prop), [])); };
+        }
+        if (prop === 'getNote' || prop === 'getItem') {
+          return function(id) {
+            var items = _getJSON(_key('getNotes'), _getJSON(_key('getItems'), []));
+            return Promise.resolve(items.find(function(i) { return i.id === id; }) || null);
+          };
+        }
+        if (prop === 'saveNote' || prop === 'addNote' || prop === 'saveItem' || prop === 'addItem' || prop === 'addTodo') {
+          return function(item) {
+            var listKey = _key('getNotes');
+            var items = _getJSON(listKey, []);
+            if (!item.id) item.id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+            if (!item.createdAt) item.createdAt = new Date().toISOString();
+            items.push(item);
+            _setJSON(listKey, items);
+            return Promise.resolve(item);
+          };
+        }
+        if (prop === 'deleteNote' || prop === 'deleteItem' || prop === 'deleteTodo') {
+          return function(id) {
+            var listKey = _key('getNotes');
+            var items = _getJSON(listKey, []);
+            _setJSON(listKey, items.filter(function(i) { return i.id !== id; }));
+            return Promise.resolve(true);
+          };
+        }
+        if (prop === 'updateNote' || prop === 'updateItem') {
+          return function(id, data) {
+            var listKey = _key('getNotes');
+            var items = _getJSON(listKey, []);
+            var idx = items.findIndex(function(i) { return i.id === id; });
+            if (idx >= 0) { Object.assign(items[idx], data); _setJSON(listKey, items); }
+            return Promise.resolve(idx >= 0 ? items[idx] : null);
+          };
+        }
+        /* Generic fallback: store/retrieve by method name */
+        if (prop.startsWith('get')) {
+          return function() { return Promise.resolve(_getJSON(_key(prop), null)); };
+        }
+        if (prop.startsWith('set') || prop.startsWith('save') || prop.startsWith('add')) {
+          return function(val) { _setJSON(_key(prop), val); return Promise.resolve(val); };
+        }
+        /* Catch-all: return a no-op async function */
+        return function() {
+          console.warn('[pactown web-preview] window.api.' + prop + ' called – no Electron IPC available');
+          return Promise.resolve(null);
+        };
+      }
+    });
+    console.info('[pactown] Electron IPC polyfill active – using localStorage');
+  })();
+}
+</script>
+"""
+
+    # Inject right after <head> (or at top if no <head>)
+    if "<head>" in html:
+        html = html.replace("<head>", "<head>\n" + polyfill, 1)
+    elif "<HEAD>" in html:
+        html = html.replace("<HEAD>", "<HEAD>\n" + polyfill, 1)
+    elif "<html>" in html or "<HTML>" in html:
+        tag = "<html>" if "<html>" in html else "<HTML>"
+        html = html.replace(tag, tag + "\n<head>\n" + polyfill + "</head>", 1)
+    else:
+        html = polyfill + html
+
+    index_html.write_text(html)
+    log("📦 Injected Electron IPC polyfill (window.api → localStorage)", "INFO")
+
+
 def _build_web_preview_cmd(
     sandbox_path: Path,
     port: int,
@@ -328,6 +458,11 @@ def _build_web_preview_cmd(
 </body>
 </html>"""
             (serve_dir / "index.html").write_text(fallback_html)
+
+    # Inject window.api polyfill for Electron apps running in web preview mode.
+    # Electron preload scripts expose window.api for IPC; in the browser we
+    # fall back to a localStorage-backed shim so the app doesn't crash.
+    _inject_electron_web_polyfill(serve_dir, target_cfg, log)
 
     # Prefer npx serve for Node.js projects (better MIME types, SPA support)
     node_modules = sandbox_path / "node_modules"
