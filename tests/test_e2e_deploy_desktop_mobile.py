@@ -690,6 +690,22 @@ class TestE2EPreviewCommandGeneration:
         assert ".venv/bin/python" in cmd
         assert "7000" in cmd
 
+    def test_creates_fallback_html_for_python_desktop(self, tmp_path, monkeypatch):
+        # No index.html initially
+        cfg = TargetConfig(platform=TargetPlatform.DESKTOP, framework="tkinter")
+        monkeypatch.setattr(shutil, "which", lambda name: None)
+        
+        # Call the function
+        cmd = _build_web_preview_cmd(tmp_path, 8080, cfg, lambda m, l: None)
+        
+        # Should create index.html
+        assert (tmp_path / "index.html").exists()
+        content = (tmp_path / "index.html").read_text()
+        assert "Desktop App Preview" in content
+        assert "tkinter" in content
+        assert "sudo apt install python3-tk" in content
+        assert cmd is not None
+
 
 # ===================================================================
 # Detection logic: framework-specific patterns

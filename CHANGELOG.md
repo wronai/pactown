@@ -1,3 +1,14 @@
+## [0.1.119] - 2026-02-10
+
+### Summary
+
+feat(tests): configuration management system
+
+### Test
+
+- update tests/test_e2e_deploy_desktop_mobile.py
+
+
 ## [0.1.118] - 2026-02-10
 
 ### Summary
