@@ -1,3 +1,28 @@
+## [0.1.114] - 2026-02-10
+
+### Summary
+
+feat(config): configuration management system
+
+### Core
+
+- update src/pactown/__init__.py
+- update src/pactown/builders/desktop.py
+- update src/pactown/sandbox_manager.py
+
+### Test
+
+- update tests/test_builders.py
+
+### Build
+
+- update pyproject.toml
+
+### Other
+
+- update .bumpversion.cfg
+
+
 ## [0.1.110] - 2026-02-10
 
 ### Summary

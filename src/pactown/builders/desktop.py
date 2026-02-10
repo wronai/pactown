@@ -131,7 +131,34 @@ class DesktopBuilder(Builder):
     ) -> None:
         self._log(on_log, "[desktop] Scaffolding Electron app")
         pkg_json = sandbox_path / "package.json"
-        if not pkg_json.exists():
+        if pkg_json.exists():
+            # Merge Electron-specific fields into existing package.json
+            try:
+                pkg = json.loads(pkg_json.read_text())
+            except Exception:
+                pkg = {}
+            changed = False
+            if "main" not in pkg:
+                pkg["main"] = "main.js"
+                changed = True
+            if "scripts" not in pkg:
+                pkg["scripts"] = {
+                    "start": "electron .",
+                    "build": "electron-builder --linux --windows --mac",
+                }
+                changed = True
+            if "build" not in pkg:
+                pkg["build"] = {
+                    "appId": (extra or {}).get("app_id", f"com.pactown.{app_name}"),
+                    "productName": app_name,
+                    "linux": {"target": ["AppImage"]},
+                    "win": {"target": ["nsis"]},
+                    "mac": {"target": ["dmg"]},
+                }
+                changed = True
+            if changed:
+                pkg_json.write_text(json.dumps(pkg, indent=2))
+        else:
             width = (extra or {}).get("window_width", 1024)
             height = (extra or {}).get("window_height", 768)
             pkg = {

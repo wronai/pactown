@@ -794,6 +794,34 @@ class SandboxManager:
         readme_content = readme_path.read_text()
         blocks = parse_blocks(readme_content)
 
+        # Run desktop/mobile scaffold if a markpact:target block is present.
+        # This ensures Electron gets a proper package.json ("main" field) and
+        # main.js even though _ensure_package_json already wrote a minimal one.
+        from .markpact_blocks import extract_target_config
+        target_cfg = extract_target_config(blocks)
+        if target_cfg is not None and target_cfg.is_buildable:
+            try:
+                from .builders import get_builder_for_target
+                builder = get_builder_for_target(target_cfg)
+                app_name = target_cfg.app_name or service.name
+                extra_scaffold: dict = dict(target_cfg.extra)
+                if target_cfg.app_id:
+                    extra_scaffold["app_id"] = target_cfg.app_id
+                if target_cfg.window_width:
+                    extra_scaffold["window_width"] = target_cfg.window_width
+                if target_cfg.window_height:
+                    extra_scaffold["window_height"] = target_cfg.window_height
+                builder.scaffold(
+                    sandbox.path,
+                    framework=target_cfg.framework or "",
+                    app_name=app_name,
+                    extra=extra_scaffold,
+                    on_log=log,
+                )
+                log(f"Scaffolded {builder.platform_name} app (framework={target_cfg.framework})", "INFO")
+            except Exception as e:
+                log(f"Desktop/mobile scaffold failed (non-fatal): {e}", "WARNING")
+
         run_command = extract_run_command(blocks)
 
         if not run_command:
@@ -875,6 +903,20 @@ class SandboxManager:
             if rewritten != expanded_cmd:
                 expanded_cmd = rewritten
                 log(f"Rewriting run command to use venv python: {expanded_cmd}", "DEBUG")
+
+        # Wrap Electron commands with xvfb-run on headless servers
+        _is_electron_cmd = (
+            "electron" in expanded_cmd.lower()
+            and ("npx electron" in expanded_cmd.lower() or "electron ." in expanded_cmd.lower())
+        )
+        if _is_electron_cmd and not full_env.get("DISPLAY"):
+            xvfb = shutil.which("xvfb-run")
+            if xvfb:
+                expanded_cmd = f"xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' {expanded_cmd}"
+                log(f"Headless server detected – wrapping with xvfb-run: {expanded_cmd}", "INFO")
+            else:
+                log("⚠️ Electron requires a display server but DISPLAY is not set and xvfb-run is not installed. "
+                    "Install xvfb (apt install xvfb) or set DISPLAY.", "WARNING")
 
         log(f"Starting process...", "INFO")
 

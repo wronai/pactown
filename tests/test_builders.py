@@ -75,14 +75,18 @@ def test_desktop_scaffold_electron(tmp_path: Path) -> None:
 
 
 def test_desktop_scaffold_electron_existing_package_json(tmp_path: Path) -> None:
-    """Scaffold should not overwrite existing package.json."""
+    """Scaffold should merge Electron fields into existing package.json."""
     pkg_json = tmp_path / "package.json"
-    pkg_json.write_text('{"name": "existing"}')
+    pkg_json.write_text('{"name": "existing", "version": "1.0.0", "private": true}')
 
     builder = DesktopBuilder()
     builder.scaffold(tmp_path, framework="electron", app_name="test-app")
 
-    assert json.loads(pkg_json.read_text())["name"] == "existing"
+    pkg = json.loads(pkg_json.read_text())
+    assert pkg["name"] == "existing"  # preserved
+    assert pkg["main"] == "main.js"  # added
+    assert "electron" in pkg["scripts"].get("start", "")  # added
+    assert "build" in pkg  # added
 
 
 # ---------------------------------------------------------------------------
