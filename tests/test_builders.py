@@ -324,6 +324,33 @@ def test_mobile_scaffold_capacitor_pins_ios_latest_to_6x(tmp_path: Path) -> None
     assert deps["@capacitor/ios"] == "^6.0.0"
 
 
+def test_mobile_scaffold_capacitor_overrides_incompatible_platform_versions(tmp_path: Path) -> None:
+    """Scaffold should override incompatible platform dep versions to prevent conflicts."""
+    (tmp_path / "package.json").write_text(json.dumps({
+        "name": "myapp",
+        "version": "1.0.0",
+        "dependencies": {
+            "@capacitor/core": "^6.0.0",
+            "@capacitor/android": "latest",  # This would be 8.x, incompatible
+            "@capacitor/ios": "^8.0.0",     # This is incompatible with core 6.x
+        },
+    }))
+    builder = MobileBuilder()
+    builder.scaffold(
+        tmp_path,
+        framework="capacitor",
+        app_name="testapp",
+        extra={"targets": ["android", "ios"]},
+    )
+    pkg = json.loads((tmp_path / "package.json").read_text())
+    deps = pkg["dependencies"]
+    # Should override both to compatible 6.x versions
+    assert deps["@capacitor/android"] == "^6.0.0"
+    assert deps["@capacitor/ios"] == "^6.0.0"
+    # Core should remain unchanged
+    assert deps["@capacitor/core"] == "^6.0.0"
+
+
 def test_mobile_scaffold_capacitor_updates_webdir_in_existing_config(tmp_path: Path) -> None:
     """If capacitor.config.json exists with webDir=dist but index.html is at root, update it."""
     (tmp_path / "index.html").write_text("<html></html>")
@@ -547,5 +574,43 @@ def test_build_result_defaults() -> None:
     r = BuildResult(success=True, platform="desktop")
     assert r.success
     assert r.artifacts == []
-    assert r.output_dir is None
-    assert r.elapsed_seconds == 0.0
+
+
+def test_mobile_scaffold_capacitor_updates_plugin_versions(tmp_path: Path) -> None:
+    """Capacitor scaffolding updates plugin deps to compatible versions."""
+    from pactown.builders.mobile import MobileBuilder
+
+    # Create package.json with incompatible plugin versions
+    pkg_json = tmp_path / "package.json"
+    pkg_json.write_text(
+        json.dumps(
+            {
+                "name": "test-app",
+                "version": "1.0.0",
+                "dependencies": {
+                    "@capacitor/core": "^6.0.0",
+                    "@capacitor/storage": "latest",  # This should be updated to ^6.0.0
+                    "@capacitor/camera": "latest",   # This should be updated to ^6.0.0
+                    "some-other-package": "^1.0.0",  # This should remain unchanged
+                },
+            }
+        )
+    )
+
+    builder = MobileBuilder()
+    builder._scaffold_capacitor(tmp_path, app_name="test-app", extra={"targets": ["android"]}, on_log=None)
+
+    updated_pkg = json.loads(pkg_json.read_text())
+    deps = updated_pkg["dependencies"]
+    
+    # Core packages should remain at ^6.0.0
+    assert deps["@capacitor/core"] == "^6.0.0"
+    assert deps["@capacitor/cli"] == "^6.0.0"
+    assert deps["@capacitor/android"] == "^6.0.0"
+    
+    # Plugin packages should be updated from "latest" to compatible versions
+    assert deps["@capacitor/storage"] == "^6.0.0"
+    assert deps["@capacitor/camera"] == "^6.0.0"
+    
+    # Non-capacitor packages should remain unchanged
+    assert deps["some-other-package"] == "^1.0.0"

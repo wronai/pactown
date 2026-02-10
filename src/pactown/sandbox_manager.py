@@ -597,6 +597,7 @@ class SandboxManager:
         deps: list[str],
         on_log: Optional[Callable[[str], None]] = None,
         env: Optional[dict[str, str]] = None,
+        legacy_peer_deps: bool = False,
     ) -> None:
         def dbg(msg: str, level: str = "DEBUG"):
             logger.log(getattr(logging, level), f"[{sandbox.path.name}] {msg}")
@@ -642,6 +643,8 @@ class SandboxManager:
             npm_flags = ["--no-audit", "--no-fund", "--progress=false"]
             if not has_lock:
                 npm_flags.append("--prefer-offline")
+            if legacy_peer_deps:
+                npm_flags.append("--legacy-peer-deps")
 
             proc = subprocess.Popen(
                 [*npm_cmd, *npm_flags],
@@ -1167,6 +1170,7 @@ class SandboxManager:
                             deps=[],  # deps already in package.json – npm install reads it
                             on_log=on_log,
                             env=env,
+                            legacy_peer_deps=(target_cfg.framework or "").lower() == "capacitor",
                         )
                     except FileNotFoundError:
                         dbg("npm not available – skipping node_modules install (build may still succeed)", "WARNING")

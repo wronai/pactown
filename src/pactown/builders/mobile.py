@@ -132,6 +132,19 @@ class MobileBuilder(Builder):
         "@capacitor/cli": "^6.0.0",
         "@capacitor/core": "^6.0.0",
     }
+    # Common Capacitor plugins with versions compatible with @capacitor/core@^6.0.0
+    _CAP_PLUGIN_DEPS: dict[str, str] = {
+        "@capacitor/storage": "^6.0.0",
+        "@capacitor/camera": "^6.0.0",
+        "@capacitor/geolocation": "^6.0.0",
+        "@capacitor/network": "^6.0.0",
+        "@capacitor/device": "^6.0.0",
+        "@capacitor/app": "^6.0.0",
+        "@capacitor/haptics": "^6.0.0",
+        "@capacitor/keyboard": "^6.0.0",
+        "@capacitor/status-bar": "^6.0.0",
+        "@capacitor/splash-screen": "^6.0.0",
+    }
     _CAP_PLATFORM_DEPS: dict[str, str] = {
         "android": "@capacitor/android",
         "ios": "@capacitor/ios",
@@ -205,8 +218,14 @@ class MobileBuilder(Builder):
         for target in targets:
             platform_pkg = self._CAP_PLATFORM_DEPS.get(target)
             if platform_pkg:
-                if platform_pkg not in deps or deps[platform_pkg] == "latest":
-                    deps[platform_pkg] = "^6.0.0"
+                # Always use compatible version with core (6.x) to prevent conflicts
+                deps[platform_pkg] = "^6.0.0"
+
+        # Update any existing Capacitor plugin dependencies to compatible versions
+        # to prevent version conflicts like @capacitor/storage@1.2.5 with @capacitor/core@^6.0.0
+        for plugin_name, compatible_version in self._CAP_PLUGIN_DEPS.items():
+            if plugin_name in deps and deps[plugin_name] == "latest":
+                deps[plugin_name] = compatible_version
 
         pkg_json.write_text(json.dumps(pkg, indent=2))
 
