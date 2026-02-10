@@ -192,6 +192,98 @@ def test_mobile_scaffold_capacitor(tmp_path: Path) -> None:
     pkg = json.loads(pkg_json.read_text())
     assert "cap:sync" in pkg.get("scripts", {})
 
+    # @capacitor/cli must be present for `npx cap` to work
+    deps = pkg.get("dependencies", {})
+    assert "@capacitor/cli" in deps
+    assert "@capacitor/core" in deps
+    # Default target is android
+    assert "@capacitor/android" in deps
+
+
+def test_mobile_scaffold_capacitor_webdir_root(tmp_path: Path) -> None:
+    """When index.html is at sandbox root, webDir should be '.'."""
+    (tmp_path / "index.html").write_text("<html></html>")
+    builder = MobileBuilder()
+    builder.scaffold(tmp_path, framework="capacitor", app_name="app")
+
+    data = json.loads((tmp_path / "capacitor.config.json").read_text())
+    assert data["webDir"] == "."
+
+
+def test_mobile_scaffold_capacitor_webdir_dist(tmp_path: Path) -> None:
+    """When index.html is in dist/, webDir should be 'dist'."""
+    (tmp_path / "dist").mkdir()
+    (tmp_path / "dist" / "index.html").write_text("<html></html>")
+    builder = MobileBuilder()
+    builder.scaffold(tmp_path, framework="capacitor", app_name="app")
+
+    data = json.loads((tmp_path / "capacitor.config.json").read_text())
+    assert data["webDir"] == "dist"
+
+
+def test_mobile_scaffold_capacitor_webdir_www(tmp_path: Path) -> None:
+    """When index.html is in www/, webDir should be 'www'."""
+    (tmp_path / "www").mkdir()
+    (tmp_path / "www" / "index.html").write_text("<html></html>")
+    builder = MobileBuilder()
+    builder.scaffold(tmp_path, framework="capacitor", app_name="app")
+
+    data = json.loads((tmp_path / "capacitor.config.json").read_text())
+    assert data["webDir"] == "www"
+
+
+def test_mobile_scaffold_capacitor_ios_target(tmp_path: Path) -> None:
+    """When targets include ios, @capacitor/ios should be in deps."""
+    builder = MobileBuilder()
+    builder.scaffold(
+        tmp_path,
+        framework="capacitor",
+        app_name="app",
+        extra={"targets": ["android", "ios"]},
+    )
+    pkg = json.loads((tmp_path / "package.json").read_text())
+    deps = pkg.get("dependencies", {})
+    assert "@capacitor/android" in deps
+    assert "@capacitor/ios" in deps
+
+
+def test_mobile_scaffold_capacitor_preserves_existing_deps(tmp_path: Path) -> None:
+    """Scaffold should not overwrite user-specified dep versions."""
+    (tmp_path / "package.json").write_text(json.dumps({
+        "name": "myapp",
+        "version": "1.0.0",
+        "dependencies": {
+            "@capacitor/core": "^5.0.0",
+            "@capacitor/storage": "^1.2.5",
+        },
+    }))
+    builder = MobileBuilder()
+    builder.scaffold(tmp_path, framework="capacitor", app_name="myapp")
+
+    pkg = json.loads((tmp_path / "package.json").read_text())
+    deps = pkg["dependencies"]
+    # User's pinned version should be preserved
+    assert deps["@capacitor/core"] == "^5.0.0"
+    assert deps["@capacitor/storage"] == "^1.2.5"
+    # CLI should be added
+    assert "@capacitor/cli" in deps
+    assert "@capacitor/android" in deps
+
+
+def test_mobile_scaffold_capacitor_updates_webdir_in_existing_config(tmp_path: Path) -> None:
+    """If capacitor.config.json exists with webDir=dist but index.html is at root, update it."""
+    (tmp_path / "index.html").write_text("<html></html>")
+    (tmp_path / "capacitor.config.json").write_text(json.dumps({
+        "appId": "com.test.app",
+        "appName": "app",
+        "webDir": "dist",
+    }))
+    builder = MobileBuilder()
+    builder.scaffold(tmp_path, framework="capacitor", app_name="app")
+
+    data = json.loads((tmp_path / "capacitor.config.json").read_text())
+    assert data["webDir"] == "."
+
 
 # ---------------------------------------------------------------------------
 # MobileBuilder.scaffold - Kivy

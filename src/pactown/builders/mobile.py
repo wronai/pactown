@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import time
 from pathlib import Path
 from typing import Any, Callable, Optional
@@ -124,6 +125,16 @@ class MobileBuilder(Builder):
     # Scaffolding helpers
     # ------------------------------------------------------------------
 
+    # Capacitor packages that must be present for `npx cap` to work.
+    _CAP_REQUIRED_DEPS: dict[str, str] = {
+        "@capacitor/cli": "latest",
+        "@capacitor/core": "latest",
+    }
+    _CAP_PLATFORM_DEPS: dict[str, str] = {
+        "android": "@capacitor/android",
+        "ios": "@capacitor/ios",
+    }
+
     def _scaffold_capacitor(
         self,
         sandbox_path: Path,
@@ -134,21 +145,36 @@ class MobileBuilder(Builder):
     ) -> None:
         self._log(on_log, "[mobile] Scaffolding Capacitor app")
 
+        # Detect webDir: use "dist" if dist/index.html exists, "." if
+        # index.html is at root, otherwise default to "dist" and copy
+        # web assets there so `cap sync` can find them.
+        web_dir = self._resolve_cap_web_dir(sandbox_path, on_log=on_log)
+
         # capacitor.config.json
         cap_cfg = sandbox_path / "capacitor.config.json"
         if not cap_cfg.exists():
             config = {
                 "appId": (extra or {}).get("app_id", f"com.pactown.{app_name}"),
                 "appName": app_name,
-                "webDir": "dist",
+                "webDir": web_dir,
                 "bundledWebRuntime": False,
                 "server": {
                     "androidScheme": "https",
                 },
             }
             cap_cfg.write_text(json.dumps(config, indent=2))
+        else:
+            # Update webDir in existing config if it still points to "dist"
+            # but web assets are elsewhere.
+            try:
+                existing = json.loads(cap_cfg.read_text())
+                if existing.get("webDir") == "dist" and web_dir != "dist":
+                    existing["webDir"] = web_dir
+                    cap_cfg.write_text(json.dumps(existing, indent=2))
+            except Exception:
+                pass
 
-        # Ensure package.json has capacitor scripts
+        # Ensure package.json has capacitor scripts and required deps
         pkg_json = sandbox_path / "package.json"
         if pkg_json.exists():
             try:
@@ -162,7 +188,41 @@ class MobileBuilder(Builder):
         scripts.setdefault("cap:sync", "npx cap sync")
         scripts.setdefault("cap:build:android", "npx cap sync && npx cap build android")
         scripts.setdefault("cap:build:ios", "npx cap sync && npx cap build ios")
+
+        # Ensure @capacitor/cli and @capacitor/core are in dependencies
+        deps = pkg.setdefault("dependencies", {})
+        for name, version in self._CAP_REQUIRED_DEPS.items():
+            if name not in deps:
+                deps[name] = version
+
+        # Ensure platform packages are in dependencies based on targets
+        targets = (extra or {}).get("targets") or ["android"]
+        for target in targets:
+            platform_pkg = self._CAP_PLATFORM_DEPS.get(target)
+            if platform_pkg and platform_pkg not in deps:
+                deps[platform_pkg] = "latest"
+
         pkg_json.write_text(json.dumps(pkg, indent=2))
+
+    @staticmethod
+    def _resolve_cap_web_dir(
+        sandbox_path: Path,
+        *,
+        on_log: Optional[Callable[[str], None]] = None,
+    ) -> str:
+        """Determine the correct webDir for capacitor.config.json.
+
+        Checks common build output dirs first, then falls back to root.
+        If index.html is only at root, returns "." so Capacitor can find it.
+        """
+        for candidate in ("dist", "build", "www", "public"):
+            if (sandbox_path / candidate / "index.html").is_file():
+                return candidate
+        if (sandbox_path / "index.html").is_file():
+            return "."
+        # No index.html found yet – default to "dist" (will be created by
+        # a build step or the user's own tooling).
+        return "dist"
 
     def _scaffold_react_native(
         self,
