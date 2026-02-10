@@ -680,6 +680,8 @@ class SandboxManager:
         self.sandbox_root.mkdir(parents=True, exist_ok=True)
         self._processes: dict[str, ServiceProcess] = {}
         self._dep_cache = DependencyCache(self.sandbox_root / ".cache" / "venvs")
+        from .node_cache import NodeModulesCache
+        self._node_cache = NodeModulesCache(self.sandbox_root / ".cache" / "node_modules")
 
     def get_sandbox_path(self, service_name: str) -> Path:
         """Get sandbox path for a service."""
