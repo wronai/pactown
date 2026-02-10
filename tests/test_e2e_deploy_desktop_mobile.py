@@ -731,6 +731,14 @@ class TestE2EDetectionPerFramework:
         cfg = TargetConfig(platform=TargetPlatform.DESKTOP, framework="pyqt")
         assert _detect_web_preview_needed("python main.py", cfg, {}, Path("/tmp"))
 
+    def test_python_main_with_pyinstaller_target(self):
+        cfg = TargetConfig(platform=TargetPlatform.DESKTOP, framework="pyinstaller")
+        assert _detect_web_preview_needed("python main.py", cfg, {}, Path("/tmp"))
+
+    def test_python_main_with_tkinter_target(self):
+        cfg = TargetConfig(platform=TargetPlatform.DESKTOP, framework="tkinter")
+        assert _detect_web_preview_needed("python main.py", cfg, {}, Path("/tmp"))
+
     def test_python_main_without_target_not_affected(self):
         assert not _detect_web_preview_needed("python main.py", None, {}, Path("/tmp"))
 

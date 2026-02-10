@@ -171,7 +171,7 @@ def _detect_web_preview_needed(
     if not is_native_cmd and target_cfg:
         if hasattr(target_cfg, "is_buildable") and target_cfg.is_buildable:
             fw = getattr(target_cfg, "framework", "") or ""
-            if fw.lower() in ("electron", "tauri", "capacitor", "react-native", "flutter", "kivy"):
+            if fw.lower() in ("electron", "tauri", "capacitor", "react-native", "flutter", "kivy", "pyinstaller", "tkinter", "pyqt"):
                 is_native_cmd = True
 
     if not is_native_cmd:
