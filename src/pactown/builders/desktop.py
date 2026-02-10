@@ -163,26 +163,40 @@ class DesktopBuilder(Builder):
         if "no-sandbox" in src:
             return False  # already patched
 
-        # Insert the switch right after the first require('electron') line
-        needle = "require('electron')"
-        needle_double = 'require("electron")'
         patch_line = "\n// AppImage on Linux requires --no-sandbox\napp.commandLine.appendSwitch('no-sandbox');\n"
+        idx: int | None = None
 
-        if needle in src:
-            idx = src.index(needle) + len(needle)
-        elif needle_double in src:
-            idx = src.index(needle_double) + len(needle_double)
-        else:
-            # Fallback: prepend before app.whenReady or app.on
+        # 1. CommonJS: require('electron') / require("electron")
+        for needle in ("require('electron')", 'require("electron")'):
+            if needle in src:
+                idx = src.index(needle) + len(needle)
+                break
+
+        # 2. ES module: import ... from 'electron' / from "electron"
+        if idx is None:
+            for needle in ("from 'electron'", 'from "electron"'):
+                if needle in src:
+                    idx = src.index(needle) + len(needle)
+                    break
+
+        # 3. Fallback: prepend before app.whenReady or app.on
+        if idx is None:
             for marker in ("app.whenReady", "app.on("):
                 if marker in src:
                     idx = src.index(marker)
                     patch_line = "// AppImage on Linux requires --no-sandbox\napp.commandLine.appendSwitch('no-sandbox');\n\n"
                     break
-            else:
-                return False  # cannot find injection point
 
-        # Find end of the require line (after semicolon/newline)
+        # 4. Ultimate fallback: prepend at top of file
+        if idx is None:
+            patch_line = "// AppImage on Linux requires --no-sandbox\nconst { app: _appSandboxFix } = require('electron');\n_appSandboxFix.commandLine.appendSwitch('no-sandbox');\n\n"
+            patched = patch_line + src
+            main_js.write_text(patched)
+            if on_log:
+                cls._log(on_log, "[desktop] Patched main.js with --no-sandbox (prepended)")
+            return True
+
+        # Find end of the matched line (after semicolon/newline)
         rest = src[idx:]
         newline_pos = rest.find("\n")
         if newline_pos >= 0:

@@ -312,6 +312,47 @@ def test_patch_no_sandbox_double_quotes(tmp_path: Path) -> None:
     assert "no-sandbox" in main_js.read_text()
 
 
+def test_patch_no_sandbox_es_module_single_quotes(tmp_path: Path) -> None:
+    """ES module import with single quotes must be patched."""
+    main_js = tmp_path / "main.js"
+    main_js.write_text(
+        "import { app, BrowserWindow } from 'electron';\n"
+        "app.whenReady().then(() => {});\n"
+    )
+    assert DesktopBuilder._patch_electron_no_sandbox(tmp_path) is True
+    content = main_js.read_text()
+    assert "app.commandLine.appendSwitch('no-sandbox')" in content
+    sandbox_pos = content.index("no-sandbox")
+    ready_pos = content.index("app.whenReady")
+    assert sandbox_pos < ready_pos
+
+
+def test_patch_no_sandbox_es_module_double_quotes(tmp_path: Path) -> None:
+    """ES module import with double quotes must be patched."""
+    main_js = tmp_path / "main.js"
+    main_js.write_text(
+        'import { app, BrowserWindow } from "electron";\n'
+        "app.whenReady().then(() => {});\n"
+    )
+    assert DesktopBuilder._patch_electron_no_sandbox(tmp_path) is True
+    content = main_js.read_text()
+    assert "no-sandbox" in content
+
+
+def test_patch_no_sandbox_ultimate_fallback(tmp_path: Path) -> None:
+    """main.js with no recognizable pattern gets no-sandbox prepended at top."""
+    main_js = tmp_path / "main.js"
+    main_js.write_text(
+        "// custom electron launcher\n"
+        "doSomething();\n"
+    )
+    assert DesktopBuilder._patch_electron_no_sandbox(tmp_path) is True
+    content = main_js.read_text()
+    assert "no-sandbox" in content
+    # Must be at the beginning
+    assert content.startswith("// AppImage on Linux requires --no-sandbox")
+
+
 def test_build_result_defaults() -> None:
     r = BuildResult(success=True, platform="desktop")
     assert r.success
