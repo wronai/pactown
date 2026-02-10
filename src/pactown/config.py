@@ -121,50 +121,34 @@ class CacheConfig:
             ),
         )
 
-    def to_env(self) -> dict[str, str]:
-        env: dict[str, str] = {}
+    def _to_mapping(self, *, apt_keys: tuple[str, ...]) -> dict[str, str]:
+        out: dict[str, str] = {}
         if self.pip_index_url:
-            env["PIP_INDEX_URL"] = self.pip_index_url
+            out["PIP_INDEX_URL"] = self.pip_index_url
             if not self.pip_extra_index_url:
-                env["PIP_EXTRA_INDEX_URL"] = self.pip_index_url
+                out["PIP_EXTRA_INDEX_URL"] = self.pip_index_url
         if self.pip_extra_index_url:
-            env["PIP_EXTRA_INDEX_URL"] = self.pip_extra_index_url
+            out["PIP_EXTRA_INDEX_URL"] = self.pip_extra_index_url
         if self.pip_trusted_host:
-            env["PIP_TRUSTED_HOST"] = self.pip_trusted_host
+            out["PIP_TRUSTED_HOST"] = self.pip_trusted_host
         if self.pip_default_timeout:
-            env["PIP_DEFAULT_TIMEOUT"] = str(self.pip_default_timeout)
+            out["PIP_DEFAULT_TIMEOUT"] = str(self.pip_default_timeout)
         if self.pip_retries:
-            env["PIP_RETRIES"] = str(self.pip_retries)
+            out["PIP_RETRIES"] = str(self.pip_retries)
         if self.npm_registry_url:
-            env["NPM_CONFIG_REGISTRY"] = self.npm_registry_url
+            out["NPM_CONFIG_REGISTRY"] = self.npm_registry_url
         if self.apt_proxy:
-            env["ACQUIRE::HTTP::PROXY"] = self.apt_proxy
-            env["ACQUIRE::HTTPS::PROXY"] = self.apt_proxy
+            for k in apt_keys:
+                out[k] = self.apt_proxy
         if self.docker_registry_mirror:
-            env["DOCKER_REGISTRY_MIRROR"] = self.docker_registry_mirror
-        return env
+            out["DOCKER_REGISTRY_MIRROR"] = self.docker_registry_mirror
+        return out
+
+    def to_env(self) -> dict[str, str]:
+        return self._to_mapping(apt_keys=("ACQUIRE::HTTP::PROXY", "ACQUIRE::HTTPS::PROXY"))
 
     def to_docker_build_args(self) -> dict[str, str]:
-        args: dict[str, str] = {}
-        if self.pip_index_url:
-            args["PIP_INDEX_URL"] = self.pip_index_url
-            if not self.pip_extra_index_url:
-                args["PIP_EXTRA_INDEX_URL"] = self.pip_index_url
-        if self.pip_extra_index_url:
-            args["PIP_EXTRA_INDEX_URL"] = self.pip_extra_index_url
-        if self.pip_trusted_host:
-            args["PIP_TRUSTED_HOST"] = self.pip_trusted_host
-        if self.pip_default_timeout:
-            args["PIP_DEFAULT_TIMEOUT"] = str(self.pip_default_timeout)
-        if self.pip_retries:
-            args["PIP_RETRIES"] = str(self.pip_retries)
-        if self.npm_registry_url:
-            args["NPM_CONFIG_REGISTRY"] = self.npm_registry_url
-        if self.apt_proxy:
-            args["APT_PROXY"] = self.apt_proxy
-        if self.docker_registry_mirror:
-            args["DOCKER_REGISTRY_MIRROR"] = self.docker_registry_mirror
-        return args
+        return self._to_mapping(apt_keys=("APT_PROXY",))
 
 
 @dataclass
