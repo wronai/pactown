@@ -768,6 +768,11 @@ class SandboxManager:
         dbg(f"README path: {_path_debug(readme_path)}", "DEBUG")
         dbg(f"UID/EUID/GID: uid={os.getuid()} euid={os.geteuid()} gid={os.getgid()}", "DEBUG")
 
+        # Read README *before* removing the sandbox dir – the readme file
+        # may live inside the sandbox path (e.g. when the caller writes it
+        # to sandbox_root/service_name/README.md).
+        readme_content = readme_path.read_text()
+
         if sandbox_path.exists():
             dbg(f"Removing existing sandbox: {sandbox_path}", "INFO")
             shutil.rmtree(sandbox_path)
@@ -775,8 +780,6 @@ class SandboxManager:
         dbg(f"Created sandbox dir: {_path_debug(sandbox_path)}", "DEBUG")
 
         sandbox = Sandbox(sandbox_path)
-
-        readme_content = readme_path.read_text()
         dbg(f"Read README bytes={len(readme_content.encode('utf-8', errors='replace'))}", "DEBUG")
         blocks = parse_blocks(readme_content)
 
