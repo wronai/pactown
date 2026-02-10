@@ -1106,6 +1106,20 @@ class SandboxManager:
             on_log=on_log,
         )
 
+        # 5. Install node deps added by scaffold (e.g. electron, electron-builder)
+        pkg_json = sandbox.path / "package.json"
+        if pkg_json.exists():
+            from .targets import get_framework_meta
+            meta = get_framework_meta(target_cfg.framework or "")
+            if meta and meta.needs_node:
+                dbg("Installing node dependencies after scaffold", "INFO")
+                self._install_node_deps(
+                    sandbox=sandbox,
+                    deps=[],  # deps already in package.json – npm install reads it
+                    on_log=on_log,
+                    env=env,
+                )
+
         result = builder.build(
             sandbox.path,
             build_cmd=build_cmd,
