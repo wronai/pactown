@@ -193,6 +193,7 @@ class DesktopBuilder(Builder):
                 },
             }
             self._move_to_dev_deps(pkg)
+            self._ensure_electron_dev_deps(pkg)
             pkg_json.write_text(json.dumps(pkg, indent=2))
 
         main_js = sandbox_path / "main.js"
@@ -234,6 +235,20 @@ app.on('window-all-closed', () => {{ if (process.platform !== 'darwin') app.quit
                 dev_deps[name] = deps.pop(name)
                 moved = True
         return moved
+
+    @staticmethod
+    def _ensure_electron_dev_deps(pkg: dict) -> bool:
+        """Ensure electron and electron-builder are in devDependencies.
+
+        Returns True if any entry was added.
+        """
+        dev_deps = pkg.setdefault("devDependencies", {})
+        added = False
+        for name in ("electron", "electron-builder"):
+            if name not in dev_deps:
+                dev_deps[name] = "latest"
+                added = True
+        return added
 
     def _scaffold_tauri(
         self,
