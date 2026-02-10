@@ -1,3 +1,18 @@
+## [0.1.117] - 2026-02-10
+
+### Summary
+
+refactor(tests): configuration management system
+
+### Core
+
+- update src/pactown/sandbox_manager.py
+
+### Test
+
+- update tests/test_e2e_deploy_desktop_mobile.py
+
+
 ## [0.1.116] - 2026-02-10
 
 ### Summary

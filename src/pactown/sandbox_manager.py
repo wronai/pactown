@@ -149,7 +149,7 @@ def _detect_web_preview_needed(
     """
     cmd_lower = expanded_cmd.lower()
 
-    # Detect native desktop/mobile commands
+    # Detect native desktop/mobile commands (always treated as native)
     _native_cmd_patterns = (
         "npx electron",
         "electron .",
@@ -158,10 +158,9 @@ def _detect_web_preview_needed(
         "npx tauri dev",
         "flutter run",
         "npx react-native run",
-        "python main.py",  # only when target is desktop/mobile
     )
 
-    is_native_cmd = any(p in cmd_lower for p in _native_cmd_patterns[:6])
+    is_native_cmd = any(p in cmd_lower for p in _native_cmd_patterns)
 
     # For python main.py, only treat as native if target says desktop/mobile
     if not is_native_cmd and "python main.py" in cmd_lower:
