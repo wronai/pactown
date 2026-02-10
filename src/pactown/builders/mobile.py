@@ -126,9 +126,11 @@ class MobileBuilder(Builder):
     # ------------------------------------------------------------------
 
     # Capacitor packages that must be present for `npx cap` to work.
+    # Pin to 6.x – compatible with Node >=18.  Capacitor 7.x needs >=20,
+    # 8.x needs >=22; many runners still use Node 20 LTS.
     _CAP_REQUIRED_DEPS: dict[str, str] = {
-        "@capacitor/cli": "latest",
-        "@capacitor/core": "latest",
+        "@capacitor/cli": "^6.0.0",
+        "@capacitor/core": "^6.0.0",
     }
     _CAP_PLATFORM_DEPS: dict[str, str] = {
         "android": "@capacitor/android",
@@ -189,18 +191,22 @@ class MobileBuilder(Builder):
         scripts.setdefault("cap:build:android", "npx cap sync && npx cap build android")
         scripts.setdefault("cap:build:ios", "npx cap sync && npx cap build ios")
 
-        # Ensure @capacitor/cli and @capacitor/core are in dependencies
+        # Ensure @capacitor/cli and @capacitor/core are in dependencies.
+        # Also pin "latest" → "^6.0.0" because _ensure_package_json may
+        # have written "latest" before scaffold, and Capacitor 8.x needs
+        # Node >=22 which many runners don't have yet.
         deps = pkg.setdefault("dependencies", {})
         for name, version in self._CAP_REQUIRED_DEPS.items():
-            if name not in deps:
+            if name not in deps or deps[name] == "latest":
                 deps[name] = version
 
         # Ensure platform packages are in dependencies based on targets
         targets = (extra or {}).get("targets") or ["android"]
         for target in targets:
             platform_pkg = self._CAP_PLATFORM_DEPS.get(target)
-            if platform_pkg and platform_pkg not in deps:
-                deps[platform_pkg] = "latest"
+            if platform_pkg:
+                if platform_pkg not in deps or deps[platform_pkg] == "latest":
+                    deps[platform_pkg] = "^6.0.0"
 
         pkg_json.write_text(json.dumps(pkg, indent=2))
 

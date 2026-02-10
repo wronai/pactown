@@ -270,6 +270,27 @@ def test_mobile_scaffold_capacitor_preserves_existing_deps(tmp_path: Path) -> No
     assert "@capacitor/android" in deps
 
 
+def test_mobile_scaffold_capacitor_pins_latest_to_6x(tmp_path: Path) -> None:
+    """Scaffold should pin 'latest' Capacitor deps to ^6.0.0 (Node 20 compat)."""
+    (tmp_path / "package.json").write_text(json.dumps({
+        "name": "myapp",
+        "version": "1.0.0",
+        "dependencies": {
+            "@capacitor/core": "latest",
+            "@capacitor/cli": "latest",
+            "@capacitor/android": "latest",
+        },
+    }))
+    builder = MobileBuilder()
+    builder.scaffold(tmp_path, framework="capacitor", app_name="myapp")
+
+    pkg = json.loads((tmp_path / "package.json").read_text())
+    deps = pkg["dependencies"]
+    assert deps["@capacitor/core"] == "^6.0.0"
+    assert deps["@capacitor/cli"] == "^6.0.0"
+    assert deps["@capacitor/android"] == "^6.0.0"
+
+
 def test_mobile_scaffold_capacitor_updates_webdir_in_existing_config(tmp_path: Path) -> None:
     """If capacitor.config.json exists with webDir=dist but index.html is at root, update it."""
     (tmp_path / "index.html").write_text("<html></html>")
