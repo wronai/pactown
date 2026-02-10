@@ -83,6 +83,10 @@ class DesktopBuilder(Builder):
                 logs=logs,
             )
 
+        # Patch Electron main.js for AppImage sandbox compatibility
+        if fw == "electron":
+            self._patch_electron_no_sandbox(sandbox_path, on_log)
+
         _log(f"[desktop] Building with framework={fw} targets={targets or []}")
         _log(f"[desktop] $ {cmd}")
 
@@ -139,6 +143,58 @@ class DesktopBuilder(Builder):
             return False
         dev = pkg.get("devDependencies", {})
         return "electron" in dev and "electron-builder" in dev
+
+    @classmethod
+    def _patch_electron_no_sandbox(
+        cls, sandbox_path: Path, on_log: Optional[Callable[[str], None]] = None,
+    ) -> bool:
+        """Inject ``app.commandLine.appendSwitch('no-sandbox')`` into main.js.
+
+        AppImage on Linux extracts to /tmp so the SUID chrome-sandbox
+        binary cannot have proper ownership/permissions.  Without
+        ``--no-sandbox`` the app crashes immediately.
+
+        Returns True if the file was patched.
+        """
+        main_js = sandbox_path / "main.js"
+        if not main_js.exists():
+            return False
+        src = main_js.read_text()
+        if "no-sandbox" in src:
+            return False  # already patched
+
+        # Insert the switch right after the first require('electron') line
+        needle = "require('electron')"
+        needle_double = 'require("electron")'
+        patch_line = "\n// AppImage on Linux requires --no-sandbox\napp.commandLine.appendSwitch('no-sandbox');\n"
+
+        if needle in src:
+            idx = src.index(needle) + len(needle)
+        elif needle_double in src:
+            idx = src.index(needle_double) + len(needle_double)
+        else:
+            # Fallback: prepend before app.whenReady or app.on
+            for marker in ("app.whenReady", "app.on("):
+                if marker in src:
+                    idx = src.index(marker)
+                    patch_line = "// AppImage on Linux requires --no-sandbox\napp.commandLine.appendSwitch('no-sandbox');\n\n"
+                    break
+            else:
+                return False  # cannot find injection point
+
+        # Find end of the require line (after semicolon/newline)
+        rest = src[idx:]
+        newline_pos = rest.find("\n")
+        if newline_pos >= 0:
+            idx += newline_pos + 1
+        else:
+            idx = len(src)
+
+        patched = src[:idx] + patch_line + src[idx:]
+        main_js.write_text(patched)
+        if on_log:
+            cls._log(on_log, "[desktop] Patched main.js with --no-sandbox for AppImage")
+        return True
 
     def _scaffold_electron(
         self,
@@ -223,6 +279,9 @@ class DesktopBuilder(Builder):
                 f"""\
 const {{ app, BrowserWindow }} = require('electron');
 const path = require('path');
+
+// AppImage on Linux requires --no-sandbox
+app.commandLine.appendSwitch('no-sandbox');
 
 function createWindow() {{
     const win = new BrowserWindow({{

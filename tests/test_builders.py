@@ -234,6 +234,84 @@ def test_web_builder_build_no_cmd(tmp_path: Path) -> None:
 # BuildResult dataclass
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# _patch_electron_no_sandbox
+# ---------------------------------------------------------------------------
+
+def test_patch_no_sandbox_user_provided_main_js(tmp_path: Path) -> None:
+    """User-provided main.js without --no-sandbox must be patched."""
+    main_js = tmp_path / "main.js"
+    main_js.write_text(
+        "const { app, BrowserWindow } = require('electron');\n"
+        "app.whenReady().then(() => {});\n"
+    )
+    patched = DesktopBuilder._patch_electron_no_sandbox(tmp_path)
+    assert patched is True
+    content = main_js.read_text()
+    assert "app.commandLine.appendSwitch('no-sandbox')" in content
+    assert "require('electron')" in content
+
+
+def test_patch_no_sandbox_already_patched(tmp_path: Path) -> None:
+    """If main.js already has --no-sandbox, do not patch again."""
+    main_js = tmp_path / "main.js"
+    main_js.write_text(
+        "const { app } = require('electron');\n"
+        "app.commandLine.appendSwitch('no-sandbox');\n"
+        "app.whenReady().then(() => {});\n"
+    )
+    patched = DesktopBuilder._patch_electron_no_sandbox(tmp_path)
+    assert patched is False
+
+
+def test_patch_no_sandbox_scaffolded_default(tmp_path: Path) -> None:
+    """Scaffolded default main.js already contains --no-sandbox."""
+    builder = DesktopBuilder()
+    builder.scaffold(tmp_path, framework="electron", app_name="test")
+    content = (tmp_path / "main.js").read_text()
+    assert "no-sandbox" in content
+    # Patching again should be a no-op
+    assert DesktopBuilder._patch_electron_no_sandbox(tmp_path) is False
+
+
+def test_patch_no_sandbox_desktop_notes_main_js(tmp_path: Path) -> None:
+    """Exact main.js from Desktop Notes example must be patched correctly."""
+    main_js = tmp_path / "main.js"
+    main_js.write_text(
+        "const { app, BrowserWindow, ipcMain } = require('electron');\n"
+        "const path = require('path');\n"
+        "const fs = require('fs');\n"
+        "\n"
+        "const NOTES_FILE = path.join(app.getPath('userData'), 'notes.json');\n"
+        "\n"
+        "app.whenReady().then(createWindow);\n"
+    )
+    patched = DesktopBuilder._patch_electron_no_sandbox(tmp_path)
+    assert patched is True
+    content = main_js.read_text()
+    assert "app.commandLine.appendSwitch('no-sandbox')" in content
+    # Must appear before app.whenReady
+    sandbox_pos = content.index("no-sandbox")
+    ready_pos = content.index("app.whenReady")
+    assert sandbox_pos < ready_pos
+
+
+def test_patch_no_sandbox_no_main_js(tmp_path: Path) -> None:
+    """No main.js → no patch."""
+    assert DesktopBuilder._patch_electron_no_sandbox(tmp_path) is False
+
+
+def test_patch_no_sandbox_double_quotes(tmp_path: Path) -> None:
+    """main.js using double quotes for require."""
+    main_js = tmp_path / "main.js"
+    main_js.write_text(
+        'const { app } = require("electron");\n'
+        'app.whenReady().then(() => {});\n'
+    )
+    assert DesktopBuilder._patch_electron_no_sandbox(tmp_path) is True
+    assert "no-sandbox" in main_js.read_text()
+
+
 def test_build_result_defaults() -> None:
     r = BuildResult(success=True, platform="desktop")
     assert r.success
