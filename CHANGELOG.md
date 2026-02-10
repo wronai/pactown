@@ -1,3 +1,22 @@
+## [0.1.150] - 2026-02-10
+
+### Summary
+
+refactor(config): core module improvements
+
+### Core
+
+- update src/pactown/__init__.py
+
+### Build
+
+- update pyproject.toml
+
+### Other
+
+- update .bumpversion.cfg
+
+
 ## [0.1.146] - 2026-02-10
 
 ### Summary
