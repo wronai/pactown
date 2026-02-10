@@ -144,6 +144,12 @@ class DesktopBuilder(Builder):
             if "main" not in pkg:
                 pkg["main"] = "main.js"
                 changed = True
+            if not pkg.get("description"):
+                pkg["description"] = f"{app_name} – built with Pactown"
+                changed = True
+            if not pkg.get("author"):
+                pkg["author"] = "pactown"
+                changed = True
             if "scripts" not in pkg:
                 pkg["scripts"] = {
                     "start": "electron .",
@@ -169,6 +175,8 @@ class DesktopBuilder(Builder):
             pkg = {
                 "name": app_name,
                 "version": "1.0.0",
+                "description": f"{app_name} – built with Pactown",
+                "author": "pactown",
                 "main": "main.js",
                 "scripts": {
                     "start": "electron .",
