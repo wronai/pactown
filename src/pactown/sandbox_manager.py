@@ -1155,7 +1155,7 @@ class SandboxManager:
                 if process.stderr:
                     try:
                         stderr = process.stderr.read().decode('utf-8', errors='replace')
-                    except:
+                    except Exception:
                         pass
             
             # Interpret exit code
@@ -1188,7 +1188,7 @@ class SandboxManager:
                 try:
                     files = list(sandbox.path.glob("*"))
                     f.write(f"\n--- FILES ---\n{[str(f) for f in files]}\n")
-                except:
+                except Exception:
                     pass
             log(f"Error log written to: {error_log}", "DEBUG")
 
@@ -1206,7 +1206,7 @@ class SandboxManager:
         try:
             files = list(sandbox.path.glob("*"))
             log(f"Sandbox files: {[f.name for f in files]}", "DEBUG")
-        except:
+        except Exception:
             pass
         
         return svc_process

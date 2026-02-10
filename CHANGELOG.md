@@ -1,3 +1,25 @@
+## [0.1.110] - 2026-02-10
+
+### Summary
+
+refactor(config): configuration management system
+
+### Core
+
+- update src/pactown/__init__.py
+- update src/pactown/sandbox_manager.py
+- update src/pactown/security.py
+- update src/pactown/service_runner.py
+
+### Build
+
+- update pyproject.toml
+
+### Other
+
+- update .bumpversion.cfg
+
+
 ## [0.1.100] - 2026-01-29
 
 ### Summary

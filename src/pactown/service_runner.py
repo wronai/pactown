@@ -72,7 +72,7 @@ class DiagnosticInfo:
             )
             if result.returncode == 0:
                 info.pip_version = result.stdout.split()[1]
-        except:
+        except Exception:
             pass
         
         # Disk space
@@ -80,7 +80,7 @@ class DiagnosticInfo:
             path = sandbox_path or Path("/tmp")
             stat = shutil.disk_usage(str(path))
             info.disk_space_mb = stat.free // (1024 * 1024)
-        except:
+        except Exception:
             pass
         
         if sandbox_path:
@@ -649,7 +649,7 @@ class ServiceRunner:
                 if process.process.stderr:
                     try:
                         stderr = process.process.stderr.read().decode()[:1000]
-                    except:
+                    except Exception:
                         pass
                 log(f"⚠️ Process exited immediately with code {exit_code}")
                 if stderr:
@@ -900,7 +900,7 @@ class ServiceRunner:
                                     stderr_output = stderr_bytes.decode("utf-8", errors="replace")
                                     trimmed = stderr_output[:4000]
                                     on_log(f"Error output: {trimmed}")
-                            except:
+                            except Exception:
                                 pass
 
                         # Categorize error based on stderr
@@ -920,7 +920,7 @@ class ServiceRunner:
                             if resp.status_code < 500 and not (path != "/" and resp.status_code == 404):
                                 on_log(f"✓ Server responding on {path} (status {resp.status_code})")
                                 return {"success": True, "error_category": ErrorCategory.NONE, "stderr": ""}
-                        except:
+                        except Exception:
                             pass
         except Exception:
             pass
@@ -934,7 +934,7 @@ class ServiceRunner:
                     if stderr_bytes:
                         stderr_output = stderr_bytes.decode("utf-8", errors="replace")
                         on_log(f"Process output: {stderr_output[:500]}")
-            except:
+            except Exception:
                 pass
         on_log(f"⏱️ Health check timed out after {timeout}s - process still running: {process.is_running}")
         return {"success": False, "error_category": ErrorCategory.STARTUP_TIMEOUT, "stderr": stderr_output}
@@ -1428,7 +1428,7 @@ class ServiceRunner:
                             resp = await client.get(f"http://localhost:{port}{path}")
                             if resp.status_code < 500 and not (path != "/" and resp.status_code == 404):
                                 return True
-                        except:
+                        except Exception:
                             pass
         except Exception:
             pass

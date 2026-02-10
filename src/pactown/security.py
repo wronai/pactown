@@ -329,7 +329,7 @@ class ResourceMonitor:
                 total = user + nice + system + idle
                 used = user + nice + system
                 return (used / total) * 100 if total > 0 else 0.0
-        except:
+        except Exception:
             return 0.0
     
     def _get_memory_percent(self) -> float:
@@ -345,7 +345,7 @@ class ResourceMonitor:
                 available = mem_info.get("MemAvailable", mem_info.get("MemFree", 0))
                 used = total - available
                 return (used / total) * 100 if total > 0 else 0.0
-        except:
+        except Exception:
             return 0.0
     
     def check_overload(self) -> tuple[bool, Dict[str, float]]:
