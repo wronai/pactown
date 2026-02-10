@@ -89,6 +89,51 @@ def test_desktop_scaffold_electron_existing_package_json(tmp_path: Path) -> None
     assert "build" in pkg  # added
 
 
+def test_desktop_scaffold_electron_merges_main_into_minimal_package_json(tmp_path: Path) -> None:
+    """Regression: _ensure_package_json writes minimal package.json without 'main'.
+
+    Scaffold must add 'main' so Electron can find the entry point.
+    This is the exact scenario that caused the 'Cannot find module' crash.
+    """
+    pkg_json = tmp_path / "package.json"
+    # Simulate what SandboxManager._ensure_package_json writes
+    pkg_json.write_text(json.dumps({
+        "name": "service-54-tom-sapletta-com",
+        "version": "1.0.0",
+        "private": True,
+        "dependencies": {"electron": "latest"},
+    }, indent=2))
+
+    builder = DesktopBuilder()
+    builder.scaffold(tmp_path, framework="electron", app_name="my-electron-app")
+
+    pkg = json.loads(pkg_json.read_text())
+    assert pkg["main"] == "main.js"
+    assert pkg["name"] == "service-54-tom-sapletta-com"  # not overwritten
+    assert pkg["dependencies"] == {"electron": "latest"}  # preserved
+
+    # main.js should also be created
+    assert (tmp_path / "main.js").exists()
+
+
+def test_desktop_scaffold_electron_does_not_overwrite_existing_main(tmp_path: Path) -> None:
+    """If package.json already has 'main', scaffold must not overwrite it."""
+    pkg_json = tmp_path / "package.json"
+    pkg_json.write_text(json.dumps({
+        "name": "custom-app",
+        "main": "custom-entry.js",
+        "scripts": {"start": "electron ."},
+        "build": {"appId": "com.custom.app"},
+    }, indent=2))
+
+    builder = DesktopBuilder()
+    builder.scaffold(tmp_path, framework="electron", app_name="custom-app")
+
+    pkg = json.loads(pkg_json.read_text())
+    assert pkg["main"] == "custom-entry.js"  # not overwritten
+    assert pkg["scripts"]["start"] == "electron ."  # not overwritten
+
+
 # ---------------------------------------------------------------------------
 # DesktopBuilder.scaffold - Tauri
 # ---------------------------------------------------------------------------
