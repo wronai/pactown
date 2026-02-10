@@ -108,6 +108,10 @@ class DesktopBuilder(Builder):
                 elapsed_seconds=elapsed,
             )
 
+        # Generate launcher script + README for Linux Electron builds
+        if fw == "electron":
+            self._generate_linux_launcher(sandbox_path, on_log)
+
         artifacts = self._collect_artifacts(sandbox_path, fw)
         _log(f"[desktop] Build OK – {len(artifacts)} artifact(s) in {elapsed:.1f}s")
 
@@ -563,10 +567,80 @@ exe = EXE(pyz, a.scripts, a.binaries, a.datas, [], name='{app_name}', debug=Fals
             elapsed_seconds=elapsed,
         )
 
+    @classmethod
+    def _generate_linux_launcher(cls, sandbox_path: Path, on_log: Optional[Callable[[str], None]] = None) -> None:
+        """Create run.sh and README.txt next to AppImage artifacts in dist/."""
+        dist = sandbox_path / "dist"
+        if not dist.is_dir():
+            return
+        appimages = list(dist.glob("*.AppImage"))
+        if not appimages:
+            return
+
+        appimage_name = appimages[0].name
+
+        # --- run.sh ---
+        run_sh = dist / "run.sh"
+        run_sh.write_text(
+            '#!/bin/bash\n'
+            '# Launcher for Pactown-built Electron app\n'
+            '# Handles the Linux AppImage SUID sandbox issue automatically.\n'
+            'set -e\n'
+            'SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"\n'
+            f'APPIMAGE="$SCRIPT_DIR/{appimage_name}"\n'
+            '\n'
+            'if [ ! -f "$APPIMAGE" ]; then\n'
+            f'    echo "ERROR: {appimage_name} not found in $SCRIPT_DIR"\n'
+            '    exit 1\n'
+            'fi\n'
+            '\n'
+            'chmod +x "$APPIMAGE"\n'
+            'exec "$APPIMAGE" --no-sandbox "$@"\n'
+        )
+        import os as _os
+        _os.chmod(str(run_sh), 0o755)
+
+        # --- README.txt ---
+        readme = dist / "README.txt"
+        readme.write_text(
+            f"{'=' * 56}\n"
+            f"  {appimage_name}\n"
+            f"  Built with Pactown\n"
+            f"{'=' * 56}\n"
+            f"\n"
+            f"QUICK START (Linux)\n"
+            f"-------------------\n"
+            f"Option 1 — Use the launcher script (recommended):\n"
+            f"\n"
+            f"    chmod +x run.sh\n"
+            f"    ./run.sh\n"
+            f"\n"
+            f"Option 2 — Run AppImage directly:\n"
+            f"\n"
+            f"    chmod +x {appimage_name}\n"
+            f"    ./{appimage_name} --no-sandbox\n"
+            f"\n"
+            f"WHY --no-sandbox?\n"
+            f"-----------------\n"
+            f"AppImage extracts to /tmp at runtime. Chromium/Electron\n"
+            f"requires the chrome-sandbox binary to be owned by root\n"
+            f"with SUID bit (mode 4755). Since AppImage cannot guarantee\n"
+            f"this, --no-sandbox is needed. The run.sh script adds it\n"
+            f"automatically.\n"
+            f"\n"
+            f"TROUBLESHOOTING\n"
+            f"---------------\n"
+            f"- 'Permission denied'   → chmod +x run.sh {appimage_name}\n"
+            f"- 'SUID sandbox' crash  → use run.sh or add --no-sandbox\n"
+            f"- 'FUSE not found'      → sudo apt install libfuse2\n"
+        )
+
+        cls._log(on_log, f"[desktop] Generated run.sh + README.txt for {appimage_name}")
+
     @staticmethod
     def _collect_artifacts(sandbox_path: Path, framework: str) -> list[Path]:
         patterns = {
-            "electron": ["dist/*.AppImage", "dist/*.exe", "dist/*.dmg", "dist/*.snap"],
+            "electron": ["dist/*.AppImage", "dist/*.exe", "dist/*.dmg", "dist/*.snap", "dist/run.sh", "dist/README.txt"],
             "tauri": ["src-tauri/target/release/bundle/**/*"],
             "pyinstaller": ["dist/*"],
             "tkinter": ["dist/*"],

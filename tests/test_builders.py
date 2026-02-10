@@ -353,6 +353,50 @@ def test_patch_no_sandbox_ultimate_fallback(tmp_path: Path) -> None:
     assert content.startswith("// AppImage on Linux requires --no-sandbox")
 
 
+def test_generate_linux_launcher_creates_files(tmp_path: Path) -> None:
+    """_generate_linux_launcher creates run.sh + README.txt next to AppImage."""
+    dist = tmp_path / "dist"
+    dist.mkdir()
+    appimage = dist / "myapp-1.0.0.AppImage"
+    appimage.write_bytes(b"fake")
+
+    DesktopBuilder._generate_linux_launcher(tmp_path)
+
+    run_sh = dist / "run.sh"
+    readme = dist / "README.txt"
+    assert run_sh.exists()
+    assert readme.exists()
+
+    run_content = run_sh.read_text()
+    assert "myapp-1.0.0.AppImage" in run_content
+    assert "--no-sandbox" in run_content
+    assert "#!/bin/bash" in run_content
+    # Must be executable
+    import os
+    assert os.access(str(run_sh), os.X_OK)
+
+    readme_content = readme.read_text()
+    assert "myapp-1.0.0.AppImage" in readme_content
+    assert "chmod +x run.sh" in readme_content
+    assert "--no-sandbox" in readme_content
+    assert "libfuse2" in readme_content
+
+
+def test_generate_linux_launcher_no_dist(tmp_path: Path) -> None:
+    """No dist/ directory → no files generated."""
+    DesktopBuilder._generate_linux_launcher(tmp_path)
+    assert not (tmp_path / "dist" / "run.sh").exists()
+
+
+def test_generate_linux_launcher_no_appimage(tmp_path: Path) -> None:
+    """dist/ exists but no AppImage → no files generated."""
+    dist = tmp_path / "dist"
+    dist.mkdir()
+    (dist / "app.exe").write_bytes(b"fake")
+    DesktopBuilder._generate_linux_launcher(tmp_path)
+    assert not (dist / "run.sh").exists()
+
+
 def test_build_result_defaults() -> None:
     r = BuildResult(success=True, platform="desktop")
     assert r.success
