@@ -1050,6 +1050,10 @@ class SandboxManager:
 
         dbg(f"Building service: {service.name} (target={service.target})", "INFO")
 
+        # Read README *before* create_sandbox, which may delete the directory
+        # containing readme_path (when it lives inside the sandbox root).
+        readme_content = readme_path.read_text()
+
         # 1. Create sandbox (install deps, write files)
         sandbox = self.create_sandbox(
             service,
@@ -1061,7 +1065,6 @@ class SandboxManager:
         dbg(f"Sandbox created at: {sandbox.path}", "INFO")
 
         # 2. Resolve target config from markpact:target block or ServiceConfig
-        readme_content = readme_path.read_text()
         blocks = parse_blocks(readme_content)
         target_cfg = extract_target_config(blocks)
 
