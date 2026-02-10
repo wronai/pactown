@@ -121,6 +121,9 @@ class DesktopBuilder(Builder):
     # Scaffolding helpers
     # ------------------------------------------------------------------
 
+    # Packages that electron-builder requires in devDependencies, not dependencies.
+    _ELECTRON_DEV_ONLY = {"electron", "electron-builder", "electron-packager"}
+
     def _scaffold_electron(
         self,
         sandbox_path: Path,
@@ -156,6 +159,8 @@ class DesktopBuilder(Builder):
                     "mac": {"target": ["dmg"]},
                 }
                 changed = True
+            # electron-builder requires electron/electron-builder in devDependencies
+            changed = self._move_to_dev_deps(pkg) or changed
             if changed:
                 pkg_json.write_text(json.dumps(pkg, indent=2))
         else:
@@ -169,6 +174,7 @@ class DesktopBuilder(Builder):
                     "start": "electron .",
                     "build": "electron-builder --linux --windows --mac",
                 },
+                "devDependencies": {},
                 "build": {
                     "appId": (extra or {}).get("app_id", f"com.pactown.{app_name}"),
                     "productName": app_name,
@@ -177,6 +183,7 @@ class DesktopBuilder(Builder):
                     "mac": {"target": ["dmg"]},
                 },
             }
+            self._move_to_dev_deps(pkg)
             pkg_json.write_text(json.dumps(pkg, indent=2))
 
         main_js = sandbox_path / "main.js"
@@ -201,6 +208,23 @@ app.whenReady().then(createWindow);
 app.on('window-all-closed', () => {{ if (process.platform !== 'darwin') app.quit(); }});
 """
             )
+
+    @classmethod
+    def _move_to_dev_deps(cls, pkg: dict) -> bool:
+        """Move electron/electron-builder from dependencies to devDependencies.
+
+        Returns True if anything was moved.
+        """
+        deps = pkg.get("dependencies")
+        if not isinstance(deps, dict):
+            return False
+        dev_deps = pkg.setdefault("devDependencies", {})
+        moved = False
+        for name in list(deps):
+            if name in cls._ELECTRON_DEV_ONLY:
+                dev_deps[name] = deps.pop(name)
+                moved = True
+        return moved
 
     def _scaffold_tauri(
         self,
