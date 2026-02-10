@@ -627,6 +627,11 @@ class SandboxManager:
                     continue
                 install_env[str(k)] = str(v)
 
+            # Shared npm cache across sandboxes – avoids re-downloading packages
+            npm_cache = self.sandbox_root / ".cache" / "npm"
+            npm_cache.mkdir(parents=True, exist_ok=True)
+            install_env.setdefault("npm_config_cache", str(npm_cache))
+
             proc = subprocess.Popen(
                 [
                     "npm",
@@ -634,6 +639,7 @@ class SandboxManager:
                     "--no-audit",
                     "--no-fund",
                     "--progress=false",
+                    "--prefer-offline",
                 ],
                 cwd=str(sandbox.path),
                 stdout=subprocess.PIPE,
@@ -1057,17 +1063,7 @@ class SandboxManager:
         # containing readme_path (when it lives inside the sandbox root).
         readme_content = readme_path.read_text()
 
-        # 1. Create sandbox (install deps, write files)
-        sandbox = self.create_sandbox(
-            service,
-            readme_path,
-            install_dependencies=True,
-            on_log=on_log,
-            env=env,
-        )
-        dbg(f"Sandbox created at: {sandbox.path}", "INFO")
-
-        # 2. Resolve target config from markpact:target block or ServiceConfig
+        # Pre-parse blocks once – reused below to avoid double-parsing.
         blocks = parse_blocks(readme_content)
         target_cfg = extract_target_config(blocks)
 
@@ -1078,7 +1074,21 @@ class SandboxManager:
                 "targets": service.build_targets,
             })
 
-        # 3. Resolve build command: explicit markpact:build > service config > framework default
+        # Desktop/mobile builds don't need Python deps installed (pip/venv).
+        # Node deps are handled separately after scaffold.
+        need_python_deps = target_cfg.is_web
+
+        # 1. Create sandbox (write files; optionally install Python deps)
+        sandbox = self.create_sandbox(
+            service,
+            readme_path,
+            install_dependencies=need_python_deps,
+            on_log=on_log,
+            env=env,
+        )
+        dbg(f"Sandbox created at: {sandbox.path}", "INFO")
+
+        # 2. Resolve build command: explicit markpact:build > service config > framework default
         build_cmd = extract_build_cmd(blocks) or service.build_cmd
 
         # 4. Get builder, scaffold, build
