@@ -1,3 +1,18 @@
+## [0.1.146] - 2026-02-10
+
+### Summary
+
+feat(tests): configuration management system
+
+### Core
+
+- update src/pactown/builders/mobile.py
+
+### Test
+
+- update tests/test_builders.py
+
+
 ## [0.1.141] - 2026-02-10
 
 ### Summary
