@@ -1134,6 +1134,8 @@ class SandboxManager:
             extra_scaffold["icon"] = target_cfg.icon
         if target_cfg.fullscreen:
             extra_scaffold["fullscreen"] = target_cfg.fullscreen
+        if target_cfg.targets:
+            extra_scaffold["targets"] = target_cfg.targets
 
         builder.scaffold(
             sandbox.path,
@@ -1282,6 +1284,8 @@ class SandboxManager:
                     extra_scaffold["window_width"] = target_cfg.window_width
                 if target_cfg.window_height:
                     extra_scaffold["window_height"] = target_cfg.window_height
+                if target_cfg.targets:
+                    extra_scaffold["targets"] = target_cfg.targets
                 builder.scaffold(
                     sandbox.path,
                     framework=target_cfg.framework or "",

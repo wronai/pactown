@@ -291,6 +291,39 @@ def test_mobile_scaffold_capacitor_pins_latest_to_6x(tmp_path: Path) -> None:
     assert deps["@capacitor/android"] == "^6.0.0"
 
 
+def test_mobile_scaffold_capacitor_pins_ios_latest_to_6x(tmp_path: Path) -> None:
+    """Scaffold should pin @capacitor/ios 'latest' → '^6.0.0' when targets include ios.
+
+    Regression: targets were not propagated to extra_scaffold, so only
+    @capacitor/android (the default) was pinned while @capacitor/ios stayed
+    at 'latest', causing npm ERESOLVE (ios@8.x needs core@^8, but core is ^6).
+    """
+    (tmp_path / "package.json").write_text(json.dumps({
+        "name": "flashcards",
+        "version": "1.0.0",
+        "dependencies": {
+            "@capacitor/core": "latest",
+            "@capacitor/cli": "latest",
+            "@capacitor/android": "latest",
+            "@capacitor/ios": "latest",
+        },
+    }))
+    builder = MobileBuilder()
+    builder.scaffold(
+        tmp_path,
+        framework="capacitor",
+        app_name="flashcards",
+        extra={"targets": ["android", "ios"]},
+    )
+
+    pkg = json.loads((tmp_path / "package.json").read_text())
+    deps = pkg["dependencies"]
+    assert deps["@capacitor/core"] == "^6.0.0"
+    assert deps["@capacitor/cli"] == "^6.0.0"
+    assert deps["@capacitor/android"] == "^6.0.0"
+    assert deps["@capacitor/ios"] == "^6.0.0"
+
+
 def test_mobile_scaffold_capacitor_updates_webdir_in_existing_config(tmp_path: Path) -> None:
     """If capacitor.config.json exists with webDir=dist but index.html is at root, update it."""
     (tmp_path / "index.html").write_text("<html></html>")
