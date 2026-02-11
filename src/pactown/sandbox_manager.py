@@ -606,6 +606,7 @@ class SandboxManager:
         on_log: Optional[Callable[[str], None]] = None,
         env: Optional[dict[str, str]] = None,
         legacy_peer_deps: bool = False,
+        timeout: int = 600,
     ) -> None:
         def dbg(msg: str, level: str = "DEBUG"):
             logger.log(getattr(logging, level), f"[{sandbox.path.name}] {msg}")
@@ -618,8 +619,19 @@ class SandboxManager:
         # so that packages declared in package.json get installed.
         has_pkg_json = (sandbox.path / "package.json").exists()
         if not deps_clean and not has_pkg_json:
+            dbg("No deps and no package.json – skipping npm install", "DEBUG")
             return
 
+        if has_pkg_json:
+            try:
+                pkg_data = json.loads((sandbox.path / "package.json").read_text())
+                dep_names = list((pkg_data.get("dependencies") or {}).keys())
+                dev_dep_names = list((pkg_data.get("devDependencies") or {}).keys())
+                dbg(f"package.json deps={dep_names} devDeps={dev_dep_names}", "DEBUG")
+            except Exception as exc:
+                dbg(f"Could not read package.json for logging: {exc}", "DEBUG")
+
+        t0 = time.monotonic()
         dbg("Installing dependencies via npm", "INFO")
         stop = Event()
         thr = Thread(
@@ -654,8 +666,11 @@ class SandboxManager:
             if legacy_peer_deps:
                 npm_flags.append("--legacy-peer-deps")
 
+            full_cmd = [*npm_cmd, *npm_flags]
+            dbg(f"Running: {' '.join(full_cmd)} (cwd={sandbox.path}, timeout={timeout}s)", "INFO")
+
             proc = subprocess.Popen(
-                [*npm_cmd, *npm_flags],
+                full_cmd,
                 cwd=str(sandbox.path),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
@@ -663,17 +678,45 @@ class SandboxManager:
                 bufsize=1,
                 env=install_env,
             )
+            dbg(f"npm process started (pid={getattr(proc, 'pid', '?')})", "DEBUG")
+            last_output_lines: list[str] = []
             try:
                 if proc.stdout:
                     for line in proc.stdout:
                         s = (line or "").rstrip("\n")
                         if not s:
                             continue
+                        last_output_lines.append(s)
+                        if len(last_output_lines) > 50:
+                            last_output_lines.pop(0)
                         if on_log and _should_emit_to_ui("INFO"):
                             _call_on_log(on_log, s, "INFO")
-                rc = proc.wait()
+                try:
+                    rc = proc.wait(timeout=timeout)
+                except TypeError:
+                    # Mock Popen objects may not accept timeout kwarg
+                    rc = proc.wait()
+                elapsed = time.monotonic() - t0
                 if rc != 0:
+                    dbg(f"npm install failed (exit={rc}) after {elapsed:.1f}s", "ERROR")
+                    if last_output_lines:
+                        tail = "\n".join(last_output_lines[-10:])
+                        dbg(f"npm last output:\n{tail}", "ERROR")
                     raise subprocess.CalledProcessError(rc, proc.args)
+                dbg(f"npm install completed (exit=0) in {elapsed:.1f}s", "INFO")
+            except subprocess.TimeoutExpired:
+                elapsed = time.monotonic() - t0
+                pid = getattr(proc, 'pid', '?')
+                dbg(f"npm install TIMED OUT after {elapsed:.1f}s (limit={timeout}s) – killing pid={pid}", "ERROR")
+                proc.kill()
+                try:
+                    proc.wait(timeout=10)
+                except TypeError:
+                    proc.wait()
+                if last_output_lines:
+                    tail = "\n".join(last_output_lines[-10:])
+                    dbg(f"npm last output before timeout:\n{tail}", "ERROR")
+                raise subprocess.CalledProcessError(-9, proc.args)
             finally:
                 try:
                     if proc.stdout:
@@ -681,14 +724,16 @@ class SandboxManager:
                 except Exception:
                     pass
         except FileNotFoundError as e:
-            dbg("npm not found in PATH (Node.js runtime missing)", "ERROR")
+            elapsed = time.monotonic() - t0
+            dbg(f"npm not found in PATH (Node.js runtime missing) after {elapsed:.1f}s", "ERROR")
             raise e
         except subprocess.CalledProcessError as e:
-            dbg(f"npm install failed: {e}", "ERROR")
+            elapsed = time.monotonic() - t0
+            dbg(f"npm install failed: exit={e.returncode} after {elapsed:.1f}s", "ERROR")
             raise
         finally:
             stop.set()
-        dbg("Dependencies installed", "INFO")
+        dbg(f"Dependencies installed in {time.monotonic() - t0:.1f}s", "INFO")
 
     def __init__(self, sandbox_root: str | Path):
         self.sandbox_root = Path(sandbox_root)
@@ -1125,9 +1170,12 @@ class SandboxManager:
             except Exception:
                 pass
         dbg(f"Sandbox created at: {sandbox.path}", "INFO")
+        sandbox_files = list(sandbox.path.iterdir()) if sandbox.path.is_dir() else []
+        dbg(f"Sandbox contents: {[f.name for f in sandbox_files]}", "DEBUG")
 
         # 2. Resolve build command: explicit markpact:build > service config > framework default
         build_cmd = extract_build_cmd(blocks) or service.build_cmd
+        dbg(f"Build command: {build_cmd or '(auto-detect from framework)'}", "DEBUG")
 
         # 4. Get builder, scaffold, build
         builder = get_builder_for_target(target_cfg)
@@ -1148,6 +1196,8 @@ class SandboxManager:
         if target_cfg.targets:
             extra_scaffold["targets"] = target_cfg.targets
 
+        t_scaffold = time.monotonic()
+        dbg(f"Scaffolding: framework={target_cfg.framework} app_name={app_name}", "INFO")
         builder.scaffold(
             sandbox.path,
             framework=target_cfg.framework or "",
@@ -1155,23 +1205,26 @@ class SandboxManager:
             extra=extra_scaffold,
             on_log=on_log,
         )
+        dbg(f"Scaffold done in {time.monotonic() - t_scaffold:.1f}s", "INFO")
 
         # 5. Install node deps added by scaffold (e.g. electron, electron-builder)
         pkg_json = sandbox.path / "package.json"
         if pkg_json.exists():
             from .targets import get_framework_meta
             meta = get_framework_meta(target_cfg.framework or "")
+            dbg(f"package.json exists, framework_meta={meta.name if meta else None}, needs_node={meta.needs_node if meta else None}", "DEBUG")
             if meta and meta.needs_node:
                 pkg_content = pkg_json.read_text()
                 # Try to restore node_modules from cache (hardlink-copy, ~0.5s)
                 cache_hit = False
                 try:
                     cache_hit = self._node_cache.restore(pkg_content, sandbox.path, on_log=on_log)
-                except Exception:
-                    pass
+                except Exception as exc:
+                    dbg(f"node_modules cache restore failed: {exc}", "DEBUG")
 
                 if not cache_hit:
                     dbg("Installing node dependencies after scaffold", "INFO")
+                    t_npm = time.monotonic()
                     try:
                         self._install_node_deps(
                             sandbox=sandbox,
@@ -1181,10 +1234,11 @@ class SandboxManager:
                             legacy_peer_deps=(target_cfg.framework or "").lower() == "capacitor",
                         )
                     except FileNotFoundError:
-                        dbg("npm not available – skipping node_modules install (build may still succeed)", "WARNING")
+                        dbg(f"npm not available – skipping node_modules install after {time.monotonic() - t_npm:.1f}s (build may still succeed)", "WARNING")
                     except Exception as exc:
-                        dbg(f"npm install failed – continuing to build: {exc}", "WARNING")
+                        dbg(f"npm install failed after {time.monotonic() - t_npm:.1f}s – continuing to build: {type(exc).__name__}: {exc}", "WARNING")
                     else:
+                        dbg(f"npm install completed in {time.monotonic() - t_npm:.1f}s", "INFO")
                         # Cache the installed node_modules for future builds
                         try:
                             self._node_cache.save(pkg_content, sandbox.path, on_log=on_log)
@@ -1192,6 +1246,16 @@ class SandboxManager:
                             pass
                 else:
                     dbg("⚡ node_modules restored from cache", "INFO")
+        else:
+            dbg("No package.json – skipping node deps install", "DEBUG")
+
+        # Check node_modules after install
+        nm = sandbox.path / "node_modules"
+        if nm.is_dir():
+            nm_count = sum(1 for _ in nm.iterdir())
+            dbg(f"node_modules: {nm_count} top-level entries", "DEBUG")
+        else:
+            dbg("node_modules: NOT PRESENT (build may fail)", "WARNING")
 
         # 6. Prepare build env – share caches across builds
         build_env = dict(env or {})
@@ -1199,6 +1263,8 @@ class SandboxManager:
         eb_cache.mkdir(parents=True, exist_ok=True)
         build_env.setdefault("ELECTRON_BUILDER_CACHE", str(eb_cache))
 
+        t_build = time.monotonic()
+        dbg(f"Starting build step (framework={target_cfg.framework}, targets={target_cfg.effective_build_targets()})", "INFO")
         result = builder.build(
             sandbox.path,
             build_cmd=build_cmd,
@@ -1207,11 +1273,15 @@ class SandboxManager:
             env=build_env,
             on_log=on_log,
         )
+        dbg(f"Build step completed in {time.monotonic() - t_build:.1f}s", "INFO")
 
         if result.success:
-            dbg(f"Build succeeded: {len(result.artifacts)} artifact(s)", "INFO")
+            dbg(f"Build succeeded: {len(result.artifacts)} artifact(s) – {[a.name for a in result.artifacts]}", "INFO")
         else:
             dbg(f"Build failed: {result.message}", "ERROR")
+            if result.logs:
+                tail = result.logs[-5:]
+                dbg(f"Build logs tail: {tail}", "ERROR")
 
         return result
 

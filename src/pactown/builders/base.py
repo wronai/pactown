@@ -87,12 +87,19 @@ class Builder(ABC):
         timeout: int = 600,
     ) -> tuple[int, str, str]:
         """Run a shell command, stream stdout to *on_log*, return (rc, stdout, stderr)."""
+        import logging as _logging
         import os
         import subprocess
+        import time as _time
+
+        _logger = _logging.getLogger("pactown.builders")
 
         run_env = os.environ.copy()
         if env:
             run_env.update(env)
+
+        _logger.debug("[builder] Running shell: %s (cwd=%s, timeout=%ds)", cmd, cwd, timeout)
+        t0 = _time.monotonic()
 
         proc = subprocess.Popen(
             cmd,
@@ -104,18 +111,41 @@ class Builder(ABC):
             text=True,
             bufsize=1,
         )
+        _logger.debug("[builder] Process started pid=%d", proc.pid)
 
         stdout_lines: list[str] = []
 
-        if proc.stdout:
-            for line in proc.stdout:
-                s = line.rstrip("\n")
-                stdout_lines.append(s)
-                if on_log:
-                    try:
-                        on_log(s)
-                    except Exception:
-                        pass
+        try:
+            if proc.stdout:
+                for line in proc.stdout:
+                    s = line.rstrip("\n")
+                    stdout_lines.append(s)
+                    if on_log:
+                        try:
+                            on_log(s)
+                        except Exception:
+                            pass
 
-        rc = proc.wait(timeout=timeout)
+            rc = proc.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            elapsed = _time.monotonic() - t0
+            _logger.error("[builder] Command TIMED OUT after %.1fs (limit=%ds) – killing pid=%d: %s", elapsed, timeout, proc.pid, cmd)
+            if on_log:
+                try:
+                    on_log(f"[builder] TIMEOUT after {elapsed:.0f}s – killing process")
+                except Exception:
+                    pass
+            proc.kill()
+            proc.wait(timeout=10)
+            tail = "\n".join(stdout_lines[-10:]) if stdout_lines else "(no output)"
+            _logger.error("[builder] Last output before timeout:\n%s", tail)
+            return -9, "\n".join(stdout_lines), f"Timed out after {elapsed:.0f}s"
+
+        elapsed = _time.monotonic() - t0
+        if rc != 0:
+            tail = "\n".join(stdout_lines[-15:]) if stdout_lines else "(no output)"
+            _logger.warning("[builder] Command failed (exit=%d) in %.1fs: %s\nOutput tail:\n%s", rc, elapsed, cmd, tail)
+        else:
+            _logger.info("[builder] Command succeeded (exit=0) in %.1fs: %s", elapsed, cmd)
+
         return rc, "\n".join(stdout_lines), ""

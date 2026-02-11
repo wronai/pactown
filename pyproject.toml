@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pactown"
-version = "0.1.157"
+version = "0.1.159"
 description = "Decentralized Service Ecosystem Orchestrator - Build interconnected microservices from Markdown using markpact"
 readme = "README.md"
 license = "Apache-2.0"
