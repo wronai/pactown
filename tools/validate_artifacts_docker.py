@@ -123,11 +123,14 @@ def docker_available() -> bool:
 
 def docker_run(image: str, mount_src: Path, mount_dst: str,
                script: str, timeout: int = 60) -> subprocess.CompletedProcess:
+    # Prefix with find to force bind-mount inode enumeration, preventing
+    # intermittent "No such file" errors after rapid container cycles.
+    prefixed = f"find {mount_dst} -type f > /dev/null 2>&1; {script}"
     cmd = [
         "docker", "run", "--rm",
         "-v", f"{mount_src.resolve()}:{mount_dst}:ro",
         image,
-        "sh", "-c", script,
+        "sh", "-c", prefixed,
     ]
     return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
 
@@ -410,8 +413,13 @@ def _find_service_dir(filepath: Path, root: Path) -> Path:
 
 
 def validate_artifact(filepath: Path, root: Path,
-                      docker_image: str, script_template: str) -> ValidationResult:
-    """Run a single artifact validation in Docker."""
+                      docker_image: str, script_template: str,
+                      max_retries: int = 1) -> ValidationResult:
+    """Run a single artifact validation in Docker.
+
+    Retries once on "No such file" errors caused by intermittent Docker
+    bind-mount cache staleness after rapid container cycles.
+    """
     # Mount the SERVICE directory (test-*), not the file's parent.
     # This avoids mount issues when files are in subdirectories.
     svc_dir = _find_service_dir(filepath, root)
@@ -425,23 +433,32 @@ def validate_artifact(filepath: Path, root: Path,
     rel = str(filepath.relative_to(root))
     ext = filepath.suffix.lower()
 
-    t0 = time.monotonic()
-    try:
-        r = docker_run(docker_image, svc_dir, mount_dst, full_script, timeout=60)
-        dt = time.monotonic() - t0
-        if r.returncode == 0:
-            msg = r.stdout.strip().split("\n")[-1] if r.stdout.strip() else "OK"
-            return ValidationResult(rel, ext, docker_image, True, msg, dt)
-        else:
-            err = (r.stdout.strip() + " " + r.stderr.strip()).strip()
-            return ValidationResult(rel, ext, docker_image, False,
-                                    err[:200] if err else f"exit code {r.returncode}", dt)
-    except subprocess.TimeoutExpired:
-        dt = time.monotonic() - t0
-        return ValidationResult(rel, ext, docker_image, False, "TIMEOUT (60s)", dt)
-    except Exception as e:
-        dt = time.monotonic() - t0
-        return ValidationResult(rel, ext, docker_image, False, str(e)[:200], dt)
+    for attempt in range(1 + max_retries):
+        t0 = time.monotonic()
+        try:
+            r = docker_run(docker_image, svc_dir, mount_dst, full_script, timeout=60)
+            dt = time.monotonic() - t0
+            if r.returncode == 0:
+                msg = r.stdout.strip().split("\n")[-1] if r.stdout.strip() else "OK"
+                return ValidationResult(rel, ext, docker_image, True, msg, dt)
+            else:
+                err = (r.stdout.strip() + " " + r.stderr.strip()).strip()
+                # Retry on bind-mount staleness (file exists on host but
+                # Docker container can't see it yet).
+                if "No such file" in err and attempt < max_retries:
+                    time.sleep(2)
+                    continue
+                return ValidationResult(rel, ext, docker_image, False,
+                                        err[:200] if err else f"exit code {r.returncode}", dt)
+        except subprocess.TimeoutExpired:
+            dt = time.monotonic() - t0
+            return ValidationResult(rel, ext, docker_image, False, "TIMEOUT (60s)", dt)
+        except Exception as e:
+            dt = time.monotonic() - t0
+            return ValidationResult(rel, ext, docker_image, False, str(e)[:200], dt)
+
+    # Should not reach here, but safety fallback
+    return ValidationResult(rel, ext, docker_image, False, "max retries exceeded", 0.0)
 
 
 def main() -> int:

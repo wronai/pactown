@@ -4,6 +4,7 @@ import ast
 import configparser
 import io
 import json
+import shutil
 import struct
 import subprocess
 import zipfile
@@ -4195,22 +4196,35 @@ def _docker_run(image: str, mount_src: Path, mount_dst: str,
 
 
 def _docker_run_script(image: str, mount_src: Path, mount_dst: str,
-                       script: str, timeout: int = 60) -> subprocess.CompletedProcess:
+                       script: str, timeout: int = 60,
+                       retries: int = 2) -> subprocess.CompletedProcess:
     """Run a shell script inside a Docker container with a bind-mount.
 
-    Prefixes the script with a ``find`` to force the bind-mount layer to
-    enumerate all inodes, avoiding intermittent "No such file" errors that
-    occur when many containers mount the same host path in rapid succession.
+    Prefixes the script with a ``find`` + ``cat`` to force the bind-mount
+    layer to fully materialise all inodes and page in file contents, avoiding
+    intermittent "No such file" errors that occur when many containers mount
+    the same host path in rapid succession.
+
+    Retries up to *retries* times on non-zero exit to handle residual
+    bind-mount races under heavy parallel Docker load.
     """
-    prefixed = f"find {mount_dst} -type f > /dev/null 2>&1; {script}"
-    return subprocess.run(
-        [
-            "docker", "run", "--rm",
-            "-v", f"{mount_src}:{mount_dst}:ro",
-            image, "sh", "-c", prefixed,
-        ],
-        capture_output=True, text=True, timeout=timeout,
+    preflight = (
+        f"find {mount_dst} -type f -exec cat {{}} + > /dev/null 2>&1; "
+        f"sleep 0.3"
     )
+    prefixed = f"{preflight}; {script}"
+    cmd = [
+        "docker", "run", "--rm",
+        "-v", f"{mount_src}:{mount_dst}:ro",
+        image, "sh", "-c", prefixed,
+    ]
+    for attempt in range(1 + retries):
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=timeout,
+        )
+        if result.returncode == 0 or attempt == retries:
+            return result
+    return result  # unreachable, keeps linters happy
 
 
 _skip_no_docker = pytest.mark.skipif(
@@ -4968,6 +4982,35 @@ class TestDockerIaCValidation:
             p = Path(__file__).resolve().parent.parent / raw
         return p
 
+    @staticmethod
+    def _ensure_writable_dir(p: Path) -> None:
+        """Remove *p* if it exists but is not writable (e.g. root-owned from
+        a previous Docker run), then (re-)create it.  Uses Docker as a
+        fallback to delete root-owned trees when running as a normal user."""
+        if p.exists():
+            try:
+                probe = p / ".write_probe"
+                probe.write_text("")
+                probe.unlink()
+            except PermissionError:
+                # Try plain rmtree first, then Docker fallback
+                try:
+                    shutil.rmtree(p)
+                except PermissionError:
+                    if _docker_available():
+                        subprocess.run(
+                            ["docker", "run", "--rm",
+                             "-v", f"{p.resolve()}:/clean",
+                             "ubuntu:22.04",
+                             "rm", "-rf", "/clean"],
+                            check=False, capture_output=True,
+                        )
+                        # Docker removes contents; parent mount-point stays
+                        shutil.rmtree(p, ignore_errors=True)
+                    else:
+                        raise
+        p.mkdir(parents=True, exist_ok=True)
+
     @pytest.fixture(autouse=True)
     def _setup_iac_sandboxes(self) -> None:
         """Generate IaC artifacts for Python and Node services in .pactown/."""
@@ -4978,7 +5021,7 @@ class TestDockerIaCValidation:
 
         # Python service (FastAPI-like)
         py_svc = root / "test-iac-python"
-        py_svc.mkdir(parents=True, exist_ok=True)
+        self._ensure_writable_dir(py_svc)
         (py_svc / "main.py").write_text(
             "from fastapi import FastAPI\napp = FastAPI()\n"
             "@app.get('/health')\ndef health(): return {'ok': True}\n"
@@ -5000,7 +5043,7 @@ class TestDockerIaCValidation:
 
         # Node service (Express-like)
         node_svc = root / "test-iac-node"
-        node_svc.mkdir(parents=True, exist_ok=True)
+        self._ensure_writable_dir(node_svc)
         (node_svc / "index.js").write_text(
             "const express = require('express');\n"
             "const app = express();\n"

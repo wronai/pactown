@@ -185,12 +185,11 @@ artifacts-docker: ## Validate all existing artifacts in native Docker containers
 
 artifacts-clean: ## Remove all generated scaffold artifacts
 	@echo "Cleaning $(ARTIFACT_ROOT)/ and bytecode caches..."
-	@if [ -d "$(ARTIFACT_ROOT)" ] && command -v docker >/dev/null 2>&1; then \
+	@if [ -d "$(ARTIFACT_ROOT)" ] && command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then \
 		docker run --rm -v "$$(cd $(ARTIFACT_ROOT) && pwd):/clean" ubuntu:22.04 \
-			sh -c 'rm -rf /clean/test-*' 2>/dev/null || rm -rf $(ARTIFACT_ROOT)/test-*; \
-	else \
-		rm -rf $(ARTIFACT_ROOT)/test-*; \
+			sh -c 'chmod -R 777 /clean/test-* 2>/dev/null; rm -rf /clean/test-*' 2>/dev/null; \
 	fi
+	rm -rf $(ARTIFACT_ROOT)/test-* 2>/dev/null || true
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	@echo "Done – artifact directory cleaned."
 
