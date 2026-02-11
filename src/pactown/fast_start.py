@@ -18,6 +18,11 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv(override=False)
+
 from threading import Lock, Event, Thread
 from typing import Any, Callable, Dict, List, Optional, Set
 

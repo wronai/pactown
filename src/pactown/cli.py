@@ -6,6 +6,10 @@ from typing import Optional
 
 import click
 import yaml
+from dotenv import load_dotenv
+
+load_dotenv(override=False)
+
 from rich.console import Console
 from rich.panel import Panel
 

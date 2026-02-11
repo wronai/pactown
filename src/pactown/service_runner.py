@@ -15,6 +15,9 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 import httpx
+from dotenv import load_dotenv
+
+load_dotenv(override=False)
 
 from .config import CacheConfig, ServiceConfig
 from .error_context import build_error_context, render_error_report_md

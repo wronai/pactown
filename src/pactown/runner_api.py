@@ -10,6 +10,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Callable
 
 import httpx
+from dotenv import load_dotenv
+
+load_dotenv(override=False)
+
 from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel
 from starlette.responses import StreamingResponse
