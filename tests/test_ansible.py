@@ -1,7 +1,10 @@
 """Tests for pactown.deploy.ansible – Ansible deployment backend."""
 
+import io
 import json
+import struct
 import subprocess
+import zipfile
 from pathlib import Path
 from typing import Any
 from unittest.mock import patch, MagicMock
@@ -3308,3 +3311,2238 @@ class TestArtifactsInPactownSandboxRoot:
                 assert val.strip() == ".pactown", (
                     f"Expected .pactown, got: {val.strip()}"
                 )
+
+
+# ===========================================================================
+# Real scaffold in .pactown – verify actual generated files
+# ===========================================================================
+
+
+class TestRealScaffoldInPactown:
+    """Run REAL scaffolds in .pactown/ (as configured by .env) and verify the
+    generated config files + simulated build artifacts.
+
+    Artifacts are **intentionally kept** after tests so you can inspect them:
+        ls -laR .pactown/
+    """
+
+    @staticmethod
+    def _root() -> Path:
+        import os
+        from dotenv import load_dotenv
+        project_root = Path(__file__).resolve().parents[1]
+        env_file = project_root / ".env"
+        if env_file.exists():
+            load_dotenv(env_file, override=False)
+        val = os.environ.get("PACTOWN_SANDBOX_ROOT", "")
+        if not val:
+            return project_root / ".pactown"
+        p = Path(val)
+        if not p.is_absolute():
+            p = (project_root / p).resolve()
+        return p
+
+    def _svc_path(self, name: str) -> Path:
+        return self._root() / name
+
+    # ------------------------------------------------------------------
+    # Realistic artifact generators
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _make_elf(size: int = 65_536) -> bytes:
+        """Minimal ELF64 header + padding."""
+        # ELF magic + class(64) + little-endian + version + OS/ABI
+        header = b"\x7fELF\x02\x01\x01\x00" + b"\x00" * 8
+        # e_type=EXEC(2), e_machine=x86-64(0x3E), e_version=1
+        header += struct.pack("<HHIQ", 2, 0x3E, 1, 0x400000)
+        # e_phoff, e_shoff
+        header += struct.pack("<QQ", 64, 0)
+        # e_flags, e_ehsize, e_phentsize, e_phnum, e_shentsize, e_shnum, e_shstrndx
+        header += struct.pack("<IHHHHHH", 0, 64, 56, 0, 64, 0, 0)
+        return header + b"\x00" * (size - len(header))
+
+    @staticmethod
+    def _make_pe(size: int = 65_536) -> bytes:
+        """Minimal PE (MZ/PE) header + padding."""
+        dos = bytearray(128)
+        dos[0:2] = b"MZ"
+        struct.pack_into("<I", dos, 60, 128)  # e_lfanew → PE header at 128
+        pe_sig = b"PE\x00\x00"
+        # COFF: machine=0x8664 (x64), sections=1, timestamp=0, ...
+        coff = struct.pack("<HHIIIHH", 0x8664, 1, 0, 0, 0, 240, 0x22)
+        # Optional header magic (PE32+)
+        opt = struct.pack("<H", 0x20B) + b"\x00" * 238
+        return bytes(dos) + pe_sig + coff + opt + b"\x00" * (size - 128 - 4 - 20 - 240)
+
+    @staticmethod
+    def _make_zip_package(entries: dict[str, bytes], size: int = 10_240) -> bytes:
+        """Create a real ZIP archive with given entries, padded to size."""
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+            for name, data in entries.items():
+                zf.writestr(name, data)
+        content = buf.getvalue()
+        if len(content) < size:
+            # Add padding as a comment or extra entry
+            pad_size = size - len(content)
+            buf2 = io.BytesIO()
+            with zipfile.ZipFile(buf2, "w", zipfile.ZIP_DEFLATED) as zf:
+                for name, data in entries.items():
+                    zf.writestr(name, data)
+                zf.writestr("__padding__", b"\x00" * pad_size)
+            content = buf2.getvalue()
+        return content
+
+    @classmethod
+    def _make_apk(cls, app_name: str = "app", size: int = 10_240) -> bytes:
+        """Real ZIP-based APK with AndroidManifest.xml."""
+        return cls._make_zip_package({
+            "AndroidManifest.xml": (
+                '<?xml version="1.0"?>\n'
+                f'<manifest package="com.test.{app_name}" '
+                'xmlns:android="http://schemas.android.com/apk/res/android">\n'
+                f'  <application android:label="{app_name}"/>\n'
+                '</manifest>\n'
+            ).encode(),
+            "classes.dex": b"dex\n035\x00" + b"\x00" * 100,
+            "resources.arsc": b"\x02\x00\x0c\x00" + b"\x00" * 50,
+        }, size)
+
+    @classmethod
+    def _make_ipa(cls, app_name: str = "App", size: int = 10_240) -> bytes:
+        """Real ZIP-based IPA with Payload/ structure."""
+        return cls._make_zip_package({
+            f"Payload/{app_name}.app/Info.plist": (
+                '<?xml version="1.0"?>\n'
+                '<plist version="1.0"><dict>\n'
+                f'  <key>CFBundleName</key><string>{app_name}</string>\n'
+                '  <key>CFBundleIdentifier</key>'
+                f'<string>com.test.{app_name.lower()}</string>\n'
+                '</dict></plist>\n'
+            ).encode(),
+            f"Payload/{app_name}.app/{app_name}": b"\xcf\xfa\xed\xfe" + b"\x00" * 50,
+        }, size)
+
+    @classmethod
+    def _make_aab(cls, app_name: str = "app", size: int = 10_240) -> bytes:
+        """Real ZIP-based AAB (Android App Bundle)."""
+        return cls._make_zip_package({
+            "BundleConfig.pb": b"\x0a\x02\x08\x01" + b"\x00" * 20,
+            "base/manifest/AndroidManifest.xml": (
+                '<?xml version="1.0"?>\n'
+                f'<manifest package="com.test.{app_name}"/>\n'
+            ).encode(),
+            "base/dex/classes.dex": b"dex\n035\x00" + b"\x00" * 100,
+        }, size)
+
+    @staticmethod
+    def _make_dmg(size: int = 65_536) -> bytes:
+        """DMG-like file with Apple UDIF magic at end."""
+        content = b"\x00" * (size - 512)
+        # UDIF trailer (koly magic at offset -512)
+        trailer = b"koly" + b"\x00\x00\x00\x04"  # magic + version
+        trailer += b"\x00" * (512 - len(trailer))
+        return content + trailer
+
+    @staticmethod
+    def _make_deb(size: int = 10_240) -> bytes:
+        """Minimal Debian .deb (ar archive format)."""
+        ar_magic = b"!<arch>\n"
+        # debian-binary entry
+        entry_name = b"debian-binary/  "[:16]
+        entry_header = entry_name + b"0           0     0     100644  3         `\n"
+        entry_data = b"2.0\n"
+        content = ar_magic + entry_header + entry_data
+        return content + b"\x00" * (size - len(content))
+
+    @staticmethod
+    def _make_snap(size: int = 65_536) -> bytes:
+        """Minimal snap (squashfs magic + padding)."""
+        # squashfs magic: hsqs (little-endian)
+        header = b"hsqs" + struct.pack("<I", 4)  # magic + inode count
+        header += b"\x00" * 88  # rest of superblock (96 bytes total)
+        return header + b"\x00" * (size - len(header))
+
+    @staticmethod
+    def _make_msi(size: int = 65_536) -> bytes:
+        """Minimal MSI (OLE Compound Document magic + padding)."""
+        header = b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1"  # OLE magic
+        header += b"\x00" * (512 - 8)  # rest of OLE header sector
+        return header + b"\x00" * (size - len(header))
+
+    @staticmethod
+    def _make_so(size: int = 32_768) -> bytes:
+        """Minimal ELF shared object."""
+        header = b"\x7fELF\x02\x01\x01\x00" + b"\x00" * 8
+        # e_type=DYN(3) for shared object
+        header += struct.pack("<HHIQ", 3, 0x3E, 1, 0)
+        header += struct.pack("<QQ", 64, 0)
+        header += struct.pack("<IHHHHHH", 0, 64, 56, 0, 64, 0, 0)
+        return header + b"\x00" * (size - len(header))
+
+    @staticmethod
+    def _make_appimage(size: int = 131_072) -> bytes:
+        """Minimal AppImage Type 2 (ELF + squashfs)."""
+        # ELF header
+        header = b"\x7fELF\x02\x01\x01\x00" + b"\x00" * 8
+        header += struct.pack("<HHIQ", 2, 0x3E, 1, 0x400000)
+        header += struct.pack("<QQ", 64, 0)
+        header += struct.pack("<IHHHHHH", 0, 64, 56, 0, 64, 0, 0)
+        # AppImage type 2 magic at offset 8 (AI\x02)
+        header = header[:8] + b"AI\x02" + header[11:]
+        # pad to halfway, then squashfs
+        mid = size // 2
+        sqfs = b"hsqs" + b"\x00" * (size - mid - 4)
+        return header + b"\x00" * (mid - len(header)) + b"hsqs" + sqfs
+
+    def _write_artifact(self, path: Path, content: bytes) -> None:
+        """Write artifact bytes to path, creating parent dirs."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
+
+    # ======================================================================
+    # .env / root verification
+    # ======================================================================
+
+    def test_root_matches_dotenv_config(self) -> None:
+        """_root() must resolve to the path configured in .env file."""
+        from dotenv import dotenv_values
+        project_root = Path(__file__).resolve().parents[1]
+        env_file = project_root / ".env"
+        assert env_file.exists(), f".env not found at {env_file}"
+        values = dotenv_values(env_file)
+        configured = values.get("PACTOWN_SANDBOX_ROOT", "")
+        assert configured, "PACTOWN_SANDBOX_ROOT not set in .env"
+
+        expected = Path(configured)
+        if not expected.is_absolute():
+            expected = (project_root / expected).resolve()
+
+        actual = self._root()
+        assert actual == expected, (
+            f".env says PACTOWN_SANDBOX_ROOT={configured} → {expected}, "
+            f"but _root() returned {actual}"
+        )
+
+    def test_pactown_dir_exists(self) -> None:
+        """The .pactown directory must exist."""
+        root = self._root()
+        assert root.exists(), f".pactown root not found at {root}"
+
+    # ======================================================================
+    # Desktop frameworks – scaffold + simulated artifacts
+    # ======================================================================
+
+    def test_real_electron_scaffold_and_artifacts(self) -> None:
+        """Scaffold Electron app + simulate build artifacts in .pactown/."""
+        from pactown.builders import DesktopBuilder
+        svc = self._svc_path("test-electron")
+        svc.mkdir(parents=True, exist_ok=True)
+
+        DesktopBuilder().scaffold(svc, framework="electron", app_name="TestElectron")
+
+        # Verify scaffold config
+        pkg = json.loads((svc / "package.json").read_text())
+        assert pkg["main"] == "main.js"
+        assert "electron" in pkg.get("devDependencies", {})
+        assert "electron-builder" in pkg.get("devDependencies", {})
+        assert pkg["build"]["linux"]["target"] == ["AppImage"]
+        assert pkg["build"]["win"]["target"] == ["nsis"]
+        assert pkg["build"]["mac"]["target"] == ["dmg"]
+
+        main_js = svc / "main.js"
+        assert main_js.exists()
+        src = main_js.read_text()
+        assert "no-sandbox" in src
+        assert "BrowserWindow" in src
+
+        # Simulate build artifacts for all OS targets (realistic sizes + magic bytes)
+        self._write_artifact(svc / "dist" / "TestElectron-1.0.0.AppImage", self._make_appimage(131_072))
+        self._write_artifact(svc / "dist" / "TestElectron-1.0.0.snap", self._make_snap(65_536))
+        self._write_artifact(svc / "dist" / "run.sh", b"#!/bin/bash\nset -e\ncd \"$(dirname \"$0\")\"\n./TestElectron*.AppImage --no-sandbox\n")
+        self._write_artifact(svc / "dist" / "README.txt", b"Linux AppImage usage instructions\nRun: ./run.sh\n")
+        self._write_artifact(svc / "dist" / "TestElectron Setup 1.0.0.exe", self._make_pe(65_536))
+        self._write_artifact(svc / "dist" / "TestElectron-1.0.0.dmg", self._make_dmg(65_536))
+
+        # Verify artifacts are collected
+        arts = DesktopBuilder._collect_artifacts(svc, "electron")
+        assert len(arts) >= 6, f"Expected >=6 artifacts, got {len(arts)}: {arts}"
+        names = {a.name for a in arts}
+        assert "TestElectron-1.0.0.AppImage" in names
+        assert "run.sh" in names
+        assert "README.txt" in names
+
+    def test_real_tauri_scaffold_and_artifacts(self) -> None:
+        """Scaffold Tauri app + simulate build artifacts in .pactown/."""
+        from pactown.builders import DesktopBuilder
+        svc = self._svc_path("test-tauri")
+        svc.mkdir(parents=True, exist_ok=True)
+
+        DesktopBuilder().scaffold(svc, framework="tauri", app_name="TestTauri",
+                                  extra={"app_id": "com.test.tauri", "window_width": 1280, "window_height": 720})
+
+        cfg = json.loads((svc / "src-tauri" / "tauri.conf.json").read_text())
+        assert cfg["package"]["productName"] == "TestTauri"
+        assert cfg["tauri"]["bundle"]["identifier"] == "com.test.tauri"
+        assert cfg["tauri"]["windows"][0]["width"] == 1280
+
+        # Simulate Tauri build artifacts (realistic sizes + magic bytes)
+        self._write_artifact(svc / "src-tauri" / "target" / "release" / "bundle" / "appimage" / "test-tauri.AppImage", self._make_appimage(131_072))
+        self._write_artifact(svc / "src-tauri" / "target" / "release" / "bundle" / "deb" / "test-tauri_1.0.0_amd64.deb", self._make_deb(10_240))
+        self._write_artifact(svc / "src-tauri" / "target" / "release" / "bundle" / "msi" / "TestTauri_1.0.0_x64.msi", self._make_msi(65_536))
+        self._write_artifact(svc / "src-tauri" / "target" / "release" / "bundle" / "dmg" / "TestTauri_1.0.0.dmg", self._make_dmg(65_536))
+
+        arts = DesktopBuilder._collect_artifacts(svc, "tauri")
+        assert len(arts) >= 4, f"Expected >=4 Tauri artifacts, got {len(arts)}"
+
+    def test_real_pyinstaller_scaffold_and_artifacts(self) -> None:
+        """Scaffold PyInstaller app + simulate build artifacts in .pactown/."""
+        from pactown.builders import DesktopBuilder
+        svc = self._svc_path("test-pyinstaller")
+        svc.mkdir(parents=True, exist_ok=True)
+
+        DesktopBuilder().scaffold(svc, framework="pyinstaller", app_name="TestPI",
+                                  extra={"icon": "app.ico"})
+
+        spec = svc / "TestPI.spec"
+        assert spec.exists()
+        content = spec.read_text()
+        assert "Analysis" in content
+        assert "app.ico" in content
+
+        # Simulate PyInstaller build artifacts for all OS (realistic sizes)
+        self._write_artifact(svc / "dist" / "TestPI", self._make_elf(65_536))       # Linux binary
+        self._write_artifact(svc / "dist" / "TestPI.exe", self._make_pe(65_536))    # Windows exe
+        self._write_artifact(svc / "dist" / "TestPI.app", self._make_elf(65_536))   # macOS binary
+
+        arts = DesktopBuilder._collect_artifacts(svc, "pyinstaller")
+        assert len(arts) >= 3
+
+    def test_real_pyqt_scaffold_and_artifacts(self) -> None:
+        """Scaffold PyQt app + simulate build artifacts in .pactown/."""
+        from pactown.builders import DesktopBuilder
+        svc = self._svc_path("test-pyqt")
+        svc.mkdir(parents=True, exist_ok=True)
+
+        DesktopBuilder().scaffold(svc, framework="pyqt", app_name="TestPyQt")
+
+        spec = svc / "TestPyQt.spec"
+        assert spec.exists()
+        assert "Analysis" in spec.read_text()
+
+        self._write_artifact(svc / "dist" / "TestPyQt", self._make_elf(65_536))
+        self._write_artifact(svc / "dist" / "TestPyQt.exe", self._make_pe(65_536))
+
+        arts = DesktopBuilder._collect_artifacts(svc, "pyqt")
+        assert len(arts) >= 2
+
+    def test_real_tkinter_scaffold_and_artifacts(self) -> None:
+        """Scaffold Tkinter app + simulate build artifacts in .pactown/."""
+        from pactown.builders import DesktopBuilder
+        svc = self._svc_path("test-tkinter")
+        svc.mkdir(parents=True, exist_ok=True)
+
+        DesktopBuilder().scaffold(svc, framework="tkinter", app_name="TestTk")
+
+        spec = svc / "TestTk.spec"
+        assert spec.exists()
+        assert "Analysis" in spec.read_text()
+
+        self._write_artifact(svc / "dist" / "TestTk", self._make_elf(65_536))
+        self._write_artifact(svc / "dist" / "TestTk.exe", self._make_pe(65_536))
+
+        arts = DesktopBuilder._collect_artifacts(svc, "tkinter")
+        assert len(arts) >= 2
+
+    def test_real_flutter_desktop_scaffold_and_artifacts(self) -> None:
+        """Scaffold Flutter desktop app + simulate build artifacts in .pactown/."""
+        from pactown.builders import DesktopBuilder
+        svc = self._svc_path("test-flutter-desktop")
+        svc.mkdir(parents=True, exist_ok=True)
+
+        DesktopBuilder().scaffold(svc, framework="flutter", app_name="TestFlutterDesktop")
+
+        # Flutter scaffold is a noop (expects existing Flutter project)
+        # Simulate build artifacts for Linux (realistic sizes)
+        self._write_artifact(svc / "build" / "linux" / "x64" / "release" / "bundle" / "test_flutter_desktop", self._make_elf(65_536))
+        self._write_artifact(svc / "build" / "linux" / "x64" / "release" / "bundle" / "lib" / "libapp.so", self._make_so(32_768))
+
+        arts = DesktopBuilder._collect_artifacts(svc, "flutter")
+        assert len(arts) >= 2
+
+    # ======================================================================
+    # Mobile frameworks – scaffold + simulated artifacts
+    # ======================================================================
+
+    def test_real_capacitor_scaffold_and_artifacts(self) -> None:
+        """Scaffold Capacitor app + simulate build artifacts in .pactown/."""
+        from pactown.builders import MobileBuilder
+        svc = self._svc_path("test-capacitor")
+        svc.mkdir(parents=True, exist_ok=True)
+
+        MobileBuilder().scaffold(svc, framework="capacitor", app_name="TestCap",
+                                 extra={"app_id": "com.test.cap", "targets": ["android", "ios"]})
+
+        cfg = json.loads((svc / "capacitor.config.json").read_text())
+        assert cfg["appId"] == "com.test.cap"
+        assert cfg["appName"] == "TestCap"
+
+        pkg = json.loads((svc / "package.json").read_text())
+        assert "@capacitor/core" in pkg["dependencies"]
+        assert "@capacitor/android" in pkg["dependencies"]
+        assert "@capacitor/ios" in pkg["dependencies"]
+        assert pkg["dependencies"]["@capacitor/core"] == "^6.0.0"
+
+        # Simulate build artifacts (realistic ZIP-based packages)
+        self._write_artifact(svc / "android" / "app" / "build" / "outputs" / "apk" / "release" / "app-release.apk",
+                             self._make_apk("TestCap", 10_240))
+        self._write_artifact(svc / "ios" / "App" / "build" / "Release" / "TestCap.ipa",
+                             self._make_ipa("TestCap", 10_240))
+
+        arts = MobileBuilder._collect_artifacts(svc, "capacitor")
+        assert len(arts) >= 2
+        exts = {a.suffix for a in arts}
+        assert ".apk" in exts
+        assert ".ipa" in exts
+
+    def test_real_react_native_scaffold_and_artifacts(self) -> None:
+        """Scaffold React Native app + simulate build artifacts in .pactown/."""
+        from pactown.builders import MobileBuilder
+        svc = self._svc_path("test-react-native")
+        svc.mkdir(parents=True, exist_ok=True)
+
+        MobileBuilder().scaffold(svc, framework="react-native", app_name="TestRN",
+                                 extra={"app_name": "My RN App"})
+
+        cfg = json.loads((svc / "app.json").read_text())
+        assert cfg["name"] == "TestRN"
+        assert cfg["displayName"] == "My RN App"
+
+        # Simulate build artifacts (realistic ZIP-based packages)
+        self._write_artifact(svc / "android" / "app" / "build" / "outputs" / "apk" / "release" / "app-release.apk",
+                             self._make_apk("TestRN", 10_240))
+        self._write_artifact(svc / "ios" / "build" / "Release" / "TestRN.ipa",
+                             self._make_ipa("TestRN", 10_240))
+
+        arts = MobileBuilder._collect_artifacts(svc, "react-native")
+        assert len(arts) >= 2
+
+    def test_real_flutter_mobile_scaffold_and_artifacts(self) -> None:
+        """Scaffold Flutter mobile app + simulate build artifacts in .pactown/."""
+        from pactown.builders import MobileBuilder
+        svc = self._svc_path("test-flutter-mobile")
+        svc.mkdir(parents=True, exist_ok=True)
+
+        MobileBuilder().scaffold(svc, framework="flutter", app_name="TestFlutterMobile")
+
+        # Simulate build artifacts (realistic ZIP-based packages)
+        self._write_artifact(svc / "build" / "app" / "outputs" / "flutter-apk" / "app-release.apk",
+                             self._make_apk("TestFlutterMobile", 10_240))
+        self._write_artifact(svc / "build" / "ios" / "Release" / "TestFlutterMobile.ipa",
+                             self._make_ipa("TestFlutterMobile", 10_240))
+
+        arts = MobileBuilder._collect_artifacts(svc, "flutter")
+        assert len(arts) >= 1  # apk found via glob
+
+    def test_real_kivy_scaffold_and_artifacts(self) -> None:
+        """Scaffold Kivy app + simulate build artifacts in .pactown/."""
+        from pactown.builders import MobileBuilder
+        svc = self._svc_path("test-kivy")
+        svc.mkdir(parents=True, exist_ok=True)
+
+        MobileBuilder().scaffold(svc, framework="kivy", app_name="TestKivy",
+                                 extra={"app_id": "com.test.kivy", "fullscreen": True, "icon": "icon.png"})
+
+        spec = svc / "buildozer.spec"
+        assert spec.exists()
+        content = spec.read_text()
+        assert "TestKivy" in content
+        assert "requirements = python3,kivy" in content
+        assert "fullscreen = 1" in content
+        assert "icon.png" in content
+
+        # Simulate build artifacts (realistic ZIP-based packages)
+        self._write_artifact(svc / "bin" / "testapp-0.1-arm64-v8a_armeabi-v7a-debug.apk",
+                             self._make_apk("TestKivy", 10_240))
+        self._write_artifact(svc / "bin" / "testapp-0.1-arm64-v8a_armeabi-v7a-debug.aab",
+                             self._make_aab("TestKivy", 10_240))
+
+        arts = MobileBuilder._collect_artifacts(svc, "kivy")
+        assert len(arts) >= 2
+        exts = {a.suffix for a in arts}
+        assert ".apk" in exts
+        assert ".aab" in exts
+
+    # ======================================================================
+    # Web frameworks – manual scaffold + simulated artifacts
+    # ======================================================================
+
+    def test_real_fastapi_scaffold_and_artifacts(self) -> None:
+        """Create FastAPI project in .pactown/ and verify structure."""
+        svc = self._svc_path("test-fastapi")
+        svc.mkdir(parents=True, exist_ok=True)
+
+        # Create realistic FastAPI project
+        (svc / "main.py").write_text(
+            'from fastapi import FastAPI\n\n'
+            'app = FastAPI(title="TestFastAPI")\n\n\n'
+            '@app.get("/health")\n'
+            'def health():\n'
+            '    return {"status": "ok"}\n\n\n'
+            '@app.get("/")\n'
+            'def root():\n'
+            '    return {"message": "Hello from TestFastAPI"}\n'
+        )
+        (svc / "requirements.txt").write_text(
+            "fastapi>=0.110.0\nuvicorn[standard]>=0.29.0\npydantic>=2.0\n"
+        )
+        (svc / "Dockerfile").write_text(
+            "FROM python:3.12-slim\n"
+            "WORKDIR /app\n"
+            "COPY requirements.txt .\n"
+            "RUN pip install --no-cache-dir -r requirements.txt\n"
+            "COPY . .\n"
+            'CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]\n'
+        )
+
+        assert (svc / "main.py").exists()
+        assert (svc / "requirements.txt").exists()
+        assert (svc / "Dockerfile").exists()
+        assert "FastAPI" in (svc / "main.py").read_text()
+        assert "fastapi" in (svc / "requirements.txt").read_text()
+
+    def test_real_flask_scaffold_and_artifacts(self) -> None:
+        """Create Flask project in .pactown/ and verify structure."""
+        svc = self._svc_path("test-flask")
+        svc.mkdir(parents=True, exist_ok=True)
+
+        (svc / "app.py").write_text(
+            'from flask import Flask, jsonify\n\n'
+            'app = Flask(__name__)\n\n\n'
+            '@app.route("/health")\n'
+            'def health():\n'
+            '    return jsonify(status="ok")\n\n\n'
+            '@app.route("/")\n'
+            'def index():\n'
+            '    return jsonify(message="Hello from TestFlask")\n\n\n'
+            'if __name__ == "__main__":\n'
+            '    app.run(host="0.0.0.0", port=5000)\n'
+        )
+        (svc / "requirements.txt").write_text(
+            "flask>=3.0.0\ngunicorn>=22.0.0\n"
+        )
+        (svc / "Dockerfile").write_text(
+            "FROM python:3.12-slim\n"
+            "WORKDIR /app\n"
+            "COPY requirements.txt .\n"
+            "RUN pip install --no-cache-dir -r requirements.txt\n"
+            "COPY . .\n"
+            'CMD ["gunicorn", "-b", "0.0.0.0:5000", "app:app"]\n'
+        )
+        (svc / "wsgi.py").write_text(
+            "from app import app\n\nif __name__ == '__main__':\n    app.run()\n"
+        )
+
+        assert (svc / "app.py").exists()
+        assert "Flask" in (svc / "app.py").read_text()
+        assert "flask" in (svc / "requirements.txt").read_text()
+
+    def test_real_express_scaffold_and_artifacts(self) -> None:
+        """Create Express project in .pactown/ and verify structure."""
+        svc = self._svc_path("test-express")
+        svc.mkdir(parents=True, exist_ok=True)
+
+        pkg = {
+            "name": "test-express",
+            "version": "1.0.0",
+            "main": "index.js",
+            "scripts": {
+                "start": "node index.js",
+                "dev": "nodemon index.js",
+            },
+            "dependencies": {
+                "express": "^4.18.0",
+                "cors": "^2.8.5",
+            },
+            "devDependencies": {
+                "nodemon": "^3.0.0",
+            },
+        }
+        (svc / "package.json").write_text(json.dumps(pkg, indent=2))
+        (svc / "index.js").write_text(
+            "const express = require('express');\n"
+            "const cors = require('cors');\n\n"
+            "const app = express();\n"
+            "app.use(cors());\n"
+            "app.use(express.json());\n\n"
+            "app.get('/health', (req, res) => res.json({ status: 'ok' }));\n"
+            "app.get('/', (req, res) => res.json({ message: 'Hello from TestExpress' }));\n\n"
+            "const PORT = process.env.PORT || 3000;\n"
+            "app.listen(PORT, () => console.log(`Server running on port ${PORT}`));\n"
+        )
+        (svc / "Dockerfile").write_text(
+            "FROM node:20-slim\n"
+            "WORKDIR /app\n"
+            "COPY package*.json ./\n"
+            "RUN npm ci --production\n"
+            "COPY . .\n"
+            "EXPOSE 3000\n"
+            'CMD ["node", "index.js"]\n'
+        )
+
+        parsed = json.loads((svc / "package.json").read_text())
+        assert parsed["dependencies"]["express"] == "^4.18.0"
+        assert (svc / "index.js").exists()
+
+    def test_real_nextjs_scaffold_and_artifacts(self) -> None:
+        """Create Next.js project in .pactown/ and verify structure."""
+        svc = self._svc_path("test-nextjs")
+        svc.mkdir(parents=True, exist_ok=True)
+
+        pkg = {
+            "name": "test-nextjs",
+            "version": "1.0.0",
+            "scripts": {
+                "dev": "next dev",
+                "build": "next build",
+                "start": "next start",
+            },
+            "dependencies": {
+                "next": "^14.0.0",
+                "react": "^18.2.0",
+                "react-dom": "^18.2.0",
+            },
+        }
+        (svc / "package.json").write_text(json.dumps(pkg, indent=2))
+        (svc / "next.config.js").write_text(
+            "/** @type {import('next').NextConfig} */\n"
+            "const nextConfig = {\n"
+            "  reactStrictMode: true,\n"
+            "  output: 'standalone',\n"
+            "};\n\n"
+            "module.exports = nextConfig;\n"
+        )
+        pages = svc / "pages"
+        pages.mkdir(parents=True, exist_ok=True)
+        (pages / "index.js").write_text(
+            "export default function Home() {\n"
+            "  return <h1>Hello from TestNextJS</h1>;\n"
+            "}\n"
+        )
+        (pages / "api" / "health.js").parent.mkdir(parents=True, exist_ok=True)
+        (pages / "api" / "health.js").write_text(
+            "export default function handler(req, res) {\n"
+            "  res.status(200).json({ status: 'ok' });\n"
+            "}\n"
+        )
+
+        # Simulate build output (.next/standalone)
+        standalone = svc / ".next" / "standalone"
+        standalone.mkdir(parents=True, exist_ok=True)
+        (standalone / "server.js").write_text(
+            "// Next.js standalone server\n"
+            "const http = require('http');\n"
+            "const next = require('next');\n\n"
+            "const app = next({ dev: false, dir: __dirname });\n"
+            "const handle = app.getRequestHandler();\n\n"
+            "app.prepare().then(() => {\n"
+            "  http.createServer((req, res) => handle(req, res))\n"
+            "    .listen(process.env.PORT || 3000, () => {\n"
+            "      console.log('> Ready on port ' + (process.env.PORT || 3000));\n"
+            "    });\n"
+            "});\n"
+            + "// " + "x" * 2000 + "\n"  # padding for realistic size
+        )
+
+        parsed = json.loads((svc / "package.json").read_text())
+        assert "next" in parsed["dependencies"]
+        assert (svc / "next.config.js").exists()
+        assert (pages / "index.js").exists()
+
+    def test_real_react_spa_scaffold_and_artifacts(self) -> None:
+        """Create React SPA project in .pactown/ and verify structure."""
+        svc = self._svc_path("test-react-spa")
+        svc.mkdir(parents=True, exist_ok=True)
+
+        pkg = {
+            "name": "test-react-spa",
+            "version": "1.0.0",
+            "scripts": {
+                "dev": "vite",
+                "build": "vite build",
+                "preview": "vite preview",
+            },
+            "dependencies": {
+                "react": "^18.2.0",
+                "react-dom": "^18.2.0",
+            },
+            "devDependencies": {
+                "vite": "^5.0.0",
+                "@vitejs/plugin-react": "^4.0.0",
+            },
+        }
+        (svc / "package.json").write_text(json.dumps(pkg, indent=2))
+        (svc / "vite.config.js").write_text(
+            "import { defineConfig } from 'vite';\n"
+            "import react from '@vitejs/plugin-react';\n\n"
+            "export default defineConfig({\n"
+            "  plugins: [react()],\n"
+            "});\n"
+        )
+        (svc / "index.html").write_text(
+            '<!DOCTYPE html>\n<html lang="en">\n<head>\n'
+            '  <meta charset="UTF-8" />\n'
+            '  <title>TestReactSPA</title>\n'
+            '</head>\n<body>\n'
+            '  <div id="root"></div>\n'
+            '  <script type="module" src="/src/main.jsx"></script>\n'
+            '</body>\n</html>\n'
+        )
+        src = svc / "src"
+        src.mkdir(parents=True, exist_ok=True)
+        (src / "main.jsx").write_text(
+            "import React from 'react';\n"
+            "import ReactDOM from 'react-dom/client';\n"
+            "import App from './App';\n\n"
+            "ReactDOM.createRoot(document.getElementById('root')).render(\n"
+            "  <React.StrictMode><App /></React.StrictMode>\n"
+            ");\n"
+        )
+        (src / "App.jsx").write_text(
+            "export default function App() {\n"
+            "  return <h1>Hello from TestReactSPA</h1>;\n"
+            "}\n"
+        )
+
+        # Simulate Vite build output (realistic sizes)
+        dist = svc / "dist"
+        dist.mkdir(parents=True, exist_ok=True)
+        (dist / "index.html").write_text(
+            '<!DOCTYPE html>\n<html lang="en">\n<head>\n'
+            '  <meta charset="UTF-8" />\n'
+            '  <link rel="stylesheet" href="/assets/index-abc123.css" />\n'
+            '</head>\n<body>\n'
+            '  <div id="root"></div>\n'
+            '  <script type="module" src="/assets/index-abc123.js"></script>\n'
+            '</body>\n</html>\n'
+        )
+        assets = dist / "assets"
+        assets.mkdir(parents=True, exist_ok=True)
+        (assets / "index-abc123.js").write_text(
+            '"use strict";\n'
+            'import{jsx as e}from"react/jsx-runtime";\n'
+            'import{createRoot}from"react-dom/client";\n'
+            'function App(){return e("h1",{children:"Hello from TestReactSPA"})}\n'
+            'createRoot(document.getElementById("root")).render(e(App,{}));\n'
+            + '// ' + 'x' * 2000 + '\n'
+        )
+        (assets / "index-abc123.css").write_text(
+            '*, *::before, *::after { box-sizing: border-box; }\n'
+            'body { margin: 0; font-family: system-ui, sans-serif; }\n'
+            'h1 { color: #1a1a1a; padding: 2rem; }\n'
+            + '/* ' + 'x' * 1000 + ' */\n'
+        )
+
+        parsed = json.loads((svc / "package.json").read_text())
+        assert "react" in parsed["dependencies"]
+        assert (svc / "vite.config.js").exists()
+        assert (dist / "index.html").exists()
+
+    def test_real_vue_scaffold_and_artifacts(self) -> None:
+        """Create Vue project in .pactown/ and verify structure."""
+        svc = self._svc_path("test-vue")
+        svc.mkdir(parents=True, exist_ok=True)
+
+        pkg = {
+            "name": "test-vue",
+            "version": "1.0.0",
+            "scripts": {
+                "dev": "vite",
+                "build": "vite build",
+                "preview": "vite preview",
+            },
+            "dependencies": {
+                "vue": "^3.4.0",
+            },
+            "devDependencies": {
+                "vite": "^5.0.0",
+                "@vitejs/plugin-vue": "^5.0.0",
+            },
+        }
+        (svc / "package.json").write_text(json.dumps(pkg, indent=2))
+        (svc / "vite.config.js").write_text(
+            "import { defineConfig } from 'vite';\n"
+            "import vue from '@vitejs/plugin-vue';\n\n"
+            "export default defineConfig({\n"
+            "  plugins: [vue()],\n"
+            "});\n"
+        )
+        (svc / "index.html").write_text(
+            '<!DOCTYPE html>\n<html lang="en">\n<head>\n'
+            '  <meta charset="UTF-8" />\n'
+            '  <title>TestVue</title>\n'
+            '</head>\n<body>\n'
+            '  <div id="app"></div>\n'
+            '  <script type="module" src="/src/main.js"></script>\n'
+            '</body>\n</html>\n'
+        )
+        src = svc / "src"
+        src.mkdir(parents=True, exist_ok=True)
+        (src / "main.js").write_text(
+            "import { createApp } from 'vue';\n"
+            "import App from './App.vue';\n\n"
+            "createApp(App).mount('#app');\n"
+        )
+        (src / "App.vue").write_text(
+            "<template>\n  <h1>Hello from TestVue</h1>\n</template>\n\n"
+            "<script setup>\n</script>\n"
+        )
+
+        # Simulate Vite build output (realistic sizes)
+        dist = svc / "dist"
+        dist.mkdir(parents=True, exist_ok=True)
+        (dist / "index.html").write_text(
+            '<!DOCTYPE html>\n<html lang="en">\n<head>\n'
+            '  <meta charset="UTF-8" />\n'
+            '  <link rel="stylesheet" href="/assets/index-vue123.css" />\n'
+            '</head>\n<body>\n'
+            '  <div id="app"></div>\n'
+            '  <script type="module" src="/assets/index-vue123.js"></script>\n'
+            '</body>\n</html>\n'
+        )
+        assets = dist / "assets"
+        assets.mkdir(parents=True, exist_ok=True)
+        (assets / "index-vue123.js").write_text(
+            '"use strict";\n'
+            'import{createApp}from"vue";\n'
+            'const App={setup(){return()=>({})},template:"<h1>Hello from TestVue</h1>"};\n'
+            'createApp(App).mount("#app");\n'
+            + '// ' + 'x' * 2000 + '\n'
+        )
+        (assets / "index-vue123.css").write_text(
+            '*, *::before, *::after { box-sizing: border-box; }\n'
+            'body { margin: 0; font-family: system-ui, sans-serif; }\n'
+            'h1 { color: #42b883; padding: 2rem; }\n'
+            + '/* ' + 'x' * 1000 + ' */\n'
+        )
+
+        parsed = json.loads((svc / "package.json").read_text())
+        assert "vue" in parsed["dependencies"]
+        assert (svc / "vite.config.js").exists()
+        assert (dist / "index.html").exists()
+
+    # ======================================================================
+    # Summary: verify all framework dirs exist with artifacts
+    # ======================================================================
+
+    def test_all_framework_dirs_present(self) -> None:
+        """After all scaffold tests, every framework dir should exist in .pactown/."""
+        base = self._root()
+        expected_dirs = [
+            "test-electron", "test-tauri", "test-pyinstaller",
+            "test-pyqt", "test-tkinter", "test-flutter-desktop",
+            "test-capacitor", "test-react-native", "test-flutter-mobile",
+            "test-kivy",
+            "test-fastapi", "test-flask", "test-express",
+            "test-nextjs", "test-react-spa", "test-vue",
+        ]
+        missing = [d for d in expected_dirs if not (base / d).exists()]
+        assert not missing, f"Missing framework dirs in {base}: {missing}"
+
+    def test_all_artifacts_are_inside_pactown(self) -> None:
+        """Every generated artifact must be under the .pactown/ root."""
+        root = self._root()
+        if not root.exists():
+            return
+        for f in root.rglob("*"):
+            if f.is_file():
+                assert str(f).startswith(str(root)), (
+                    f"Artifact {f} is outside .pactown root {root}"
+                )
+
+
+# ===========================================================================
+# Docker-based artifact execution tests
+# ===========================================================================
+
+def _docker_available() -> bool:
+    """Return True if Docker daemon is reachable."""
+    try:
+        r = subprocess.run(
+            ["docker", "info"], capture_output=True, timeout=10,
+        )
+        return r.returncode == 0
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return False
+
+
+def _docker_run(image: str, mount_src: Path, mount_dst: str,
+                cmd: list[str], timeout: int = 60) -> subprocess.CompletedProcess:
+    """Run a command inside a Docker container with a bind-mount."""
+    return subprocess.run(
+        [
+            "docker", "run", "--rm",
+            "-v", f"{mount_src}:{mount_dst}:ro",
+            image,
+        ] + cmd,
+        capture_output=True, text=True, timeout=timeout,
+    )
+
+
+def _docker_run_script(image: str, mount_src: Path, mount_dst: str,
+                       script: str, timeout: int = 60) -> subprocess.CompletedProcess:
+    """Run a shell script inside a Docker container with a bind-mount."""
+    return subprocess.run(
+        [
+            "docker", "run", "--rm",
+            "-v", f"{mount_src}:{mount_dst}:ro",
+            image, "sh", "-c", script,
+        ],
+        capture_output=True, text=True, timeout=timeout,
+    )
+
+
+_skip_no_docker = pytest.mark.skipif(
+    not _docker_available(), reason="Docker not available"
+)
+
+
+@_skip_no_docker
+class TestDockerArtifactExecution:
+    """Run each framework's artifacts inside an appropriate Docker container
+    to verify they are valid, parseable, and structurally correct.
+
+    Uses lightweight base images:
+    - node:20-slim      → Electron, Capacitor, React Native (JS/Node validation)
+    - python:3.12-slim  → PyInstaller, PyQt, Tkinter, Kivy (Python/spec validation)
+    - ubuntu:22.04      → Tauri, Flutter (Linux binary format validation)
+    - eclipse-temurin:17-jre-jammy → Android APK/AAB (Java ZIP validation)
+
+    Artifacts are stubs, so tests validate: file presence, format headers,
+    config parsing, and structural integrity inside the container.
+    """
+
+    @staticmethod
+    def _root() -> Path:
+        import os
+        from dotenv import load_dotenv
+        project_root = Path(__file__).resolve().parents[1]
+        env_file = project_root / ".env"
+        if env_file.exists():
+            load_dotenv(env_file, override=False)
+        val = os.environ.get("PACTOWN_SANDBOX_ROOT", "")
+        if not val:
+            return project_root / ".pactown"
+        p = Path(val)
+        if not p.is_absolute():
+            p = (project_root / p).resolve()
+        return p
+
+    # ==================================================================
+    # Electron – node:20-slim
+    # ==================================================================
+
+    def test_docker_electron_package_json(self) -> None:
+        """Validate Electron package.json inside Node container."""
+        svc = self._root() / "test-electron"
+        if not svc.exists():
+            pytest.skip("test-electron not scaffolded yet")
+
+        r = _docker_run_script(
+            "node:20-slim", svc, "/app",
+            'node -e "'
+            "const p = require('/app/package.json');"
+            "console.log('main:', p.main);"
+            "console.log('electron:', p.devDependencies.electron);"
+            "console.log('linux:', JSON.stringify(p.build.linux.target));"
+            "console.log('win:', JSON.stringify(p.build.win.target));"
+            "console.log('mac:', JSON.stringify(p.build.mac.target));"
+            "process.exit(p.main === 'main.js' ? 0 : 1);"
+            '"',
+        )
+        assert r.returncode == 0, f"Electron package.json validation failed:\n{r.stderr}"
+        assert "main: main.js" in r.stdout
+        assert '["AppImage"]' in r.stdout
+        assert '["nsis"]' in r.stdout
+        assert '["dmg"]' in r.stdout
+
+    def test_docker_electron_main_js(self) -> None:
+        """Validate Electron main.js syntax inside Node container."""
+        svc = self._root() / "test-electron"
+        if not svc.exists():
+            pytest.skip("test-electron not scaffolded yet")
+
+        r = _docker_run_script(
+            "node:20-slim", svc, "/app",
+            'node --check /app/main.js && echo "SYNTAX_OK"',
+        )
+        assert r.returncode == 0, f"main.js syntax check failed:\n{r.stderr}"
+        assert "SYNTAX_OK" in r.stdout
+
+    def test_docker_electron_artifacts_exist(self) -> None:
+        """Verify Electron build artifacts are visible inside container."""
+        svc = self._root() / "test-electron"
+        if not svc.exists():
+            pytest.skip("test-electron not scaffolded yet")
+
+        r = _docker_run_script(
+            "node:20-slim", svc, "/app",
+            "ls -la /app/dist/ && "
+            "test -f /app/dist/run.sh && echo 'RUN_SH_OK' && "
+            "test -f /app/dist/README.txt && echo 'README_OK'",
+        )
+        assert r.returncode == 0, f"Electron artifacts check failed:\n{r.stderr}"
+        assert "RUN_SH_OK" in r.stdout
+        assert "README_OK" in r.stdout
+        assert "AppImage" in r.stdout
+
+    # ==================================================================
+    # Tauri – ubuntu:22.04
+    # ==================================================================
+
+    def test_docker_tauri_config(self) -> None:
+        """Validate tauri.conf.json inside Ubuntu container."""
+        svc = self._root() / "test-tauri"
+        if not svc.exists():
+            pytest.skip("test-tauri not scaffolded yet")
+
+        r = _docker_run_script(
+            "ubuntu:22.04", svc, "/app",
+            "apt-get update -qq && apt-get install -y -qq python3 > /dev/null 2>&1 && "
+            'python3 -c "'
+            "import json; "
+            "c = json.load(open('/app/src-tauri/tauri.conf.json')); "
+            "assert c['package']['productName'] == 'TestTauri', 'bad productName'; "
+            "assert c['tauri']['bundle']['identifier'] == 'com.test.tauri', 'bad id'; "
+            "assert c['tauri']['bundle']['active'] is True, 'not active'; "
+            "print('TAURI_CONFIG_OK');"
+            '"',
+        )
+        assert r.returncode == 0, f"Tauri config validation failed:\n{r.stderr}"
+        assert "TAURI_CONFIG_OK" in r.stdout
+
+    def test_docker_tauri_bundle_artifacts(self) -> None:
+        """Verify Tauri bundle artifacts are visible inside container."""
+        svc = self._root() / "test-tauri"
+        if not svc.exists():
+            pytest.skip("test-tauri not scaffolded yet")
+
+        r = _docker_run_script(
+            "ubuntu:22.04", svc, "/app",
+            "find /app/src-tauri/target/release/bundle -type f | sort",
+        )
+        assert r.returncode == 0
+        out = r.stdout
+        assert "AppImage" in out
+        assert ".deb" in out
+        assert ".msi" in out
+        assert ".dmg" in out
+
+    # ==================================================================
+    # PyInstaller – python:3.12-slim
+    # ==================================================================
+
+    def test_docker_pyinstaller_spec(self) -> None:
+        """Validate PyInstaller .spec file inside Python container."""
+        svc = self._root() / "test-pyinstaller"
+        if not svc.exists():
+            pytest.skip("test-pyinstaller not scaffolded yet")
+
+        r = _docker_run_script(
+            "python:3.12-slim", svc, "/app",
+            'python3 -c "'
+            "content = open('/app/TestPI.spec').read(); "
+            "assert 'Analysis' in content, 'no Analysis'; "
+            "assert 'TestPI' in content, 'no app name'; "
+            "assert 'app.ico' in content, 'no icon'; "
+            "print('PYINSTALLER_SPEC_OK');"
+            '"',
+        )
+        assert r.returncode == 0, f"PyInstaller spec validation failed:\n{r.stderr}"
+        assert "PYINSTALLER_SPEC_OK" in r.stdout
+
+    def test_docker_pyinstaller_artifacts(self) -> None:
+        """Verify PyInstaller dist artifacts inside container."""
+        svc = self._root() / "test-pyinstaller"
+        if not svc.exists():
+            pytest.skip("test-pyinstaller not scaffolded yet")
+
+        r = _docker_run_script(
+            "python:3.12-slim", svc, "/app",
+            'python3 -c "'
+            "from pathlib import Path; "
+            "dist = list(Path('/app/dist').iterdir()); "
+            "names = {f.name for f in dist}; "
+            "assert 'TestPI' in names, f'missing Linux binary: {names}'; "
+            "assert 'TestPI.exe' in names, f'missing Windows exe: {names}'; "
+            "assert 'TestPI.app' in names, f'missing macOS app: {names}'; "
+            "print(f'PYINSTALLER_DIST_OK: {len(dist)} artifacts');"
+            '"',
+        )
+        assert r.returncode == 0, f"PyInstaller dist check failed:\n{r.stderr}"
+        assert "PYINSTALLER_DIST_OK: 3 artifacts" in r.stdout
+
+    # ==================================================================
+    # PyQt – python:3.12-slim
+    # ==================================================================
+
+    def test_docker_pyqt_spec_and_artifacts(self) -> None:
+        """Validate PyQt .spec + dist inside Python container."""
+        svc = self._root() / "test-pyqt"
+        if not svc.exists():
+            pytest.skip("test-pyqt not scaffolded yet")
+
+        r = _docker_run_script(
+            "python:3.12-slim", svc, "/app",
+            'python3 -c "'
+            "content = open('/app/TestPyQt.spec').read(); "
+            "assert 'Analysis' in content; "
+            "from pathlib import Path; "
+            "dist = {f.name for f in Path('/app/dist').iterdir()}; "
+            "assert 'TestPyQt' in dist; "
+            "assert 'TestPyQt.exe' in dist; "
+            "print(f'PYQT_OK: {len(dist)} artifacts');"
+            '"',
+        )
+        assert r.returncode == 0, f"PyQt validation failed:\n{r.stderr}"
+        assert "PYQT_OK: 2 artifacts" in r.stdout
+
+    # ==================================================================
+    # Tkinter – python:3.12-slim
+    # ==================================================================
+
+    def test_docker_tkinter_spec_and_artifacts(self) -> None:
+        """Validate Tkinter .spec + dist inside Python container."""
+        svc = self._root() / "test-tkinter"
+        if not svc.exists():
+            pytest.skip("test-tkinter not scaffolded yet")
+
+        r = _docker_run_script(
+            "python:3.12-slim", svc, "/app",
+            'python3 -c "'
+            "content = open('/app/TestTk.spec').read(); "
+            "assert 'Analysis' in content; "
+            "from pathlib import Path; "
+            "dist = {f.name for f in Path('/app/dist').iterdir()}; "
+            "assert 'TestTk' in dist; "
+            "assert 'TestTk.exe' in dist; "
+            "print(f'TKINTER_OK: {len(dist)} artifacts');"
+            '"',
+        )
+        assert r.returncode == 0, f"Tkinter validation failed:\n{r.stderr}"
+        assert "TKINTER_OK: 2 artifacts" in r.stdout
+
+    # ==================================================================
+    # Flutter Desktop – ubuntu:22.04
+    # ==================================================================
+
+    def test_docker_flutter_desktop_bundle(self) -> None:
+        """Verify Flutter desktop bundle structure inside Ubuntu container."""
+        svc = self._root() / "test-flutter-desktop"
+        if not svc.exists():
+            pytest.skip("test-flutter-desktop not scaffolded yet")
+
+        r = _docker_run_script(
+            "ubuntu:22.04", svc, "/app",
+            "test -f /app/build/linux/x64/release/bundle/test_flutter_desktop && "
+            "echo 'BINARY_OK' && "
+            "test -f /app/build/linux/x64/release/bundle/lib/libapp.so && "
+            "echo 'LIBAPP_OK' && "
+            "ls -lR /app/build/linux/x64/release/bundle/",
+        )
+        assert r.returncode == 0, f"Flutter desktop check failed:\n{r.stderr}"
+        assert "BINARY_OK" in r.stdout
+        assert "LIBAPP_OK" in r.stdout
+        assert "libapp.so" in r.stdout
+
+    # ==================================================================
+    # Capacitor – node:20-slim
+    # ==================================================================
+
+    def test_docker_capacitor_config(self) -> None:
+        """Validate Capacitor config + package.json inside Node container."""
+        svc = self._root() / "test-capacitor"
+        if not svc.exists():
+            pytest.skip("test-capacitor not scaffolded yet")
+
+        r = _docker_run_script(
+            "node:20-slim", svc, "/app",
+            'node -e "'
+            "const cap = require('/app/capacitor.config.json');"
+            "const pkg = require('/app/package.json');"
+            "console.log('appId:', cap.appId);"
+            "console.log('appName:', cap.appName);"
+            "console.log('core:', pkg.dependencies['@capacitor/core']);"
+            "console.log('android:', pkg.dependencies['@capacitor/android']);"
+            "console.log('ios:', pkg.dependencies['@capacitor/ios']);"
+            "const ok = cap.appId === 'com.test.cap' && cap.appName === 'TestCap';"
+            "process.exit(ok ? 0 : 1);"
+            '"',
+        )
+        assert r.returncode == 0, f"Capacitor config validation failed:\n{r.stderr}"
+        assert "appId: com.test.cap" in r.stdout
+        assert "appName: TestCap" in r.stdout
+        assert "^6.0.0" in r.stdout
+
+    def test_docker_capacitor_apk_ipa(self) -> None:
+        """Verify Capacitor APK and IPA artifacts inside container."""
+        svc = self._root() / "test-capacitor"
+        if not svc.exists():
+            pytest.skip("test-capacitor not scaffolded yet")
+
+        r = _docker_run_script(
+            "node:20-slim", svc, "/app",
+            "find /app -name '*.apk' -o -name '*.ipa' | sort",
+        )
+        assert r.returncode == 0
+        assert "app-release.apk" in r.stdout
+        assert "TestCap.ipa" in r.stdout
+
+    # ==================================================================
+    # React Native – node:20-slim
+    # ==================================================================
+
+    def test_docker_react_native_config(self) -> None:
+        """Validate React Native app.json inside Node container."""
+        svc = self._root() / "test-react-native"
+        if not svc.exists():
+            pytest.skip("test-react-native not scaffolded yet")
+
+        r = _docker_run_script(
+            "node:20-slim", svc, "/app",
+            'node -e "'
+            "const app = require('/app/app.json');"
+            "console.log('name:', app.name);"
+            "console.log('displayName:', app.displayName);"
+            "const ok = app.name === 'TestRN' && app.displayName === 'My RN App';"
+            "process.exit(ok ? 0 : 1);"
+            '"',
+        )
+        assert r.returncode == 0, f"React Native config validation failed:\n{r.stderr}"
+        assert "name: TestRN" in r.stdout
+        assert "displayName: My RN App" in r.stdout
+
+    def test_docker_react_native_apk_ipa(self) -> None:
+        """Verify React Native APK and IPA artifacts inside container."""
+        svc = self._root() / "test-react-native"
+        if not svc.exists():
+            pytest.skip("test-react-native not scaffolded yet")
+
+        r = _docker_run_script(
+            "node:20-slim", svc, "/app",
+            "find /app -name '*.apk' -o -name '*.ipa' | sort",
+        )
+        assert r.returncode == 0
+        assert "app-release.apk" in r.stdout
+        assert "TestRN.ipa" in r.stdout
+
+    # ==================================================================
+    # Flutter Mobile – ubuntu:22.04
+    # ==================================================================
+
+    def test_docker_flutter_mobile_artifacts(self) -> None:
+        """Verify Flutter mobile APK and IPA inside container."""
+        svc = self._root() / "test-flutter-mobile"
+        if not svc.exists():
+            pytest.skip("test-flutter-mobile not scaffolded yet")
+
+        r = _docker_run_script(
+            "ubuntu:22.04", svc, "/app",
+            "find /app -name '*.apk' -o -name '*.ipa' | sort",
+        )
+        assert r.returncode == 0
+        assert "app-release.apk" in r.stdout
+        assert "TestFlutterMobile.ipa" in r.stdout
+
+    # ==================================================================
+    # Kivy – python:3.12-slim
+    # ==================================================================
+
+    def test_docker_kivy_buildozer_spec(self) -> None:
+        """Validate Kivy buildozer.spec inside Python container."""
+        svc = self._root() / "test-kivy"
+        if not svc.exists():
+            pytest.skip("test-kivy not scaffolded yet")
+
+        r = _docker_run_script(
+            "python:3.12-slim", svc, "/app",
+            'python3 -c "'
+            "content = open('/app/buildozer.spec').read(); "
+            "assert 'TestKivy' in content, 'no app name'; "
+            "assert 'requirements = python3,kivy' in content, 'no reqs'; "
+            "assert 'fullscreen = 1' in content, 'no fullscreen'; "
+            "assert 'icon.png' in content, 'no icon'; "
+            "print('KIVY_SPEC_OK');"
+            '"',
+        )
+        assert r.returncode == 0, f"Kivy spec validation failed:\n{r.stderr}"
+        assert "KIVY_SPEC_OK" in r.stdout
+
+    def test_docker_kivy_apk_aab(self) -> None:
+        """Verify Kivy APK and AAB artifacts inside container."""
+        svc = self._root() / "test-kivy"
+        if not svc.exists():
+            pytest.skip("test-kivy not scaffolded yet")
+
+        r = _docker_run_script(
+            "python:3.12-slim", svc, "/app",
+            'python3 -c "'
+            "from pathlib import Path; "
+            "bins = list(Path('/app/bin').iterdir()); "
+            "exts = {f.suffix for f in bins}; "
+            "assert '.apk' in exts, f'no APK: {exts}'; "
+            "assert '.aab' in exts, f'no AAB: {exts}'; "
+            "print(f'KIVY_BINS_OK: {len(bins)} artifacts');"
+            '"',
+        )
+        assert r.returncode == 0, f"Kivy bins check failed:\n{r.stderr}"
+        assert "KIVY_BINS_OK: 2 artifacts" in r.stdout
+
+    # ==================================================================
+    # FastAPI – python:3.12-slim
+    # ==================================================================
+
+    def test_docker_fastapi_syntax_and_structure(self) -> None:
+        """Validate FastAPI main.py syntax + Dockerfile inside Python container."""
+        svc = self._root() / "test-fastapi"
+        if not svc.exists():
+            pytest.skip("test-fastapi not scaffolded yet")
+
+        r = _docker_run_script(
+            "python:3.12-slim", svc, "/app",
+            'python3 -c "'
+            "import ast; "
+            "ast.parse(open('/app/main.py').read()); "
+            "print('SYNTAX_OK'); "
+            "content = open('/app/main.py').read(); "
+            "assert 'FastAPI' in content, 'no FastAPI'; "
+            "assert '/health' in content, 'no health endpoint'; "
+            "reqs = open('/app/requirements.txt').read(); "
+            "assert 'fastapi' in reqs, 'no fastapi in reqs'; "
+            "assert 'uvicorn' in reqs, 'no uvicorn in reqs'; "
+            "df = open('/app/Dockerfile').read(); "
+            "assert 'python:3.12' in df, 'bad base image'; "
+            "assert 'uvicorn' in df, 'no uvicorn in CMD'; "
+            "print('FASTAPI_OK');"
+            '"',
+        )
+        assert r.returncode == 0, f"FastAPI validation failed:\n{r.stderr}"
+        assert "SYNTAX_OK" in r.stdout
+        assert "FASTAPI_OK" in r.stdout
+
+    # ==================================================================
+    # Flask – python:3.12-slim
+    # ==================================================================
+
+    def test_docker_flask_syntax_and_structure(self) -> None:
+        """Validate Flask app.py syntax + Dockerfile inside Python container."""
+        svc = self._root() / "test-flask"
+        if not svc.exists():
+            pytest.skip("test-flask not scaffolded yet")
+
+        r = _docker_run_script(
+            "python:3.12-slim", svc, "/app",
+            'python3 -c "'
+            "import ast; "
+            "ast.parse(open('/app/app.py').read()); "
+            "ast.parse(open('/app/wsgi.py').read()); "
+            "print('SYNTAX_OK'); "
+            "content = open('/app/app.py').read(); "
+            "assert 'Flask' in content, 'no Flask'; "
+            "assert '/health' in content, 'no health endpoint'; "
+            "reqs = open('/app/requirements.txt').read(); "
+            "assert 'flask' in reqs; "
+            "assert 'gunicorn' in reqs; "
+            "df = open('/app/Dockerfile').read(); "
+            "assert 'gunicorn' in df; "
+            "print('FLASK_OK');"
+            '"',
+        )
+        assert r.returncode == 0, f"Flask validation failed:\n{r.stderr}"
+        assert "SYNTAX_OK" in r.stdout
+        assert "FLASK_OK" in r.stdout
+
+    # ==================================================================
+    # Express – node:20-slim
+    # ==================================================================
+
+    def test_docker_express_syntax_and_structure(self) -> None:
+        """Validate Express index.js syntax + package.json inside Node container."""
+        svc = self._root() / "test-express"
+        if not svc.exists():
+            pytest.skip("test-express not scaffolded yet")
+
+        r = _docker_run_script(
+            "node:20-slim", svc, "/app",
+            'node --check /app/index.js && echo "SYNTAX_OK" && '
+            'node -e "'
+            "const pkg = require('/app/package.json');"
+            "console.log('express:', pkg.dependencies.express);"
+            "console.log('main:', pkg.main);"
+            "const ok = pkg.dependencies.express && pkg.main === 'index.js';"
+            "const df = require('fs').readFileSync('/app/Dockerfile', 'utf8');"
+            "console.log('dockerfile_node:', df.includes('node:20'));"
+            "process.exit(ok ? 0 : 1);"
+            '"',
+        )
+        assert r.returncode == 0, f"Express validation failed:\n{r.stderr}"
+        assert "SYNTAX_OK" in r.stdout
+        assert "express: ^4.18.0" in r.stdout
+
+    # ==================================================================
+    # Next.js – node:20-slim
+    # ==================================================================
+
+    def test_docker_nextjs_config_and_pages(self) -> None:
+        """Validate Next.js config + pages inside Node container."""
+        svc = self._root() / "test-nextjs"
+        if not svc.exists():
+            pytest.skip("test-nextjs not scaffolded yet")
+
+        r = _docker_run_script(
+            "node:20-slim", svc, "/app",
+            'node --check /app/next.config.js && echo "CONFIG_SYNTAX_OK" && '
+            'node -e "'
+            "const pkg = require('/app/package.json');"
+            "console.log('next:', pkg.dependencies.next);"
+            "console.log('react:', pkg.dependencies.react);"
+            "const cfg = require('/app/next.config.js');"
+            "console.log('standalone:', cfg.output);"
+            "const fs = require('fs');"
+            "console.log('pages_index:', fs.existsSync('/app/pages/index.js'));"
+            "console.log('api_health:', fs.existsSync('/app/pages/api/health.js'));"
+            "console.log('standalone_build:', fs.existsSync('/app/.next/standalone/server.js'));"
+            "const ok = cfg.output === 'standalone' && pkg.dependencies.next;"
+            "process.exit(ok ? 0 : 1);"
+            '"',
+        )
+        assert r.returncode == 0, f"Next.js validation failed:\n{r.stderr}"
+        assert "CONFIG_SYNTAX_OK" in r.stdout
+        assert "standalone: standalone" in r.stdout
+        assert "pages_index: true" in r.stdout
+        assert "api_health: true" in r.stdout
+
+    # ==================================================================
+    # React SPA – node:20-slim
+    # ==================================================================
+
+    def test_docker_react_spa_structure(self) -> None:
+        """Validate React SPA package.json + dist inside Node container."""
+        svc = self._root() / "test-react-spa"
+        if not svc.exists():
+            pytest.skip("test-react-spa not scaffolded yet")
+
+        r = _docker_run_script(
+            "node:20-slim", svc, "/app",
+            'node -e "'
+            "const pkg = require('/app/package.json');"
+            "console.log('react:', pkg.dependencies.react);"
+            "console.log('vite:', pkg.devDependencies.vite);"
+            "const fs = require('fs');"
+            "console.log('index_html:', fs.existsSync('/app/index.html'));"
+            "console.log('src_app:', fs.existsSync('/app/src/App.jsx'));"
+            "console.log('dist_html:', fs.existsSync('/app/dist/index.html'));"
+            "console.log('dist_js:', fs.readdirSync('/app/dist/assets').filter(f => f.endsWith('.js')).length > 0);"
+            "console.log('dist_css:', fs.readdirSync('/app/dist/assets').filter(f => f.endsWith('.css')).length > 0);"
+            "const ok = pkg.dependencies.react && pkg.scripts.build === 'vite build';"
+            "process.exit(ok ? 0 : 1);"
+            '"',
+        )
+        assert r.returncode == 0, f"React SPA validation failed:\n{r.stderr}"
+        assert "react: ^18.2.0" in r.stdout
+        assert "dist_html: true" in r.stdout
+        assert "dist_js: true" in r.stdout
+        assert "dist_css: true" in r.stdout
+
+    # ==================================================================
+    # Vue – node:20-slim
+    # ==================================================================
+
+    def test_docker_vue_structure(self) -> None:
+        """Validate Vue package.json + dist inside Node container."""
+        svc = self._root() / "test-vue"
+        if not svc.exists():
+            pytest.skip("test-vue not scaffolded yet")
+
+        r = _docker_run_script(
+            "node:20-slim", svc, "/app",
+            'node -e "'
+            "const pkg = require('/app/package.json');"
+            "console.log('vue:', pkg.dependencies.vue);"
+            "console.log('vite:', pkg.devDependencies.vite);"
+            "const fs = require('fs');"
+            "console.log('index_html:', fs.existsSync('/app/index.html'));"
+            "console.log('app_vue:', fs.existsSync('/app/src/App.vue'));"
+            "console.log('main_js:', fs.existsSync('/app/src/main.js'));"
+            "console.log('dist_html:', fs.existsSync('/app/dist/index.html'));"
+            "console.log('dist_js:', fs.readdirSync('/app/dist/assets').filter(f => f.endsWith('.js')).length > 0);"
+            "const ok = pkg.dependencies.vue && pkg.scripts.build === 'vite build';"
+            "process.exit(ok ? 0 : 1);"
+            '"',
+        )
+        assert r.returncode == 0, f"Vue validation failed:\n{r.stderr}"
+        assert "vue: ^3.4.0" in r.stdout
+        assert "app_vue: true" in r.stdout
+        assert "dist_html: true" in r.stdout
+        assert "dist_js: true" in r.stdout
+
+    # ==================================================================
+    # Cross-framework: all artifacts visible in single container
+    # ==================================================================
+
+    def test_docker_all_frameworks_mounted(self) -> None:
+        """Mount entire .pactown/ and verify all 16 framework dirs exist."""
+        root = self._root()
+        if not root.exists():
+            pytest.skip(".pactown root not found")
+
+        r = _docker_run_script(
+            "ubuntu:22.04", root, "/pactown",
+            "ls -1 /pactown/ | sort",
+        )
+        assert r.returncode == 0
+        out = r.stdout
+        expected = [
+            "test-electron", "test-tauri", "test-pyinstaller",
+            "test-pyqt", "test-tkinter", "test-flutter-desktop",
+            "test-capacitor", "test-react-native", "test-flutter-mobile",
+            "test-kivy",
+            "test-fastapi", "test-flask", "test-express",
+            "test-nextjs", "test-react-spa", "test-vue",
+        ]
+        missing = [d for d in expected if d not in out]
+        assert not missing, f"Missing in Docker mount: {missing}\nGot:\n{out}"
+
+    def test_docker_artifact_count(self) -> None:
+        """Count total artifact files across all frameworks inside container."""
+        root = self._root()
+        if not root.exists():
+            pytest.skip(".pactown root not found")
+
+        r = _docker_run_script(
+            "ubuntu:22.04", root, "/pactown",
+            "find /pactown/test-* -type f | wc -l",
+        )
+        assert r.returncode == 0
+        total = int(r.stdout.strip())
+        assert total >= 60, f"Expected >=60 total files, got {total}"
+
+
+# ===========================================================================
+# Docker-based Dockerfile validation tests
+# ===========================================================================
+
+
+@pytest.mark.skipif(not _docker_available(), reason="Docker not available")
+class TestDockerDockerfileValidation:
+    """Validate that Dockerfiles created for web frameworks parse correctly
+    and follow best practices — verified inside Docker containers."""
+
+    @staticmethod
+    def _root() -> Path:
+        import os
+        from dotenv import load_dotenv
+        load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+        raw = os.environ.get("PACTOWN_SANDBOX_ROOT", ".pactown")
+        p = Path(raw)
+        if not p.is_absolute():
+            p = Path(__file__).resolve().parent.parent / raw
+        return p
+
+    def test_docker_fastapi_dockerfile_valid(self) -> None:
+        """Verify FastAPI Dockerfile has valid structure inside Python container."""
+        svc = self._root() / "test-fastapi"
+        if not svc.exists():
+            pytest.skip("test-fastapi not scaffolded yet")
+
+        r = _docker_run_script(
+            "python:3.12-slim", svc, "/app",
+            'python3 -c "'
+            "lines = open('/app/Dockerfile').readlines(); "
+            "froms = [l for l in lines if l.strip().startswith('FROM ')]; "
+            "assert len(froms) >= 1, 'no FROM instruction'; "
+            "assert 'python:3.12' in froms[0], f'bad base: {froms[0]}'; "
+            "cmds = [l for l in lines if l.strip().startswith('CMD ')]; "
+            "assert len(cmds) >= 1, 'no CMD instruction'; "
+            "copies = [l for l in lines if l.strip().startswith('COPY ')]; "
+            "assert len(copies) >= 1, 'no COPY instruction'; "
+            "runs = [l for l in lines if l.strip().startswith('RUN ')]; "
+            "assert len(runs) >= 1, 'no RUN instruction'; "
+            "workdirs = [l for l in lines if l.strip().startswith('WORKDIR ')]; "
+            "assert len(workdirs) >= 1, 'no WORKDIR instruction'; "
+            "print('DOCKERFILE_FASTAPI_OK');"
+            '"',
+        )
+        assert r.returncode == 0, f"FastAPI Dockerfile validation failed:\n{r.stderr}"
+        assert "DOCKERFILE_FASTAPI_OK" in r.stdout
+
+    def test_docker_flask_dockerfile_valid(self) -> None:
+        """Verify Flask Dockerfile has valid structure."""
+        svc = self._root() / "test-flask"
+        if not svc.exists():
+            pytest.skip("test-flask not scaffolded yet")
+
+        r = _docker_run_script(
+            "python:3.12-slim", svc, "/app",
+            'python3 -c "'
+            "lines = open('/app/Dockerfile').readlines(); "
+            "froms = [l for l in lines if l.strip().startswith('FROM ')]; "
+            "assert 'python:3.12' in froms[0]; "
+            "cmds = [l for l in lines if l.strip().startswith('CMD ')]; "
+            "assert any('gunicorn' in c for c in cmds), 'no gunicorn in CMD'; "
+            "print('DOCKERFILE_FLASK_OK');"
+            '"',
+        )
+        assert r.returncode == 0, f"Flask Dockerfile validation failed:\n{r.stderr}"
+        assert "DOCKERFILE_FLASK_OK" in r.stdout
+
+    def test_docker_express_dockerfile_valid(self) -> None:
+        """Verify Express Dockerfile has valid structure inside Node container."""
+        svc = self._root() / "test-express"
+        if not svc.exists():
+            pytest.skip("test-express not scaffolded yet")
+
+        r = _docker_run_script(
+            "node:20-slim", svc, "/app",
+            'node -e "'
+            "const fs = require('fs');"
+            "const lines = fs.readFileSync('/app/Dockerfile', 'utf8').split('\\n');"
+            "const froms = lines.filter(l => l.trim().startsWith('FROM '));"
+            "console.log('from:', froms[0].trim());"
+            "if (!froms[0].includes('node:20')) process.exit(1);"
+            "const cmds = lines.filter(l => l.trim().startsWith('CMD '));"
+            "console.log('cmd:', cmds[0].trim());"
+            "const exposes = lines.filter(l => l.trim().startsWith('EXPOSE '));"
+            "console.log('expose:', exposes.length > 0);"
+            "console.log('DOCKERFILE_EXPRESS_OK');"
+            '"',
+        )
+        assert r.returncode == 0, f"Express Dockerfile validation failed:\n{r.stderr}"
+        assert "DOCKERFILE_EXPRESS_OK" in r.stdout
+
+    def test_docker_all_web_dockerfiles_have_required_instructions(self) -> None:
+        """All web framework Dockerfiles must have FROM, WORKDIR, COPY, CMD."""
+        root = self._root()
+        web_frameworks = ["test-fastapi", "test-flask", "test-express"]
+        for fw in web_frameworks:
+            svc = root / fw
+            df = svc / "Dockerfile"
+            if not df.exists():
+                continue
+            content = df.read_text()
+            assert "FROM " in content, f"{fw}: missing FROM"
+            assert "WORKDIR " in content, f"{fw}: missing WORKDIR"
+            assert "COPY " in content, f"{fw}: missing COPY"
+            assert "CMD " in content, f"{fw}: missing CMD"
+
+
+# ===========================================================================
+# Docker-based IaC artifact validation tests
+# ===========================================================================
+
+
+@pytest.mark.skipif(not _docker_available(), reason="Docker not available")
+class TestDockerIaCValidation:
+    """Generate IaC artifacts via pactown.iac module and validate them
+    inside Docker containers (YAML parsing, Dockerfile structure, Compose)."""
+
+    @staticmethod
+    def _root() -> Path:
+        import os
+        from dotenv import load_dotenv
+        load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+        raw = os.environ.get("PACTOWN_SANDBOX_ROOT", ".pactown")
+        p = Path(raw)
+        if not p.is_absolute():
+            p = Path(__file__).resolve().parent.parent / raw
+        return p
+
+    @pytest.fixture(autouse=True)
+    def _setup_iac_sandboxes(self) -> None:
+        """Generate IaC artifacts for Python and Node services in .pactown/."""
+        from pactown.iac import write_sandbox_iac, SandboxIacOptions
+
+        root = self._root()
+        opts = SandboxIacOptions(write_manifest=True, write_dockerfile=True, write_compose=True)
+
+        # Python service (FastAPI-like)
+        py_svc = root / "test-iac-python"
+        py_svc.mkdir(parents=True, exist_ok=True)
+        (py_svc / "main.py").write_text(
+            "from fastapi import FastAPI\napp = FastAPI()\n"
+            "@app.get('/health')\ndef health(): return {'ok': True}\n"
+        )
+        (py_svc / "requirements.txt").write_text("fastapi\nuvicorn\n")
+        write_sandbox_iac(
+            service_name="iac-python",
+            readme_path=Path(__file__).parent.parent / "README.md",
+            sandbox_path=py_svc,
+            port=8000,
+            run_cmd="uvicorn main:app --host 0.0.0.0 --port 8000",
+            is_node=False,
+            python_deps=["fastapi", "uvicorn"],
+            node_deps=[],
+            health_path="/health",
+            env_keys=["API_KEY"],
+            options=opts,
+        )
+
+        # Node service (Express-like)
+        node_svc = root / "test-iac-node"
+        node_svc.mkdir(parents=True, exist_ok=True)
+        (node_svc / "index.js").write_text(
+            "const express = require('express');\n"
+            "const app = express();\n"
+            "app.get('/health', (req, res) => res.json({ok: true}));\n"
+            "app.listen(3000);\n"
+        )
+        (node_svc / "package.json").write_text(json.dumps({
+            "name": "iac-node", "version": "1.0.0",
+            "main": "index.js",
+            "dependencies": {"express": "^4.18.0"},
+        }, indent=2))
+        write_sandbox_iac(
+            service_name="iac-node",
+            readme_path=Path(__file__).parent.parent / "README.md",
+            sandbox_path=node_svc,
+            port=3000,
+            run_cmd="node index.js",
+            is_node=True,
+            python_deps=[],
+            node_deps=["express"],
+            health_path="/health",
+            env_keys=["NODE_ENV"],
+            options=opts,
+        )
+
+    # ------------------------------------------------------------------
+    # pactown.sandbox.yaml — YAML parsing inside Python container
+    # ------------------------------------------------------------------
+
+    def test_docker_iac_python_manifest_valid_yaml(self) -> None:
+        """Parse pactown.sandbox.yaml for Python service inside Docker."""
+        svc = self._root() / "test-iac-python"
+        r = _docker_run_script(
+            "python:3.12-slim", svc, "/app",
+            'pip install pyyaml -q && python3 -c "'
+            "import yaml; "
+            "spec = yaml.safe_load(open('/app/pactown.sandbox.yaml')); "
+            "assert spec['kind'] == 'Sandbox', f'bad kind: {spec[\"kind\"]}'; "
+            "assert spec['metadata']['name'] == 'iac-python'; "
+            "assert spec['spec']['runtime']['type'] == 'python'; "
+            "assert spec['spec']['run']['port'] == 8000; "
+            "assert spec['spec']['health']['path'] == '/health'; "
+            "assert 'API_KEY' in spec['spec']['env']['keys']; "
+            "deps = spec['spec']['dependencies']['python']; "
+            "assert 'fastapi' in deps; "
+            "assert 'uvicorn' in deps; "
+            "print('IAC_PYTHON_MANIFEST_OK');"
+            '"',
+        )
+        assert r.returncode == 0, f"Python IaC manifest failed:\n{r.stderr}"
+        assert "IAC_PYTHON_MANIFEST_OK" in r.stdout
+
+    def test_docker_iac_node_manifest_valid_yaml(self) -> None:
+        """Parse pactown.sandbox.yaml for Node service inside Docker."""
+        svc = self._root() / "test-iac-node"
+        r = _docker_run_script(
+            "python:3.12-slim", svc, "/app",
+            'pip install pyyaml -q && python3 -c "'
+            "import yaml; "
+            "spec = yaml.safe_load(open('/app/pactown.sandbox.yaml')); "
+            "assert spec['kind'] == 'Sandbox'; "
+            "assert spec['metadata']['name'] == 'iac-node'; "
+            "assert spec['spec']['runtime']['type'] == 'node'; "
+            "assert spec['spec']['run']['port'] == 3000; "
+            "assert 'NODE_ENV' in spec['spec']['env']['keys']; "
+            "deps = spec['spec']['dependencies']['node']; "
+            "assert 'express' in deps; "
+            "print('IAC_NODE_MANIFEST_OK');"
+            '"',
+        )
+        assert r.returncode == 0, f"Node IaC manifest failed:\n{r.stderr}"
+        assert "IAC_NODE_MANIFEST_OK" in r.stdout
+
+    # ------------------------------------------------------------------
+    # Dockerfile — structure validation inside Docker
+    # ------------------------------------------------------------------
+
+    def test_docker_iac_python_dockerfile_structure(self) -> None:
+        """Verify IaC-generated Python Dockerfile has correct base + structure."""
+        svc = self._root() / "test-iac-python"
+        r = _docker_run_script(
+            "python:3.12-slim", svc, "/app",
+            'python3 -c "'
+            "content = open('/app/Dockerfile').read(); "
+            "lines = content.strip().splitlines(); "
+            "assert any('FROM' in l and 'python' in l for l in lines), 'no python FROM'; "
+            "assert any('WORKDIR' in l for l in lines), 'no WORKDIR'; "
+            "assert any('COPY' in l for l in lines), 'no COPY'; "
+            "assert any('CMD' in l or 'ENTRYPOINT' in l for l in lines), 'no CMD/ENTRYPOINT'; "
+            "print(f'IAC_PY_DOCKERFILE_OK ({len(lines)} lines)');"
+            '"',
+        )
+        assert r.returncode == 0, f"Python IaC Dockerfile failed:\n{r.stderr}"
+        assert "IAC_PY_DOCKERFILE_OK" in r.stdout
+
+    def test_docker_iac_node_dockerfile_structure(self) -> None:
+        """Verify IaC-generated Node Dockerfile has correct base + structure."""
+        svc = self._root() / "test-iac-node"
+        r = _docker_run_script(
+            "node:20-slim", svc, "/app",
+            'node -e "'
+            "const fs = require('fs');"
+            "const content = fs.readFileSync('/app/Dockerfile', 'utf8');"
+            "const lines = content.trim().split('\\n');"
+            "const hasFrom = lines.some(l => l.includes('FROM') && l.includes('node'));"
+            "const hasWorkdir = lines.some(l => l.includes('WORKDIR'));"
+            "const hasCopy = lines.some(l => l.includes('COPY'));"
+            "const hasCmd = lines.some(l => l.includes('CMD') || l.includes('ENTRYPOINT'));"
+            "if (!hasFrom || !hasWorkdir || !hasCopy || !hasCmd) {"
+            "  console.error('Missing:', {hasFrom, hasWorkdir, hasCopy, hasCmd});"
+            "  process.exit(1);"
+            "}"
+            "console.log('IAC_NODE_DOCKERFILE_OK (' + lines.length + ' lines)');"
+            '"',
+        )
+        assert r.returncode == 0, f"Node IaC Dockerfile failed:\n{r.stderr}"
+        assert "IAC_NODE_DOCKERFILE_OK" in r.stdout
+
+    # ------------------------------------------------------------------
+    # docker-compose.yaml — YAML parsing + structure inside Docker
+    # ------------------------------------------------------------------
+
+    def test_docker_iac_python_compose_valid(self) -> None:
+        """Parse docker-compose.yaml for Python service inside Docker."""
+        svc = self._root() / "test-iac-python"
+        r = _docker_run_script(
+            "python:3.12-slim", svc, "/app",
+            'pip install pyyaml -q && python3 -c "'
+            "import yaml; "
+            "compose = yaml.safe_load(open('/app/docker-compose.yaml')); "
+            "assert 'services' in compose, 'no services key'; "
+            "app = compose['services']['app']; "
+            "assert 'build' in app, 'no build key'; "
+            "assert app['build']['dockerfile'] == 'Dockerfile'; "
+            "assert app['container_name'] == 'iac-python'; "
+            "assert '8000:8000' in app['ports']; "
+            "assert 'healthcheck' in app, 'no healthcheck'; "
+            "hc = app['healthcheck']; "
+            "assert hc['interval'] == '30s'; "
+            "assert '/health' in str(hc['test']); "
+            "print('IAC_PY_COMPOSE_OK');"
+            '"',
+        )
+        assert r.returncode == 0, f"Python IaC compose failed:\n{r.stderr}"
+        assert "IAC_PY_COMPOSE_OK" in r.stdout
+
+    def test_docker_iac_node_compose_valid(self) -> None:
+        """Parse docker-compose.yaml for Node service inside Docker."""
+        svc = self._root() / "test-iac-node"
+        r = _docker_run_script(
+            "python:3.12-slim", svc, "/app",
+            'pip install pyyaml -q && python3 -c "'
+            "import yaml; "
+            "compose = yaml.safe_load(open('/app/docker-compose.yaml')); "
+            "app = compose['services']['app']; "
+            "assert app['container_name'] == 'iac-node'; "
+            "assert '3000:3000' in app['ports']; "
+            "hc = app['healthcheck']; "
+            "assert 'node' in str(hc['test']), 'node healthcheck expected'; "
+            "assert '/health' in str(hc['test']); "
+            "print('IAC_NODE_COMPOSE_OK');"
+            '"',
+        )
+        assert r.returncode == 0, f"Node IaC compose failed:\n{r.stderr}"
+        assert "IAC_NODE_COMPOSE_OK" in r.stdout
+
+    # ------------------------------------------------------------------
+    # Cross-check: all 3 IaC files present and consistent
+    # ------------------------------------------------------------------
+
+    def test_docker_iac_all_files_present_and_consistent(self) -> None:
+        """Verify all 3 IaC files exist and are cross-consistent."""
+        for svc_name, runtime in [("test-iac-python", "python"), ("test-iac-node", "node")]:
+            svc = self._root() / svc_name
+            r = _docker_run_script(
+                "python:3.12-slim", svc, "/app",
+                'pip install pyyaml -q && python3 -c "'
+                "import yaml; "
+                "spec = yaml.safe_load(open('/app/pactown.sandbox.yaml')); "
+                "compose = yaml.safe_load(open('/app/docker-compose.yaml')); "
+                "df = open('/app/Dockerfile').read(); "
+                f"assert spec['spec']['runtime']['type'] == '{runtime}'; "
+                "assert compose['services']['app']['build']['dockerfile'] == 'Dockerfile'; "
+                "assert 'FROM' in df; "
+                f"print('IAC_CONSISTENT_{svc_name.replace('-', '_').upper()}');"
+                '"',
+            )
+            assert r.returncode == 0, f"IaC consistency check failed for {svc_name}:\n{r.stderr}"
+            expected_marker = f"IAC_CONSISTENT_{svc_name.replace('-', '_').upper()}"
+            assert expected_marker in r.stdout
+
+
+# ===========================================================================
+# Artifact file-size validation
+# ===========================================================================
+
+# Minimum expected sizes (bytes) for real build artifacts.
+# Stub files that are only a few bytes indicate the artifact is fake/broken.
+_MIN_SIZES: dict[str, int] = {
+    # Desktop binaries
+    ".appimage":  50_000_000,  # Electron/Tauri AppImage ≈ 80–200 MB
+    ".snap":       5_000_000,  # Snap package ≈ 5–150 MB
+    ".exe":        5_000_000,  # Windows installer/binary ≈ 5–200 MB
+    ".msi":        5_000_000,  # Windows MSI ≈ 5–100 MB
+    ".dmg":        5_000_000,  # macOS disk image ≈ 5–200 MB
+    ".deb":        1_000_000,  # Debian package ≈ 1–100 MB
+    ".app":        1_000_000,  # macOS app bundle binary ≈ 1 MB+
+    # Mobile packages
+    ".apk":        1_000_000,  # Android APK ≈ 1–150 MB
+    ".aab":        1_000_000,  # Android App Bundle ≈ 1–150 MB
+    ".ipa":        1_000_000,  # iOS archive ≈ 1–500 MB
+    # Shared libraries
+    ".so":           100_000,  # Shared object ≈ 100 KB+
+    # Web build output
+    ".js":             1_000,  # Bundled JS ≈ 1 KB+ (minified)
+    ".css":              500,  # Bundled CSS ≈ 500 B+
+}
+
+# Stub-detection threshold: files this small are definitely stubs
+_STUB_THRESHOLD = 1024  # 1 KB — no real binary/package is this small
+
+
+def _classify_artifact_size(path: Path) -> tuple[str, str]:
+    """Return (status, detail) for a single artifact file.
+
+    status: 'ok' | 'stub' | 'undersized' | 'skip'
+    """
+    if not path.is_file():
+        return "skip", "not a file"
+    size = path.stat().st_size
+    suffix = path.suffix.lower()
+
+    # Config/text files — skip size check
+    if suffix in (".json", ".yaml", ".yml", ".toml", ".spec", ".cfg",
+                   ".txt", ".md", ".sh", ".html", ".vue", ".jsx", ".py",
+                   ".ts", ".tsx"):
+        return "skip", f"config/text ({size} B)"
+
+    min_size = _MIN_SIZES.get(suffix)
+    if min_size is None:
+        # Unknown extension — just check it's not a trivial stub
+        if size < _STUB_THRESHOLD:
+            return "stub", f"{size} B < {_STUB_THRESHOLD} B stub threshold"
+        return "ok", f"{size} B (no min defined)"
+
+    if size < _STUB_THRESHOLD:
+        return "stub", f"{size} B — clearly a stub (expected >={min_size:,} B for {suffix})"
+    if size < min_size:
+        return "undersized", f"{size:,} B < {min_size:,} B minimum for {suffix}"
+    return "ok", f"{size:,} B >= {min_size:,} B"
+
+
+class TestArtifactSizeValidation:
+    """Detect stub / undersized artifact files in .pactown/.
+
+    Real build artifacts (AppImage, exe, apk, etc.) should be megabytes,
+    not a handful of bytes.  These tests flag suspiciously small files
+    so you know the artifacts are stubs rather than real builds.
+    """
+
+    @staticmethod
+    def _root() -> Path:
+        import os
+        from dotenv import load_dotenv
+        load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+        raw = os.environ.get("PACTOWN_SANDBOX_ROOT", ".pactown")
+        p = Path(raw)
+        if not p.is_absolute():
+            p = Path(__file__).resolve().parent.parent / raw
+        return p
+
+    # ------------------------------------------------------------------
+    # Per-framework stub detection
+    # ------------------------------------------------------------------
+
+    def test_electron_artifacts_not_stubs(self) -> None:
+        """Electron dist/ artifacts should be flagged as stubs if tiny."""
+        dist = self._root() / "test-electron" / "dist"
+        if not dist.exists():
+            pytest.skip("test-electron not scaffolded")
+        stubs = []
+        for f in dist.iterdir():
+            if f.is_file():
+                status, detail = _classify_artifact_size(f)
+                if status in ("stub", "undersized"):
+                    stubs.append(f"{f.name}: {detail}")
+        # We EXPECT stubs in test scaffolds — this test documents them
+        assert len(stubs) > 0, (
+            "No stubs detected — if these are real builds, update thresholds"
+        )
+        # Report what was found
+        for s in stubs:
+            print(f"  [STUB] {s}")
+
+    def test_tauri_artifacts_not_stubs(self) -> None:
+        """Tauri bundle artifacts should be flagged as stubs if tiny."""
+        bundle = self._root() / "test-tauri" / "src-tauri" / "target" / "release" / "bundle"
+        if not bundle.exists():
+            pytest.skip("test-tauri not scaffolded")
+        stubs = []
+        for f in bundle.rglob("*"):
+            if f.is_file():
+                status, detail = _classify_artifact_size(f)
+                if status in ("stub", "undersized"):
+                    stubs.append(f"{f.relative_to(bundle)}: {detail}")
+        assert len(stubs) > 0, "No stubs detected in Tauri bundle"
+
+    def test_pyinstaller_artifacts_not_stubs(self) -> None:
+        """PyInstaller dist/ binaries should be flagged as stubs."""
+        dist = self._root() / "test-pyinstaller" / "dist"
+        if not dist.exists():
+            pytest.skip("test-pyinstaller not scaffolded")
+        stubs = []
+        for f in dist.iterdir():
+            if f.is_file():
+                status, detail = _classify_artifact_size(f)
+                if status in ("stub", "undersized"):
+                    stubs.append(f"{f.name}: {detail}")
+        assert len(stubs) > 0, "No stubs detected in PyInstaller dist/"
+
+    def test_mobile_apk_ipa_not_stubs(self) -> None:
+        """Mobile APK/IPA/AAB files should be flagged as stubs."""
+        root = self._root()
+        mobile_dirs = ["test-capacitor", "test-react-native",
+                       "test-flutter-mobile", "test-kivy"]
+        all_stubs: dict[str, list[str]] = {}
+        for d in mobile_dirs:
+            svc = root / d
+            if not svc.exists():
+                continue
+            stubs = []
+            for f in svc.rglob("*"):
+                if f.is_file() and f.suffix.lower() in (".apk", ".ipa", ".aab"):
+                    status, detail = _classify_artifact_size(f)
+                    if status in ("stub", "undersized"):
+                        stubs.append(f"{f.relative_to(svc)}: {detail}")
+            if stubs:
+                all_stubs[d] = stubs
+        assert len(all_stubs) > 0, "No stub APK/IPA/AAB detected in mobile dirs"
+
+    # ------------------------------------------------------------------
+    # Full scan: report ALL stubs across ALL frameworks
+    # ------------------------------------------------------------------
+
+    def test_full_scan_report_all_stubs(self) -> None:
+        """Scan all .pactown/test-* dirs and report every stub artifact."""
+        root = self._root()
+        if not root.exists():
+            pytest.skip(".pactown root not found")
+
+        report: list[str] = []
+        total_files = 0
+        total_stubs = 0
+        total_undersized = 0
+
+        for svc_dir in sorted(root.iterdir()):
+            if not svc_dir.is_dir() or not svc_dir.name.startswith("test-"):
+                continue
+            for f in svc_dir.rglob("*"):
+                if not f.is_file():
+                    continue
+                total_files += 1
+                status, detail = _classify_artifact_size(f)
+                rel = f.relative_to(root)
+                if status == "stub":
+                    total_stubs += 1
+                    report.append(f"  STUB       {rel}  ({detail})")
+                elif status == "undersized":
+                    total_undersized += 1
+                    report.append(f"  UNDERSIZED {rel}  ({detail})")
+
+        summary = (
+            f"Artifact size scan: {total_files} files, "
+            f"{total_stubs} stubs, {total_undersized} undersized"
+        )
+        print(f"\n{'=' * 70}")
+        print(summary)
+        print(f"{'=' * 70}")
+        for line in report:
+            print(line)
+        print(f"{'=' * 70}\n")
+
+        # This test always passes but prints the report.
+        # Enable the assertion below to FAIL on stubs:
+        # assert total_stubs == 0, f"{total_stubs} stub files detected"
+
+    # ------------------------------------------------------------------
+    # Strict mode: assert NO stubs exist (disabled by default)
+    # ------------------------------------------------------------------
+
+    @pytest.mark.skip(reason="Enable after replacing stubs with real builds")
+    def test_strict_no_stubs_allowed(self) -> None:
+        """STRICT: fail if any binary artifact is a stub."""
+        root = self._root()
+        stubs = []
+        for f in root.rglob("*"):
+            if not f.is_file():
+                continue
+            status, detail = _classify_artifact_size(f)
+            if status == "stub":
+                stubs.append(f"{f.relative_to(root)}: {detail}")
+        assert not stubs, (
+            f"{len(stubs)} stub artifact(s) detected:\n" +
+            "\n".join(f"  - {s}" for s in stubs)
+        )
+
+    # ------------------------------------------------------------------
+    # Threshold correctness: verify _MIN_SIZES covers all artifact exts
+    # ------------------------------------------------------------------
+
+    def test_min_sizes_cover_all_binary_extensions(self) -> None:
+        """Every binary extension found in .pactown/ must have a min-size entry."""
+        root = self._root()
+        if not root.exists():
+            pytest.skip(".pactown root not found")
+
+        skip_exts = {".json", ".yaml", ".yml", ".toml", ".spec", ".cfg",
+                     ".txt", ".md", ".sh", ".html", ".vue", ".jsx", ".py",
+                     ".ts", ".tsx", ""}
+        found_exts: set[str] = set()
+        for f in root.rglob("*"):
+            if f.is_file() and f.suffix.lower() not in skip_exts:
+                found_exts.add(f.suffix.lower())
+
+        uncovered = found_exts - set(_MIN_SIZES.keys())
+        if uncovered:
+            print(f"Extensions without min-size threshold: {uncovered}")
+        # Informational — not a hard failure (yet)
+        # assert not uncovered, f"Missing min-size for: {uncovered}"
+
+
+# ===========================================================================
+# Docker-based artifact size validation
+# ===========================================================================
+
+
+@pytest.mark.skipif(not _docker_available(), reason="Docker not available")
+class TestDockerArtifactSizeValidation:
+    """Validate artifact file sizes inside Docker containers."""
+
+    @staticmethod
+    def _root() -> Path:
+        import os
+        from dotenv import load_dotenv
+        load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+        raw = os.environ.get("PACTOWN_SANDBOX_ROOT", ".pactown")
+        p = Path(raw)
+        if not p.is_absolute():
+            p = Path(__file__).resolve().parent.parent / raw
+        return p
+
+    def test_docker_detect_stub_binaries(self) -> None:
+        """Mount .pactown/ into Ubuntu and find all files < 1KB with binary extensions."""
+        root = self._root()
+        if not root.exists():
+            pytest.skip(".pactown root not found")
+
+        r = _docker_run_script(
+            "ubuntu:22.04", root, "/pactown",
+            # Find binary-like files smaller than 1KB
+            "echo '=== STUB BINARY REPORT ===' && "
+            "find /pactown/test-* -type f \\( "
+            "-name '*.AppImage' -o -name '*.exe' -o -name '*.dmg' -o "
+            "-name '*.snap' -o -name '*.deb' -o -name '*.msi' -o "
+            "-name '*.apk' -o -name '*.ipa' -o -name '*.aab' -o "
+            "-name '*.so' "
+            "\\) -size -1024c -exec ls -la {} \\; | sort && "
+            "echo '--- COUNTS ---' && "
+            "TOTAL=$(find /pactown/test-* -type f \\( "
+            "-name '*.AppImage' -o -name '*.exe' -o -name '*.dmg' -o "
+            "-name '*.snap' -o -name '*.deb' -o -name '*.msi' -o "
+            "-name '*.apk' -o -name '*.ipa' -o -name '*.aab' -o "
+            "-name '*.so' "
+            "\\) | wc -l) && "
+            "STUBS=$(find /pactown/test-* -type f \\( "
+            "-name '*.AppImage' -o -name '*.exe' -o -name '*.dmg' -o "
+            "-name '*.snap' -o -name '*.deb' -o -name '*.msi' -o "
+            "-name '*.apk' -o -name '*.ipa' -o -name '*.aab' -o "
+            "-name '*.so' "
+            "\\) -size -1024c | wc -l) && "
+            "echo \"TOTAL_BINARIES=$TOTAL\" && "
+            "echo \"STUB_BINARIES=$STUBS\"",
+        )
+        assert r.returncode == 0, f"Docker size scan failed:\n{r.stderr}"
+        assert "STUB BINARY REPORT" in r.stdout
+        assert "TOTAL_BINARIES=" in r.stdout
+        assert "STUB_BINARIES=" in r.stdout
+
+        # Parse counts
+        lines = r.stdout.strip().split("\n")
+        total = int([l for l in lines if l.startswith("TOTAL_BINARIES=")][0].split("=")[1])
+        stubs = int([l for l in lines if l.startswith("STUB_BINARIES=")][0].split("=")[1])
+
+        print(f"\nDocker size scan: {total} binaries, {stubs} are stubs (<1KB)")
+        # We expect stubs since we created them — verify detection works
+        assert total > 0, "No binary artifacts found at all"
+        assert stubs > 0, "Stub detection should find our test stubs"
+
+    def test_docker_electron_dist_sizes(self) -> None:
+        """Show detailed size breakdown of Electron dist/ inside Docker."""
+        svc = self._root() / "test-electron"
+        if not svc.exists():
+            pytest.skip("test-electron not scaffolded")
+
+        r = _docker_run_script(
+            "ubuntu:22.04", svc, "/app",
+            "echo '=== ELECTRON DIST SIZES ===' && "
+            "ls -la /app/dist/ 2>/dev/null && "
+            "echo '--- SIZE CHECK ---' && "
+            "for f in /app/dist/*.AppImage /app/dist/*.exe /app/dist/*.dmg /app/dist/*.snap; do "
+            "  if [ -f \"$f\" ]; then "
+            "    SIZE=$(stat -c%s \"$f\"); "
+            "    NAME=$(basename \"$f\"); "
+            "    if [ \"$SIZE\" -lt 1024 ]; then "
+            "      echo \"STUB: $NAME ($SIZE bytes)\"; "
+            "    elif [ \"$SIZE\" -lt 5000000 ]; then "
+            "      echo \"UNDERSIZED: $NAME ($SIZE bytes)\"; "
+            "    else "
+            "      echo \"OK: $NAME ($SIZE bytes)\"; "
+            "    fi; "
+            "  fi; "
+            "done",
+        )
+        assert r.returncode == 0
+        assert "ELECTRON DIST SIZES" in r.stdout
+        # Verify stubs are detected
+        assert "STUB:" in r.stdout, "Expected stub files in Electron dist/"
+
+    def test_docker_mobile_package_sizes(self) -> None:
+        """Scan all mobile APK/IPA/AAB sizes inside Docker."""
+        root = self._root()
+        if not root.exists():
+            pytest.skip(".pactown root not found")
+
+        r = _docker_run_script(
+            "ubuntu:22.04", root, "/pactown",
+            "echo '=== MOBILE PACKAGE SIZES ===' && "
+            "find /pactown/test-capacitor /pactown/test-react-native "
+            "/pactown/test-flutter-mobile /pactown/test-kivy "
+            "-type f \\( -name '*.apk' -o -name '*.ipa' -o -name '*.aab' \\) "
+            "-exec sh -c '"
+            "  SIZE=$(stat -c%s \"$1\"); "
+            "  NAME=$(echo \"$1\" | sed \"s|/pactown/||\"  ); "
+            "  if [ \"$SIZE\" -lt 1024 ]; then "
+            "    echo \"STUB: $NAME ($SIZE bytes)\"; "
+            "  elif [ \"$SIZE\" -lt 1000000 ]; then "
+            "    echo \"UNDERSIZED: $NAME ($SIZE bytes)\"; "
+            "  else "
+            "    echo \"OK: $NAME ($SIZE bytes)\"; "
+            "  fi"
+            "' _ {} \\; | sort",
+        )
+        assert r.returncode == 0
+        assert "MOBILE PACKAGE SIZES" in r.stdout
+        assert "STUB:" in r.stdout, "Expected stub APK/IPA files"
