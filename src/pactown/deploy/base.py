@@ -17,6 +17,7 @@ class RuntimeType(Enum):
     PODMAN = "podman"        # Podman (rootless containers)
     KUBERNETES = "kubernetes"  # Kubernetes
     COMPOSE = "compose"      # Docker Compose / Podman Compose
+    ANSIBLE = "ansible"      # Ansible playbook-based deployment
 
 
 class DeploymentMode(Enum):

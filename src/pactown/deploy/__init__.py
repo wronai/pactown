@@ -1,5 +1,6 @@
-"""Deployment backends for pactown - Docker, Podman, Kubernetes, Quadlet, etc."""
+"""Deployment backends for pactown - Docker, Podman, Kubernetes, Quadlet, Ansible, etc."""
 
+from .ansible import AnsibleBackend, AnsibleConfig
 from .base import DeploymentBackend, DeploymentConfig, DeploymentResult
 from .compose import ComposeGenerator
 from .docker import DockerBackend
@@ -15,6 +16,8 @@ from .quadlet import (
 )
 
 __all__ = [
+    "AnsibleBackend",
+    "AnsibleConfig",
     "DeploymentBackend",
     "DeploymentConfig",
     "DeploymentResult",
