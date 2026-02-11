@@ -4196,12 +4196,18 @@ def _docker_run(image: str, mount_src: Path, mount_dst: str,
 
 def _docker_run_script(image: str, mount_src: Path, mount_dst: str,
                        script: str, timeout: int = 60) -> subprocess.CompletedProcess:
-    """Run a shell script inside a Docker container with a bind-mount."""
+    """Run a shell script inside a Docker container with a bind-mount.
+
+    Prefixes the script with a ``find`` to force the bind-mount layer to
+    enumerate all inodes, avoiding intermittent "No such file" errors that
+    occur when many containers mount the same host path in rapid succession.
+    """
+    prefixed = f"find {mount_dst} -type f > /dev/null 2>&1; {script}"
     return subprocess.run(
         [
             "docker", "run", "--rm",
             "-v", f"{mount_src}:{mount_dst}:ro",
-            image, "sh", "-c", script,
+            image, "sh", "-c", prefixed,
         ],
         capture_output=True, text=True, timeout=timeout,
     )
