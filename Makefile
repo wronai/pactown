@@ -1,4 +1,4 @@
-.PHONY: help install dev test test-cov lint format build clean registry up down status examples check-pypi-deps publish-pypi bump-patch bump-minor bump-major release sync-pactown-com security security-sast security-deps security-secrets security-all
+.PHONY: help install dev test test-cov lint format build clean registry up down status examples check-pypi-deps publish-pypi bump-patch bump-minor bump-major release sync-pactown-com security security-sast security-deps security-secrets security-all artifacts artifacts-clean artifacts-quick artifacts-docker
 
 PYTHON ?= $(shell if [ -x ./venv/bin/python3 ]; then echo ./venv/bin/python3; elif [ -x ./.venv/bin/python3 ]; then echo ./.venv/bin/python3; else echo python3; fi)
 CONFIG ?= saas.pactown.yaml
@@ -170,3 +170,149 @@ security-secrets: ## Scan for secrets in codebase (gitleaks)
 	fi
 
 security-all: security security-secrets ## Run all security checks including secrets scan
+
+# Artifact generation & validation
+ARTIFACT_ROOT := .pactown
+ARTIFACT_TESTS := tests/test_ansible.py
+
+artifacts-docker: ## Validate all existing artifacts in native Docker containers
+	@if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then \
+		$(PYTHON) tools/validate_artifacts_docker.py \
+			--root $(ARTIFACT_ROOT) --strict -v; \
+	else \
+		echo "ERROR: Docker not available"; exit 1; \
+	fi
+
+artifacts-clean: ## Remove all generated scaffold artifacts
+	@echo "Cleaning $(ARTIFACT_ROOT)/ and bytecode caches..."
+	@if [ -d "$(ARTIFACT_ROOT)" ] && command -v docker >/dev/null 2>&1; then \
+		docker run --rm -v "$$(cd $(ARTIFACT_ROOT) && pwd):/clean" ubuntu:22.04 \
+			sh -c 'rm -rf /clean/test-*' 2>/dev/null || rm -rf $(ARTIFACT_ROOT)/test-*; \
+	else \
+		rm -rf $(ARTIFACT_ROOT)/test-*; \
+	fi
+	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+	@echo "Done – artifact directory cleaned."
+
+CROSS_PLATFORM_TESTS := tests/test_cross_platform.py
+
+artifacts-quick: artifacts-clean ## Generate artifacts + validate (no Docker, fast)
+	@echo ""
+	@echo "============================================================"
+	@echo " STEP 1/3: Generating scaffold artifacts (18 frameworks)"
+	@echo "============================================================"
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src \
+		$(PYTHON) -m pytest -p pytest_asyncio.plugin \
+		$(ARTIFACT_TESTS)::TestRealScaffoldInPactown -v --tb=short
+	@echo ""
+	@echo "============================================================"
+	@echo " STEP 2/3: Validating artifact sizes (strict, no stubs)"
+	@echo "============================================================"
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src \
+		$(PYTHON) -m pytest -p pytest_asyncio.plugin \
+		$(ARTIFACT_TESTS)::TestArtifactSizeValidation -v --tb=short -s
+	@echo ""
+	@echo "============================================================"
+	@echo " STEP 3/3: Validating file correctness"
+	@echo "============================================================"
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src \
+		$(PYTHON) -m pytest -p pytest_asyncio.plugin \
+		$(ARTIFACT_TESTS)::TestGeneratedFileCorrectness -v --tb=short -s
+	@echo ""
+	@echo "============================================================"
+	@echo " DONE – quick validation passed"
+	@echo "============================================================"
+
+artifacts: artifacts-clean ## Generate all artifacts and run full validation pipeline
+	@echo ""
+	@echo "============================================================"
+	@echo " STEP 1/9: Generating scaffold artifacts (18 frameworks)"
+	@echo "============================================================"
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src \
+		$(PYTHON) -m pytest -p pytest_asyncio.plugin \
+		$(ARTIFACT_TESTS)::TestRealScaffoldInPactown -v --tb=short
+	@echo ""
+	@echo "============================================================"
+	@echo " STEP 2/9: Generating IaC artifacts (Docker)"
+	@echo "============================================================"
+	@if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then \
+		PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src \
+		$(PYTHON) -m pytest -p pytest_asyncio.plugin \
+		$(ARTIFACT_TESTS)::TestDockerIaCValidation::test_docker_iac_all_files_present_and_consistent \
+		-v --tb=short; \
+	else \
+		echo "[SKIP] Docker not available – IaC scaffolds not generated"; \
+	fi
+	@echo ""
+	@echo "============================================================"
+	@echo " STEP 3/9: Validating artifact sizes (strict, no stubs)"
+	@echo "============================================================"
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src \
+		$(PYTHON) -m pytest -p pytest_asyncio.plugin \
+		$(ARTIFACT_TESTS)::TestArtifactSizeValidation -v --tb=short -s
+	@echo ""
+	@echo "============================================================"
+	@echo " STEP 4/9: Validating file correctness (magic bytes,"
+	@echo "           configs, syntax, schemas)"
+	@echo "============================================================"
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src \
+		$(PYTHON) -m pytest -p pytest_asyncio.plugin \
+		$(ARTIFACT_TESTS)::TestGeneratedFileCorrectness -v --tb=short -s
+	@echo ""
+	@echo "============================================================"
+	@echo " STEP 5/9: Docker native validation (every artifact in"
+	@echo "           its native Docker container)"
+	@echo "============================================================"
+	@if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then \
+		$(PYTHON) tools/validate_artifacts_docker.py \
+			--root $(ARTIFACT_ROOT) --strict -v; \
+	else \
+		echo "[SKIP] Docker not available – native validation skipped"; \
+	fi
+	@echo ""
+	@echo "============================================================"
+	@echo " STEP 6/9: Docker platform tests (binary format,"
+	@echo "           artifact execution, syntax checks)"
+	@echo "============================================================"
+	@if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then \
+		PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src \
+		$(PYTHON) -m pytest -p pytest_asyncio.plugin \
+		$(ARTIFACT_TESTS)::TestDockerArtifactSizeValidation \
+		$(ARTIFACT_TESTS)::TestDockerBinaryFormatVerification \
+		$(ARTIFACT_TESTS)::TestDockerArtifactExecution \
+		$(ARTIFACT_TESTS)::TestDockerAutomatedExecution \
+		$(ARTIFACT_TESTS)::TestDockerDockerfileValidation \
+		-v --tb=short; \
+	else \
+		echo "[SKIP] Docker not available – platform validation skipped"; \
+	fi
+	@echo ""
+	@echo "============================================================"
+	@echo " STEP 7/9: E2E build → deploy via Ansible"
+	@echo "============================================================"
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src \
+		$(PYTHON) -m pytest -p pytest_asyncio.plugin \
+		$(ARTIFACT_TESTS)::TestE2EBuildAndAnsibleDeploy \
+		$(ARTIFACT_TESTS)::TestMultiPlatformArtifactsWithAnsible \
+		-v --tb=short
+	@echo ""
+	@echo "============================================================"
+	@echo " STEP 8/9: Desktop + mobile artifact generation per OS"
+	@echo "============================================================"
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src \
+		$(PYTHON) -m pytest -p pytest_asyncio.plugin \
+		$(ARTIFACT_TESTS)::TestDesktopArtifactGeneration \
+		$(ARTIFACT_TESTS)::TestMobileArtifactGeneration \
+		$(ARTIFACT_TESTS)::TestAnsibleArtifactDistribution \
+		-v --tb=short
+	@echo ""
+	@echo "============================================================"
+	@echo " STEP 9/9: Cross-platform matrix (framework × OS)"
+	@echo "============================================================"
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src \
+		$(PYTHON) -m pytest -p pytest_asyncio.plugin \
+		$(CROSS_PLATFORM_TESTS) -v --tb=short
+	@echo ""
+	@echo "============================================================"
+	@echo " ALL DONE – full artifact pipeline completed (9 steps)"
+	@echo "============================================================"

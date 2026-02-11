@@ -557,6 +557,10 @@ class SandboxManager:
         if pkg_path.exists():
             return
 
+        # Pin Capacitor scoped packages to 6.x to avoid ERESOLVE conflicts
+        # (Capacitor 8.x needs Node >=22, many runners still use 20 LTS).
+        _CAP_PIN = "^6.0.0"
+
         deps_obj: dict[str, str] = {}
         for dep in deps:
             d = str(dep).strip()
@@ -573,7 +577,11 @@ class SandboxManager:
                 if name:
                     deps_obj[name] = version or "latest"
             else:
-                deps_obj[d] = "latest"
+                # Pin @capacitor/* packages instead of using "latest"
+                if d.startswith("@capacitor/"):
+                    deps_obj[d] = _CAP_PIN
+                else:
+                    deps_obj[d] = "latest"
 
         pkg_path.write_text(
             json.dumps(

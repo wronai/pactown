@@ -227,7 +227,20 @@ class MobileBuilder(Builder):
             if plugin_name in deps and deps[plugin_name] == "latest":
                 deps[plugin_name] = compatible_version
 
+        # Catch-all: pin ANY remaining @capacitor/* dep that is "latest" to ^6.0.0
+        # to prevent ERESOLVE when npm resolves "latest" to a newer major.
+        for dep_name in list(deps):
+            if dep_name.startswith("@capacitor/") and deps[dep_name] == "latest":
+                deps[dep_name] = "^6.0.0"
+
         pkg_json.write_text(json.dumps(pkg, indent=2))
+
+        # Write .npmrc with legacy-peer-deps so that *any* npm install
+        # in this sandbox (including the build command itself) tolerates
+        # peer-dependency mismatches that Capacitor ecosystem often has.
+        npmrc = sandbox_path / ".npmrc"
+        if not npmrc.exists():
+            npmrc.write_text("legacy-peer-deps=true\n")
 
     @staticmethod
     def _resolve_cap_web_dir(
