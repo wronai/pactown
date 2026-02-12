@@ -9,6 +9,12 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Optional
 
+try:
+    from ..nfo_config import logged
+except Exception:
+    def logged(cls=None, **kw):  # type: ignore[misc]
+        return cls if cls is not None else lambda c: c
+
 
 class RuntimeType(Enum):
     """Container runtime types."""
@@ -107,6 +113,7 @@ class DeploymentResult:
     logs: Optional[str] = None
 
 
+@logged
 class DeploymentBackend(ABC):
     """Abstract base class for deployment backends."""
 

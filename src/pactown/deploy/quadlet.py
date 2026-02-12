@@ -28,6 +28,12 @@ from .base import (
     RuntimeType,
 )
 
+try:
+    from ..nfo_config import logged
+except Exception:
+    def logged(cls=None, **kw):  # type: ignore[misc]
+        return cls if cls is not None else lambda c: c
+
 # =============================================================================
 # Security Sanitization Functions
 # =============================================================================
@@ -347,6 +353,7 @@ class QuadletUnit:
         return path
 
 
+@logged
 class QuadletTemplates:
     """Template generator for Quadlet unit files."""
 
@@ -593,6 +600,7 @@ WantedBy=default.target
         return QuadletUnit(name=name, unit_type="volume", content=content)
 
 
+@logged
 class QuadletBackend(DeploymentBackend):
     """
     Podman Quadlet deployment backend.

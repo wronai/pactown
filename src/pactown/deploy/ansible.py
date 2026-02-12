@@ -18,6 +18,12 @@ from .base import (
     RuntimeType,
 )
 
+try:
+    from ..nfo_config import logged
+except Exception:
+    def logged(cls=None, **kw):  # type: ignore[misc]
+        return cls if cls is not None else lambda c: c
+
 
 # ---------------------------------------------------------------------------
 # Ansible-specific config
@@ -270,6 +276,7 @@ def generate_build_playbook(
 # Backend
 # ---------------------------------------------------------------------------
 
+@logged
 class AnsibleBackend(DeploymentBackend):
     """Ansible-based deployment backend.
 

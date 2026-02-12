@@ -14,6 +14,12 @@ from ..sandbox_manager import SandboxManager
 from .base import DeploymentConfig, DeploymentMode
 from .docker import DockerBackend
 
+try:
+    from ..nfo_config import logged
+except Exception:
+    def logged(cls=None, **kw):  # type: ignore[misc]
+        return cls if cls is not None else lambda c: c
+
 
 @dataclass
 class ComposeService:
@@ -31,6 +37,7 @@ class ComposeService:
     volumes: list[str] = None
 
 
+@logged
 class ComposeGenerator:
     """
     Generate Docker Compose / Podman Compose files for pactown ecosystems.

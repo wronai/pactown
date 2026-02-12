@@ -8,6 +8,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
+try:
+    from ..nfo_config import logged
+except Exception:
+    def logged(cls=None, **kw):  # type: ignore[misc]
+        return cls if cls is not None else lambda c: c
+
 
 @dataclass
 class ArtifactVersion:
@@ -94,6 +100,7 @@ class Artifact:
         )
 
 
+@logged
 class RegistryStorage:
     """File-based storage for registry artifacts."""
 

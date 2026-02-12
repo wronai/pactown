@@ -5,7 +5,14 @@ from typing import Optional
 
 import httpx
 
+try:
+    from ..nfo_config import logged
+except Exception:
+    def logged(cls=None, **kw):  # type: ignore[misc]
+        return cls if cls is not None else lambda c: c
 
+
+@logged
 class RegistryClient:
     """Client for interacting with pactown registry."""
 
@@ -168,6 +175,7 @@ class RegistryClient:
             return []
 
 
+@logged
 class AsyncRegistryClient:
     """Async client for pactown registry."""
 

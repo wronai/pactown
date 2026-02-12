@@ -1439,6 +1439,68 @@ def test_mobile_build_no_cmd_returns_failure() -> None:
 
 
 # ===========================================================================
+# MobileBuilder._ensure_cap_platforms
+# ===========================================================================
+
+def test_mobile_ensure_cap_platforms_skips_existing_dir(tmp_path: Path) -> None:
+    """_ensure_cap_platforms should not run `cap add` if platform dir exists."""
+    (tmp_path / "android").mkdir()
+    builder = MobileBuilder()
+    logs: list[str] = []
+    with patch.object(builder, "_run_shell") as mock_shell:
+        builder._ensure_cap_platforms(tmp_path, ["android"], on_log=logs.append)
+    mock_shell.assert_not_called()
+
+
+def test_mobile_ensure_cap_platforms_runs_cap_add(tmp_path: Path) -> None:
+    """_ensure_cap_platforms should run `npx cap add android` when dir missing."""
+    builder = MobileBuilder()
+    logs: list[str] = []
+    with patch.object(builder, "_run_shell", return_value=(0, "", "")) as mock_shell:
+        builder._ensure_cap_platforms(tmp_path, ["android"], on_log=logs.append)
+    mock_shell.assert_called_once()
+    call_args = mock_shell.call_args
+    assert "npx cap add android" in call_args[0][0]
+    assert any("Adding Capacitor platform" in l for l in logs)
+
+
+def test_mobile_ensure_cap_platforms_multiple_targets(tmp_path: Path) -> None:
+    """_ensure_cap_platforms should add each missing platform."""
+    builder = MobileBuilder()
+    with patch.object(builder, "_run_shell", return_value=(0, "", "")) as mock_shell:
+        builder._ensure_cap_platforms(tmp_path, ["android", "ios"])
+    assert mock_shell.call_count == 2
+    cmds = [c[0][0] for c in mock_shell.call_args_list]
+    assert "npx cap add android" in cmds
+    assert "npx cap add ios" in cmds
+
+
+def test_mobile_ensure_cap_platforms_partial_existing(tmp_path: Path) -> None:
+    """Only missing platforms should be added."""
+    (tmp_path / "android").mkdir()
+    builder = MobileBuilder()
+    with patch.object(builder, "_run_shell", return_value=(0, "", "")) as mock_shell:
+        builder._ensure_cap_platforms(tmp_path, ["android", "ios"])
+    assert mock_shell.call_count == 1
+    assert "npx cap add ios" in mock_shell.call_args[0][0]
+
+
+def test_mobile_build_capacitor_calls_ensure_platforms(tmp_path: Path) -> None:
+    """build() with framework=capacitor should call _ensure_cap_platforms."""
+    builder = MobileBuilder()
+    with patch.object(builder, "_ensure_cap_platforms") as mock_ensure, \
+         patch.object(builder, "_run_shell", return_value=(0, "", "")):
+        builder.build(
+            tmp_path,
+            build_cmd="npx cap sync android && cd android && ./gradlew assembleDebug",
+            framework="capacitor",
+            targets=["android"],
+        )
+    mock_ensure.assert_called_once()
+    assert mock_ensure.call_args[0][1] == ["android"]
+
+
+# ===========================================================================
 # WebBuilder - extended
 # ===========================================================================
 

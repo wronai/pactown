@@ -15,7 +15,14 @@ from .base import (
     RuntimeType,
 )
 
+try:
+    from ..nfo_config import logged
+except Exception:
+    def logged(cls=None, **kw):  # type: ignore[misc]
+        return cls if cls is not None else lambda c: c
 
+
+@logged
 class PodmanBackend(DeploymentBackend):
     """
     Podman container runtime backend.

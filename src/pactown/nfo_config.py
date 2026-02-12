@@ -76,11 +76,29 @@ _AUTO_LOG_MODULES = [
     "pactown.platform",
     "pactown.events",
     "pactown.llm",
+    "pactown.markpact_blocks",
+    "pactown.config",
+    "pactown.runner_types",
+    # builders
     "pactown.builders.base",
     "pactown.builders.desktop",
     "pactown.builders.mobile",
     "pactown.builders.web",
     "pactown.builders.registry",
+    # deploy
+    "pactown.deploy.base",
+    "pactown.deploy.ansible",
+    "pactown.deploy.compose",
+    "pactown.deploy.docker",
+    "pactown.deploy.kubernetes",
+    "pactown.deploy.podman",
+    "pactown.deploy.quadlet",
+    "pactown.deploy.quadlet_api",
+    "pactown.deploy.quadlet_shell",
+    # registry
+    "pactown.registry.client",
+    "pactown.registry.models",
+    "pactown.registry.server",
 ]
 
 # Stdlib logger names to bridge to nfo sinks (captures logging.getLogger() calls).
@@ -96,6 +114,8 @@ _BRIDGE_MODULES = [
     "pactown.builders.web",
     "pactown.events",
     "pactown.llm",
+    "pactown.deploy",
+    "pactown.registry",
 ]
 
 
