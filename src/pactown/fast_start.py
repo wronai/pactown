@@ -28,6 +28,12 @@ from typing import Any, Callable, Dict, List, Optional, Set
 
 from .markpact_blocks import parse_blocks
 
+try:
+    from nfo import logged
+except ImportError:
+    def logged(cls=None, **kw):
+        return cls if cls is not None else lambda c: c
+
 
 @dataclass
 class CachedVenv:
@@ -120,6 +126,7 @@ def _run_streamed(
             pass
 
 
+@logged
 class DependencyCache:
     """
     Caches virtual environments by dependency hash.
@@ -375,6 +382,7 @@ class DependencyCache:
             }
 
 
+@logged
 class SandboxPool:
     """
     Pool of pre-warmed sandboxes for instant startup.
@@ -443,6 +451,7 @@ class SandboxPool:
             sandbox.in_use = False
 
 
+@logged
 class FastServiceStarter:
     """
     Optimized service starter with caching and parallel execution.
@@ -691,6 +700,7 @@ class FastServiceStarter:
         return stats
 
 
+@logged
 class ParallelServiceRunner:
     """
     Run multiple services in parallel with optimized startup.

@@ -15,6 +15,12 @@ from .network import ServiceRegistry
 from .resolver import DependencyResolver
 from .sandbox_manager import SandboxManager, ServiceProcess
 
+try:
+    from nfo import logged
+except ImportError:
+    def logged(cls=None, **kw):
+        return cls if cls is not None else lambda c: c
+
 console = Console()
 
 
@@ -28,6 +34,7 @@ class ServiceHealth:
     error: Optional[str] = None
 
 
+@logged
 class Orchestrator:
     """Orchestrates the lifecycle of a pactown ecosystem."""
 

@@ -37,6 +37,12 @@ from .sandbox_helpers import (  # noqa: F401 – re-exported for backward compat
     _write_dotenv_file,
 )
 
+try:
+    from nfo import logged
+except ImportError:
+    def logged(cls=None, **kw):
+        return cls if cls is not None else lambda c: c
+
 # Configure detailed logging
 logger = logging.getLogger("pactown.sandbox")
 logger.setLevel(logging.DEBUG)
@@ -519,6 +525,7 @@ def _find_web_assets_dir(sandbox_path: Path) -> Path:
     return sandbox_path
 
 
+@logged
 class SandboxManager:
     """Manages sandboxes for multiple services."""
 

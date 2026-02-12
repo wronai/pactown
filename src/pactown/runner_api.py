@@ -25,6 +25,15 @@ from .security import UserProfile
 from .service_runner import RunResult, ServiceRunner, ValidationResult
 from .error_context import build_error_context, render_error_report_md
 
+from .nfo_config import setup_logging
+setup_logging()
+
+try:
+    from nfo import logged
+except ImportError:
+    def logged(cls=None, **kw):
+        return cls if cls is not None else lambda c: c
+
 logger = logging.getLogger(__name__)
 
 
@@ -125,6 +134,7 @@ class RunnerApiSettings:
         self.domain = os.environ.get("PACTOWN_DOMAIN", "")
 
 
+@logged
 class RunnerService:
     def __init__(
         self,

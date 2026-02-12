@@ -17,6 +17,12 @@ from threading import Lock
 from typing import Callable, Dict, List, Optional, Any
 import logging
 
+try:
+    from nfo import logged
+except ImportError:
+    def logged(cls=None, **kw):
+        return cls if cls is not None else lambda c: c
+
 
 # Configure logging for anomalies
 logging.basicConfig(level=logging.INFO)
@@ -165,6 +171,7 @@ class AnomalyEvent:
         )
 
 
+@logged
 class AnomalyLogger:
     """Logs security anomalies for admin review."""
     
@@ -248,6 +255,7 @@ class AnomalyLogger:
             return [e for e in self._events if e.anomaly_type == anomaly_type][-count:]
 
 
+@logged
 class RateLimiter:
     """Token bucket rate limiter."""
     
@@ -303,6 +311,7 @@ class RateLimiter:
         return tokens_needed / (self.requests_per_minute / 60.0)
 
 
+@logged
 class ResourceMonitor:
     """Monitors system resources and detects overload."""
     
@@ -405,6 +414,7 @@ class SecurityCheckResult:
         }
 
 
+@logged
 class SecurityPolicy:
     """
     Main security policy enforcer for pactown.

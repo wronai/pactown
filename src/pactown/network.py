@@ -9,6 +9,12 @@ from pathlib import Path
 from threading import Lock
 from typing import Optional
 
+try:
+    from nfo import logged
+except ImportError:
+    def logged(cls=None, **kw):
+        return cls if cls is not None else lambda c: c
+
 
 @dataclass
 class ServiceEndpoint:
@@ -33,6 +39,7 @@ class ServiceEndpoint:
 MIN_SAFE_PORT = 1024
 
 
+@logged
 class PortAllocator:
     """Allocates free ports dynamically.
     
@@ -98,6 +105,7 @@ class PortAllocator:
             self._allocated.clear()
 
 
+@logged
 class ServiceRegistry:
     """
     Local service registry for name-based service discovery.

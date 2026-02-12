@@ -19,6 +19,9 @@ from .generator import generate_config, print_scan_results
 from .orchestrator import Orchestrator
 from .resolver import DependencyResolver
 
+from .nfo_config import setup_logging
+setup_logging()
+
 console = Console()
 
 
