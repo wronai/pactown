@@ -35,6 +35,8 @@ import asyncio
 import json
 import uuid
 
+from .nfo_config import logged
+
 
 class EventType(str, Enum):
     """Standard event types for service lifecycle."""
@@ -144,6 +146,7 @@ class Event:
         )
 
 
+@logged
 class EventStore:
     """
     Append-only event store with subscription support.
@@ -519,6 +522,7 @@ class ServiceAggregate(Aggregate):
 
 
 # Command handlers (Write side of CQRS)
+@logged
 class ServiceCommands:
     """
     Command handlers for service operations.
@@ -650,6 +654,7 @@ class ServiceCommands:
         return await self.event_store.append(event)
 
 
+@logged
 class ProjectCommands:
     """Command handlers for project operations."""
     
@@ -713,6 +718,7 @@ class ProjectCommands:
         return await self.event_store.append(event)
 
 
+@logged
 class SecurityCommands:
     """Command handlers for security events."""
     
@@ -785,6 +791,7 @@ class SecurityCommands:
 
 
 # Query handlers (Read side of CQRS)
+@logged
 class ServiceQueries:
     """
     Query handlers for service read operations.
@@ -856,6 +863,7 @@ class ServiceQueries:
         return [e.to_dict() for e in user_events]
 
 
+@logged
 class ProjectQueries:
     """Query handlers for project read operations."""
     
@@ -886,6 +894,7 @@ class ProjectQueries:
         }
 
 
+@logged
 class SecurityQueries:
     """Query handlers for security read operations."""
     

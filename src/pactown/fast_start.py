@@ -28,11 +28,7 @@ from typing import Any, Callable, Dict, List, Optional, Set
 
 from .markpact_blocks import parse_blocks
 
-try:
-    from nfo import logged
-except ImportError:
-    def logged(cls=None, **kw):
-        return cls if cls is not None else lambda c: c
+from .nfo_config import logged
 
 
 @dataclass

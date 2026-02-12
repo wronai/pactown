@@ -13,6 +13,8 @@ from typing import Any, Callable, Optional
 from rich.console import Console
 from rich.progress import BarColumn, Progress, SpinnerColumn, TaskProgressColumn, TextColumn
 
+from .nfo_config import logged
+
 console = Console()
 
 
@@ -211,6 +213,7 @@ async def run_parallel_async(
     return results
 
 
+@logged
 class ParallelSandboxBuilder:
     """Build multiple sandboxes in parallel."""
 

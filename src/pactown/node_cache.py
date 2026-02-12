@@ -18,6 +18,8 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from threading import Lock
+
+from .nfo_config import logged
 from typing import Any, Callable, Dict, List, Optional
 
 
@@ -36,6 +38,7 @@ class CachedNodeModules:
         return self.path.is_dir() and any(self.path.iterdir())
 
 
+@logged
 class NodeModulesCache:
     """Cache ``node_modules`` directories by ``package.json`` content hash.
 

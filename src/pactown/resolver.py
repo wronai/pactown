@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from .config import EcosystemConfig, ServiceConfig
+from .nfo_config import logged
 
 
 @dataclass
@@ -17,6 +18,7 @@ class ResolvedDependency:
     service: Optional[ServiceConfig] = None
 
 
+@logged
 class DependencyResolver:
     """Resolves dependencies between services in an ecosystem."""
 

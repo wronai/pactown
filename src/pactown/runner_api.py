@@ -25,14 +25,8 @@ from .security import UserProfile
 from .service_runner import RunResult, ServiceRunner, ValidationResult
 from .error_context import build_error_context, render_error_report_md
 
-from .nfo_config import setup_logging
+from .nfo_config import setup_logging, logged
 setup_logging()
-
-try:
-    from nfo import logged
-except ImportError:
-    def logged(cls=None, **kw):
-        return cls if cls is not None else lambda c: c
 
 logger = logging.getLogger(__name__)
 

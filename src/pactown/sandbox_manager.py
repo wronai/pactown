@@ -37,11 +37,7 @@ from .sandbox_helpers import (  # noqa: F401 – re-exported for backward compat
     _write_dotenv_file,
 )
 
-try:
-    from nfo import logged
-except ImportError:
-    def logged(cls=None, **kw):
-        return cls if cls is not None else lambda c: c
+from .nfo_config import logged
 
 # Configure detailed logging
 logger = logging.getLogger("pactown.sandbox")

@@ -12,6 +12,8 @@ import inspect
 from typing import Any, Callable, Dict, List, Optional
 from pathlib import Path
 
+from .nfo_config import logged
+
 LOLM_AVAILABLE = False
 LOLM_VERSION: Optional[str] = None
 LOLM_IMPORT_ERROR: Optional[str] = None
@@ -114,6 +116,7 @@ class LLMNotAvailableError(PactownLLMError):
     pass
 
 
+@logged
 class PactownLLM:
     """
     Pactown LLM Manager with rotation and fallback support.

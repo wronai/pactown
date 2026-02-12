@@ -42,11 +42,7 @@ from .sandbox_helpers import (
     _write_dotenv_file,
 )
 
-try:
-    from nfo import logged
-except ImportError:
-    def logged(cls=None, **kw):
-        return cls if cls is not None else lambda c: c
+from .nfo_config import logged
 
 
 @logged

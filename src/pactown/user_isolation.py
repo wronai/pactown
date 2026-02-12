@@ -18,6 +18,8 @@ import logging
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
+
+from .nfo_config import logged
 from typing import Dict, List, Optional, Any
 from threading import Lock
 
@@ -55,6 +57,7 @@ class IsolatedUser:
         }
 
 
+@logged
 class UserIsolationManager:
     """
     Manages isolated Linux users for sandbox execution.
