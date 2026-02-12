@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import json
-import logging
 import platform
 import shutil
 import time
@@ -14,12 +13,14 @@ from typing import Any, Callable, Optional
 from .base import Builder, BuildError, BuildResult
 
 try:
-    from ..nfo_config import logged
+    from ..nfo_config import logged, get_logger
 except Exception:
     def logged(cls=None, **kw):  # type: ignore[misc]
         return cls if cls is not None else lambda c: c
+    import logging as _logging
+    get_logger = _logging.getLogger
 
-_logger = logging.getLogger("pactown.builders.desktop")
+_logger = get_logger("pactown.builders.desktop")
 
 
 @logged

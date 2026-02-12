@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import logging
 import time
 from pathlib import Path
 from typing import Any, Callable, Optional
@@ -10,12 +9,14 @@ from typing import Any, Callable, Optional
 from .base import Builder, BuildResult
 
 try:
-    from ..nfo_config import logged
+    from ..nfo_config import logged, get_logger
 except Exception:
     def logged(cls=None, **kw):  # type: ignore[misc]
         return cls if cls is not None else lambda c: c
+    import logging as _logging
+    get_logger = _logging.getLogger
 
-_logger = logging.getLogger("pactown.builders.web")
+_logger = get_logger("pactown.builders.web")
 
 
 @logged

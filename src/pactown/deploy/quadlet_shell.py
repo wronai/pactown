@@ -16,6 +16,12 @@ from rich.prompt import Confirm
 from rich.syntax import Syntax
 from rich.table import Table
 
+try:
+    from ..nfo_config import logged
+except Exception:
+    def logged(cls=None, **kw):  # type: ignore[misc]
+        return cls if cls is not None else lambda c: c
+
 from .base import DeploymentConfig
 from .quadlet import (
     QuadletBackend,
@@ -28,6 +34,7 @@ from .quadlet import (
 console = Console()
 
 
+@logged
 class QuadletShell(cmd.Cmd):
     """Interactive shell for Quadlet deployment management."""
 

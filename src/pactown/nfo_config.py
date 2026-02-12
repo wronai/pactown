@@ -13,6 +13,11 @@ For decorators (any module):
     @logged
     class MyService: ...
 
+For logging messages (replaces ``import logging; logger = logging.getLogger(__name__)``):
+
+    from pactown.nfo_config import get_logger
+    logger = get_logger(__name__)
+
 This configures nfo to:
 - Write structured logs to SQLite (queryable)
 - Bridge existing stdlib loggers (pactown.sandbox, etc.)
@@ -22,6 +27,7 @@ This configures nfo to:
 
 from __future__ import annotations
 
+import logging as _logging
 import os
 import tempfile
 from pathlib import Path
@@ -33,6 +39,7 @@ from typing import Any, Callable, Optional, TypeVar
 #     from pactown.nfo_config import log_call      # function decorator
 #     from pactown.nfo_config import catch         # exception-safe decorator
 #     from pactown.nfo_config import skip          # exclude method from @logged
+#     from pactown.nfo_config import get_logger    # stdlib logger bridged to nfo
 # If nfo is not installed, all decorators become transparent no-ops.
 # ---------------------------------------------------------------------------
 
@@ -55,6 +62,28 @@ except ImportError:  # nfo not installed — provide no-op fallbacks
 
 _initialized = False
 
+
+def get_logger(name: str | None = None) -> _logging.Logger:
+    """Return a stdlib logger that auto-propagates to nfo sinks.
+
+    Replaces the boilerplate::
+
+        import logging
+        logger = logging.getLogger(__name__)
+
+    With::
+
+        from pactown.nfo_config import get_logger
+        logger = get_logger(__name__)
+
+    When *name* is ``None``, the caller's ``__name__`` is used.
+    """
+    if name is None:
+        import inspect as _inspect
+        frame = _inspect.currentframe()
+        name = frame.f_back.f_globals.get("__name__", __name__) if frame else __name__
+    return _logging.getLogger(name)
+
 # Modules to auto-instrument with nfo.auto_log().
 # All public functions in these modules get @log_call wrapping automatically.
 _AUTO_LOG_MODULES = [
@@ -73,12 +102,9 @@ _AUTO_LOG_MODULES = [
     "pactown.parallel",
     "pactown.iac",
     "pactown.targets",
-    "pactown.platform",
     "pactown.events",
     "pactown.llm",
-    "pactown.markpact_blocks",
-    "pactown.config",
-    "pactown.runner_types",
+    "pactown.runner_api",
     # builders
     "pactown.builders.base",
     "pactown.builders.desktop",
@@ -114,6 +140,7 @@ _BRIDGE_MODULES = [
     "pactown.builders.web",
     "pactown.events",
     "pactown.llm",
+    "pactown.isolation",
     "pactown.deploy",
     "pactown.registry",
 ]
@@ -122,7 +149,7 @@ _BRIDGE_MODULES = [
 def setup_logging(
     *,
     log_dir: Optional[str] = None,
-    level: str = "DEBUG",
+    level: str = "INFO",
     enable_sqlite: bool = True,
     enable_csv: bool = False,
     enable_markdown: bool = False,
@@ -136,7 +163,7 @@ def setup_logging(
 
     Args:
         log_dir: Directory for log files. Defaults to PACTOWN_LOG_DIR or /tmp/pactown-logs.
-        level: Minimum log level.
+        level: Minimum log level (override with NFO_LEVEL env var).
         enable_sqlite: Write logs to SQLite database.
         enable_csv: Write logs to CSV file.
         enable_markdown: Write logs to Markdown file.
