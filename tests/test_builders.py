@@ -276,7 +276,9 @@ def test_mobile_scaffold_capacitor_preserves_existing_deps(tmp_path: Path) -> No
     deps = pkg["dependencies"]
     # User's pinned version should be preserved
     assert deps["@capacitor/core"] == "^5.0.0"
-    assert deps["@capacitor/storage"] == "^1.2.5"
+    # @capacitor/storage migrated to @capacitor/preferences
+    assert "@capacitor/storage" not in deps
+    assert "@capacitor/preferences" in deps
     # CLI should be added
     assert "@capacitor/cli" in deps
     assert "@capacitor/android" in deps
@@ -301,6 +303,25 @@ def test_mobile_scaffold_capacitor_pins_latest_to_6x(tmp_path: Path) -> None:
     assert deps["@capacitor/core"] == "^6.0.0"
     assert deps["@capacitor/cli"] == "^6.0.0"
     assert deps["@capacitor/android"] == "^6.0.0"
+
+
+def test_mobile_scaffold_capacitor_migrates_storage_to_preferences(tmp_path: Path) -> None:
+    """Scaffold should replace deprecated @capacitor/storage with @capacitor/preferences."""
+    (tmp_path / "package.json").write_text(json.dumps({
+        "name": "myapp",
+        "version": "1.0.0",
+        "dependencies": {
+            "@capacitor/core": "^6.0.0",
+            "@capacitor/storage": "^5.0.0",
+        },
+    }))
+    builder = MobileBuilder()
+    builder.scaffold(tmp_path, framework="capacitor", app_name="myapp")
+
+    pkg = json.loads((tmp_path / "package.json").read_text())
+    deps = pkg["dependencies"]
+    assert "@capacitor/storage" not in deps
+    assert deps["@capacitor/preferences"] == "^6.0.0"
 
 
 def test_mobile_scaffold_capacitor_pins_ios_latest_to_6x(tmp_path: Path) -> None:
@@ -601,7 +622,7 @@ def test_mobile_scaffold_capacitor_updates_plugin_versions(tmp_path: Path) -> No
                 "version": "1.0.0",
                 "dependencies": {
                     "@capacitor/core": "^6.0.0",
-                    "@capacitor/storage": "latest",  # This should be updated to ^6.0.0
+                    "@capacitor/storage": "latest",  # Deprecated → migrated to @capacitor/preferences
                     "@capacitor/camera": "latest",   # This should be updated to ^6.0.0
                     "some-other-package": "^1.0.0",  # This should remain unchanged
                 },
@@ -620,8 +641,9 @@ def test_mobile_scaffold_capacitor_updates_plugin_versions(tmp_path: Path) -> No
     assert deps["@capacitor/cli"] == "^6.0.0"
     assert deps["@capacitor/android"] == "^6.0.0"
     
-    # Plugin packages should be updated from "latest" to compatible versions
-    assert deps["@capacitor/storage"] == "^6.0.0"
+    # @capacitor/storage migrated to @capacitor/preferences
+    assert "@capacitor/storage" not in deps
+    assert deps["@capacitor/preferences"] == "^6.0.0"
     assert deps["@capacitor/camera"] == "^6.0.0"
     
     # Non-capacitor packages should remain unchanged

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import shutil
 import time
 from pathlib import Path
@@ -10,7 +11,21 @@ from typing import Any, Callable, Optional
 
 from .base import Builder, BuildError, BuildResult
 
+try:
+    from ..nfo_config import logged
+except Exception:
+    def logged(cls=None, **kw):  # type: ignore[misc]
+        return cls if cls is not None else lambda c: c
 
+_logger = logging.getLogger("pactown.builders.mobile")
+
+# Deprecated Capacitor plugins → their replacements (name change in Cap 5+).
+_CAP_DEPRECATED_PLUGINS: dict[str, str] = {
+    "@capacitor/storage": "@capacitor/preferences",
+}
+
+
+@logged
 class MobileBuilder(Builder):
     """Builds mobile application artifacts from a markpact sandbox."""
 
@@ -134,7 +149,7 @@ class MobileBuilder(Builder):
     }
     # Common Capacitor plugins with versions compatible with @capacitor/core@^6.0.0
     _CAP_PLUGIN_DEPS: dict[str, str] = {
-        "@capacitor/storage": "^6.0.0",
+        "@capacitor/preferences": "^6.0.0",
         "@capacitor/camera": "^6.0.0",
         "@capacitor/geolocation": "^6.0.0",
         "@capacitor/network": "^6.0.0",
@@ -226,6 +241,18 @@ class MobileBuilder(Builder):
         for plugin_name, compatible_version in self._CAP_PLUGIN_DEPS.items():
             if plugin_name in deps and deps[plugin_name] == "latest":
                 deps[plugin_name] = compatible_version
+
+        # Migrate deprecated Capacitor plugins to their replacements.
+        # e.g. @capacitor/storage → @capacitor/preferences (renamed in Cap 5+).
+        for old_name, new_name in _CAP_DEPRECATED_PLUGINS.items():
+            if old_name in deps:
+                old_ver = deps.pop(old_name)
+                new_ver = self._CAP_PLUGIN_DEPS.get(new_name, "^6.0.0")
+                deps.setdefault(new_name, new_ver)
+                _logger.info(
+                    "[mobile] Migrated deprecated %s → %s (%s)",
+                    old_name, new_name, new_ver,
+                )
 
         # Catch-all: pin ANY remaining @capacitor/* dep that is "latest" to ^6.0.0
         # to prevent ERESOLVE when npm resolves "latest" to a newer major.

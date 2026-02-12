@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import platform
 import shutil
 import time
@@ -12,7 +13,16 @@ from typing import Any, Callable, Optional
 
 from .base import Builder, BuildError, BuildResult
 
+try:
+    from ..nfo_config import logged
+except Exception:
+    def logged(cls=None, **kw):  # type: ignore[misc]
+        return cls if cls is not None else lambda c: c
 
+_logger = logging.getLogger("pactown.builders.desktop")
+
+
+@logged
 class DesktopBuilder(Builder):
     """Builds desktop application artifacts from a markpact sandbox."""
 

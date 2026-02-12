@@ -2,13 +2,23 @@
 
 from __future__ import annotations
 
+import logging
 import time
 from pathlib import Path
 from typing import Any, Callable, Optional
 
 from .base import Builder, BuildResult
 
+try:
+    from ..nfo_config import logged
+except Exception:
+    def logged(cls=None, **kw):  # type: ignore[misc]
+        return cls if cls is not None else lambda c: c
 
+_logger = logging.getLogger("pactown.builders.web")
+
+
+@logged
 class WebBuilder(Builder):
     """Web services don't produce build artifacts – they run as servers.
 

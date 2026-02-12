@@ -2391,7 +2391,9 @@ class TestScaffoldConfigCorrectness:
         }))
         MobileBuilder().scaffold(sandbox, framework="capacitor", app_name="cap")
         pkg = json.loads((sandbox / "package.json").read_text())
-        assert pkg["dependencies"]["@capacitor/storage"] == "^6.0.0"
+        # @capacitor/storage migrated to @capacitor/preferences (renamed in Cap 5+)
+        assert "@capacitor/storage" not in pkg["dependencies"]
+        assert pkg["dependencies"]["@capacitor/preferences"] == "^6.0.0"
         assert pkg["dependencies"]["@capacitor/camera"] == "^6.0.0"
 
     # -- React Native --

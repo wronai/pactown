@@ -76,6 +76,11 @@ _AUTO_LOG_MODULES = [
     "pactown.platform",
     "pactown.events",
     "pactown.llm",
+    "pactown.builders.base",
+    "pactown.builders.desktop",
+    "pactown.builders.mobile",
+    "pactown.builders.web",
+    "pactown.builders.registry",
 ]
 
 # Stdlib logger names to bridge to nfo sinks (captures logging.getLogger() calls).
@@ -86,6 +91,9 @@ _BRIDGE_MODULES = [
     "pactown.security",
     "pactown.orchestrator",
     "pactown.builders",
+    "pactown.builders.desktop",
+    "pactown.builders.mobile",
+    "pactown.builders.web",
     "pactown.events",
     "pactown.llm",
 ]
