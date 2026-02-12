@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 import os
 import re
 import asyncio
@@ -25,10 +24,10 @@ from .security import UserProfile
 from .service_runner import RunResult, ServiceRunner, ValidationResult
 from .error_context import build_error_context, render_error_report_md
 
-from .nfo_config import setup_logging, logged
+from .nfo_config import setup_logging, logged, get_logger
 setup_logging()
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 def _dns_label(value: str, fallback: str = "user") -> str:

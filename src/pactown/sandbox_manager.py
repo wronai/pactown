@@ -37,10 +37,10 @@ from .sandbox_helpers import (  # noqa: F401 – re-exported for backward compat
     _write_dotenv_file,
 )
 
-from .nfo_config import logged
+from .nfo_config import logged, get_logger
 
 # Configure detailed logging
-logger = logging.getLogger("pactown.sandbox")
+logger = get_logger("pactown.sandbox")
 logger.setLevel(logging.DEBUG)
 
 # File handler for persistent logs

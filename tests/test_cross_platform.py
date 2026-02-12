@@ -523,7 +523,11 @@ class TestMobileCapacitorAllPlatforms:
     @pytest.mark.parametrize("platform", ["android", "ios"])
     def test_build_cmd_per_platform(self, platform: str) -> None:
         cmd = MobileBuilder._default_build_cmd("capacitor", [platform])
-        assert f"npx cap sync && npx cap build {platform}" == cmd
+        assert f"cap sync {platform}" in cmd
+        if platform == "android":
+            assert "gradlew assembleDebug" in cmd
+        else:
+            assert "xcodebuild" in cmd
 
     def test_dual_platform_artifacts(self, sandbox: Path) -> None:
         MobileBuilder().scaffold(sandbox, framework="capacitor", app_name="capapp")
@@ -996,7 +1000,11 @@ class TestBuildCommandMatrix:
     @pytest.mark.parametrize("platform", ["android", "ios"])
     def test_capacitor_build_cmd(self, platform: str) -> None:
         cmd = MobileBuilder._default_build_cmd("capacitor", [platform])
-        assert f"npx cap build {platform}" in cmd
+        assert f"cap sync {platform}" in cmd
+        if platform == "android":
+            assert "gradlew assembleDebug" in cmd
+        else:
+            assert "xcodebuild" in cmd
 
     @pytest.mark.parametrize("platform", ["android", "ios"])
     def test_react_native_build_cmd(self, platform: str) -> None:

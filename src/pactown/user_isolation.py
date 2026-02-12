@@ -14,16 +14,15 @@ import pwd
 import re
 import shutil
 import subprocess
-import logging
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .nfo_config import logged
+from .nfo_config import logged, get_logger
 from typing import Dict, List, Optional, Any
 from threading import Lock
 
-logger = logging.getLogger("pactown.isolation")
+logger = get_logger("pactown.isolation")
 
 
 def _sanitize_gecos(value: str) -> str:

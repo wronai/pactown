@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import time
 from pathlib import Path
@@ -19,6 +20,32 @@ except Exception:
     get_logger = _logging.getLogger
 
 _logger = get_logger("pactown.builders.mobile")
+
+
+def _sanitize_java_package_id(raw: str) -> str:
+    """Sanitize a string into a valid Java package identifier.
+
+    Java package segments must match ``[a-zA-Z_][a-zA-Z0-9_]*`` and the
+    full ID uses dots as separators (e.g. ``com.example.myapp``).
+    Dashes and other illegal characters are replaced with underscores;
+    segments that start with a digit get a leading underscore.
+    """
+    # Replace any char that is not alphanumeric, underscore, or dot
+    sanitized = re.sub(r"[^a-zA-Z0-9_.]", "_", raw)
+    # Collapse consecutive underscores
+    sanitized = re.sub(r"_+", "_", sanitized)
+    # Ensure each segment doesn't start with a digit
+    parts = sanitized.split(".")
+    cleaned: list[str] = []
+    for part in parts:
+        part = part.strip("_")  # trim leading/trailing underscores
+        if not part:
+            continue
+        if part[0].isdigit():
+            part = f"_{part}"
+        cleaned.append(part)
+    return ".".join(cleaned) if cleaned else "com.pactown.app"
+
 
 # Deprecated Capacitor plugins → their replacements (name change in Cap 5+).
 _CAP_DEPRECATED_PLUGINS: dict[str, str] = {
@@ -189,11 +216,11 @@ class MobileBuilder(Builder):
         # capacitor.config.json
         cap_cfg = sandbox_path / "capacitor.config.json"
         if not cap_cfg.exists():
+            raw_id = (extra or {}).get("app_id", f"com.pactown.{app_name}")
             config = {
-                "appId": (extra or {}).get("app_id", f"com.pactown.{app_name}"),
+                "appId": _sanitize_java_package_id(raw_id),
                 "appName": app_name,
                 "webDir": web_dir,
-                "bundledWebRuntime": False,
                 "server": {
                     "androidScheme": "https",
                 },
@@ -326,7 +353,9 @@ class MobileBuilder(Builder):
 
         spec = sandbox_path / "buildozer.spec"
         if not spec.exists():
-            app_id = (extra or {}).get("app_id", f"com.pactown.{app_name}")
+            app_id = _sanitize_java_package_id(
+                (extra or {}).get("app_id", f"com.pactown.{app_name}")
+            )
             icon = (extra or {}).get("icon", "")
             spec.write_text(
                 f"""\
@@ -401,7 +430,9 @@ warn_on_root = 1
         target = targets[0] if targets else "android"
 
         if fw == "capacitor":
-            return f"npx cap sync && npx cap build {target}"
+            if target == "ios":
+                return "npx cap sync ios && cd ios/App && xcodebuild -workspace App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator build"
+            return f"npx cap sync {target} && cd {target} && ./gradlew assembleDebug"
         if fw == "react-native":
             if target == "ios":
                 return "npx react-native build-ios --mode=release"

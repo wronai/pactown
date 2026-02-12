@@ -17,12 +17,12 @@ from threading import Lock
 from typing import Callable, Dict, List, Optional, Any
 import logging
 
-from .nfo_config import logged
+from .nfo_config import logged, get_logger
 
 
 # Configure logging for anomalies
 logging.basicConfig(level=logging.INFO)
-anomaly_logger = logging.getLogger("pactown.security.anomaly")
+anomaly_logger = get_logger("pactown.security.anomaly")
 
 
 class AnomalyType(str, Enum):

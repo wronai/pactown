@@ -2329,7 +2329,7 @@ class TestScaffoldConfigCorrectness:
         conf = json.loads((sandbox / "capacitor.config.json").read_text())
         assert conf["appId"] == "com.test.cap"
         assert conf["appName"] == "cap"
-        assert conf["bundledWebRuntime"] is False
+        assert "bundledWebRuntime" not in conf  # deprecated in Cap 5+
         assert conf["server"]["androidScheme"] == "https"
 
     def test_capacitor_scripts_in_package_json(self, tmp_path: Path) -> None:
@@ -2522,13 +2522,14 @@ class TestBuildCommandGeneration:
     def test_capacitor_android_build_cmd(self) -> None:
         from pactown.builders import MobileBuilder
         cmd = MobileBuilder._default_build_cmd("capacitor", ["android"])
-        assert "cap sync" in cmd
-        assert "cap build android" in cmd
+        assert "cap sync android" in cmd
+        assert "gradlew assembleDebug" in cmd
 
     def test_capacitor_ios_build_cmd(self) -> None:
         from pactown.builders import MobileBuilder
         cmd = MobileBuilder._default_build_cmd("capacitor", ["ios"])
-        assert "cap build ios" in cmd
+        assert "cap sync ios" in cmd
+        assert "xcodebuild" in cmd
 
     def test_react_native_android_build_cmd(self) -> None:
         from pactown.builders import MobileBuilder

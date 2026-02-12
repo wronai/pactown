@@ -87,12 +87,16 @@ class Builder(ABC):
         timeout: int = 600,
     ) -> tuple[int, str, str]:
         """Run a shell command, stream stdout to *on_log*, return (rc, stdout, stderr)."""
-        import logging as _logging
         import os
         import subprocess
         import time as _time
 
-        _logger = _logging.getLogger("pactown.builders")
+        try:
+            from ..nfo_config import get_logger as _get_logger
+        except Exception:
+            import logging as _logging
+            _get_logger = _logging.getLogger
+        _logger = _get_logger("pactown.builders")
 
         run_env = os.environ.copy()
         if env:

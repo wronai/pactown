@@ -15,6 +15,7 @@ from pactown.builders import (
     get_builder,
     get_builder_for_target,
 )
+from pactown.builders.mobile import _sanitize_java_package_id
 from pactown.targets import (
     FRAMEWORK_REGISTRY,
     FrameworkMeta,
@@ -181,6 +182,34 @@ def test_desktop_scaffold_pyinstaller(tmp_path: Path) -> None:
 
 
 # ---------------------------------------------------------------------------
+# _sanitize_java_package_id
+# ---------------------------------------------------------------------------
+
+def test_sanitize_java_package_id_clean() -> None:
+    assert _sanitize_java_package_id("com.example.app") == "com.example.app"
+
+
+def test_sanitize_java_package_id_dashes() -> None:
+    assert _sanitize_java_package_id("com.pactown.build-d0a117f0bd22936a") == "com.pactown.build_d0a117f0bd22936a"
+
+
+def test_sanitize_java_package_id_leading_digit() -> None:
+    assert _sanitize_java_package_id("com.pactown.123abc") == "com.pactown._123abc"
+
+
+def test_sanitize_java_package_id_special_chars() -> None:
+    assert _sanitize_java_package_id("com.pact@wn.my--app!!") == "com.pact_wn.my_app"
+
+
+def test_sanitize_java_package_id_empty_segments() -> None:
+    assert _sanitize_java_package_id("com..pactown") == "com.pactown"
+
+
+def test_sanitize_java_package_id_fallback() -> None:
+    assert _sanitize_java_package_id("---") == "com.pactown.app"
+
+
+# ---------------------------------------------------------------------------
 # MobileBuilder.scaffold - Capacitor
 # ---------------------------------------------------------------------------
 
@@ -210,6 +239,29 @@ def test_mobile_scaffold_capacitor(tmp_path: Path) -> None:
     assert "@capacitor/core" in deps
     # Default target is android
     assert "@capacitor/android" in deps
+
+
+def test_mobile_scaffold_capacitor_sanitizes_dashed_appid(tmp_path: Path) -> None:
+    """App names with dashes must produce a valid Java package ID (no dashes)."""
+    (tmp_path / "www" / "index.html").parent.mkdir(parents=True, exist_ok=True)
+    (tmp_path / "www" / "index.html").write_text("<html></html>")
+    builder = MobileBuilder()
+    builder.scaffold(tmp_path, framework="capacitor", app_name="build-d0a117f0bd22936a")
+
+    data = json.loads((tmp_path / "capacitor.config.json").read_text())
+    app_id = data["appId"]
+    assert "-" not in app_id, f"appId still contains dashes: {app_id}"
+    assert app_id == "com.pactown.build_d0a117f0bd22936a"
+    # bundledWebRuntime should NOT be present (deprecated in Cap 5+)
+    assert "bundledWebRuntime" not in data
+
+
+def test_mobile_scaffold_capacitor_no_bundled_web_runtime(tmp_path: Path) -> None:
+    """Generated capacitor.config.json must not contain deprecated bundledWebRuntime."""
+    builder = MobileBuilder()
+    builder.scaffold(tmp_path, framework="capacitor", app_name="app", extra={"app_id": "com.test.app"})
+    data = json.loads((tmp_path / "capacitor.config.json").read_text())
+    assert "bundledWebRuntime" not in data
 
 
 def test_mobile_scaffold_capacitor_webdir_root(tmp_path: Path) -> None:
@@ -1273,14 +1325,14 @@ def test_mobile_capacitor_webdir_no_index_defaults_to_dist(tmp_path: Path) -> No
 
 def test_mobile_default_build_cmd_capacitor_android() -> None:
     cmd = MobileBuilder._default_build_cmd("capacitor", ["android"])
-    assert "cap sync" in cmd
-    assert "cap build android" in cmd
+    assert "cap sync android" in cmd
+    assert "gradlew assembleDebug" in cmd
 
 
 def test_mobile_default_build_cmd_capacitor_ios() -> None:
     cmd = MobileBuilder._default_build_cmd("capacitor", ["ios"])
-    assert "cap sync" in cmd
-    assert "cap build ios" in cmd
+    assert "cap sync ios" in cmd
+    assert "xcodebuild" in cmd
 
 
 def test_mobile_default_build_cmd_react_native_android() -> None:
