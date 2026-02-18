@@ -1,3 +1,18 @@
+## [0.1.166] - 2026-02-18
+
+### Summary
+
+refactor(config): configuration management system
+
+### Core
+
+- update src/pactown/markpact_blocks.py
+
+### Build
+
+- update pyproject.toml
+
+
 ## [0.1.165] - 2026-02-18
 
 ### Summary
