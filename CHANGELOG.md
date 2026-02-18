@@ -1,3 +1,23 @@
+## [0.1.165] - 2026-02-18
+
+### Summary
+
+refactor(docs): configuration management system
+
+### Docs
+
+- docs: update README
+
+### Build
+
+- update pyproject.toml
+
+### Other
+
+- update project.functions.toon
+- update project.toon
+
+
 ## [0.1.153] - 2026-02-10
 
 ### Summary

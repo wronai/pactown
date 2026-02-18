@@ -5,7 +5,16 @@
 **Decentralized Service Ecosystem Orchestrator** – Build interconnected microservices from Markdown using [markpact](https://github.com/wronai/markpact).
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![GitHub stars](https://img.shields.io/github/stars/wronai/pactown?style=social)](https://github.com/wronai/pactown/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/wronai/pactown?style=social)](https://github.com/wronai/pactown/network/members)
+[![GitHub issues](https://img.shields.io/github/issues/wronai/pactown)](https://github.com/wronai/pactown/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/wronai/pactown)](https://github.com/wronai/pactown/pulls)
+[![Tests](https://img.shields.io/github/actions/workflow/status/wronai/pactown/test.yml?label=tests)](https://github.com/wronai/pactown/actions)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Type checking: mypy](https://img.shields.io/badge/type%20checking-mypy-blue.svg)](http://mypy-lang.org/)
+[![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-lightgrey)](https://github.com/wronai/pactown)
+[![Dependencies](https://img.shields.io/badge/dependencies-markdown%20only-brightgreen)](https://github.com/wronai/pactown)
 
 ## Overview
 
@@ -324,4 +333,8 @@ pactown/
 
 ## License
 
-Apache License 2.0 – see [LICENSE](LICENSE) for details.
+Apache License 2.0 - see [LICENSE](LICENSE) for details.
+
+## Author
+
+Created by **Tom Sapletta** - [tom@sapletta.com](mailto:tom@sapletta.com)
