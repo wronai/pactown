@@ -1,3 +1,18 @@
+## [0.1.167] - 2026-02-19
+
+### Summary
+
+chore(goal): deep code analysis engine with 7 supporting modules
+
+### Config
+
+- config: update goal.yaml
+
+### Other
+
+- config: update saas.pactown.yaml
+
+
 ## [0.1.166] - 2026-02-18
 
 ### Summary

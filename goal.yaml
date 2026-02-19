@@ -1,5 +1,5 @@
 # goal.yaml - Goal configuration file
-# Generated: 2026-01-29 13:09:54
+# Generated: 2026-02-19 08:18:19
 # Documentation: https://github.com/wronai/goal#configuration
 #
 # This file configures Goal's behavior for:
@@ -23,7 +23,7 @@ versioning:
   files:
   - VERSION
   - pyproject.toml:version
-  - venv/lib/python3.13/site-packages/cryptography/__init__.py:__version__
+  - venv/lib/python3.13/site-packages/httpcore/__init__.py:__version__
   bump_rules:
     patch: 10
     minor: 50
@@ -226,6 +226,7 @@ strategies:
     test: pytest tests/ -v
     build: python -m build
     publish: twine upload dist/*
+    publish_enabled: true
     dependencies:
       file: requirements.txt
       lock: pip freeze > requirements.txt
@@ -233,6 +234,7 @@ strategies:
     test: npm test
     build: npm run build
     publish: npm publish
+    publish_enabled: true
     dependencies:
       file: package-lock.json
       lock: npm install
@@ -240,6 +242,7 @@ strategies:
     test: cargo test
     build: cargo build --release
     publish: cargo publish
+    publish_enabled: true
     dependencies:
       file: Cargo.lock
       lock: cargo update
@@ -261,6 +264,81 @@ advanced:
     max_files: 50
     timeout_test: 300
 quality:
+  commit_summary:
+    min_value_words: 3
+    max_generic_terms: 0
+    required_metrics: 2
+    relation_threshold: 0.7
+    generic_terms:
+    - update
+    - improve
+    - enhance
+    - fix
+    - change
+    - modify
+    - cleaner
+    - better
+    - refactor
+    - misc
+  enhanced_summary:
+    enabled: true
+    min_capabilities: 1
+    min_value_score: 50
+    include_metrics: true
+    include_relations: true
+    include_roles: true
+  gates:
+    max_complexity_percent: 200
+    max_duplicate_relations: 0
+    min_unique_files_ratio: 0.8
+    min_capabilities: 1
+    max_banned_words: 0
+  role_patterns:
+    _analyze_(python|js|generic)_diff: language-specific code analyzer
+    CodeChangeAnalyzer: AST-based change detector
+    analyze_file_diff: diff analysis engine
+    generate_functional_summary: business value summarizer
+    generate.*message: commit message generator
+    EnhancedSummaryGenerator: enterprise changelog generator
+    GoalConfig: configuration manager
+    '@click\\.command': CLI command
+    '@click\\.option': CLI option
+    format_.*result: output formatter
+    _calculate_complexity: complexity analyzer
+  value_patterns:
+    ast_analysis:
+      signatures:
+      - ast.parse
+      - ast.walk
+      - libcst
+      - tree-sitter
+      - AST
+      capability: deep code analysis engine
+      impact: intelligent change detection
+    dependency_graph:
+      signatures:
+      - networkx
+      - relations
+      - dependencies
+      - graph
+      capability: code relationship mapping
+      impact: architecture understanding
+    quality_metrics:
+      signatures:
+      - radon
+      - cyclomatic
+      - complexity
+      - coverage
+      capability: code quality metrics
+      impact: maintainability tracking
+    multi_language:
+      signatures:
+      - _analyze_python
+      - _analyze_js
+      - language
+      - parser
+      capability: multi-language support
+      impact: universal code analysis
   commit_message:
     min_length: 15
     max_length: 72
