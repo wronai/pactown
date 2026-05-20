@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pactown"
-version = "0.1.167"
+version = "0.1.168"
 description = "Pactown Ecosystem Orchestrator - Build and manage decentralized microservice ecosystems from Markdown READMEs using markpact sandboxes and a centralized service registry."
 readme = "README.md"
 license = "Apache-2.0"
@@ -31,13 +31,16 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.0",
+    "pytest>=8.2,<10",
     "pytest-cov>=4.0",
-    "pytest-asyncio==0.23.4",
+    "pytest-asyncio>=1.3,<2",
     "ruff>=0.1",
     "build",
     "twine",
     "bump2version>=1.0",
+    "goal>=2.1.0",
+    "costs>=0.1.20",
+    "pfix>=0.1.60",
 ]
 security = [
     "bandit>=1.7",
@@ -75,5 +78,33 @@ select = ["E", "F", "W", "I"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-asyncio_mode = "auto"
-addopts = "-p no:pytest_aiohttp -p no:aiohttp.pytest_plugin"
+addopts = "-p anyio -p pytest_asyncio.plugin -p no:pytest_aiohttp -p no:aiohttp.pytest_plugin"
+
+[tool.pfix]
+# Self-healing Python configuration
+model = "openrouter/qwen/qwen3-coder-next"
+auto_apply = true
+auto_install_deps = true
+auto_restart = false
+max_retries = 3
+create_backups = false
+git_auto_commit = false
+
+[tool.pfix.runtime_todo]
+enabled = true
+todo_file = "TODO.md"
+min_severity = "low"
+deduplicate = true
+
+[tool.costs]
+# AI Cost tracking configuration
+badge = true
+update_readme = true
+readme_path = "README.md"
+default_model = "openrouter/qwen/qwen3-coder-next"
+analysis_mode = "byok"
+full_history = true
+max_commits = 500
+
+# Cost thresholds for badge colors (USD)
+badge_color_thresholds = { low = 1.0, medium = 5.0, high = 10.0, critical = 50.0 }

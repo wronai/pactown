@@ -5,6 +5,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
+MAX_6 = 6
+MAX_250 = 250
+MAX_12000 = 12000
+MAX_20000 = 20000
+
+
 
 _TRACE_ID_PATTERN = re.compile(
     r"(trace_id|traceid|trace-id|request_id|requestid)[=:\s]+([a-zA-Z0-9-]+)",
@@ -21,11 +27,11 @@ _GENERIC_PATH_PATTERN = re.compile(r"(/[^\s:\]\)\(\[\{\}<>\"']+\.(?:py|js|ts|tsx
 
 @dataclass
 class ErrorContextConfig:
-    max_log_lines: int = 250
-    max_log_chars: int = 12000
-    max_stderr_chars: int = 12000
-    max_files: int = 6
-    max_file_bytes: int = 20000
+    max_log_lines: int = MAX_250
+    max_log_chars: int = MAX_12000
+    max_stderr_chars: int = MAX_12000
+    max_files: int = MAX_6
+    max_file_bytes: int = MAX_20000
 
 
 def _truncate_text(value: str, *, max_chars: int) -> str:

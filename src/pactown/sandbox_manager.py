@@ -14,12 +14,11 @@ import socket
 import shlex
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
 from pathlib import Path
 from threading import Event
 from threading import Thread
 from threading import Lock
-from typing import Callable, Optional, List, Dict, Any
+from typing import Callable, Optional, Any
 
 from markpact import Sandbox, ensure_venv
 
@@ -41,7 +40,9 @@ from .nfo_config import logged, get_logger
 
 # Configure detailed logging
 logger = get_logger("pactown.sandbox")
-logger.setLevel(logging.DEBUG)
+
+if __name__ == "__main__":
+    logger.setLevel(logging.DEBUG)
 
 # File handler for persistent logs
 LOG_DIR = Path(os.environ.get("PACTOWN_LOG_DIR", tempfile.gettempdir() + "/pactown-logs"))
@@ -826,8 +827,8 @@ class SandboxManager:
 
             if res.returncode != 0:
                 out = ((res.stderr or "") + "\n" + (res.stdout or "")).strip()[:2000]
-                if out:
-                    dbg(f"Cached venv verification failed: {out}", "WARNING")
+                detail = out or f"exit code {res.returncode}"
+                dbg(f"Cached venv verification failed: {detail}", "WARNING")
                 return False
 
             return True

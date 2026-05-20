@@ -223,9 +223,9 @@ git:
     format: '{prefix}{version}'
 strategies:
   python:
-    test: pytest tests/ -v
+    test: python -m pytest -p anyio tests/ -v
     build: python -m build
-    publish: twine upload dist/*
+    publish: twine upload dist/pactown-{version}*
     publish_enabled: true
     dependencies:
       file: requirements.txt
@@ -233,7 +233,7 @@ strategies:
   nodejs:
     test: npm test
     build: npm run build
-    publish: npm publish
+    publish: twine upload dist/pactown-{version}*
     publish_enabled: true
     dependencies:
       file: package-lock.json
@@ -241,7 +241,7 @@ strategies:
   rust:
     test: cargo test
     build: cargo build --release
-    publish: cargo publish
+    publish: twine upload dist/pactown-{version}*
     publish_enabled: true
     dependencies:
       file: Cargo.lock

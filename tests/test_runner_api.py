@@ -6,6 +6,8 @@ from types import SimpleNamespace
 import httpx
 import pytest
 
+from tests.conftest import async_test
+
 from pactown.runner_api import RunnerApiSettings, RunnerService, create_runner_api
 from pactown.service_runner import ErrorCategory, RunResult
 from pactown.sandbox_manager import SandboxManager, ServiceProcess
@@ -24,7 +26,7 @@ python main.py
 """
 
 
-@pytest.mark.asyncio
+@async_test
 async def test_validate_ok(tmp_path):
     settings = RunnerApiSettings()
     settings.require_token = False
@@ -42,7 +44,7 @@ async def test_validate_ok(tmp_path):
         assert payload["has_run"] is True
 
 
-@pytest.mark.asyncio
+@async_test
 async def test_run_fails_fast_on_missing_required_env_vars(tmp_path):
     settings = RunnerApiSettings()
     settings.require_token = False
@@ -108,7 +110,7 @@ uvicorn main:app --host 0.0.0.0 --port ${MARKPACT_PORT:-8000}
         assert "DATABASE_URL" in (payload.get("message") or "")
 
 
-@pytest.mark.asyncio
+@async_test
 async def test_run_passes_pip_timeout_and_retries_to_pip_install(tmp_path, monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setenv("PACTOWN_PIP_DEFAULT_TIMEOUT", "60")
     monkeypatch.setenv("PACTOWN_PIP_RETRIES", "5")
@@ -226,7 +228,7 @@ python main.py
     assert pip_env.get("PIP_RETRIES") == "5"
 
 
-@pytest.mark.asyncio
+@async_test
 async def test_sandbox_prepare_and_file_ops(tmp_path):
     settings = RunnerApiSettings()
     settings.require_token = False
@@ -284,7 +286,7 @@ async def test_sandbox_prepare_and_file_ops(tmp_path):
         assert "extra.txt" not in file_paths2
 
 
-@pytest.mark.asyncio
+@async_test
 async def test_status_filtering(tmp_path):
     settings = RunnerApiSettings()
     settings.require_token = False
@@ -299,7 +301,7 @@ async def test_status_filtering(tmp_path):
         assert resp.json().get("services") == []
 
 
-@pytest.mark.asyncio
+@async_test
 async def test_run_failure_includes_error_report_md(tmp_path, monkeypatch):
     settings = RunnerApiSettings()
     settings.require_token = False
@@ -369,7 +371,7 @@ async def test_run_failure_includes_error_report_md(tmp_path, monkeypatch):
         assert "print('hello')" in md
 
 
-@pytest.mark.asyncio
+@async_test
 async def test_run_stream_failure_includes_error_report_md(tmp_path, monkeypatch):
     settings = RunnerApiSettings()
     settings.require_token = False

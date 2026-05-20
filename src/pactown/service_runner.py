@@ -17,17 +17,34 @@ from typing import Any, Callable, Dict, List, Optional
 import httpx
 from dotenv import load_dotenv
 
-load_dotenv(override=False)
+CONSTANT_3 = 3
+TIMEOUT_4 = 4
+CONSTANT_5 = 5
+CONSTANT_12 = 12
+CONSTANT_15 = 15
+MIN_40 = 40
+CONSTANT_50 = 50
+MIN_60 = 60
+CONSTANT_200 = 200
+MIN_300 = 300
+PORT_404 = 404
+CONSTANT_500 = 500
+CONSTANT_2000 = 2000
+CONSTANT_4000 = 4000
+
+
+
+if __name__ == "__main__":
+    load_dotenv(override=False)
 
 from .config import CacheConfig, ServiceConfig
 from .error_context import build_error_context, render_error_report_md
 from .markpact_blocks import extract_run_command, parse_blocks
-from .runner_types import (  # noqa: F401 – re-exported for backward compat
+from .runner_types import (
     AutoFixSuggestion,
     DiagnosticInfo,
     EndpointTestResult,
     ErrorCategory,
-    PROTECTED_PORTS,
     RunResult,
     ValidationResult,
     kill_process_on_port,

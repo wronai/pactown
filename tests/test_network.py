@@ -3,6 +3,8 @@
 import tempfile
 from pathlib import Path
 
+import pytest
+
 from pactown.network import (
     PortAllocator,
     ServiceEndpoint,
@@ -29,7 +31,16 @@ def test_port_allocator_preferred_port():
 
 
 def test_port_allocator_release():
-    allocator = PortAllocator(start_port=50000, end_port=50010)
+    block_start = None
+    for candidate in range(45000, 60000, 11):
+        probe = PortAllocator(candidate, candidate + 10)
+        if all(probe.is_port_free(candidate + i) for i in range(10)):
+            block_start = candidate
+            break
+    if block_start is None:
+        pytest.skip("Could not find 10 consecutive free ports")
+
+    allocator = PortAllocator(start_port=block_start, end_port=block_start + 10)
 
     # Allocate all ports
     ports = [allocator.allocate() for _ in range(10)]
@@ -93,15 +104,18 @@ def test_service_registry_environment():
     with tempfile.TemporaryDirectory() as tmpdir:
         registry = ServiceRegistry(storage_path=Path(tmpdir) / "services.json")
 
-        registry.register("database", preferred_port=50001)
-        registry.register("api", preferred_port=50002)
+        db_port = find_free_port(start=45000, end=60000)
+        api_port = find_free_port(start=db_port + 1, end=60000)
+
+        registry.register("database", preferred_port=db_port)
+        registry.register("api", preferred_port=api_port)
 
         env = registry.get_environment("api", ["database"])
 
-        assert env["DATABASE_URL"] == "http://127.0.0.1:50001"
+        assert env["DATABASE_URL"] == f"http://127.0.0.1:{db_port}"
         assert env["DATABASE_HOST"] == "127.0.0.1"
-        assert env["DATABASE_PORT"] == "50001"
-        assert env["MARKPACT_PORT"] == "50002"
+        assert env["DATABASE_PORT"] == str(db_port)
+        assert env["MARKPACT_PORT"] == str(api_port)
 
 
 def test_service_registry_unregister():

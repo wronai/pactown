@@ -388,6 +388,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multiple Quadlet injection vectors (container name, env var, volume, Traefik label, systemd unit) mitigated via input sanitization.
 - Ruff lint issues across `src/` and `tests/`.
 
+## [0.1.168] - 2026-05-20
+
+### Docs
+- Update README.md
+
+### Test
+- Update tests/conftest.py
+- Update tests/test_ansible.py
+- Update tests/test_network.py
+- Update tests/test_runner_api.py
+- Update tests/test_sandbox_manager_venv_heal.py
+
+### Other
+- Update .gitignore
+- Update Makefile
+- Update pyqual.yaml
+- Update pytest.ini
+- Update requirements-dev.txt
+- Update uv.lock
+
 ## [0.1.5]
 
 - Initial public version.

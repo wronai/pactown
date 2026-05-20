@@ -4199,7 +4199,7 @@ def _docker_run(image: str, mount_src: Path, mount_dst: str,
 
 
 def _docker_run_script(image: str, mount_src: Path, mount_dst: str,
-                       script: str, timeout: int = 60,
+                       script: str, timeout: int | None = None,
                        retries: int = 2) -> subprocess.CompletedProcess:
     """Run a shell script inside a Docker container with a bind-mount.
 
@@ -4216,6 +4216,8 @@ def _docker_run_script(image: str, mount_src: Path, mount_dst: str,
         f"sleep 0.3"
     )
     prefixed = f"{preflight}; {script}"
+    if timeout is None:
+        timeout = 180 if "apt-get" in script else 60
     cmd = [
         "docker", "run", "--rm",
         "-v", f"{mount_src}:{mount_dst}:ro",
@@ -5287,7 +5289,7 @@ _STUB_THRESHOLD = 1024  # 1 KB — no real binary/package is this small
 _SKIP_EXTS = frozenset({
     ".json", ".yaml", ".yml", ".toml", ".spec", ".cfg",
     ".txt", ".md", ".sh", ".html", ".vue", ".jsx", ".py",
-    ".ts", ".tsx", ".js", ".css",
+    ".ts", ".tsx", ".js", ".css", ".pyc",
 })
 
 # Known extensionless filenames that are NOT binary artifacts
@@ -5295,6 +5297,16 @@ _SKIP_NAMES = frozenset({
     "Dockerfile", "Makefile", "Procfile", "Gemfile",
     ".dockerignore", ".gitignore", ".env", ".npmrc",
 })
+
+
+def _should_skip_artifact_scan(path: Path) -> bool:
+    """Bytecode/cache files are not distributable build artifacts."""
+    if "__pycache__" in path.parts or ".pytest_cache" in path.parts:
+        return True
+    suffix = path.suffix.lower()
+    if suffix in _SKIP_EXTS:
+        return True
+    return suffix == ".pyc" or path.name.endswith(".pyc")
 
 
 def _classify_artifact_size(
@@ -5308,6 +5320,8 @@ def _classify_artifact_size(
     thresholds = min_sizes or _TEST_MIN_SIZES
     if not path.is_file():
         return "skip", "not a file"
+    if _should_skip_artifact_scan(path):
+        return "skip", "cache/bytecode"
     size = path.stat().st_size
     suffix = path.suffix.lower()
 
@@ -5469,7 +5483,7 @@ class TestArtifactSizeValidation:
             if not svc_dir.is_dir() or not svc_dir.name.startswith("test-"):
                 continue
             for f in svc_dir.rglob("*"):
-                if not f.is_file():
+                if not f.is_file() or _should_skip_artifact_scan(f):
                     continue
                 total += 1
                 status, detail = _classify_artifact_size(f)
@@ -5498,7 +5512,9 @@ class TestArtifactSizeValidation:
 
         found_exts: set[str] = set()
         for f in root.rglob("*"):
-            if f.is_file() and f.suffix.lower() not in _SKIP_EXTS and f.suffix:
+            if not f.is_file() or _should_skip_artifact_scan(f):
+                continue
+            if f.suffix.lower() not in _SKIP_EXTS and f.suffix:
                 found_exts.add(f.suffix.lower())
 
         uncovered = found_exts - set(_TEST_MIN_SIZES.keys())
@@ -5714,6 +5730,7 @@ class TestDockerBinaryFormatVerification:
             "file /app/dist/TestPI && "
             "file /app/dist/TestPI.exe && "
             "file /app/dist/TestPI.app",
+            timeout=180,
         )
         assert r.returncode == 0
         out = r.stdout
