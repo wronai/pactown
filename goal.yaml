@@ -223,7 +223,9 @@ git:
     format: '{prefix}{version}'
 strategies:
   python:
-    test: python -m pytest -p anyio tests/ -v
+    # Default local/auto profile (fast feedback loop).
+    # Release/full verification: make test-full
+    test: make test-fast
     build: python -m build
     publish: twine upload dist/pactown-{version}*
     publish_enabled: true

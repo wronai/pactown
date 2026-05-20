@@ -69,19 +69,21 @@ def test_service_endpoint():
 def test_service_registry_register():
     with tempfile.TemporaryDirectory() as tmpdir:
         registry = ServiceRegistry(storage_path=Path(tmpdir) / "services.json")
+        preferred = find_free_port(start=45000, end=60000)
 
-        endpoint = registry.register("api", preferred_port=50001, health_check="/health")
+        endpoint = registry.register("api", preferred_port=preferred, health_check="/health")
 
         assert endpoint.name == "api"
-        assert endpoint.port == 50001
+        assert endpoint.port == preferred
         assert endpoint.health_check == "/health"
 
 
 def test_service_registry_get():
     with tempfile.TemporaryDirectory() as tmpdir:
         registry = ServiceRegistry(storage_path=Path(tmpdir) / "services.json")
+        preferred = find_free_port(start=45000, end=60000)
 
-        registry.register("api", preferred_port=50001)
+        registry.register("api", preferred_port=preferred)
 
         endpoint = registry.get("api")
         assert endpoint is not None
@@ -93,11 +95,12 @@ def test_service_registry_get():
 def test_service_registry_get_url():
     with tempfile.TemporaryDirectory() as tmpdir:
         registry = ServiceRegistry(storage_path=Path(tmpdir) / "services.json")
+        preferred = find_free_port(start=45000, end=60000)
 
-        registry.register("api", preferred_port=50001)
+        registry.register("api", preferred_port=preferred)
 
         url = registry.get_url("api")
-        assert url == "http://127.0.0.1:50001"
+        assert url == f"http://127.0.0.1:{preferred}"
 
 
 def test_service_registry_environment():
@@ -121,8 +124,9 @@ def test_service_registry_environment():
 def test_service_registry_unregister():
     with tempfile.TemporaryDirectory() as tmpdir:
         registry = ServiceRegistry(storage_path=Path(tmpdir) / "services.json")
+        preferred = find_free_port(start=45000, end=60000)
 
-        registry.register("api", preferred_port=50001)
+        registry.register("api", preferred_port=preferred)
         assert registry.get("api") is not None
 
         registry.unregister("api")
@@ -133,13 +137,14 @@ def test_service_registry_dynamic_port():
     """Test that registry allocates a new port if preferred is busy."""
     with tempfile.TemporaryDirectory() as tmpdir:
         registry = ServiceRegistry(storage_path=Path(tmpdir) / "services.json")
+        preferred = find_free_port(start=45000, end=60000)
 
         # Register first service
-        endpoint1 = registry.register("svc1", preferred_port=50001)
+        endpoint1 = registry.register("svc1", preferred_port=preferred)
 
         # Register second service with same preferred port
         # It should get a different port
-        endpoint2 = registry.register("svc2", preferred_port=50001)
+        endpoint2 = registry.register("svc2", preferred_port=preferred)
 
         assert endpoint1.port != endpoint2.port
 
