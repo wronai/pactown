@@ -1,6 +1,6 @@
-.PHONY: help install dev test test-cov lint format build clean registry up down status examples check-pypi-deps publish-pypi bump-patch bump-minor bump-major release sync-pactown-com security security-sast security-deps security-secrets security-all artifacts artifacts-clean artifacts-quick artifacts-docker
+.PHONY: help install dev test test-api test-fast test-full test-cov lint format build clean registry up down status examples check-pypi-deps publish-pypi bump-patch bump-minor bump-major release sync-pactown-com security security-sast security-deps security-secrets security-all artifacts artifacts-clean artifacts-quick artifacts-docker
 
-PYTHON ?= $(shell if [ -x ./venv/bin/python3 ]; then echo ./venv/bin/python3; elif [ -x ./.venv/bin/python3 ]; then echo ./.venv/bin/python3; else echo python3; fi)
+PYTHON ?= $(shell if [ -x ./.venv/bin/python3 ]; then echo ./.venv/bin/python3; elif [ -x ./venv/bin/python3 ]; then echo ./venv/bin/python3; else echo python3; fi)
 CONFIG ?= saas.pactown.yaml
 README ?= README.md
 SANDBOX ?= ./sandbox
@@ -21,11 +21,19 @@ install: ## Install pactown package
 dev: ## Install dev dependencies
 	$(PYTHON) -m pip install -e ".[dev]"
 
-test: ## Run tests
-	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src $(PYTHON) -m pytest -p anyio tests/ -v
+test: test-full ## Run full test suite
+
+test-api: ## Run focused API/core tests (very fast feedback)
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src $(PYTHON) -m pytest -p anyio -p pytest_asyncio.plugin tests/test_runner_api.py tests/test_targets.py -q
+
+test-fast: ## Run fast/core tests (skip heavy ansible artifact suite)
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src $(PYTHON) -m pytest -p anyio -p pytest_asyncio.plugin tests/ --ignore=tests/test_ansible.py -q
+
+test-full: ## Run full test suite
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src $(PYTHON) -m pytest -p anyio -p pytest_asyncio.plugin tests/ -q
 
 test-cov: ## Run tests with coverage
-	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src $(PYTHON) -m pytest -p anyio tests/ -v --cov=src/pactown --cov-report=term-missing
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=src $(PYTHON) -m pytest -p anyio -p pytest_asyncio.plugin tests/ -q --cov=src/pactown --cov-report=term-missing
 
 lint: ## Run linter
 	@if $(PYTHON) -c "import ruff" >/dev/null 2>&1; then \
