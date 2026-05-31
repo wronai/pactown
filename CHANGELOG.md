@@ -388,6 +388,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multiple Quadlet injection vectors (container name, env var, volume, Traefik label, systemd unit) mitigated via input sanitization.
 - Ruff lint issues across `src/` and `tests/`.
 
+## [0.1.170] - 2026-05-31
+
+### Docs
+- Update README.md
+
+### Other
+- Update uv.lock
+
 ## [0.1.169] - 2026-05-20
 
 ### Docs
