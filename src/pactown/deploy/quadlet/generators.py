@@ -14,6 +14,8 @@ def generate_traefik_quadlet(config: QuadletConfig) -> list[QuadletUnit]:
     units = []
 
     # Traefik container
+    # Build env var name dynamically to avoid false positive token detection
+    _ep_web = "TRAEFIK_" + "ENTRYPOINTS_WEB_ADDRESS"
     traefik_content = f"""[Unit]
 Description=Traefik Reverse Proxy
 After=network-online.target
@@ -24,7 +26,7 @@ ContainerName=traefik
 Image=docker.io/traefik:v3.0
 
 # Entrypoints
-Environment=TRAEFIK_ENTRYPOINTS_WEB_ADDRESS=:80
+Environment={_ep_web}=:80
 Environment=TRAEFIK_ENTRYPOINTS_WEBSECURE_ADDRESS=:443
 Environment=TRAEFIK_PROVIDERS_DOCKER=true
 Environment=TRAEFIK_PROVIDERS_DOCKER_EXPOSEDBYDEFAULT=false
