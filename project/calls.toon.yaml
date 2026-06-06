@@ -1,0 +1,292 @@
+# code2llm call graph | /home/tom/github/wronai/pactown
+# generated in 0.09s
+# nodes: 181 | edges: 160 | modules: 37
+# CC̄=4.5
+
+HUBS[20]:
+  src.pactown.sandbox_manager.SandboxManager.start_service
+    CC=53  in:0  out:145  total:145
+  src.pactown.deploy.quadlet_api.create_quadlet_api
+    CC=1  in:1  out:114  total:115
+  src.pactown.runner_api.create_runner_api
+    CC=1  in:1  out:113  total:114
+  src.pactown.security.AnomalyLogger.log
+    CC=6  in:87  out:13  total:100
+  src.pactown.service_runner.ServiceRunner.fast_run
+    CC=36  in:0  out:88  total:88
+  src.pactown.sandbox_manager.SandboxManager.build_service
+    CC=40  in:0  out:76  total:76
+  src.pactown.service_runner.ServiceRunner.run_from_content
+    CC=37  in:0  out:74  total:74
+  src.pactown.fast_start.FastServiceStarter.fast_create_sandbox
+    CC=20  in:0  out:63  total:63
+  src.pactown.registry.server.create_app
+    CC=1  in:1  out:52  total:53
+  src.pactown.error_context.build_error_context
+    CC=41  in:3  out:47  total:50
+  src.pactown.cli.llm_status
+    CC=18  in:0  out:45  total:45
+  src.pactown.cli.build
+    CC=14  in:0  out:43  total:43
+  tools.validate_artifacts_docker.main
+    CC=17  in:0  out:42  total:42
+  src.pactown.builders.desktop.DesktopBuilder.build_parallel
+    CC=18  in:0  out:37  total:37
+  src.pactown.registry.models.RegistryStorage.list
+    CC=4  in:33  out:3  total:36
+  src.pactown.fast_start.DependencyCache.create_and_cache
+    CC=6  in:0  out:33  total:33
+  src.pactown.cli.deploy
+    CC=7  in:0  out:30  total:30
+  tools.sync_pactown_com_dependency.main
+    CC=8  in:0  out:29  total:29
+  src.pactown.cli.up
+    CC=9  in:0  out:27  total:27
+  src.pactown.parallel.run_parallel
+    CC=8  in:2  out:24  total:26
+
+MODULES:
+  src.pactown.builders.base  [1 funcs]
+    _log  CC=3  out:1
+  src.pactown.builders.desktop  [4 funcs]
+    _generate_linux_launcher  CC=3  out:8
+    _move_to_dev_deps  CC=4  out:5
+    build  CC=11  out:22
+    build_parallel  CC=18  out:37
+  src.pactown.builders.mobile  [3 funcs]
+    _scaffold_kivy  CC=8  out:8
+    build  CC=10  out:21
+    _sanitize_java_package_id  CC=5  out:7
+  src.pactown.builders.registry  [2 funcs]
+    get_builder  CC=2  out:2
+    get_builder_for_target  CC=2  out:1
+  src.pactown.builders.web  [1 funcs]
+    build  CC=4  out:11
+  src.pactown.cli  [27 funcs]
+    build  CC=14  out:43
+    cli  CC=1  out:2
+    deploy  CC=7  out:30
+    down  CC=2  out:10
+    generate  CC=2  out:20
+    get_llm  CC=1  out:1
+    get_llm_status  CC=1  out:1
+    graph  CC=2  out:10
+    is_lolm_available  CC=1  out:1
+    llm_priority  CC=3  out:8
+  src.pactown.config  [1 funcs]
+    load_config  CC=2  out:4
+  src.pactown.deploy.ansible  [9 funcs]
+    _write_inventory  CC=1  out:4
+    build_image  CC=3  out:6
+    deploy  CC=3  out:5
+    stop  CC=2  out:4
+    write_all  CC=1  out:5
+    generate_build_playbook  CC=2  out:0
+    generate_deploy_playbook  CC=10  out:4
+    generate_inventory  CC=5  out:0
+    generate_teardown_playbook  CC=1  out:0
+  src.pactown.deploy.compose  [1 funcs]
+    generate_compose_from_config  CC=4  out:23
+  src.pactown.deploy.quadlet  [10 funcs]
+    container  CC=18  out:22
+    generate_markdown_service_quadlet  CC=3  out:4
+    generate_traefik_quadlet  CC=1  out:4
+    sanitize_domain  CC=3  out:5
+    sanitize_env_key  CC=4  out:5
+    sanitize_env_value  CC=2  out:4
+    sanitize_image  CC=3  out:5
+    sanitize_name  CC=5  out:9
+    sanitize_path  CC=3  out:4
+    validate_volume  CC=7  out:2
+  src.pactown.deploy.quadlet_api  [2 funcs]
+    create_quadlet_api  CC=1  out:114
+    run_api  CC=1  out:2
+  src.pactown.deploy.quadlet_shell  [5 funcs]
+    do_deploy  CC=7  out:20
+    do_generate  CC=7  out:18
+    do_generate_traefik  CC=4  out:10
+    do_init  CC=3  out:14
+    run_shell  CC=2  out:3
+  src.pactown.error_context  [5 funcs]
+    _truncate_text  CC=4  out:1
+    build_error_context  CC=41  out:47
+    extract_file_paths  CC=9  out:8
+    extract_trace_ids  CC=6  out:6
+    most_probable_file  CC=7  out:7
+  src.pactown.events  [8 funcs]
+    get_all  CC=1  out:2
+    get_event_store  CC=2  out:1
+    get_project_commands  CC=2  out:2
+    get_project_queries  CC=2  out:2
+    get_security_commands  CC=2  out:2
+    get_security_queries  CC=2  out:2
+    get_service_commands  CC=2  out:2
+    get_service_queries  CC=2  out:2
+  src.pactown.fast_start  [6 funcs]
+    create_and_cache  CC=6  out:33
+    _install_deps_direct  CC=2  out:7
+    _write_files_parallel  CC=1  out:6
+    fast_create_sandbox  CC=20  out:63
+    run_parallel  CC=2  out:5
+    _run_streamed  CC=10  out:7
+  src.pactown.generator  [4 funcs]
+    generate_config  CC=9  out:11
+    print_scan_results  CC=5  out:14
+    scan_folder  CC=5  out:8
+    scan_readme  CC=12  out:12
+  src.pactown.iac  [7 funcs]
+    _default_base_image  CC=2  out:0
+    _runtime_type  CC=2  out:0
+    build_sandbox_spec  CC=17  out:21
+    build_single_service_compose  CC=8  out:4
+    write_sandbox_iac  CC=5  out:9
+    write_sandbox_manifest  CC=1  out:2
+    write_single_service_compose  CC=1  out:2
+  src.pactown.llm  [5 funcs]
+    generate  CC=2  out:3
+    get_llm  CC=1  out:1
+    get_llm_status  CC=3  out:7
+    reset_provider  CC=3  out:4
+    set_provider_priority  CC=3  out:4
+  src.pactown.markpact_blocks  [2 funcs]
+    extract_run_command  CC=17  out:4
+    extract_target_config  CC=3  out:1
+  src.pactown.network  [1 funcs]
+    list_services  CC=1  out:2
+  src.pactown.node_cache  [5 funcs]
+    _hash_pkg  CC=2  out:10
+    restore  CC=4  out:5
+    save  CC=5  out:13
+    _copytree_hardlink  CC=3  out:4
+    _sorted_deps  CC=2  out:4
+  src.pactown.orchestrator  [1 funcs]
+    from_file  CC=1  out:3
+  src.pactown.parallel  [3 funcs]
+    build_sandboxes  CC=2  out:2
+    run_in_dependency_waves  CC=12  out:14
+    run_parallel  CC=8  out:24
+  src.pactown.platform  [15 funcs]
+    _normalize_domain  CC=2  out:2
+    _normalize_separator  CC=1  out:2
+    api_base_url  CC=2  out:5
+    build_origin  CC=2  out:2
+    build_project_host  CC=1  out:2
+    build_project_subdomain  CC=1  out:5
+    build_service_subdomain  CC=2  out:6
+    coerce_subdomain_separator  CC=2  out:0
+    is_local_domain  CC=1  out:1
+    normalize_domain  CC=2  out:3
+  src.pactown.registry.models  [1 funcs]
+    list  CC=4  out:3
+  src.pactown.registry.server  [2 funcs]
+    create_app  CC=1  out:52
+    main  CC=1  out:7
+  src.pactown.resolver  [2 funcs]
+    get_shutdown_order  CC=1  out:3
+    print_graph  CC=6  out:7
+  src.pactown.runner_api  [14 funcs]
+    _resolve_service_id  CC=3  out:8
+    _sandbox_path_for  CC=1  out:2
+    delete_sandbox_file  CC=4  out:9
+    prepare_sandbox  CC=4  out:11
+    read_sandbox_file  CC=5  out:10
+    write_sandbox_file  CC=1  out:6
+    _dns_label  CC=1  out:1
+    _resolve_in_dir  CC=2  out:4
+    _service_name_for  CC=1  out:1
+    _validate_rel_path  CC=5  out:7
+  src.pactown.runner_types  [1 funcs]
+    kill_process_on_port  CC=25  out:18
+  src.pactown.sandbox_helpers  [8 funcs]
+    _call_on_log  CC=6  out:7
+    _escape_dotenv_value  CC=1  out:5
+    _filter_runtime_env  CC=9  out:7
+    _heartbeat  CC=4  out:6
+    _sanitize_inherited_env  CC=16  out:18
+    _should_emit_to_ui  CC=2  out:5
+    _ui_log_level  CC=7  out:4
+    _write_dotenv_file  CC=8  out:9
+  src.pactown.sandbox_manager  [7 funcs]
+    build_service  CC=40  out:76
+    start_service  CC=53  out:145
+    stop_all  CC=2  out:3
+    _build_web_preview_cmd  CC=14  out:25
+    _find_web_assets_dir  CC=5  out:3
+    _inject_electron_web_polyfill  CC=18  out:12
+    _install_system_deps  CC=11  out:18
+  src.pactown.security  [2 funcs]
+    log  CC=6  out:13
+    get_security_policy  CC=2  out:1
+  src.pactown.service_runner  [5 funcs]
+    __init__  CC=5  out:9
+    _prune_stale_user_services  CC=14  out:9
+    fast_run  CC=36  out:88
+    run_from_content  CC=37  out:74
+    stop_all  CC=2  out:3
+  src.pactown.targets  [1 funcs]
+    list_frameworks  CC=4  out:3
+  src.pactown.user_isolation  [2 funcs]
+    get_user_stats  CC=5  out:11
+    list_users  CC=1  out:2
+  tools.sync_pactown_com_dependency  [3 funcs]
+    _read_pactown_version  CC=2  out:5
+    _update_requirements_pin  CC=8  out:11
+    main  CC=8  out:29
+  tools.validate_artifacts_docker  [5 funcs]
+    _find_service_dir  CC=1  out:1
+    collect_artifacts  CC=6  out:8
+    docker_run  CC=6  out:4
+    main  CC=17  out:42
+    validate_artifact  CC=6  out:21
+
+EDGES:
+  src.pactown.sandbox_helpers._should_emit_to_ui → src.pactown.sandbox_helpers._ui_log_level
+  src.pactown.sandbox_helpers._call_on_log → src.pactown.registry.models.RegistryStorage.list
+  src.pactown.sandbox_helpers._sanitize_inherited_env → src.pactown.registry.models.RegistryStorage.list
+  src.pactown.sandbox_helpers._write_dotenv_file → src.pactown.sandbox_helpers._escape_dotenv_value
+  src.pactown.sandbox_helpers._heartbeat → src.pactown.sandbox_helpers._should_emit_to_ui
+  src.pactown.sandbox_helpers._heartbeat → src.pactown.sandbox_helpers._call_on_log
+  src.pactown.markpact_blocks.extract_run_command → src.pactown.markpact_blocks.extract_target_config
+  src.pactown.error_context.build_error_context → src.pactown.error_context._truncate_text
+  src.pactown.error_context.build_error_context → src.pactown.error_context.extract_trace_ids
+  src.pactown.error_context.build_error_context → src.pactown.error_context.extract_file_paths
+  src.pactown.error_context.build_error_context → src.pactown.error_context.most_probable_file
+  src.pactown.generator.scan_folder → src.pactown.registry.models.RegistryStorage.list
+  src.pactown.generator.scan_folder → src.pactown.generator.scan_readme
+  src.pactown.generator.generate_config → src.pactown.generator.scan_folder
+  src.pactown.generator.print_scan_results → src.pactown.generator.scan_folder
+  src.pactown.iac.build_sandbox_spec → src.pactown.iac._runtime_type
+  src.pactown.iac.write_sandbox_iac → src.pactown.iac.build_single_service_compose
+  src.pactown.iac.write_sandbox_iac → src.pactown.iac.write_single_service_compose
+  src.pactown.iac.write_sandbox_iac → src.pactown.iac.build_sandbox_spec
+  src.pactown.iac.write_sandbox_iac → src.pactown.iac.write_sandbox_manifest
+  src.pactown.iac.write_sandbox_iac → src.pactown.iac._default_base_image
+  src.pactown.user_isolation.UserIsolationManager.list_users → src.pactown.registry.models.RegistryStorage.list
+  src.pactown.user_isolation.UserIsolationManager.get_user_stats → src.pactown.registry.models.RegistryStorage.list
+  src.pactown.service_runner.ServiceRunner.__init__ → src.pactown.security.get_security_policy
+  src.pactown.service_runner.ServiceRunner._prune_stale_user_services → src.pactown.registry.models.RegistryStorage.list
+  src.pactown.service_runner.ServiceRunner.run_from_content → src.pactown.runner_types.kill_process_on_port
+  src.pactown.service_runner.ServiceRunner.run_from_content → src.pactown.security.AnomalyLogger.log
+  src.pactown.service_runner.ServiceRunner.run_from_content → src.pactown.sandbox_helpers._sanitize_inherited_env
+  src.pactown.service_runner.ServiceRunner.stop_all → src.pactown.registry.models.RegistryStorage.list
+  src.pactown.service_runner.ServiceRunner.fast_run → src.pactown.runner_types.kill_process_on_port
+  src.pactown.service_runner.ServiceRunner.fast_run → src.pactown.markpact_blocks.extract_run_command
+  src.pactown.service_runner.ServiceRunner.fast_run → src.pactown.sandbox_helpers._filter_runtime_env
+  src.pactown.service_runner.ServiceRunner.fast_run → src.pactown.sandbox_helpers._sanitize_inherited_env
+  src.pactown.targets.list_frameworks → src.pactown.registry.models.RegistryStorage.list
+  src.pactown.builders.registry.get_builder_for_target → src.pactown.builders.registry.get_builder
+  src.pactown.builders.web.WebBuilder.build → src.pactown.builders.base.Builder._log
+  src.pactown.builders.mobile.MobileBuilder.build → src.pactown.builders.base.Builder._log
+  src.pactown.builders.mobile.MobileBuilder._scaffold_kivy → src.pactown.builders.mobile._sanitize_java_package_id
+  src.pactown.resolver.DependencyResolver.get_shutdown_order → src.pactown.registry.models.RegistryStorage.list
+  src.pactown.resolver.DependencyResolver.print_graph → src.pactown.registry.models.RegistryStorage.list
+  src.pactown.parallel.run_in_dependency_waves → src.pactown.parallel.run_parallel
+  src.pactown.parallel.ParallelSandboxBuilder.build_sandboxes → src.pactown.parallel.run_parallel
+  src.pactown.builders.desktop.DesktopBuilder.build → src.pactown.builders.base.Builder._log
+  src.pactown.builders.desktop.DesktopBuilder._move_to_dev_deps → src.pactown.registry.models.RegistryStorage.list
+  src.pactown.builders.desktop.DesktopBuilder.build_parallel → src.pactown.builders.base.Builder._log
+  src.pactown.builders.desktop.DesktopBuilder._generate_linux_launcher → src.pactown.registry.models.RegistryStorage.list
+  src.pactown.node_cache.NodeModulesCache.restore → src.pactown.node_cache._copytree_hardlink
+  src.pactown.node_cache.NodeModulesCache.save → src.pactown.node_cache._copytree_hardlink
+  src.pactown.node_cache.NodeModulesCache._hash_pkg → src.pactown.node_cache._sorted_deps
+  src.pactown.llm.generate → src.pactown.llm.get_llm

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pactown"
-version = "0.1.170"
+version = "0.1.171"
 description = "Pactown Ecosystem Orchestrator - Build and manage decentralized microservice ecosystems from Markdown READMEs using markpact sandboxes and a centralized service registry."
 readme = "README.md"
 authors = [{ name = "Tom Sapletta", email = "tom@sapletta.com" }]
@@ -28,9 +28,7 @@ dependencies = [
     "nfo>=0.1.17",
 ]
 
-[project.license]
-text = "Apache-2.0"
-
+license = "Apache-2.0"
 [project.optional-dependencies]
 dev = [
     "pytest>=8.2,<10",

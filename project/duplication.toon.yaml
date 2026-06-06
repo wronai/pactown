@@ -1,0 +1,155 @@
+# redup/duplication | 15 groups | 50f 19940L | 2026-06-06
+
+SUMMARY:
+  files_scanned: 50
+  total_lines:   19940
+  dup_groups:    15
+  dup_fragments: 38
+  saved_lines:   152
+  scan_ms:       4728
+
+HOTSPOTS[7] (files with most duplication):
+  src/pactown/deploy/docker.py  dup=81L  groups=4  frags=4  (0.4%)
+  src/pactown/deploy/podman.py  dup=80L  groups=4  frags=4  (0.4%)
+  src/pactown/events.py  dup=22L  groups=2  frags=7  (0.1%)
+  src/pactown/sandbox_manager.py  dup=19L  groups=2  frags=4  (0.1%)
+  src/pactown/cli.py  dup=17L  groups=2  frags=5  (0.1%)
+  src/pactown/fast_start.py  dup=12L  groups=2  frags=2  (0.1%)
+  tools/validate_artifacts_docker.py  dup=9L  groups=1  frags=2  (0.0%)
+
+DUPLICATES[15] (ranked by impact):
+  [3bc7293818917112] ! STRU  push_image  L=37 N=2 saved=37 sim=1.00
+      src/pactown/deploy/docker.py:115-151  (push_image)
+      src/pactown/deploy/podman.py:131-166  (push_image)
+  [31c4a0512c36df3e]   STRU  stop  L=21 N=2 saved=21 sim=1.00
+      src/pactown/deploy/docker.py:264-284  (stop)
+      src/pactown/deploy/podman.py:288-308  (stop)
+  [afe5dfa59ad76ed4]   STRU  get_service_commands  L=3 N=6 saved=15 sim=1.00
+      src/pactown/events.py:1048-1050  (get_service_commands)
+      src/pactown/events.py:1053-1055  (get_service_queries)
+      src/pactown/events.py:1058-1060  (get_project_commands)
+      src/pactown/events.py:1063-1065  (get_project_queries)
+      src/pactown/events.py:1068-1070  (get_security_commands)
+      src/pactown/events.py:1073-1075  (get_security_queries)
+  [f66494c89380b630]   STRU  is_available  L=12 N=2 saved=12 sim=1.00
+      src/pactown/deploy/docker.py:33-44  (is_available)
+      src/pactown/deploy/podman.py:45-56  (is_available)
+  [d35fa402e5867c64]   STRU  logs  L=11 N=2 saved=11 sim=1.00
+      src/pactown/deploy/docker.py:286-296  (logs)
+      src/pactown/deploy/podman.py:310-320  (logs)
+  [518ba2ff9377d51e]   EXAC  _log  L=3 N=4 saved=9 sim=1.00
+      src/pactown/builders/desktop.py:75-77  (_log)
+      src/pactown/builders/desktop.py:510-512  (_log)
+      src/pactown/builders/mobile.py:107-109  (_log)
+      src/pactown/builders/web.py:61-63  (_log)
+  [649f86edf66a0a7d]   STRU  dbg  L=4 N=3 saved=8 sim=1.00
+      src/pactown/sandbox_manager.py:615-618  (dbg)
+      src/pactown/sandbox_manager.py:763-766  (dbg)
+      src/pactown/sandbox_manager.py:1121-1124  (dbg)
+  [be52ebb0de897de3]   EXAC  _copytree_fast  L=7 N=2 saved=7 sim=1.00
+      src/pactown/fast_start.py:214-220  (_copytree_fast)
+      src/pactown/sandbox_manager.py:942-948  (_copytree_fast)
+  [aaae754bdb04529d]   STRU  cli  L=3 N=3 saved=6 sim=1.00
+      src/pactown/cli.py:60-62  (cli)
+      src/pactown/cli.py:523-525  (quadlet)
+      src/pactown/cli.py:754-756  (llm)
+  [c13e6a51a1c9d3d8]   EXAC  _beat_every_s  L=5 N=2 saved=5 sim=1.00
+      src/pactown/fast_start.py:83-87  (_beat_every_s)
+      src/pactown/sandbox_helpers.py:206-210  (_beat_every_s)
+  [42bbb53e953efc4f]   STRU  _py_script  L=5 N=2 saved=5 sim=1.00
+      tools/validate_artifacts_docker.py:154-158  (_py_script)
+      tools/validate_artifacts_docker.py:161-164  (_py_yaml_script)
+  [e9e1cf2a479396c3]   EXAC  log  L=4 N=2 saved=4 sim=1.00
+      src/pactown/service_runner.py:301-304  (log)
+      src/pactown/service_runner.py:945-948  (log)
+  [b0f54d48b543ed9a]   STRU  is_lolm_available  L=4 N=2 saved=4 sim=1.00
+      src/pactown/cli.py:28-31  (is_lolm_available)
+      src/pactown/cli.py:34-37  (get_llm_status)
+  [c55429a05bfee580]   STRU  set_event_store  L=4 N=2 saved=4 sim=1.00
+      src/pactown/events.py:366-369  (set_event_store)
+      src/pactown/security.py:687-690  (set_security_policy)
+  [5c99f8b82f410645]   STRU  write_sandbox_manifest  L=4 N=2 saved=4 sim=1.00
+      src/pactown/iac.py:125-128  (write_sandbox_manifest)
+      src/pactown/iac.py:200-203  (write_single_service_compose)
+
+REFACTOR[15] (ranked by priority):
+  [1] ◐ extract_function   → src/pactown/deploy/utils/push_image.py
+      WHY: 2 occurrences of 37-line block across 2 files — saves 37 lines
+      FILES: src/pactown/deploy/docker.py, src/pactown/deploy/podman.py
+  [2] ○ extract_function   → src/pactown/deploy/utils/stop.py
+      WHY: 2 occurrences of 21-line block across 2 files — saves 21 lines
+      FILES: src/pactown/deploy/docker.py, src/pactown/deploy/podman.py
+  [3] ○ extract_function   → src/pactown/utils/get_service_commands.py
+      WHY: 6 occurrences of 3-line block across 1 files — saves 15 lines
+      FILES: src/pactown/events.py
+  [4] ○ extract_function   → src/pactown/deploy/utils/is_available.py
+      WHY: 2 occurrences of 12-line block across 2 files — saves 12 lines
+      FILES: src/pactown/deploy/docker.py, src/pactown/deploy/podman.py
+  [5] ○ extract_function   → src/pactown/deploy/utils/logs.py
+      WHY: 2 occurrences of 11-line block across 2 files — saves 11 lines
+      FILES: src/pactown/deploy/docker.py, src/pactown/deploy/podman.py
+  [6] ○ extract_function   → src/pactown/builders/utils/_log.py
+      WHY: 4 occurrences of 3-line block across 3 files — saves 9 lines
+      FILES: src/pactown/builders/desktop.py, src/pactown/builders/mobile.py, src/pactown/builders/web.py
+  [7] ○ extract_function   → src/pactown/utils/dbg.py
+      WHY: 3 occurrences of 4-line block across 1 files — saves 8 lines
+      FILES: src/pactown/sandbox_manager.py
+  [8] ○ extract_function   → src/pactown/utils/_copytree_fast.py
+      WHY: 2 occurrences of 7-line block across 2 files — saves 7 lines
+      FILES: src/pactown/fast_start.py, src/pactown/sandbox_manager.py
+  [9] ○ extract_function   → src/pactown/utils/cli.py
+      WHY: 3 occurrences of 3-line block across 1 files — saves 6 lines
+      FILES: src/pactown/cli.py
+  [10] ○ extract_function   → src/pactown/utils/_beat_every_s.py
+      WHY: 2 occurrences of 5-line block across 2 files — saves 5 lines
+      FILES: src/pactown/fast_start.py, src/pactown/sandbox_helpers.py
+  [11] ○ extract_function   → tools/utils/_py_script.py
+      WHY: 2 occurrences of 5-line block across 1 files — saves 5 lines
+      FILES: tools/validate_artifacts_docker.py
+  [12] ○ extract_function   → src/pactown/utils/log.py
+      WHY: 2 occurrences of 4-line block across 1 files — saves 4 lines
+      FILES: src/pactown/service_runner.py
+  [13] ○ extract_function   → src/pactown/utils/is_lolm_available.py
+      WHY: 2 occurrences of 4-line block across 1 files — saves 4 lines
+      FILES: src/pactown/cli.py
+  [14] ○ extract_function   → src/pactown/utils/set_event_store.py
+      WHY: 2 occurrences of 4-line block across 2 files — saves 4 lines
+      FILES: src/pactown/events.py, src/pactown/security.py
+  [15] ○ extract_function   → src/pactown/utils/write_sandbox_manifest.py
+      WHY: 2 occurrences of 4-line block across 1 files — saves 4 lines
+      FILES: src/pactown/iac.py
+
+QUICK_WINS[8] (low risk, high savings — do first):
+  [2] extract_function   saved=21L  → src/pactown/deploy/utils/stop.py
+      FILES: docker.py, podman.py
+  [3] extract_function   saved=15L  → src/pactown/utils/get_service_commands.py
+      FILES: events.py
+  [4] extract_function   saved=12L  → src/pactown/deploy/utils/is_available.py
+      FILES: docker.py, podman.py
+  [5] extract_function   saved=11L  → src/pactown/deploy/utils/logs.py
+      FILES: docker.py, podman.py
+  [6] extract_function   saved=9L  → src/pactown/builders/utils/_log.py
+      FILES: desktop.py, mobile.py, web.py
+  [7] extract_function   saved=8L  → src/pactown/utils/dbg.py
+      FILES: sandbox_manager.py
+  [8] extract_function   saved=7L  → src/pactown/utils/_copytree_fast.py
+      FILES: fast_start.py, sandbox_manager.py
+  [9] extract_function   saved=6L  → src/pactown/utils/cli.py
+      FILES: cli.py
+
+EFFORT_ESTIMATE (total ≈ 5.7h):
+  hard   push_image                          saved=37L  ~111min
+  medium stop                                saved=21L  ~42min
+  medium get_service_commands                saved=15L  ~30min
+  easy   is_available                        saved=12L  ~24min
+  easy   logs                                saved=11L  ~22min
+  easy   _log                                saved=9L  ~18min
+  easy   dbg                                 saved=8L  ~16min
+  easy   _copytree_fast                      saved=7L  ~14min
+  easy   cli                                 saved=6L  ~12min
+  easy   _beat_every_s                       saved=5L  ~10min
+  ... +5 more (~42min)
+
+METRICS-TARGET:
+  dup_groups:  15 → 0
+  saved_lines: 152 lines recoverable

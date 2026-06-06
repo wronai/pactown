@@ -1,0 +1,18 @@
+# SCENARIO: API Integration Tests
+# TYPE: api
+# GENERATED: true
+
+CONFIG[3]{key, value}:
+  base_url, http://localhost:8101
+  timeout_ms, 30000
+  retry_count, 3
+
+API[4]{method, endpoint, expected_status}:
+  GET, /health, 200
+  GET, /api/v1/status, 200
+  POST, /api/v1/test, 201
+  GET, /api/v1/docs, 200
+
+ASSERT[2]{field, operator, expected}:
+  status, ==, ok
+  response_time, <, 1000

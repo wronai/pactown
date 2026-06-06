@@ -1,0 +1,349 @@
+flowchart LR
+%% generated in 0.01s
+    subgraph src__pactown
+        src__pactown__service_runner__ServiceRunner____init__["__init__"]
+        src__pactown__error_context__extract_file_paths["extract_file_paths"]
+        src__pactown__builders__desktop__DesktopBuilder__build["build"]
+        src__pactown__cli__llm_reset["llm_reset"]
+        src__pactown__iac__write_sandbox_manifest["write_sandbox_manifest"]
+        src__pactown__iac__build_single_service_compose["build_single_service_compose"]
+        src__pactown__cli__set_llm_priority["set_llm_priority"]
+        src__pactown__service_runner__ServiceRunner__stop_all["stop_all"]
+        src__pactown__cli__quadlet_generate["quadlet_generate"]
+        src__pactown__platform__build_service_subdomain["build_service_subdomain"]
+        src__pactown__cli__main["main"]
+        src__pactown__targets__list_frameworks["list_frameworks"]
+        src__pactown__runner_api__RunnerService__write_sandbox_file["write_sandbox_file"]
+        src__pactown__deploy__quadlet__validate_volume["validate_volume"]
+        src__pactown__events__get_service_queries["get_service_queries"]
+        src__pactown__deploy__quadlet_shell__QuadletShell__do_init["do_init"]
+        src__pactown__resolver__DependencyResolver__get_shutdown_order["get_shutdown_order"]
+        src__pactown__llm__get_llm_status["get_llm_status"]
+        src__pactown__deploy__ansible__AnsibleBackend__write_all["write_all"]
+        src__pactown__sandbox_helpers___write_dotenv_file["_write_dotenv_file"]
+        src__pactown__node_cache___sorted_deps["_sorted_deps"]
+        src__pactown__fast_start___run_streamed["_run_streamed"]
+        src__pactown__sandbox_helpers___call_on_log["_call_on_log"]
+        src__pactown__node_cache__NodeModulesCache__restore["restore"]
+        src__pactown__cli__graph["graph"]
+        src__pactown__deploy__quadlet_shell__QuadletShell__do_generate_traefik["do_generate_traefik"]
+        src__pactown__deploy__quadlet_shell__QuadletShell__do_deploy["do_deploy"]
+        src__pactown__runner_api___validate_service_id["_validate_service_id"]
+        src__pactown__deploy__quadlet__sanitize_env_key["sanitize_env_key"]
+        src__pactown__runner_api___dns_label["_dns_label"]
+        src__pactown__error_context___truncate_text["_truncate_text"]
+        src__pactown__deploy__quadlet__sanitize_image["sanitize_image"]
+        src__pactown__sandbox_helpers___heartbeat["_heartbeat"]
+        src__pactown__runner_api___resolve_in_dir["_resolve_in_dir"]
+        src__pactown__deploy__quadlet__sanitize_path["sanitize_path"]
+        src__pactown__runner_api__RunnerService__delete_sandbox_file["delete_sandbox_file"]
+        src__pactown__fast_start__ParallelServiceRunner__run_parallel["run_parallel"]
+        src__pactown__cli__cli["cli"]
+        src__pactown__iac___runtime_type["_runtime_type"]
+        src__pactown__fast_start__FastServiceStarter___write_files_parallel["_write_files_parallel"]
+        src__pactown__platform__parse_project_subdomain["parse_project_subdomain"]
+        src__pactown__iac__build_sandbox_spec["build_sandbox_spec"]
+        src__pactown__events__get_security_commands["get_security_commands"]
+        src__pactown__markpact_blocks__extract_run_command["extract_run_command"]
+        src__pactown__events__get_project_commands["get_project_commands"]
+        src__pactown__fast_start__FastServiceStarter___install_deps_direct["_install_deps_direct"]
+        src__pactown__sandbox_helpers___should_emit_to_ui["_should_emit_to_ui"]
+        src__pactown__sandbox_manager__SandboxManager__stop_all["stop_all"]
+        src__pactown__runner_api__RunnerService__prepare_sandbox["prepare_sandbox"]
+        src__pactown__runner_api___validate_rel_path["_validate_rel_path"]
+        src__pactown__builders__desktop__DesktopBuilder__build_parallel["build_parallel"]
+        src__pactown__cli__get_llm_status["get_llm_status"]
+        src__pactown__sandbox_helpers___escape_dotenv_value["_escape_dotenv_value"]
+        src__pactown__events__get_security_queries["get_security_queries"]
+        src__pactown__cli__generate["generate"]
+        src__pactown__deploy__ansible__generate_teardown_playbook["generate_teardown_playbook"]
+        src__pactown__cli__targets["targets"]
+        src__pactown__cli__quadlet_api["quadlet_api"]
+        src__pactown__runner_types__kill_process_on_port["kill_process_on_port"]
+        src__pactown__deploy__compose__generate_compose_from_config["generate_compose_from_config"]
+        src__pactown__builders__mobile___sanitize_java_package_id["_sanitize_java_package_id"]
+        src__pactown__deploy__quadlet__generate_traefik_quadlet["generate_traefik_quadlet"]
+        src__pactown__builders__base__Builder___log["_log"]
+        src__pactown__iac___default_base_image["_default_base_image"]
+        src__pactown__platform__to_dns_label["to_dns_label"]
+        src__pactown__deploy__quadlet_shell__QuadletShell__do_generate["do_generate"]
+        src__pactown__cli__up["up"]
+        src__pactown__cli__llm_test["llm_test"]
+        src__pactown__node_cache__NodeModulesCache__save["save"]
+        src__pactown__builders__desktop__DesktopBuilder___move_to_dev_deps["_move_to_dev_deps"]
+        src__pactown__deploy__ansible__AnsibleBackend__deploy["deploy"]
+        src__pactown__deploy__ansible__generate_deploy_playbook["generate_deploy_playbook"]
+        src__pactown__sandbox_manager___inject_electron_web_polyfill["_inject_electron_web_polyfill"]
+        src__pactown__sandbox_helpers___sanitize_inherited_env["_sanitize_inherited_env"]
+        src__pactown__user_isolation__UserIsolationManager__list_users["list_users"]
+        src__pactown__builders__web__WebBuilder__build["build"]
+        src__pactown__platform__DomainConfig___normalize_separator["_normalize_separator"]
+        src__pactown__cli__llm_priority["llm_priority"]
+        src__pactown__runner_api__RunnerService___resolve_service_id["_resolve_service_id"]
+        src__pactown__security__get_security_policy["get_security_policy"]
+        src__pactown__llm__get_llm["get_llm"]
+        src__pactown__platform__build_project_subdomain["build_project_subdomain"]
+        src__pactown__platform__is_local_domain["is_local_domain"]
+        src__pactown__sandbox_manager__SandboxManager__build_service["build_service"]
+        src__pactown__network__ServiceRegistry__list_services["list_services"]
+        src__pactown__events__get_event_store["get_event_store"]
+        src__pactown__runner_api__RunnerService___sandbox_path_for["_sandbox_path_for"]
+        src__pactown__cli__llm_status["llm_status"]
+        src__pactown__builders__mobile__MobileBuilder___scaffold_kivy["_scaffold_kivy"]
+        src__pactown__cli__get_llm["get_llm"]
+        src__pactown__cli__down["down"]
+        src__pactown__deploy__quadlet__sanitize_name["sanitize_name"]
+        src__pactown__deploy__ansible__AnsibleBackend__build_image["build_image"]
+        src__pactown__cli__publish["publish"]
+        src__pactown__deploy__quadlet_shell__run_shell["run_shell"]
+        src__pactown__llm__reset_provider["reset_provider"]
+        src__pactown__sandbox_helpers___ui_log_level["_ui_log_level"]
+        src__pactown__deploy__ansible__AnsibleBackend___write_inventory["_write_inventory"]
+        src__pactown__sandbox_manager___find_web_assets_dir["_find_web_assets_dir"]
+        src__pactown__iac__write_single_service_compose["write_single_service_compose"]
+        src__pactown__platform__coerce_subdomain_separator["coerce_subdomain_separator"]
+        src__pactown__cli__validate["validate"]
+        src__pactown__runner_api__main["main"]
+        src__pactown__deploy__quadlet__QuadletTemplates__container["container"]
+        src__pactown__generator__generate_config["generate_config"]
+        src__pactown__cli__quadlet_shell["quadlet_shell"]
+        src__pactown__parallel__run_parallel["run_parallel"]
+        src__pactown__cli__status["status"]
+        src__pactown__registry__models__RegistryStorage__list["list"]
+        src__pactown__fast_start__DependencyCache__create_and_cache["create_and_cache"]
+        src__pactown__fast_start__FastServiceStarter__fast_create_sandbox["fast_create_sandbox"]
+        src__pactown__sandbox_helpers___filter_runtime_env["_filter_runtime_env"]
+        src__pactown__security__AnomalyLogger__log["log"]
+        src__pactown__platform__api_base_url["api_base_url"]
+        src__pactown__runner_api__RunnerService__read_sandbox_file["read_sandbox_file"]
+        src__pactown__config__load_config["load_config"]
+        src__pactown__user_isolation__UserIsolationManager__get_user_stats["get_user_stats"]
+        src__pactown__deploy__quadlet__sanitize_env_value["sanitize_env_value"]
+        src__pactown__registry__server__main["main"]
+        src__pactown__llm__set_provider_priority["set_provider_priority"]
+        src__pactown__error_context__extract_trace_ids["extract_trace_ids"]
+        src__pactown__platform__DomainConfig___normalize_domain["_normalize_domain"]
+        src__pactown__platform__parse_project_host["parse_project_host"]
+        src__pactown__deploy__ansible__AnsibleBackend__stop["stop"]
+        src__pactown__cli__reset_llm_provider["reset_llm_provider"]
+        src__pactown__generator__print_scan_results["print_scan_results"]
+        src__pactown__cli__scan["scan"]
+        src__pactown__registry__server__create_app["create_app"]
+        src__pactown__builders__desktop__DesktopBuilder___generate_linux_launcher["_generate_linux_launcher"]
+        src__pactown__platform__web_base_url["web_base_url"]
+        src__pactown__service_runner__ServiceRunner__run_from_content["run_from_content"]
+        src__pactown__parallel__run_in_dependency_waves["run_in_dependency_waves"]
+        src__pactown__deploy__quadlet__sanitize_domain["sanitize_domain"]
+        src__pactown__error_context__most_probable_file["most_probable_file"]
+        src__pactown__builders__registry__get_builder_for_target["get_builder_for_target"]
+        src__pactown__runner_api__create_app["create_app"]
+        src__pactown__resolver__DependencyResolver__print_graph["print_graph"]
+        src__pactown__cli__build["build"]
+        src__pactown__iac__write_sandbox_iac["write_sandbox_iac"]
+        src__pactown__deploy__quadlet_api__create_quadlet_api["create_quadlet_api"]
+        src__pactown__llm__generate["generate"]
+        src__pactown__runner_api___service_name_for["_service_name_for"]
+        src__pactown__orchestrator__Orchestrator__from_file["from_file"]
+        src__pactown__deploy__ansible__generate_inventory["generate_inventory"]
+        src__pactown__builders__mobile__MobileBuilder__build["build"]
+        src__pactown__markpact_blocks__extract_target_config["extract_target_config"]
+        src__pactown__cli__is_lolm_available["is_lolm_available"]
+        src__pactown__sandbox_manager___build_web_preview_cmd["_build_web_preview_cmd"]
+        src__pactown__node_cache__NodeModulesCache___hash_pkg["_hash_pkg"]
+        src__pactown__cli__deploy["deploy"]
+        src__pactown__events__ServiceStatusProjection__get_all["get_all"]
+        src__pactown__platform__normalize_host["normalize_host"]
+        src__pactown__builders__registry__get_builder["get_builder"]
+        src__pactown__platform__normalize_domain["normalize_domain"]
+        src__pactown__deploy__quadlet__generate_markdown_service_quadlet["generate_markdown_service_quad"]
+        src__pactown__service_runner__ServiceRunner__fast_run["fast_run"]
+        src__pactown__platform__build_origin["build_origin"]
+        src__pactown__sandbox_manager__SandboxManager__start_service["start_service"]
+        src__pactown__error_context__build_error_context["build_error_context"]
+        src__pactown__generator__scan_readme["scan_readme"]
+        src__pactown__generator__scan_folder["scan_folder"]
+        src__pactown__node_cache___copytree_hardlink["_copytree_hardlink"]
+        src__pactown__cli__pull["pull"]
+        src__pactown__deploy__quadlet_api__run_api["run_api"]
+        src__pactown__cli__quadlet_init["quadlet_init"]
+        src__pactown__deploy__ansible__generate_build_playbook["generate_build_playbook"]
+        src__pactown__events__get_service_commands["get_service_commands"]
+        src__pactown__events__get_project_queries["get_project_queries"]
+        src__pactown__runner_api__create_runner_api["create_runner_api"]
+        src__pactown__sandbox_manager___install_system_deps["_install_system_deps"]
+        src__pactown__service_runner__ServiceRunner___prune_stale_user_services["_prune_stale_user_services"]
+        src__pactown__parallel__ParallelSandboxBuilder__build_sandboxes["build_sandboxes"]
+        src__pactown__platform__build_project_host["build_project_host"]
+    end
+    subgraph tools__sync_pactown_com_dependency
+        tools__sync_pactown_com_dependency___read_pactown_version["_read_pactown_version"]
+        tools__sync_pactown_com_dependency__main["main"]
+        tools__sync_pactown_com_dependency___update_requirements_pin["_update_requirements_pin"]
+    end
+    subgraph tools__validate_artifacts_docker
+        tools__validate_artifacts_docker__docker_run["docker_run"]
+        tools__validate_artifacts_docker__main["main"]
+        tools__validate_artifacts_docker__collect_artifacts["collect_artifacts"]
+        tools__validate_artifacts_docker__validate_artifact["validate_artifact"]
+        tools__validate_artifacts_docker___find_service_dir["_find_service_dir"]
+    end
+    src__pactown__sandbox_helpers___should_emit_to_ui --> src__pactown__sandbox_helpers___ui_log_level
+    src__pactown__sandbox_helpers___call_on_log --> src__pactown__registry__models__RegistryStorage__list
+    src__pactown__sandbox_helpers___sanitize_inherited_env --> src__pactown__registry__models__RegistryStorage__list
+    src__pactown__sandbox_helpers___write_dotenv_file --> src__pactown__sandbox_helpers___escape_dotenv_value
+    src__pactown__sandbox_helpers___heartbeat --> src__pactown__sandbox_helpers___should_emit_to_ui
+    src__pactown__sandbox_helpers___heartbeat --> src__pactown__sandbox_helpers___call_on_log
+    src__pactown__markpact_blocks__extract_run_command --> src__pactown__markpact_blocks__extract_target_config
+    src__pactown__error_context__build_error_context --> src__pactown__error_context___truncate_text
+    src__pactown__error_context__build_error_context --> src__pactown__error_context__extract_trace_ids
+    src__pactown__error_context__build_error_context --> src__pactown__error_context__extract_file_paths
+    src__pactown__error_context__build_error_context --> src__pactown__error_context__most_probable_file
+    src__pactown__generator__scan_folder --> src__pactown__registry__models__RegistryStorage__list
+    src__pactown__generator__scan_folder --> src__pactown__generator__scan_readme
+    src__pactown__generator__generate_config --> src__pactown__generator__scan_folder
+    src__pactown__generator__print_scan_results --> src__pactown__generator__scan_folder
+    src__pactown__iac__build_sandbox_spec --> src__pactown__iac___runtime_type
+    src__pactown__iac__write_sandbox_iac --> src__pactown__iac__build_single_service_compose
+    src__pactown__iac__write_sandbox_iac --> src__pactown__iac__write_single_service_compose
+    src__pactown__iac__write_sandbox_iac --> src__pactown__iac__build_sandbox_spec
+    src__pactown__iac__write_sandbox_iac --> src__pactown__iac__write_sandbox_manifest
+    src__pactown__iac__write_sandbox_iac --> src__pactown__iac___default_base_image
+    src__pactown__user_isolation__UserIsolationManager__list_users --> src__pactown__registry__models__RegistryStorage__list
+    src__pactown__user_isolation__UserIsolationManager__get_user_stats --> src__pactown__registry__models__RegistryStorage__list
+    src__pactown__service_runner__ServiceRunner____init__ --> src__pactown__security__get_security_policy
+    src__pactown__service_runner__ServiceRunner___prune_stale_user_services --> src__pactown__registry__models__RegistryStorage__list
+    src__pactown__service_runner__ServiceRunner__run_from_content --> src__pactown__runner_types__kill_process_on_port
+    src__pactown__service_runner__ServiceRunner__run_from_content --> src__pactown__security__AnomalyLogger__log
+    src__pactown__service_runner__ServiceRunner__run_from_content --> src__pactown__sandbox_helpers___sanitize_inherited_env
+    src__pactown__service_runner__ServiceRunner__stop_all --> src__pactown__registry__models__RegistryStorage__list
+    src__pactown__service_runner__ServiceRunner__fast_run --> src__pactown__runner_types__kill_process_on_port
+    src__pactown__service_runner__ServiceRunner__fast_run --> src__pactown__markpact_blocks__extract_run_command
+    src__pactown__service_runner__ServiceRunner__fast_run --> src__pactown__sandbox_helpers___filter_runtime_env
+    src__pactown__service_runner__ServiceRunner__fast_run --> src__pactown__sandbox_helpers___sanitize_inherited_env
+    src__pactown__targets__list_frameworks --> src__pactown__registry__models__RegistryStorage__list
+    src__pactown__builders__registry__get_builder_for_target --> src__pactown__builders__registry__get_builder
+    src__pactown__builders__web__WebBuilder__build --> src__pactown__builders__base__Builder___log
+    src__pactown__builders__mobile__MobileBuilder__build --> src__pactown__builders__base__Builder___log
+    src__pactown__builders__mobile__MobileBuilder___scaffold_kivy --> src__pactown__builders__mobile___sanitize_java_package_id
+    src__pactown__resolver__DependencyResolver__get_shutdown_order --> src__pactown__registry__models__RegistryStorage__list
+    src__pactown__resolver__DependencyResolver__print_graph --> src__pactown__registry__models__RegistryStorage__list
+    src__pactown__parallel__run_in_dependency_waves --> src__pactown__parallel__run_parallel
+    src__pactown__parallel__ParallelSandboxBuilder__build_sandboxes --> src__pactown__parallel__run_parallel
+    src__pactown__builders__desktop__DesktopBuilder__build --> src__pactown__builders__base__Builder___log
+    src__pactown__builders__desktop__DesktopBuilder___move_to_dev_deps --> src__pactown__registry__models__RegistryStorage__list
+    src__pactown__builders__desktop__DesktopBuilder__build_parallel --> src__pactown__builders__base__Builder___log
+    src__pactown__builders__desktop__DesktopBuilder___generate_linux_launcher --> src__pactown__registry__models__RegistryStorage__list
+    src__pactown__node_cache__NodeModulesCache__restore --> src__pactown__node_cache___copytree_hardlink
+    src__pactown__node_cache__NodeModulesCache__save --> src__pactown__node_cache___copytree_hardlink
+    src__pactown__node_cache__NodeModulesCache___hash_pkg --> src__pactown__node_cache___sorted_deps
+    src__pactown__llm__generate --> src__pactown__llm__get_llm
+    src__pactown__llm__get_llm_status --> src__pactown__llm__get_llm
+    src__pactown__llm__set_provider_priority --> src__pactown__llm__get_llm
+    src__pactown__llm__reset_provider --> src__pactown__llm__get_llm
+    src__pactown__deploy__compose__generate_compose_from_config --> src__pactown__config__load_config
+    src__pactown__cli__up --> src__pactown__config__load_config
+    src__pactown__cli__down --> src__pactown__config__load_config
+    src__pactown__cli__status --> src__pactown__config__load_config
+    src__pactown__cli__validate --> src__pactown__config__load_config
+    src__pactown__cli__graph --> src__pactown__config__load_config
+    src__pactown__cli__publish --> src__pactown__config__load_config
+    src__pactown__cli__pull --> src__pactown__config__load_config
+    src__pactown__cli__scan --> src__pactown__generator__print_scan_results
+    src__pactown__cli__generate --> src__pactown__generator__print_scan_results
+    src__pactown__cli__build --> src__pactown__markpact_blocks__extract_target_config
+    src__pactown__cli__targets --> src__pactown__targets__list_frameworks
+    src__pactown__cli__deploy --> src__pactown__config__load_config
+    src__pactown__cli__quadlet_shell --> src__pactown__deploy__quadlet_shell__run_shell
+    src__pactown__cli__quadlet_api --> src__pactown__deploy__quadlet_api__run_api
+    src__pactown__cli__quadlet_generate --> src__pactown__deploy__quadlet__generate_markdown_service_quadlet
+    src__pactown__cli__quadlet_init --> src__pactown__deploy__quadlet__generate_traefik_quadlet
+    src__pactown__cli__llm_status --> src__pactown__cli__get_llm_status
+    src__pactown__cli__llm_priority --> src__pactown__cli__set_llm_priority
+    src__pactown__cli__llm_priority --> src__pactown__cli__is_lolm_available
+    src__pactown__cli__llm_reset --> src__pactown__cli__reset_llm_provider
+    src__pactown__cli__llm_reset --> src__pactown__cli__is_lolm_available
+    src__pactown__cli__llm_test --> src__pactown__cli__is_lolm_available
+    src__pactown__cli__llm_test --> src__pactown__cli__get_llm
+    src__pactown__cli__main --> src__pactown__cli__cli
+    src__pactown__fast_start__DependencyCache__create_and_cache --> src__pactown__fast_start___run_streamed
+    src__pactown__fast_start__FastServiceStarter__fast_create_sandbox --> src__pactown__security__AnomalyLogger__log
+    src__pactown__fast_start__FastServiceStarter___write_files_parallel --> src__pactown__registry__models__RegistryStorage__list
+    src__pactown__fast_start__FastServiceStarter___install_deps_direct --> src__pactown__fast_start___run_streamed
+    src__pactown__fast_start__ParallelServiceRunner__run_parallel --> src__pactown__registry__models__RegistryStorage__list
+    src__pactown__orchestrator__Orchestrator__from_file --> src__pactown__config__load_config
+    tools__sync_pactown_com_dependency__main --> tools__sync_pactown_com_dependency___read_pactown_version
+    tools__sync_pactown_com_dependency__main --> tools__sync_pactown_com_dependency___update_requirements_pin
+    tools__validate_artifacts_docker__validate_artifact --> tools__validate_artifacts_docker___find_service_dir
+    tools__validate_artifacts_docker__validate_artifact --> tools__validate_artifacts_docker__docker_run
+    tools__validate_artifacts_docker__main --> tools__validate_artifacts_docker__collect_artifacts
+    src__pactown__deploy__ansible__AnsibleBackend__build_image --> src__pactown__deploy__ansible__generate_build_playbook
+    src__pactown__deploy__ansible__AnsibleBackend__deploy --> src__pactown__deploy__ansible__generate_deploy_playbook
+    src__pactown__deploy__ansible__AnsibleBackend__stop --> src__pactown__deploy__ansible__generate_teardown_playbook
+    src__pactown__deploy__ansible__AnsibleBackend___write_inventory --> src__pactown__deploy__ansible__generate_inventory
+    src__pactown__deploy__ansible__AnsibleBackend__write_all --> src__pactown__deploy__ansible__generate_deploy_playbook
+    src__pactown__deploy__ansible__AnsibleBackend__write_all --> src__pactown__deploy__ansible__generate_teardown_playbook
+    src__pactown__deploy__quadlet__validate_volume --> src__pactown__deploy__quadlet__sanitize_path
+    src__pactown__deploy__quadlet__QuadletTemplates__container --> src__pactown__deploy__quadlet__sanitize_name
+    src__pactown__deploy__quadlet__QuadletTemplates__container --> src__pactown__deploy__quadlet__sanitize_image
+    src__pactown__deploy__quadlet__QuadletTemplates__container --> src__pactown__deploy__quadlet__sanitize_domain
+    src__pactown__deploy__quadlet__QuadletTemplates__container --> src__pactown__deploy__quadlet__sanitize_env_key
+    src__pactown__deploy__quadlet__QuadletTemplates__container --> src__pactown__deploy__quadlet__sanitize_env_value
+    src__pactown__network__ServiceRegistry__list_services --> src__pactown__registry__models__RegistryStorage__list
+    src__pactown__deploy__quadlet_shell__QuadletShell__do_generate --> src__pactown__deploy__quadlet__generate_markdown_service_quadlet
+    src__pactown__deploy__quadlet_shell__QuadletShell__do_generate_traefik --> src__pactown__deploy__quadlet__generate_traefik_quadlet
+    src__pactown__deploy__quadlet_shell__QuadletShell__do_deploy --> src__pactown__deploy__quadlet__generate_markdown_service_quadlet
+    src__pactown__deploy__quadlet_shell__QuadletShell__do_init --> src__pactown__deploy__quadlet__generate_traefik_quadlet
+    src__pactown__sandbox_manager___install_system_deps --> src__pactown__security__AnomalyLogger__log
+    src__pactown__sandbox_manager___inject_electron_web_polyfill --> src__pactown__security__AnomalyLogger__log
+    src__pactown__sandbox_manager___build_web_preview_cmd --> src__pactown__sandbox_manager___find_web_assets_dir
+    src__pactown__sandbox_manager___build_web_preview_cmd --> src__pactown__security__AnomalyLogger__log
+    src__pactown__sandbox_manager___build_web_preview_cmd --> src__pactown__sandbox_manager___inject_electron_web_polyfill
+    src__pactown__sandbox_manager__SandboxManager__build_service --> src__pactown__markpact_blocks__extract_target_config
+    src__pactown__sandbox_manager__SandboxManager__build_service --> src__pactown__builders__registry__get_builder_for_target
+    src__pactown__sandbox_manager__SandboxManager__start_service --> src__pactown__security__AnomalyLogger__log
+    src__pactown__sandbox_manager__SandboxManager__start_service --> src__pactown__markpact_blocks__extract_target_config
+    src__pactown__sandbox_manager__SandboxManager__start_service --> src__pactown__markpact_blocks__extract_run_command
+    src__pactown__sandbox_manager__SandboxManager__stop_all --> src__pactown__registry__models__RegistryStorage__list
+    src__pactown__events__ServiceStatusProjection__get_all --> src__pactown__registry__models__RegistryStorage__list
+    src__pactown__events__get_service_commands --> src__pactown__events__get_event_store
+    src__pactown__events__get_service_queries --> src__pactown__events__get_event_store
+    src__pactown__events__get_project_commands --> src__pactown__events__get_event_store
+    src__pactown__events__get_project_queries --> src__pactown__events__get_event_store
+    src__pactown__events__get_security_commands --> src__pactown__events__get_event_store
+    src__pactown__events__get_security_queries --> src__pactown__events__get_event_store
+    src__pactown__platform__normalize_domain --> src__pactown__platform__normalize_host
+    src__pactown__platform__is_local_domain --> src__pactown__platform__normalize_domain
+    src__pactown__platform__build_origin --> src__pactown__platform__normalize_host
+    src__pactown__platform__web_base_url --> src__pactown__platform__is_local_domain
+    src__pactown__platform__web_base_url --> src__pactown__platform__build_origin
+    src__pactown__platform__web_base_url --> src__pactown__platform__normalize_domain
+    src__pactown__platform__api_base_url --> src__pactown__platform__is_local_domain
+    src__pactown__platform__api_base_url --> src__pactown__platform__build_origin
+    src__pactown__platform__api_base_url --> src__pactown__platform__normalize_domain
+    src__pactown__platform__DomainConfig___normalize_domain --> src__pactown__platform__normalize_domain
+    src__pactown__platform__DomainConfig___normalize_separator --> src__pactown__platform__coerce_subdomain_separator
+    src__pactown__platform__build_project_subdomain --> src__pactown__platform__coerce_subdomain_separator
+    src__pactown__platform__build_project_subdomain --> src__pactown__platform__to_dns_label
+    src__pactown__platform__build_project_host --> src__pactown__platform__normalize_domain
+    src__pactown__platform__build_project_host --> src__pactown__platform__build_project_subdomain
+    src__pactown__platform__parse_project_host --> src__pactown__platform__normalize_host
+    src__pactown__platform__parse_project_host --> src__pactown__platform__normalize_domain
+    src__pactown__platform__parse_project_host --> src__pactown__platform__parse_project_subdomain
+    src__pactown__platform__build_service_subdomain --> src__pactown__platform__coerce_subdomain_separator
+    src__pactown__platform__build_service_subdomain --> src__pactown__platform__to_dns_label
+    src__pactown__registry__server__main --> src__pactown__registry__server__create_app
+    src__pactown__runner_api___dns_label --> src__pactown__platform__to_dns_label
+    src__pactown__runner_api___service_name_for --> src__pactown__runner_api___validate_service_id
+    src__pactown__runner_api__RunnerService___resolve_service_id --> src__pactown__runner_api___validate_service_id
+    src__pactown__runner_api__RunnerService___resolve_service_id --> src__pactown__runner_api___dns_label
+    src__pactown__runner_api__RunnerService___sandbox_path_for --> src__pactown__runner_api___service_name_for
+    src__pactown__runner_api__RunnerService__read_sandbox_file --> src__pactown__runner_api___validate_rel_path
+    src__pactown__runner_api__RunnerService__read_sandbox_file --> src__pactown__runner_api___resolve_in_dir
+    src__pactown__runner_api__RunnerService__write_sandbox_file --> src__pactown__runner_api___validate_rel_path
+    src__pactown__runner_api__RunnerService__write_sandbox_file --> src__pactown__runner_api___resolve_in_dir
+    src__pactown__runner_api__RunnerService__delete_sandbox_file --> src__pactown__runner_api___validate_rel_path
+    src__pactown__runner_api__RunnerService__delete_sandbox_file --> src__pactown__runner_api___resolve_in_dir
+    src__pactown__runner_api__RunnerService__prepare_sandbox --> src__pactown__runner_api___service_name_for
+    src__pactown__runner_api__create_app --> src__pactown__runner_api__create_runner_api
+    src__pactown__runner_api__main --> src__pactown__runner_api__create_app
+    src__pactown__deploy__quadlet_api__run_api --> src__pactown__deploy__quadlet_api__create_quadlet_api

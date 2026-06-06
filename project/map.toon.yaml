@@ -1,0 +1,1074 @@
+# pactown | 87f 40281L | python:84,shell:2,less:1 | 2026-06-06
+# stats: 538 func | 278 cls | 87 mod | CC̄=3.8 | critical:28 | cycles:0
+# alerts[5]: CC render_error_report_md=43; CC build_error_context=41; CC kill_process_on_port=25; CC test_full_desktop_markpact=20; CC test_self_heal_corrupted_cache=19
+# hotspots[5]: create_runner_api fan=47; create_quadlet_api fan=40; create_app fan=27; build_error_context fan=26; test_self_heal_corrupted_cache fan=26
+# evolution: baseline
+# Keys: M=modules, D=details, i=imports, e=exports, c=classes, f=functions, m=methods
+M[87]:
+  app.doql.less,434
+  examples/fast-start-demo/demo.py,121
+  examples/security-policy/demo.py,106
+  examples/user-isolation/demo.py,111
+  project.sh,59
+  src/pactown/__init__.py,241
+  src/pactown/builders/__init__.py,19
+  src/pactown/builders/base.py,156
+  src/pactown/builders/desktop.py,666
+  src/pactown/builders/mobile.py,472
+  src/pactown/builders/registry.py,33
+  src/pactown/builders/web.py,94
+  src/pactown/cli.py,991
+  src/pactown/config.py,253
+  src/pactown/deploy/__init__.py,35
+  src/pactown/deploy/ansible.py,587
+  src/pactown/deploy/base.py,313
+  src/pactown/deploy/compose.py,440
+  src/pactown/deploy/docker.py,322
+  src/pactown/deploy/kubernetes.py,474
+  src/pactown/deploy/podman.py,422
+  src/pactown/deploy/quadlet.py,1045
+  src/pactown/deploy/quadlet_api.py,540
+  src/pactown/deploy/quadlet_shell.py,565
+  src/pactown/error_context.py,382
+  src/pactown/events.py,1076
+  src/pactown/fast_start.py,755
+  src/pactown/generator.py,214
+  src/pactown/iac.py,259
+  src/pactown/llm.py,454
+  src/pactown/markpact_blocks.py,70
+  src/pactown/network.py,271
+  src/pactown/nfo_config.py,211
+  src/pactown/node_cache.py,259
+  src/pactown/orchestrator.py,456
+  src/pactown/parallel.py,272
+  src/pactown/platform.py,147
+  src/pactown/registry/__init__.py,13
+  src/pactown/registry/client.py,261
+  src/pactown/registry/models.py,158
+  src/pactown/registry/server.py,218
+  src/pactown/resolver.py,163
+  src/pactown/runner_api.py,636
+  src/pactown/runner_types.py,255
+  src/pactown/sandbox_helpers.py,235
+  src/pactown/sandbox_manager.py,1840
+  src/pactown/security.py,691
+  src/pactown/service_runner.py,1235
+  src/pactown/targets.py,352
+  src/pactown/user_isolation.py,464
+  tests/__init__.py,2
+  tests/conftest.py,46
+  tests/test_ansible.py,7021
+  tests/test_builders.py,2045
+  tests/test_config.py,189
+  tests/test_cross_platform.py,1391
+  tests/test_deploy_dockerfile.py,190
+  tests/test_deploy_optimizations.py,413
+  tests/test_deploy_platforms.py,1310
+  tests/test_e2e_build.py,585
+  tests/test_e2e_build_extended.py,1397
+  tests/test_e2e_deploy_desktop_mobile.py,864
+  tests/test_electron_xvfb.py,246
+  tests/test_iac_manifest.py,85
+  tests/test_llm.py,312
+  tests/test_markpact_blocks.py,108
+  tests/test_markpact_target_blocks.py,242
+  tests/test_network.py,162
+  tests/test_node_cache.py,315
+  tests/test_parallel.py,150
+  tests/test_platform.py,57
+  tests/test_quadlet_security.py,691
+  tests/test_registry.py,154
+  tests/test_resolver.py,143
+  tests/test_runner_api.py,444
+  tests/test_sandbox_manager_env_injection.py,62
+  tests/test_sandbox_manager_node_deps.py,118
+  tests/test_sandbox_manager_node_run_env.py,95
+  tests/test_sandbox_manager_venv_heal.py,181
+  tests/test_security.py,293
+  tests/test_service_runner_fast_run_fallback.py,84
+  tests/test_service_runner_validation.py,78
+  tests/test_targets.py,170
+  tests/test_user_isolation_manager.py,153
+  tools/sync_pactown_com_dependency.py,90
+  tools/validate_artifacts_docker.py,547
+  tree.sh,2
+D:
+  examples/fast-start-demo/demo.py:
+    e: main
+    main()
+  examples/security-policy/demo.py:
+    e: main
+    main()
+  examples/user-isolation/demo.py:
+    e: main
+    main()
+  src/pactown/__init__.py:
+  src/pactown/builders/__init__.py:
+  src/pactown/builders/base.py:
+    e: BuildError,BuildResult,Builder
+    BuildError:  # Raised when a build operation fails.
+    BuildResult:  # Result of a build operation.
+    Builder: platform_name(0),scaffold(1),build(1),_log(2),_run_shell(1)  # Abstract base for platform builders.
+  src/pactown/builders/desktop.py:
+    e: DesktopBuilder
+    DesktopBuilder: platform_name(0),scaffold(1),build(1),_electron_already_scaffolded(1),_patch_electron_no_sandbox(3),_scaffold_electron(1),_move_to_dev_deps(2),_ensure_electron_dev_deps(1),_scaffold_tauri(1),_scaffold_python_desktop(1),_filter_electron_builder_cmd(1),_electron_builder_flags(1),_default_build_cmd(3),build_parallel(1),_generate_linux_launcher(3),_collect_artifacts(2)  # Builds desktop application artifacts from a markpact sandbox
+  src/pactown/builders/mobile.py:
+    e: _sanitize_java_package_id,MobileBuilder
+    MobileBuilder: platform_name(0),scaffold(1),build(1),_scaffold_capacitor(1),_resolve_cap_web_dir(1),_scaffold_react_native(1),_scaffold_kivy(1),_ensure_cap_platforms(2),_default_build_cmd(2),_collect_artifacts(2)  # Builds mobile application artifacts from a markpact sandbox.
+    _sanitize_java_package_id(raw)
+  src/pactown/builders/registry.py:
+    e: get_builder,get_builder_for_target
+    get_builder(platform)
+    get_builder_for_target(target)
+  src/pactown/builders/web.py:
+    e: WebBuilder
+    WebBuilder: platform_name(0),scaffold(1),build(1)  # Web services don't produce build artifacts – they run as ser
+  src/pactown/cli.py:
+    e: is_lolm_available,get_llm_status,get_llm,set_llm_priority,reset_llm_provider,cli,up,down,status,validate,graph,init,publish,pull,scan,generate,build,targets,deploy,quadlet,quadlet_shell,quadlet_api,quadlet_generate,quadlet_init,quadlet_deploy,quadlet_list,quadlet_logs,llm,llm_status,llm_doctor,llm_priority,llm_reset,llm_test,main
+    is_lolm_available()
+    get_llm_status()
+    get_llm()
+    set_llm_priority(provider;priority)
+    reset_llm_provider(provider)
+    cli()
+    up(config_path;dry_run;no_health;quiet;sequential;workers)
+    down(config_path)
+    status(config_path)
+    validate(config_path)
+    graph(config_path)
+    init(name;output)
+    publish(config_path;registry)
+    pull(config_path;registry)
+    scan(folder)
+    generate(folder;name;output;base_port)
+    build(readme_path;output;framework;target)
+    targets(platform)
+    deploy(config_path;output;production;kubernetes)
+    quadlet()
+    quadlet_shell(tenant;domain;system)
+    quadlet_api(host;port;domain;tenant)
+    quadlet_generate(markdown_path;output;domain;subdomain;tenant;tls)
+    quadlet_init(domain;email;system)
+    quadlet_deploy(markdown_path;domain;subdomain;tenant;tls;image)
+    quadlet_list(tenant)
+    quadlet_logs(service_name;tenant;lines)
+    llm()
+    llm_status()
+    llm_doctor()
+    llm_priority(provider;priority)
+    llm_reset(provider)
+    llm_test(provider;rotation)
+    main(argv)
+  src/pactown/config.py:
+    e: load_config,DependencyConfig,ServiceConfig,RegistryConfig,CacheConfig,EcosystemConfig
+    DependencyConfig: from_dict(2)  # Configuration for a service dependency.
+    ServiceConfig: from_dict(3)  # Configuration for a single service in the ecosystem.
+    RegistryConfig:  # Configuration for artifact registry.
+    CacheConfig: from_env(2),_to_mapping(0),to_env(0),to_docker_build_args(0)
+    EcosystemConfig: from_yaml(2),from_dict(3),to_dict(0),to_yaml(1)  # Configuration for a complete pactown ecosystem.
+    load_config(path)
+  src/pactown/deploy/__init__.py:
+  src/pactown/deploy/ansible.py:
+    e: generate_inventory,generate_deploy_playbook,generate_teardown_playbook,generate_build_playbook,AnsibleConfig,AnsibleBackend
+    AnsibleConfig: for_local(1),for_remote(4)  # Extra Ansible-specific settings layered on top of Deployment
+    AnsibleBackend: __init__(2),runtime_type(0),is_available(0),build_image(5),push_image(2),deploy(5),stop(1),logs(2),status(1),_write_playbook(2),_write_inventory(0),write_all(0),_run_playbook(1)  # Ansible-based deployment backend.
+    generate_inventory()
+    generate_deploy_playbook()
+    generate_teardown_playbook()
+    generate_build_playbook()
+  src/pactown/deploy/base.py:
+    e: RuntimeType,DeploymentMode,DeploymentConfig,DeploymentResult,DeploymentBackend
+    RuntimeType:  # Container runtime types.
+    DeploymentMode:  # Deployment environment modes.
+    DeploymentConfig: for_production(1),for_development(1)  # Configuration for deployment.
+    DeploymentResult:  # Result of a deployment operation.
+    DeploymentBackend: __init__(1),runtime_type(0),is_available(0),build_image(5),push_image(2),deploy(5),stop(1),logs(2),status(1),generate_dockerfile(4),_create_dockerfile(3),_create_node_dockerfile(2)  # Abstract base class for deployment backends.
+  src/pactown/deploy/compose.py:
+    e: generate_compose_from_config,ComposeService,ComposeGenerator
+    ComposeService:  # Represents a service in docker-compose.yaml.
+    ComposeGenerator: __init__(3),generate(2),_create_service(2),_create_registry_service(0),generate_override(2),generate_production(2)  # Generate Docker Compose / Podman Compose files for pactown e
+    generate_compose_from_config(config_path;output_dir;production)
+  src/pactown/deploy/docker.py:
+    e: DockerBackend
+    DockerBackend: runtime_type(0),is_available(0),build_image(5),push_image(2),deploy(5),stop(1),logs(2),status(1)  # Docker container runtime backend.
+  src/pactown/deploy/kubernetes.py:
+    e: KubernetesBackend
+    KubernetesBackend: __init__(2),runtime_type(0),_kubectl(0),is_available(0),build_image(5),push_image(2),deploy(5),stop(1),logs(2),status(1),generate_manifests(6),generate_hpa(4),save_manifests(3)  # Kubernetes deployment backend for production environments.
+  src/pactown/deploy/podman.py:
+    e: PodmanBackend
+    PodmanBackend: runtime_type(0),is_available(0),build_image(5),push_image(2),deploy(5),stop(1),logs(2),status(1),generate_systemd_unit(2),create_pod(3)  # Podman container runtime backend.
+  src/pactown/deploy/quadlet.py:
+    e: sanitize_name,sanitize_env_value,sanitize_env_key,sanitize_path,sanitize_domain,sanitize_image,sanitize_health_check,validate_volume,check_dangerous_content,generate_traefik_quadlet,generate_markdown_service_quadlet,QuadletConfig,QuadletUnit,QuadletTemplates,QuadletBackend
+    QuadletConfig: full_domain(0),systemd_path(0),tenant_path(0)  # Configuration for Quadlet deployment.
+    QuadletUnit: filename(0),save(1)  # Represents a Quadlet unit file.
+    QuadletTemplates: container(9),pod(5),network(6),volume(3)  # Template generator for Quadlet unit files.
+    QuadletBackend: __init__(2),runtime_type(0),is_available(0),get_quadlet_version(0),build_image(5),push_image(2),generate_quadlet_files(7),deploy(5),stop(1),logs(2),status(1),_systemctl(2),list_services(0)  # Podman Quadlet deployment backend.
+    sanitize_name(name)
+    sanitize_env_value(value)
+    sanitize_env_key(key)
+    sanitize_path(path)
+    sanitize_domain(domain)
+    sanitize_image(image)
+    sanitize_health_check(endpoint)
+    validate_volume(volume)
+    check_dangerous_content(content)
+    generate_traefik_quadlet(config)
+    generate_markdown_service_quadlet(markdown_path;config;image)
+  src/pactown/deploy/quadlet_api.py:
+    e: create_quadlet_api,run_api,DeploymentRequest,ContainerRequest,TraefikRequest,DeploymentResponse,QuadletFileResponse,ServiceStatus,ListServicesResponse
+    DeploymentRequest:  # Request to deploy a Markdown service.
+    ContainerRequest:  # Request to generate a container Quadlet file.
+    TraefikRequest:  # Request to generate Traefik Quadlet files.
+    DeploymentResponse:  # Response from deployment operation.
+    QuadletFileResponse:  # Response containing generated Quadlet files.
+    ServiceStatus:  # Service status information.
+    ListServicesResponse:  # Response listing all services.
+    create_quadlet_api(default_domain;default_tenant;user_mode)
+    run_api(host;port;domain;tenant)
+  src/pactown/deploy/quadlet_shell.py:
+    e: run_shell,QuadletShell
+    QuadletShell: __init__(3),do_status(1),do_config(1),do_generate(1),do_generate_container(1),do_generate_traefik(1),do_list(1),do_start(1),do_stop(1),do_restart(1),do_logs(1),do_reload(1),do_deploy(1),do_undeploy(1),do_init(1),do_export(1),do_help(1),do_quit(1),do_exit(1),do_EOF(1),default(1),emptyline(0)  # Interactive shell for Quadlet deployment management.
+    run_shell(tenant_id;domain;user_mode)
+  src/pactown/error_context.py:
+    e: _truncate_text,extract_trace_ids,extract_file_paths,most_probable_file,_is_noise_path,_safe_resolve_under,_read_text_limited,build_error_context,render_error_report_md,ErrorContextConfig
+    ErrorContextConfig:
+    _truncate_text(value)
+    extract_trace_ids(text)
+    extract_file_paths(text)
+    most_probable_file(paths)
+    _is_noise_path(path_str)
+    _safe_resolve_under(root;path_str)
+    _read_text_limited(path)
+    build_error_context()
+    render_error_report_md(context)
+  src/pactown/events.py:
+    e: get_event_store,set_event_store,get_service_commands,get_service_queries,get_project_commands,get_project_queries,get_security_commands,get_security_queries,EventType,Event,EventStore,Aggregate,ServiceAggregate,ServiceCommands,ProjectCommands,SecurityCommands,ServiceQueries,ProjectQueries,SecurityQueries,Projection,ServiceStatusProjection
+    EventType:  # Standard event types for service lifecycle.
+    Event: to_dict(0),from_dict(2)  # Immutable event record.
+    EventStore: __init__(1),_load_from_file(0),_save_to_file(0),append(1),_notify_subscribers(1),subscribe(2),subscribe_all(1),get_events(7),get_aggregate_history(1),count(1),get_current_sequence(0),clear(0)  # Append-only event store with subscription support.
+    Aggregate: __init__(2),apply_event(1),load_from_history(1),raise_event(3),get_pending_events(0),clear_pending_events(0),load(3)  # Base class for event-sourced aggregates.
+    ServiceAggregate: __init__(1),apply_event(1),to_dict(0)  # Event-sourced aggregate for service lifecycle.
+    ServiceCommands: __init__(1),create_service(4),start_service(4),stop_service(2),record_error(4),record_health_check(4),delete_service(2)  # Command handlers for service operations.
+    ProjectCommands: __init__(1),create_project(3),update_project(3),delete_project(2)  # Command handlers for project operations.
+    SecurityCommands: __init__(1),record_security_check(5),record_rate_limit(3),record_anomaly(4)  # Command handlers for security events.
+    ServiceQueries: __init__(1),get_service_history(1),get_recent_starts(1),get_recent_errors(1),get_recent_health_checks(2),get_stats(0),get_service_state(1),get_user_services(1)  # Query handlers for service read operations.
+    ProjectQueries: __init__(1),get_project_history(1),get_recent_projects(2),get_stats(0)  # Query handlers for project read operations.
+    SecurityQueries: __init__(1),get_recent_security_failures(1),get_user_security_history(2),get_rate_limit_hits(2),get_anomalies(2),get_stats(0)  # Query handlers for security read operations.
+    Projection: __init__(1),apply(1),rebuild(0),catch_up(0)  # Base class for event projections.
+    ServiceStatusProjection: __init__(1),apply(1),get_all(0),get_running(0),get_by_user(1),get(1)  # Projection maintaining current status of all services.
+    get_event_store(persistence_path)
+    set_event_store(store)
+    get_service_commands(event_store)
+    get_service_queries(event_store)
+    get_project_commands(event_store)
+    get_project_queries(event_store)
+    get_security_commands(event_store)
+    get_security_queries(event_store)
+  src/pactown/fast_start.py:
+    e: _heartbeat,_beat_every_s,_run_streamed,get_fast_starter,CachedVenv,PrewarmedSandbox,FastStartResult,DependencyCache,SandboxPool,FastServiceStarter,ParallelServiceRunner
+    CachedVenv: is_valid(0)  # Cached virtual environment for a specific dependency set.
+    PrewarmedSandbox:  # Pre-created sandbox ready for immediate use.
+    FastStartResult:  # Result of fast startup.
+    DependencyCache: __init__(3),_load_existing(0),_hash_deps(1),get_cached_venv(1),invalidate(1),save_existing_venv(3),create_and_cache(3),_cleanup_old(0),get_stats(0)  # Caches virtual environments by dependency hash.
+    SandboxPool: __init__(3),_hash_deps(1),warm_pool(1),get_prewarmed(1),release(1)  # Pool of pre-warmed sandboxes for instant startup.
+    FastServiceStarter: __init__(4),fast_create_sandbox(4),_write_files_parallel(2),_install_deps_direct(3),get_cache_stats(0)  # Optimized service starter with caching and parallel executio
+    ParallelServiceRunner: __init__(2),run_parallel(2)  # Run multiple services in parallel with optimized startup.
+    _heartbeat()
+    _beat_every_s()
+    _run_streamed(cmd)
+    get_fast_starter(sandbox_root)
+  src/pactown/generator.py:
+    e: scan_readme,scan_folder,generate_config,print_scan_results
+    scan_readme(readme_path)
+    scan_folder(folder;recursive;pattern)
+    generate_config(folder;name;base_port;output)
+    print_scan_results(folder)
+  src/pactown/iac.py:
+    e: _runtime_type,_default_base_image,build_sandbox_spec,write_sandbox_manifest,build_single_service_compose,write_single_service_compose,write_sandbox_iac,SandboxIacOptions
+    SandboxIacOptions: from_env(2)
+    _runtime_type()
+    _default_base_image()
+    build_sandbox_spec()
+    write_sandbox_manifest()
+    build_single_service_compose()
+    write_single_service_compose()
+    write_sandbox_iac()
+  src/pactown/llm.py:
+    e: get_llm,is_lolm_available,get_lolm_info,generate,get_llm_status,set_provider_priority,reset_provider,PactownLLMError,LLMNotAvailableError,PactownLLM
+    PactownLLMError:  # Base exception for Pactown LLM errors.
+    LLMNotAvailableError:  # Raised when no LLM provider is available.
+    PactownLLM: __init__(1),get_instance(2),set_instance(2),initialize(0),is_available(0),generate(4),generate_with_rotation(4),generate_with_fallback(4),get_status(0),get_provider_health(1),set_provider_priority(2),reset_provider(1),get_rotation_queue(0),on_rate_limit(1),on_rotation(1),on_provider_unavailable(1)  # Pactown LLM Manager with rotation and fallback support.
+    get_llm(verbose)
+    is_lolm_available()
+    get_lolm_info()
+    generate(prompt;system;max_tokens;with_rotation)
+    get_llm_status()
+    set_provider_priority(name;priority)
+    reset_provider(name)
+  src/pactown/markpact_blocks.py:
+    e: extract_target_config,extract_build_cmd,extract_run_command
+    extract_target_config(blocks)
+    extract_build_cmd(blocks)
+    extract_run_command(blocks)
+  src/pactown/network.py:
+    e: find_free_port,check_port,ServiceEndpoint,PortAllocator,ServiceRegistry
+    ServiceEndpoint: url(0),health_url(0)  # Represents a running service's network endpoint.
+    PortAllocator: __init__(2),is_port_free(1),allocate(1),release(1),release_all(0)  # Allocates free ports dynamically.
+    ServiceRegistry: __init__(2),_load(0),_save(0),register(3),unregister(1),get(1),get_url(1),list_services(0),get_environment(2),clear(0)  # Local service registry for name-based service discovery.
+    find_free_port(start;end)
+    check_port(port)
+  src/pactown/nfo_config.py:
+    e: get_logger,setup_logging
+    get_logger(name)
+    setup_logging()
+  src/pactown/node_cache.py:
+    e: _sorted_deps,_copytree_hardlink,CachedNodeModules,NodeModulesCache
+    CachedNodeModules: is_valid(0)  # A cached ``node_modules`` directory keyed by dependency hash
+    NodeModulesCache: __init__(3),get(1),restore(3),save(3),invalidate(1),get_stats(0),_hash_pkg(1),_load_existing(0),_evict(0)  # Cache ``node_modules`` directories by ``package.json`` conte
+    _sorted_deps(deps)
+    _copytree_hardlink(src;dst)
+  src/pactown/orchestrator.py:
+    e: run_ecosystem,ServiceHealth,Orchestrator
+    ServiceHealth:  # Health status of a service.
+    Orchestrator: __init__(4),from_file(4),_get_readme_path(1),validate(0),start_service(1),start_all(3),_start_all_sequential(1),_start_all_parallel(2),_start_service_with_health(2),stop_service(1),stop_all(0),restart_service(1),check_health(1),_wait_for_health(2),print_status(0),print_graph(0),get_logs(2)  # Orchestrates the lifecycle of a pactown ecosystem.
+    run_ecosystem(config_path;wait)
+  src/pactown/parallel.py:
+    e: run_parallel,run_in_dependency_waves,run_parallel_async,format_parallel_results,TaskResult,ParallelSandboxBuilder
+    TaskResult:  # Result of a parallel task.
+    ParallelSandboxBuilder: __init__(1),build_sandboxes(2)  # Build multiple sandboxes in parallel.
+    run_parallel(tasks;max_workers;show_progress;description)
+    run_in_dependency_waves(tasks;dependencies;max_workers;on_complete)
+    run_parallel_async(tasks;max_concurrent)
+    format_parallel_results(results)
+  src/pactown/platform.py:
+    e: coerce_subdomain_separator,normalize_host,normalize_domain,is_local_domain,build_origin,web_base_url,api_base_url,to_dns_label,parse_project_subdomain,build_project_subdomain,build_project_host,parse_project_host,build_service_subdomain,DomainConfig,ProjectHostParts
+    DomainConfig: _normalize_domain(2),_normalize_separator(2)
+    ProjectHostParts:
+    coerce_subdomain_separator(value)
+    normalize_host(value)
+    normalize_domain(value)
+    is_local_domain(domain)
+    build_origin()
+    web_base_url(domain;web_host_port)
+    api_base_url(domain;api_host_port)
+    to_dns_label(value)
+    parse_project_subdomain(subdomain)
+    build_project_subdomain(project_id;username)
+    build_project_host(project_id;username)
+    parse_project_host(host)
+    build_service_subdomain(service_name;username)
+  src/pactown/registry/__init__.py:
+  src/pactown/registry/client.py:
+    e: RegistryClient,AsyncRegistryClient
+    RegistryClient: __init__(2),__enter__(0),__exit__(0),close(0),health(0),list_artifacts(2),get_artifact(2),get_version(3),get_readme(3),publish(8),pull(4),delete(2),list_namespaces(0)  # Client for interacting with pactown registry.
+    AsyncRegistryClient: __init__(2),__aenter__(0),__aexit__(0),close(0),health(0),list_artifacts(2),get_readme(3),publish(7)  # Async client for pactown registry.
+  src/pactown/registry/models.py:
+    e: ArtifactVersion,Artifact,RegistryStorage
+    ArtifactVersion: to_dict(0),from_dict(2)  # A specific version of an artifact.
+    Artifact: full_name(0),add_version(1),get_version(1),to_dict(0),from_dict(2)  # An artifact in the registry (a markpact module).
+    RegistryStorage: __init__(1),_load(0),_save(0),get(2),list(1),save_artifact(1),delete(2),search(1)  # File-based storage for registry artifacts.
+  src/pactown/registry/server.py:
+    e: create_app,main,PublishRequest,PublishResponse,ArtifactInfo,VersionInfo
+    PublishRequest:
+    PublishResponse:
+    ArtifactInfo:
+    VersionInfo:
+    create_app(storage_path)
+    main(host;port;storage;reload)
+  src/pactown/resolver.py:
+    e: ResolvedDependency,DependencyResolver
+    ResolvedDependency:  # A resolved dependency with endpoint information.
+    DependencyResolver: __init__(1),_build_graph(0),get_startup_order(0),get_shutdown_order(0),resolve_service_deps(1),get_environment(1),validate(0),print_graph(0)  # Resolves dependencies between services in an ecosystem.
+  src/pactown/runner_api.py:
+    e: _dns_label,_validate_service_id,_service_name_for,_validate_rel_path,_resolve_in_dir,create_runner_api,create_app,main,UserProfileRequest,RunRequest,StopRequest,ValidateRequest,SandboxPrepareRequest,SandboxFileWriteRequest,RunnerApiSettings,RunnerService
+    UserProfileRequest:
+    RunRequest:
+    StopRequest:
+    ValidateRequest:
+    SandboxPrepareRequest:
+    SandboxFileWriteRequest:
+    RunnerApiSettings: __init__(0)
+    RunnerService: __init__(0),_resolve_service_id(3),validate(1),_sandbox_path_for(1),list_sandbox_files(1),read_sandbox_file(3),write_sandbox_file(3),delete_sandbox_file(2),prepare_sandbox(3),run(0)
+    _dns_label(value;fallback)
+    _validate_service_id(service_id)
+    _service_name_for(service_id)
+    _validate_rel_path(path)
+    _resolve_in_dir(root;rel)
+    create_runner_api()
+    create_app()
+    main()
+  src/pactown/runner_types.py:
+    e: kill_process_on_port,ErrorCategory,DiagnosticInfo,AutoFixSuggestion,RunResult,EndpointTestResult,ValidationResult
+    ErrorCategory:  # Categorized error types for better diagnostics.
+    DiagnosticInfo: collect(2)  # Environment diagnostics for debugging.
+    AutoFixSuggestion:  # Actionable suggestion to fix an error.
+    RunResult: to_dict(0)  # Result of running a service with detailed diagnostics.
+    EndpointTestResult:  # Result of testing an endpoint.
+    ValidationResult:  # Result of validating markpact content.
+    kill_process_on_port(port;force)
+  src/pactown/sandbox_helpers.py:
+    e: _ui_log_level,_should_emit_to_ui,_call_on_log,_filter_runtime_env,_sanitize_inherited_env,_escape_dotenv_value,_write_dotenv_file,_heartbeat,_beat_every_s,_path_debug
+    _ui_log_level()
+    _should_emit_to_ui(level)
+    _call_on_log(on_log;msg;level)
+    _filter_runtime_env(explicit_env)
+    _sanitize_inherited_env(parent_env;explicit_env)
+    _escape_dotenv_value(value)
+    _write_dotenv_file(sandbox_path;env)
+    _heartbeat()
+    _beat_every_s()
+    _path_debug(path)
+  src/pactown/sandbox_manager.py:
+    e: _sandbox_fallback_ids,_chown_sandbox_tree,_detect_web_preview_needed,_install_system_deps,_inject_electron_web_polyfill,_build_web_preview_cmd,_find_web_assets_dir,ServiceProcess,SandboxManager
+    ServiceProcess: is_running(0)  # Represents a running service process.
+    SandboxManager: _is_node_lang(1),_infer_node_project(0),_ensure_package_json(0),_install_node_deps(0),__init__(1),get_sandbox_path(1),create_sandbox(5),build_service(2),start_service(7),stop_service(2),stop_all(1),get_status(1),get_all_status(0),clean_sandbox(1),clean_all(0),create_sandboxes_parallel(3),start_services_parallel(3)  # Manages sandboxes for multiple services.
+    _sandbox_fallback_ids()
+    _chown_sandbox_tree(sandbox_path;uid;gid)
+    _detect_web_preview_needed(expanded_cmd;target_cfg;full_env;sandbox_path)
+    _install_system_deps(framework;log)
+    _inject_electron_web_polyfill(serve_dir;target_cfg;log)
+    _build_web_preview_cmd(sandbox_path;port;target_cfg;log)
+    _find_web_assets_dir(sandbox_path)
+  src/pactown/security.py:
+    e: get_security_policy,set_security_policy,AnomalyType,UserTier,UserProfile,AnomalyEvent,AnomalyLogger,RateLimiter,ResourceMonitor,SecurityCheckResult,SecurityPolicy
+    AnomalyType:  # Types of security anomalies.
+    UserTier:  # User tier levels with different resource limits.
+    UserProfile: from_tier(3),to_dict(0),from_dict(2)  # User profile with resource limits and permissions.
+    AnomalyEvent: to_dict(0),to_log_line(0)  # Record of a security anomaly.
+    AnomalyLogger: __init__(3),log(6),get_recent(1),get_by_user(2),get_by_type(2)  # Logs security anomalies for admin review.
+    RateLimiter: __init__(2),_get_bucket(1),check(1),consume(1),get_wait_time(1)  # Token bucket rate limiter.
+    ResourceMonitor: __init__(3),_get_cpu_percent(0),_get_memory_percent(0),check_overload(0),get_throttle_delay(0)  # Monitors system resources and detects overload.
+    SecurityCheckResult: to_dict(0)  # Result of a security check.
+    SecurityPolicy: __init__(5),set_user_profile(1),get_user_profile(1),register_service(2),unregister_service(2),get_user_service_count(1),get_services_started_last_hour(1),check_can_start_service(3),get_anomaly_summary(1)  # Main security policy enforcer for pactown.
+    get_security_policy()
+    set_security_policy(policy)
+  src/pactown/service_runner.py:
+    e: ServiceRunner
+    ServiceRunner: __init__(6),validate_content(1),_extract_required_env_vars(1),_missing_required_env_vars(2),_prune_stale_user_services(2),run_from_content(10),_generate_suggestions(3),_wait_for_health(5),stop(1),get_status(1),list_services(0),test_endpoints(3),stop_all(0),fast_run(8),_quick_health_check(4),get_cache_stats(0)  # High-level service runner for markpact projects.
+  src/pactown/targets.py:
+    e: get_framework_meta,list_frameworks,_to_int,infer_target_from_deps,TargetPlatform,DesktopFramework,MobileFramework,WebFramework,FrameworkMeta,TargetConfig
+    TargetPlatform:  # Target platform for a markpact project.
+    DesktopFramework:  # Desktop application frameworks.
+    MobileFramework:  # Mobile application frameworks.
+    WebFramework:  # Web application frameworks (informational).
+    FrameworkMeta:  # Metadata about a framework used for scaffolding and building
+    TargetConfig: from_yaml_body(2),from_dict(2),framework_meta(0),is_web(0),is_desktop(0),is_mobile(0),is_buildable(0),needs_port(0),effective_build_targets(0)  # Parsed target configuration from a markpact:target block.
+    get_framework_meta(name)
+    list_frameworks(platform)
+    _to_int(val)
+    infer_target_from_deps(deps)
+  src/pactown/user_isolation.py:
+    e: _sanitize_gecos,get_isolation_manager,IsolatedUser,UserIsolationManager
+    IsolatedUser: to_dict(0)  # Represents an isolated Linux user for sandbox execution.
+    UserIsolationManager: __init__(2),can_isolate(0),_load_existing_users(0),_generate_username(1),get_or_create_user(1),get_user(1),get_sandbox_path(2),run_as_user(4),list_users(0),get_user_stats(1),export_user_data(2),import_user_data(2),delete_user(2)  # Manages isolated Linux users for sandbox execution.
+    _sanitize_gecos(value)
+    get_isolation_manager()
+  tests/__init__.py:
+  tests/conftest.py:
+    e: async_test,anyio_backend
+    async_test(fn)
+    anyio_backend()
+  tests/test_ansible.py:
+    e: _deploy_config,test_runtime_type_ansible_exists,test_runtime_type_ansible_in_enum,_docker_available,_docker_run,_docker_run_script,_should_skip_artifact_scan,_classify_artifact_size,TestAnsibleConfig,TestGenerateInventory,TestGenerateDeployPlaybook,TestGenerateTeardownPlaybook,TestGenerateBuildPlaybook,TestAnsibleBackendDryRun,TestAnsibleBackendAvailability,TestAnsibleBackendRun,TestAnsibleBackendLogsStatus,TestPlaybookYamlContent,TestIntegrationWithDeploymentConfig,TestAnsibleDesktopIntegration,TestAnsibleMobileIntegration,TestE2EBuildAndAnsibleDeploy,TestDesktopArtifactGeneration,TestMobileArtifactGeneration,TestMultiPlatformArtifactsWithAnsible,TestScaffoldConfigCorrectness,TestBuildCommandGeneration,TestElectronNoSandboxPatch,TestElectronBuilderFlagFiltering,TestDesktopFlutterTkinterArtifacts,TestAnsibleArtifactDistribution,TestArtifactsInPactownSandboxRoot,TestRealScaffoldInPactown,TestDockerArtifactExecution,TestDockerDockerfileValidation,TestDockerIaCValidation,TestArtifactSizeValidation,TestDockerArtifactSizeValidation,TestDockerBinaryFormatVerification,TestDockerAutomatedExecution,TestGeneratedFileCorrectness
+    TestAnsibleConfig: test_defaults(0),test_for_local(0),test_for_remote_single_host(0),test_for_remote_multiple_hosts(0),test_custom_extra_vars(0),test_galaxy_requirements(0),test_roles_path(0),test_verbosity_levels(0)
+    TestGenerateInventory: test_single_remote_host(0),test_localhost_gets_local_connection(0),test_127_0_0_1_gets_local_connection(0),test_multiple_hosts(0),test_custom_group_name(0),test_ssh_key_path(0),test_no_ssh_key(0),test_local_connection_skips_ansible_connection_var(0),test_ssh_connection_sets_ansible_connection_var(0),test_yaml_serialisable(0)
+    TestGenerateDeployPlaybook: test_basic_structure(0),test_pull_task(0),test_network_task(0),test_container_task_port_mapping(0),test_container_task_no_port_when_not_exposed(0),test_container_env(0),test_container_memory_limit(0),test_container_read_only_fs(0),test_container_no_new_privileges(0),test_container_drop_capabilities(0),test_healthcheck_tasks_present(0),test_no_healthcheck_when_none(0),test_container_healthcheck_params(0),test_become_settings(0),test_no_become(0),test_container_name_includes_namespace(0),test_restart_policy(0),test_yaml_serialisable(0)
+    TestGenerateTeardownPlaybook: test_structure(0),test_container_name(0),test_stop_tag(0)
+    TestGenerateBuildPlaybook: test_basic(0),test_with_build_args(0),test_no_build_args(0),test_build_tag(0)
+    TestAnsibleBackendDryRun: _backend(1),test_runtime_type(1),test_deploy_writes_files(1),test_deploy_endpoint(1),test_deploy_no_endpoint_when_ports_not_exposed(1),test_stop_writes_teardown(1),test_build_image_writes_playbook(1),test_build_image_default_tag(1),test_push_image_writes_playbook(1),test_push_image_no_registry(1),test_logs_dry_run(1),test_status_dry_run(1),test_write_all(1),test_write_all_no_health_check(1)
+    TestAnsibleBackendAvailability: test_available_when_ansible_installed(2),test_not_available_when_not_installed(2),test_not_available_on_timeout(2)
+    TestAnsibleBackendRun: _backend(1),test_deploy_runs_ansible_playbook(2),test_deploy_failure(2),test_deploy_timeout(2),test_deploy_ansible_not_found(2),test_stop_runs_ansible_playbook(2),test_verbosity_flag(2),test_extra_vars_passed(2),test_build_image_non_dry_run(2),test_push_image_non_dry_run(2)
+    TestAnsibleBackendLogsStatus: test_logs_calls_docker(2),test_status_running(2),test_status_not_found(2),test_logs_docker_not_available(2)
+    TestPlaybookYamlContent: test_deploy_playbook_roundtrips(1),test_inventory_has_all_hosts(1),test_teardown_playbook_content(1)
+    TestIntegrationWithDeploymentConfig: test_production_config(1),test_development_config(1)
+    TestAnsibleDesktopIntegration: test_electron_build_and_deploy_playbook(1),test_tauri_build_scaffold_with_ansible_deployment(1),test_pyinstaller_scaffold_and_ansible_build_playbook(1),test_pyqt_scaffold_with_icon_and_ansible(1),test_electron_multi_platform_build_with_ansible_matrix(1)  # Test Ansible deployment of desktop apps built with DesktopBu
+    TestAnsibleMobileIntegration: test_capacitor_scaffold_and_ansible_deployment(1),test_react_native_scaffold_with_ansible(1),test_flutter_scaffold_android_ios_with_ansible(1),test_kivy_buildozer_scaffold_with_ansible(1),test_capacitor_webdir_detection_with_ansible(1)  # Test Ansible deployment of mobile apps built with MobileBuil
+    TestE2EBuildAndAnsibleDeploy: test_desktop_electron_full_workflow(1),test_mobile_capacitor_full_workflow(1),test_multi_service_ansible_deployment(1)  # End-to-end tests: build artifacts, then deploy via Ansible.
+    TestDesktopArtifactGeneration: test_electron_linux_appimage_artifact(1),test_electron_windows_exe_artifact(1),test_electron_macos_dmg_artifact(1),test_electron_snap_artifact(1),test_electron_linux_launcher_artifacts(1),test_tauri_linux_appimage_artifact(1),test_tauri_deb_artifact(1),test_pyinstaller_linux_binary_artifact(1),test_pyinstaller_windows_exe_artifact(1),test_pyqt_multi_os_artifacts(1)  # Test correct artifact generation for desktop apps across dif
+    TestMobileArtifactGeneration: test_capacitor_android_apk_artifact(1),test_capacitor_android_release_apk_artifact(1),test_capacitor_ios_ipa_artifact(1),test_capacitor_dual_platform_artifacts(1),test_react_native_android_apk_artifact(1),test_react_native_ios_ipa_artifact(1),test_flutter_android_apk_artifact(1),test_flutter_ios_ipa_artifact(1),test_kivy_android_apk_artifact(1),test_kivy_android_aab_artifact(1)  # Test correct artifact generation for mobile apps across diff
+    TestMultiPlatformArtifactsWithAnsible: test_electron_all_platforms_artifacts(1),test_capacitor_android_ios_artifacts_with_ansible(1),test_artifact_paths_in_ansible_playbook(1),test_flutter_multi_platform_architecture_artifacts(1)  # Test artifact generation for multiple platforms with Ansible
+    TestScaffoldConfigCorrectness: test_electron_package_json_build_targets_all_os(1),test_electron_package_json_app_id(1),test_electron_package_json_default_app_id(1),test_electron_main_js_has_no_sandbox(1),test_electron_main_js_window_dimensions(1),test_electron_dev_deps_pinned(1),test_electron_moves_electron_from_deps_to_dev_deps(1),test_tauri_conf_bundle_identifier(1),test_tauri_conf_window_size(1),test_tauri_conf_default_window_size(1),test_tauri_conf_product_name(1),test_pyinstaller_spec_content(1),test_pyinstaller_spec_no_icon_by_default(1),test_pyqt_spec_with_icon(1),test_tkinter_spec_generated(1),test_capacitor_config_json_fields(1),test_capacitor_scripts_in_package_json(1),test_capacitor_webdir_root_index(1),test_capacitor_webdir_build_dir(1),test_capacitor_webdir_www_dir(1),test_capacitor_plugin_version_pinning(1),test_react_native_app_json_display_name(1),test_react_native_app_json_default_display_name(1),test_kivy_buildozer_spec_fields(1),test_kivy_buildozer_spec_icon(1),test_kivy_buildozer_spec_no_icon(1)  # Verify scaffold generates correct config files for each fram
+    TestBuildCommandGeneration: test_electron_default_build_cmd_linux(0),test_electron_default_build_cmd_no_targets(0),test_tauri_default_build_cmd(0),test_pyinstaller_default_build_cmd(0),test_pyqt_default_build_cmd(0),test_tkinter_default_build_cmd(0),test_flutter_desktop_default_build_cmd(0),test_flutter_desktop_macos_build_cmd(0),test_flutter_desktop_windows_build_cmd(0),test_unknown_framework_returns_empty(0),test_capacitor_android_build_cmd(0),test_capacitor_ios_build_cmd(0),test_react_native_android_build_cmd(0),test_react_native_ios_build_cmd(0),test_flutter_android_build_cmd(0),test_flutter_ios_build_cmd(0),test_kivy_android_build_cmd(0),test_kivy_ios_build_cmd(0)  # Verify correct build commands are generated for each framewo
+    TestElectronNoSandboxPatch: test_patch_commonjs_require(1),test_patch_es_module_import(1),test_patch_app_whenready_fallback(1),test_patch_app_on_fallback(1),test_patch_ultimate_fallback_prepend(1),test_patch_skips_already_patched(1),test_patch_no_main_js(1)  # Test all 4 patterns of --no-sandbox injection into main.js.
+    TestElectronBuilderFlagFiltering: test_filter_keeps_linux_flag(0),test_filter_strips_mac_on_non_darwin(0),test_filter_ensures_at_least_one_platform(0),test_electron_builder_flags_linux_target(0),test_electron_builder_flags_empty_defaults_linux(0),test_electron_builder_flags_no_duplicates(0)  # Test electron-builder flag filtering based on host OS.
+    TestDesktopFlutterTkinterArtifacts: test_flutter_desktop_linux_artifacts(1),test_tkinter_dist_artifacts(1),test_tkinter_windows_artifact(1),test_unknown_framework_fallback_artifacts(1),test_mobile_unknown_framework_fallback(1)  # Test artifact collection for desktop Flutter and Tkinter bui
+    TestAnsibleArtifactDistribution: test_ansible_deploy_with_electron_linux_artifacts(1),test_ansible_deploy_with_capacitor_android_artifacts(1),test_ansible_deploy_multi_os_electron_with_separate_inventories(1),test_ansible_deploy_kivy_with_buildozer_artifacts(1),test_ansible_deploy_tauri_with_multi_format_artifacts(1),test_ansible_deploy_react_native_dual_platform(1)  # Test Ansible playbooks correctly distribute artifacts per OS
+    TestArtifactsInPactownSandboxRoot: test_sandbox_manager_uses_configured_root(0),test_env_sandbox_root_points_to_pactown(0),test_service_runner_default_root_from_env(0),test_electron_artifacts_inside_sandbox_root(0),test_capacitor_artifacts_inside_sandbox_root(0),test_tauri_artifacts_inside_sandbox_root(0),test_ansible_deploy_artifacts_from_sandbox_root(0),test_dotenv_pactown_sandbox_root_is_project_local(0)  # Verify that builders create artifacts inside the configured 
+    TestRealScaffoldInPactown: _root(0),_svc_path(1),_make_elf(1),_make_pe(1),_make_zip_package(2),_make_apk(3),_make_ipa(3),_make_aab(3),_make_dmg(1),_make_deb(1),_make_snap(1),_make_msi(1),_make_so(1),_make_appimage(1),_write_artifact(2),test_root_matches_dotenv_config(0),test_pactown_dir_exists(0),test_real_electron_scaffold_and_artifacts(0),test_real_tauri_scaffold_and_artifacts(0),test_real_pyinstaller_scaffold_and_artifacts(0),test_real_pyqt_scaffold_and_artifacts(0),test_real_tkinter_scaffold_and_artifacts(0),test_real_flutter_desktop_scaffold_and_artifacts(0),test_real_capacitor_scaffold_and_artifacts(0),test_real_react_native_scaffold_and_artifacts(0),test_real_flutter_mobile_scaffold_and_artifacts(0),test_real_kivy_scaffold_and_artifacts(0),test_real_fastapi_scaffold_and_artifacts(0),test_real_flask_scaffold_and_artifacts(0),test_real_express_scaffold_and_artifacts(0),test_real_nextjs_scaffold_and_artifacts(0),test_real_react_spa_scaffold_and_artifacts(0),test_real_vue_scaffold_and_artifacts(0),test_all_framework_dirs_present(0),test_all_artifacts_are_inside_pactown(0)  # Run REAL scaffolds in .pactown/ (as configured by .env) and 
+    TestDockerArtifactExecution: _root(0),test_docker_electron_package_json(0),test_docker_electron_main_js(0),test_docker_electron_artifacts_exist(0),test_docker_tauri_config(0),test_docker_tauri_bundle_artifacts(0),test_docker_pyinstaller_spec(0),test_docker_pyinstaller_artifacts(0),test_docker_pyqt_spec_and_artifacts(0),test_docker_tkinter_spec_and_artifacts(0),test_docker_flutter_desktop_bundle(0),test_docker_capacitor_config(0),test_docker_capacitor_apk_ipa(0),test_docker_react_native_config(0),test_docker_react_native_apk_ipa(0),test_docker_flutter_mobile_artifacts(0),test_docker_kivy_buildozer_spec(0),test_docker_kivy_apk_aab(0),test_docker_fastapi_syntax_and_structure(0),test_docker_flask_syntax_and_structure(0),test_docker_express_syntax_and_structure(0),test_docker_nextjs_config_and_pages(0),test_docker_react_spa_structure(0),test_docker_vue_structure(0),test_docker_all_frameworks_mounted(0),test_docker_artifact_count(0)  # Run each framework's artifacts inside an appropriate Docker 
+    TestDockerDockerfileValidation: _root(0),test_docker_fastapi_dockerfile_valid(0),test_docker_flask_dockerfile_valid(0),test_docker_express_dockerfile_valid(0),test_docker_all_web_dockerfiles_have_required_instructions(0)  # Validate that Dockerfiles created for web frameworks parse c
+    TestDockerIaCValidation: _root(0),_ensure_writable_dir(1),_setup_iac_sandboxes(0),test_docker_iac_python_manifest_valid_yaml(0),test_docker_iac_node_manifest_valid_yaml(0),test_docker_iac_python_dockerfile_structure(0),test_docker_iac_node_dockerfile_structure(0),test_docker_iac_python_compose_valid(0),test_docker_iac_node_compose_valid(0),test_docker_iac_all_files_present_and_consistent(0)  # Generate IaC artifacts via pactown.iac module and validate t
+    TestArtifactSizeValidation: _root(0),test_electron_artifacts_proper_size(0),test_tauri_artifacts_proper_size(0),test_pyinstaller_artifacts_proper_size(0),test_mobile_apk_ipa_proper_size(0),test_flutter_desktop_artifacts_proper_size(0),test_web_build_output_proper_size(0),test_strict_no_stubs_or_undersized(0),test_min_sizes_cover_all_binary_extensions(0),test_artifact_size_report(0)  # Verify all generated artifacts have proper size (no stubs).
+    TestDockerArtifactSizeValidation: _root(0),test_docker_no_stub_binaries(0),test_docker_electron_dist_sizes_all_above_threshold(0),test_docker_mobile_packages_all_above_threshold(0)  # Validate artifact sizes and file formats inside Docker conta
+    TestDockerBinaryFormatVerification: _root(0),test_docker_electron_elf_headers(0),test_docker_pyinstaller_elf_and_pe(0),test_docker_flutter_desktop_elf_and_so(0),test_docker_tauri_bundle_formats(0),test_docker_mobile_zip_packages(0)  # Verify artifact binary format headers with `file` command in
+    TestDockerAutomatedExecution: _root(0),test_docker_run_fastapi_syntax_check(0),test_docker_run_fastapi_import_check(0),test_docker_run_flask_syntax_check(0),test_docker_run_flask_import_check(0),test_docker_run_express_syntax_check(0),test_docker_run_nextjs_syntax_check(0),test_docker_run_react_build_output_valid(0),test_docker_run_vue_build_output_valid(0),test_docker_dockerfile_parseable(0),test_docker_electron_run_sh_syntax(0)  # Actually run / syntax-check source code inside Docker contai
+    TestGeneratedFileCorrectness: _root(0),test_elf_binaries_have_valid_header(0),test_pe_executables_have_mz_header(0),test_zip_packages_have_pk_magic(0),test_snap_has_squashfs_magic(0),test_msi_has_ole_magic(0),test_deb_has_ar_magic(0),test_dmg_has_udif_trailer(0),test_apk_contains_android_manifest(0),test_apk_manifest_is_valid_xml(0),test_ipa_contains_payload(0),test_aab_contains_bundle_config(0),test_all_json_files_parseable(0),test_package_json_has_required_fields(0),test_package_json_scripts_section(0),test_tauri_conf_json_schema(0),test_capacitor_config_json_schema(0),test_electron_package_json_build_config(0),test_react_native_app_json(0),test_all_yaml_files_parseable(0),test_docker_compose_has_services(0),test_docker_compose_healthcheck(0),test_pactown_sandbox_yaml_schema(0),test_all_python_files_valid_syntax(0),test_fastapi_main_has_app_and_health(0),test_flask_app_has_app_and_health(0),test_flask_wsgi_has_import(0),test_all_js_files_not_empty(0),test_express_index_has_routes(0),test_electron_main_js_structure(0),test_nextjs_pages_structure(0),test_nextjs_api_health_endpoint(0),test_vue_app_has_template(0),test_vue_main_js_creates_app(0),test_react_jsx_has_component(0),test_react_main_jsx_renders_root(0),test_html_files_have_valid_structure(0),test_dist_html_references_assets(0),test_css_files_have_style_rules(0),test_all_dockerfiles_have_from_and_cmd(0),test_dockerfiles_valid_instructions(0),test_dockerfiles_use_non_root_user(0),test_dockerfiles_have_healthcheck(0),test_requirements_txt_valid(0),test_requirements_match_framework(0),test_pyinstaller_spec_files_valid(0),test_pyinstaller_spec_references_main(0),test_buildozer_spec_valid(0),test_shell_scripts_have_shebang(0),test_vite_configs_define_plugin(0),test_build_outputs_match_source(0),test_web_dist_has_js_and_css_assets(0),test_all_services_have_metadata_or_build_config(0),test_correctness_report(0)  # Validate content correctness of all generated artifact files
+    _deploy_config()
+    test_runtime_type_ansible_exists()
+    test_runtime_type_ansible_in_enum()
+    _docker_available()
+    _docker_run(image;mount_src;mount_dst;cmd;timeout)
+    _docker_run_script(image;mount_src;mount_dst;script;timeout;retries)
+    _should_skip_artifact_scan(path)
+    _classify_artifact_size(path;min_sizes)
+  tests/test_builders.py:
+    e: test_get_builder_web,test_get_builder_desktop,test_get_builder_mobile,test_get_builder_for_target_none_defaults_to_web,test_get_builder_for_target_desktop,test_desktop_scaffold_electron,test_desktop_scaffold_electron_existing_package_json,test_desktop_scaffold_electron_merges_main_into_minimal_package_json,test_desktop_scaffold_electron_does_not_overwrite_existing_main,test_desktop_scaffold_tauri,test_desktop_scaffold_pyinstaller,test_sanitize_java_package_id_clean,test_sanitize_java_package_id_dashes,test_sanitize_java_package_id_leading_digit,test_sanitize_java_package_id_special_chars,test_sanitize_java_package_id_empty_segments,test_sanitize_java_package_id_fallback,test_mobile_scaffold_capacitor,test_mobile_scaffold_capacitor_sanitizes_dashed_appid,test_mobile_scaffold_capacitor_no_bundled_web_runtime,test_mobile_scaffold_capacitor_webdir_root,test_mobile_scaffold_capacitor_webdir_dist,test_mobile_scaffold_capacitor_webdir_www,test_mobile_scaffold_capacitor_ios_target,test_mobile_scaffold_capacitor_preserves_existing_deps,test_mobile_scaffold_capacitor_pins_latest_to_6x,test_mobile_scaffold_capacitor_migrates_storage_to_preferences,test_mobile_scaffold_capacitor_pins_ios_latest_to_6x,test_mobile_scaffold_capacitor_overrides_incompatible_platform_versions,test_mobile_scaffold_capacitor_updates_webdir_in_existing_config,test_mobile_scaffold_kivy,test_web_builder_scaffold_noop,test_web_builder_build_no_cmd,test_patch_no_sandbox_user_provided_main_js,test_patch_no_sandbox_already_patched,test_patch_no_sandbox_scaffolded_default,test_patch_no_sandbox_desktop_notes_main_js,test_patch_no_sandbox_no_main_js,test_patch_no_sandbox_double_quotes,test_patch_no_sandbox_es_module_single_quotes,test_patch_no_sandbox_es_module_double_quotes,test_patch_no_sandbox_ultimate_fallback,test_generate_linux_launcher_creates_files,test_generate_linux_launcher_no_dist,test_generate_linux_launcher_no_appimage,test_build_result_defaults,test_mobile_scaffold_capacitor_updates_plugin_versions,test_desktop_scaffold_tauri_window_dimensions,test_desktop_scaffold_tauri_default_dimensions,test_desktop_scaffold_tauri_does_not_overwrite_existing_config,test_desktop_scaffold_tauri_bundle_identifier,test_desktop_scaffold_pyqt,test_desktop_scaffold_pyqt_with_icon,test_desktop_scaffold_tkinter,test_desktop_scaffold_tkinter_does_not_overwrite_existing_spec,test_desktop_scaffold_flutter_desktop_noop,test_desktop_scaffold_unknown_framework_noop,test_electron_builder_flags_linux_only,test_electron_builder_flags_empty_defaults_to_linux,test_electron_builder_flags_none_defaults_to_linux,test_electron_builder_flags_windows_skipped_on_linux_no_wine,test_electron_builder_flags_windows_allowed_with_wine,test_electron_builder_flags_mac_skipped_on_linux,test_electron_builder_flags_mac_allowed_on_darwin,test_electron_builder_flags_windows_on_windows,test_electron_builder_flags_deduplicates,test_electron_builder_flags_aliases,test_filter_electron_builder_cmd_strips_windows_on_linux,test_filter_electron_builder_cmd_ensures_at_least_one_platform,test_desktop_default_build_cmd_electron_linux,test_desktop_default_build_cmd_electron_multi_target,test_desktop_default_build_cmd_tauri,test_desktop_default_build_cmd_pyinstaller,test_desktop_default_build_cmd_tkinter,test_desktop_default_build_cmd_pyqt,test_desktop_default_build_cmd_flutter_linux,test_desktop_default_build_cmd_flutter_windows,test_desktop_default_build_cmd_flutter_macos,test_desktop_default_build_cmd_unknown_framework,test_desktop_collect_artifacts_electron_appimage,test_desktop_collect_artifacts_electron_dmg,test_desktop_collect_artifacts_electron_snap,test_desktop_collect_artifacts_electron_run_sh,test_desktop_collect_artifacts_tauri,test_desktop_collect_artifacts_pyinstaller,test_desktop_collect_artifacts_pyqt,test_desktop_collect_artifacts_tkinter,test_desktop_collect_artifacts_flutter,test_desktop_collect_artifacts_empty,test_desktop_collect_artifacts_unknown_framework_fallback,test_desktop_scaffold_electron_build_targets,test_desktop_scaffold_electron_move_electron_to_dev_deps,test_desktop_scaffold_electron_ensure_dev_deps_added,test_desktop_build_no_cmd_returns_failure,test_mobile_scaffold_react_native,test_mobile_scaffold_react_native_default_display_name,test_mobile_scaffold_react_native_does_not_overwrite,test_mobile_scaffold_kivy_app_id,test_mobile_scaffold_kivy_no_fullscreen,test_mobile_scaffold_kivy_does_not_overwrite,test_mobile_scaffold_kivy_has_required_sections,test_mobile_scaffold_flutter_noop,test_mobile_scaffold_unknown_framework_noop,test_mobile_capacitor_webdir_priority_dist_over_www,test_mobile_capacitor_webdir_priority_build,test_mobile_capacitor_webdir_priority_public,test_mobile_capacitor_webdir_no_index_defaults_to_dist,test_mobile_default_build_cmd_capacitor_android,test_mobile_default_build_cmd_capacitor_ios,test_mobile_default_build_cmd_react_native_android,test_mobile_default_build_cmd_react_native_ios,test_mobile_default_build_cmd_flutter_android,test_mobile_default_build_cmd_flutter_ios,test_mobile_default_build_cmd_kivy_android,test_mobile_default_build_cmd_kivy_ios,test_mobile_default_build_cmd_unknown_framework,test_mobile_default_build_cmd_empty_targets_defaults_android,test_mobile_collect_artifacts_capacitor_apk,test_mobile_collect_artifacts_capacitor_ipa,test_mobile_collect_artifacts_capacitor_both,test_mobile_collect_artifacts_react_native_apk,test_mobile_collect_artifacts_react_native_ipa,test_mobile_collect_artifacts_flutter_apk,test_mobile_collect_artifacts_flutter_ipa,test_mobile_collect_artifacts_kivy_apk,test_mobile_collect_artifacts_kivy_aab,test_mobile_collect_artifacts_empty,test_mobile_collect_artifacts_unknown_framework_fallback,test_mobile_build_no_cmd_returns_failure,test_mobile_ensure_cap_platforms_skips_existing_dir,test_mobile_ensure_cap_platforms_runs_cap_add,test_mobile_ensure_cap_platforms_multiple_targets,test_mobile_ensure_cap_platforms_partial_existing,test_mobile_build_capacitor_calls_ensure_platforms,test_web_builder_platform_name,test_web_builder_scaffold_multiple_frameworks,test_web_builder_build_result_structure,test_build_result_all_fields,test_build_result_failure,test_target_config_from_dict_desktop_electron,test_target_config_from_dict_mobile_capacitor,test_target_config_from_dict_mobile_react_native,test_target_config_from_dict_mobile_flutter,test_target_config_from_dict_mobile_kivy,test_target_config_from_dict_desktop_tauri,test_target_config_from_dict_desktop_pyinstaller,test_target_config_from_dict_desktop_pyqt,test_target_config_from_dict_desktop_tkinter,test_target_config_from_dict_web_default,test_target_config_from_dict_unknown_platform_defaults_web,test_target_config_from_dict_targets_as_csv_string,test_target_config_from_dict_extra_keys_preserved,test_target_config_from_yaml_body,test_target_config_from_yaml_body_invalid,test_effective_build_targets_desktop_explicit,test_effective_build_targets_desktop_default,test_effective_build_targets_mobile_explicit,test_effective_build_targets_mobile_default,test_effective_build_targets_web_empty,test_target_config_framework_meta_electron,test_target_config_framework_meta_capacitor,test_target_config_framework_meta_pyinstaller,test_target_config_framework_meta_none,test_framework_registry_has_all_desktop_frameworks,test_framework_registry_has_all_mobile_frameworks,test_framework_registry_desktop_platforms,test_framework_registry_mobile_platforms,test_framework_registry_all_have_build_cmd,test_framework_registry_all_have_artifact_patterns,test_framework_registry_node_frameworks,test_framework_registry_python_frameworks,test_get_framework_meta_case_insensitive,test_get_framework_meta_unknown,test_list_frameworks_all,test_list_frameworks_desktop_only,test_list_frameworks_mobile_only,test_infer_target_electron,test_infer_target_tauri,test_infer_target_pyinstaller,test_infer_target_pyqt,test_infer_target_tkinter,test_infer_target_capacitor,test_infer_target_react_native,test_infer_target_expo,test_infer_target_buildozer,test_infer_target_flutter,test_infer_target_web_default,test_infer_target_empty_deps,test_infer_target_mobile_over_desktop_when_both_hinted,test_get_builder_for_target_mobile_capacitor,test_get_builder_for_target_mobile_react_native,test_get_builder_for_target_mobile_flutter,test_get_builder_for_target_mobile_kivy,test_get_builder_for_target_desktop_electron,test_get_builder_for_target_desktop_tauri,test_get_builder_for_target_desktop_pyinstaller,test_get_builder_for_target_desktop_pyqt,test_get_builder_for_target_desktop_tkinter,test_get_builder_for_target_web_fastapi
+    test_get_builder_web()
+    test_get_builder_desktop()
+    test_get_builder_mobile()
+    test_get_builder_for_target_none_defaults_to_web()
+    test_get_builder_for_target_desktop()
+    test_desktop_scaffold_electron(tmp_path)
+    test_desktop_scaffold_electron_existing_package_json(tmp_path)
+    test_desktop_scaffold_electron_merges_main_into_minimal_package_json(tmp_path)
+    test_desktop_scaffold_electron_does_not_overwrite_existing_main(tmp_path)
+    test_desktop_scaffold_tauri(tmp_path)
+    test_desktop_scaffold_pyinstaller(tmp_path)
+    test_sanitize_java_package_id_clean()
+    test_sanitize_java_package_id_dashes()
+    test_sanitize_java_package_id_leading_digit()
+    test_sanitize_java_package_id_special_chars()
+    test_sanitize_java_package_id_empty_segments()
+    test_sanitize_java_package_id_fallback()
+    test_mobile_scaffold_capacitor(tmp_path)
+    test_mobile_scaffold_capacitor_sanitizes_dashed_appid(tmp_path)
+    test_mobile_scaffold_capacitor_no_bundled_web_runtime(tmp_path)
+    test_mobile_scaffold_capacitor_webdir_root(tmp_path)
+    test_mobile_scaffold_capacitor_webdir_dist(tmp_path)
+    test_mobile_scaffold_capacitor_webdir_www(tmp_path)
+    test_mobile_scaffold_capacitor_ios_target(tmp_path)
+    test_mobile_scaffold_capacitor_preserves_existing_deps(tmp_path)
+    test_mobile_scaffold_capacitor_pins_latest_to_6x(tmp_path)
+    test_mobile_scaffold_capacitor_migrates_storage_to_preferences(tmp_path)
+    test_mobile_scaffold_capacitor_pins_ios_latest_to_6x(tmp_path)
+    test_mobile_scaffold_capacitor_overrides_incompatible_platform_versions(tmp_path)
+    test_mobile_scaffold_capacitor_updates_webdir_in_existing_config(tmp_path)
+    test_mobile_scaffold_kivy(tmp_path)
+    test_web_builder_scaffold_noop(tmp_path)
+    test_web_builder_build_no_cmd(tmp_path)
+    test_patch_no_sandbox_user_provided_main_js(tmp_path)
+    test_patch_no_sandbox_already_patched(tmp_path)
+    test_patch_no_sandbox_scaffolded_default(tmp_path)
+    test_patch_no_sandbox_desktop_notes_main_js(tmp_path)
+    test_patch_no_sandbox_no_main_js(tmp_path)
+    test_patch_no_sandbox_double_quotes(tmp_path)
+    test_patch_no_sandbox_es_module_single_quotes(tmp_path)
+    test_patch_no_sandbox_es_module_double_quotes(tmp_path)
+    test_patch_no_sandbox_ultimate_fallback(tmp_path)
+    test_generate_linux_launcher_creates_files(tmp_path)
+    test_generate_linux_launcher_no_dist(tmp_path)
+    test_generate_linux_launcher_no_appimage(tmp_path)
+    test_build_result_defaults()
+    test_mobile_scaffold_capacitor_updates_plugin_versions(tmp_path)
+    test_desktop_scaffold_tauri_window_dimensions(tmp_path)
+    test_desktop_scaffold_tauri_default_dimensions(tmp_path)
+    test_desktop_scaffold_tauri_does_not_overwrite_existing_config(tmp_path)
+    test_desktop_scaffold_tauri_bundle_identifier(tmp_path)
+    test_desktop_scaffold_pyqt(tmp_path)
+    test_desktop_scaffold_pyqt_with_icon(tmp_path)
+    test_desktop_scaffold_tkinter(tmp_path)
+    test_desktop_scaffold_tkinter_does_not_overwrite_existing_spec(tmp_path)
+    test_desktop_scaffold_flutter_desktop_noop(tmp_path)
+    test_desktop_scaffold_unknown_framework_noop(tmp_path)
+    test_electron_builder_flags_linux_only()
+    test_electron_builder_flags_empty_defaults_to_linux()
+    test_electron_builder_flags_none_defaults_to_linux()
+    test_electron_builder_flags_windows_skipped_on_linux_no_wine(mock_which;mock_sys)
+    test_electron_builder_flags_windows_allowed_with_wine(mock_which;mock_sys)
+    test_electron_builder_flags_mac_skipped_on_linux(mock_which;mock_sys)
+    test_electron_builder_flags_mac_allowed_on_darwin(mock_which;mock_sys)
+    test_electron_builder_flags_windows_on_windows(mock_which;mock_sys)
+    test_electron_builder_flags_deduplicates()
+    test_electron_builder_flags_aliases()
+    test_filter_electron_builder_cmd_strips_windows_on_linux(mock_which;mock_sys)
+    test_filter_electron_builder_cmd_ensures_at_least_one_platform(mock_which;mock_sys)
+    test_desktop_default_build_cmd_electron_linux()
+    test_desktop_default_build_cmd_electron_multi_target(mock_which;mock_sys)
+    test_desktop_default_build_cmd_tauri()
+    test_desktop_default_build_cmd_pyinstaller()
+    test_desktop_default_build_cmd_tkinter()
+    test_desktop_default_build_cmd_pyqt()
+    test_desktop_default_build_cmd_flutter_linux()
+    test_desktop_default_build_cmd_flutter_windows()
+    test_desktop_default_build_cmd_flutter_macos()
+    test_desktop_default_build_cmd_unknown_framework()
+    test_desktop_collect_artifacts_electron_appimage(tmp_path)
+    test_desktop_collect_artifacts_electron_dmg(tmp_path)
+    test_desktop_collect_artifacts_electron_snap(tmp_path)
+    test_desktop_collect_artifacts_electron_run_sh(tmp_path)
+    test_desktop_collect_artifacts_tauri(tmp_path)
+    test_desktop_collect_artifacts_pyinstaller(tmp_path)
+    test_desktop_collect_artifacts_pyqt(tmp_path)
+    test_desktop_collect_artifacts_tkinter(tmp_path)
+    test_desktop_collect_artifacts_flutter(tmp_path)
+    test_desktop_collect_artifacts_empty(tmp_path)
+    test_desktop_collect_artifacts_unknown_framework_fallback(tmp_path)
+    test_desktop_scaffold_electron_build_targets(tmp_path)
+    test_desktop_scaffold_electron_move_electron_to_dev_deps(tmp_path)
+    test_desktop_scaffold_electron_ensure_dev_deps_added(tmp_path)
+    test_desktop_build_no_cmd_returns_failure()
+    test_mobile_scaffold_react_native(tmp_path)
+    test_mobile_scaffold_react_native_default_display_name(tmp_path)
+    test_mobile_scaffold_react_native_does_not_overwrite(tmp_path)
+    test_mobile_scaffold_kivy_app_id(tmp_path)
+    test_mobile_scaffold_kivy_no_fullscreen(tmp_path)
+    test_mobile_scaffold_kivy_does_not_overwrite(tmp_path)
+    test_mobile_scaffold_kivy_has_required_sections(tmp_path)
+    test_mobile_scaffold_flutter_noop(tmp_path)
+    test_mobile_scaffold_unknown_framework_noop(tmp_path)
+    test_mobile_capacitor_webdir_priority_dist_over_www(tmp_path)
+    test_mobile_capacitor_webdir_priority_build(tmp_path)
+    test_mobile_capacitor_webdir_priority_public(tmp_path)
+    test_mobile_capacitor_webdir_no_index_defaults_to_dist(tmp_path)
+    test_mobile_default_build_cmd_capacitor_android()
+    test_mobile_default_build_cmd_capacitor_ios()
+    test_mobile_default_build_cmd_react_native_android()
+    test_mobile_default_build_cmd_react_native_ios()
+    test_mobile_default_build_cmd_flutter_android()
+    test_mobile_default_build_cmd_flutter_ios()
+    test_mobile_default_build_cmd_kivy_android()
+    test_mobile_default_build_cmd_kivy_ios()
+    test_mobile_default_build_cmd_unknown_framework()
+    test_mobile_default_build_cmd_empty_targets_defaults_android()
+    test_mobile_collect_artifacts_capacitor_apk(tmp_path)
+    test_mobile_collect_artifacts_capacitor_ipa(tmp_path)
+    test_mobile_collect_artifacts_capacitor_both(tmp_path)
+    test_mobile_collect_artifacts_react_native_apk(tmp_path)
+    test_mobile_collect_artifacts_react_native_ipa(tmp_path)
+    test_mobile_collect_artifacts_flutter_apk(tmp_path)
+    test_mobile_collect_artifacts_flutter_ipa(tmp_path)
+    test_mobile_collect_artifacts_kivy_apk(tmp_path)
+    test_mobile_collect_artifacts_kivy_aab(tmp_path)
+    test_mobile_collect_artifacts_empty(tmp_path)
+    test_mobile_collect_artifacts_unknown_framework_fallback(tmp_path)
+    test_mobile_build_no_cmd_returns_failure()
+    test_mobile_ensure_cap_platforms_skips_existing_dir(tmp_path)
+    test_mobile_ensure_cap_platforms_runs_cap_add(tmp_path)
+    test_mobile_ensure_cap_platforms_multiple_targets(tmp_path)
+    test_mobile_ensure_cap_platforms_partial_existing(tmp_path)
+    test_mobile_build_capacitor_calls_ensure_platforms(tmp_path)
+    test_web_builder_platform_name()
+    test_web_builder_scaffold_multiple_frameworks(tmp_path)
+    test_web_builder_build_result_structure(tmp_path)
+    test_build_result_all_fields()
+    test_build_result_failure()
+    test_target_config_from_dict_desktop_electron()
+    test_target_config_from_dict_mobile_capacitor()
+    test_target_config_from_dict_mobile_react_native()
+    test_target_config_from_dict_mobile_flutter()
+    test_target_config_from_dict_mobile_kivy()
+    test_target_config_from_dict_desktop_tauri()
+    test_target_config_from_dict_desktop_pyinstaller()
+    test_target_config_from_dict_desktop_pyqt()
+    test_target_config_from_dict_desktop_tkinter()
+    test_target_config_from_dict_web_default()
+    test_target_config_from_dict_unknown_platform_defaults_web()
+    test_target_config_from_dict_targets_as_csv_string()
+    test_target_config_from_dict_extra_keys_preserved()
+    test_target_config_from_yaml_body()
+    test_target_config_from_yaml_body_invalid()
+    test_effective_build_targets_desktop_explicit()
+    test_effective_build_targets_desktop_default()
+    test_effective_build_targets_mobile_explicit()
+    test_effective_build_targets_mobile_default()
+    test_effective_build_targets_web_empty()
+    test_target_config_framework_meta_electron()
+    test_target_config_framework_meta_capacitor()
+    test_target_config_framework_meta_pyinstaller()
+    test_target_config_framework_meta_none()
+    test_framework_registry_has_all_desktop_frameworks()
+    test_framework_registry_has_all_mobile_frameworks()
+    test_framework_registry_desktop_platforms()
+    test_framework_registry_mobile_platforms()
+    test_framework_registry_all_have_build_cmd()
+    test_framework_registry_all_have_artifact_patterns()
+    test_framework_registry_node_frameworks()
+    test_framework_registry_python_frameworks()
+    test_get_framework_meta_case_insensitive()
+    test_get_framework_meta_unknown()
+    test_list_frameworks_all()
+    test_list_frameworks_desktop_only()
+    test_list_frameworks_mobile_only()
+    test_infer_target_electron()
+    test_infer_target_tauri()
+    test_infer_target_pyinstaller()
+    test_infer_target_pyqt()
+    test_infer_target_tkinter()
+    test_infer_target_capacitor()
+    test_infer_target_react_native()
+    test_infer_target_expo()
+    test_infer_target_buildozer()
+    test_infer_target_flutter()
+    test_infer_target_web_default()
+    test_infer_target_empty_deps()
+    test_infer_target_mobile_over_desktop_when_both_hinted()
+    test_get_builder_for_target_mobile_capacitor()
+    test_get_builder_for_target_mobile_react_native()
+    test_get_builder_for_target_mobile_flutter()
+    test_get_builder_for_target_mobile_kivy()
+    test_get_builder_for_target_desktop_electron()
+    test_get_builder_for_target_desktop_tauri()
+    test_get_builder_for_target_desktop_pyinstaller()
+    test_get_builder_for_target_desktop_pyqt()
+    test_get_builder_for_target_desktop_tkinter()
+    test_get_builder_for_target_web_fastapi()
+  tests/test_config.py:
+    e: test_dependency_config_from_string,test_dependency_config_from_dict,test_service_config_from_dict,test_ecosystem_config_from_dict,test_ecosystem_config_auto_port,test_ecosystem_config_from_yaml,test_ecosystem_config_to_dict,test_load_config_file_not_found,test_registry_config_defaults,test_cache_config_from_env_prefers_pactown_prefixed_vars,test_cache_config_to_env_sets_pip_extra_when_missing,test_cache_config_to_docker_build_args_maps_apt_proxy,test_cache_config_from_env_reads_pip_timeout_and_retries,test_cache_config_to_env_includes_timeout_and_retries,test_cache_config_to_docker_build_args_includes_timeout_and_retries
+    test_dependency_config_from_string()
+    test_dependency_config_from_dict()
+    test_service_config_from_dict()
+    test_ecosystem_config_from_dict()
+    test_ecosystem_config_auto_port()
+    test_ecosystem_config_from_yaml()
+    test_ecosystem_config_to_dict()
+    test_load_config_file_not_found()
+    test_registry_config_defaults()
+    test_cache_config_from_env_prefers_pactown_prefixed_vars(monkeypatch)
+    test_cache_config_to_env_sets_pip_extra_when_missing()
+    test_cache_config_to_docker_build_args_maps_apt_proxy()
+    test_cache_config_from_env_reads_pip_timeout_and_retries(monkeypatch)
+    test_cache_config_to_env_includes_timeout_and_retries()
+    test_cache_config_to_docker_build_args_includes_timeout_and_retries()
+  tests/test_cross_platform.py:
+    e: _deploy_config,_create_artifacts,TestDesktopElectronAllOS,TestDesktopTauriAllOS,TestDesktopPyInstallerAllOS,TestDesktopPyQtAllOS,TestDesktopTkinterAllOS,TestDesktopFlutterAllOS,TestMobileCapacitorAllPlatforms,TestMobileReactNativeAllPlatforms,TestMobileFlutterAllPlatforms,TestMobileKivyAllPlatforms,TestWebAllFrameworks,TestAnsibleDeployDesktopAllCombinations,TestAnsibleDeployMobileAllCombinations,TestAnsibleDeployWebAllFrameworks,TestFrameworkRegistryCompleteness,TestBuildCommandMatrix,TestArtifactCollectionMatrix,TestElectronNoSandboxAllPatterns,TestElectronBuilderFlagFilteringAllOS,TestElectronParallelBuild,TestFullE2EAllDesktopCombinations,TestFullE2EAllMobileCombinations
+    TestDesktopElectronAllOS: sandbox(1),test_scaffold_creates_package_json_and_main_js(1),test_scaffold_package_json_has_all_os_targets(1),test_scaffold_main_js_has_no_sandbox(1),test_scaffold_electron_dev_deps(1),test_scaffold_app_id(1),test_scaffold_custom_window_size(1),test_artifacts_per_os(2),test_build_cmd_per_os(1),test_build_cmd_multi_os(0),test_linux_artifacts_include_launcher(1),test_all_os_artifacts_combined(1)  # Electron × linux, windows, macos.
+    TestDesktopTauriAllOS: sandbox(1),test_scaffold_creates_tauri_conf(1),test_scaffold_custom_app_id(1),test_scaffold_custom_window_size(1),test_artifacts_per_os(2),test_build_cmd(0),test_all_os_artifacts_combined(1)  # Tauri × linux, windows, macos.
+    TestDesktopPyInstallerAllOS: sandbox(1),test_scaffold_creates_spec(1),test_scaffold_with_icon(1),test_artifacts_per_os(2),test_build_cmd_same_for_all_os(1),test_all_os_artifacts_combined(1)  # PyInstaller × linux, windows, macos.
+    TestDesktopPyQtAllOS: sandbox(1),test_scaffold_creates_spec(1),test_artifacts_per_os(2),test_build_cmd_same_for_all_os(1)  # PyQt × linux, windows, macos.
+    TestDesktopTkinterAllOS: sandbox(1),test_scaffold_creates_spec(1),test_artifacts_per_os(2),test_build_cmd_same_for_all_os(1)  # Tkinter × linux, windows, macos.
+    TestDesktopFlutterAllOS: sandbox(1),test_scaffold_noop(1),test_artifacts_per_os(2),test_build_cmd_per_os(1)  # Flutter desktop × linux, windows, macos.
+    TestMobileCapacitorAllPlatforms: sandbox(1),test_scaffold_creates_config(1),test_scaffold_config_content(1),test_scaffold_custom_app_id(1),test_scaffold_package_json_deps(1),test_scaffold_android_platform_dep(1),test_scaffold_ios_platform_dep(1),test_scaffold_dual_platform_deps(1),test_scaffold_scripts(1),test_scaffold_web_dir_detection_dist(1),test_scaffold_web_dir_detection_root(1),test_artifacts_per_platform(2),test_build_cmd_per_platform(1),test_dual_platform_artifacts(1)  # Capacitor × android, ios.
+    TestMobileReactNativeAllPlatforms: sandbox(1),test_scaffold_creates_app_json(1),test_scaffold_app_json_content(1),test_scaffold_custom_display_name(1),test_artifacts_per_platform(2),test_build_cmd_android(0),test_build_cmd_ios(0),test_dual_platform_artifacts(1)  # React Native × android, ios.
+    TestMobileFlutterAllPlatforms: sandbox(1),test_scaffold_noop(1),test_artifacts_per_platform(2),test_build_cmd_android(0),test_build_cmd_ios(0)  # Flutter mobile × android, ios.
+    TestMobileKivyAllPlatforms: sandbox(1),test_scaffold_creates_buildozer_spec(1),test_scaffold_custom_app_id(1),test_scaffold_fullscreen(1),test_scaffold_no_fullscreen(1),test_scaffold_icon(1),test_artifacts_per_platform(2),test_build_cmd_android(0),test_build_cmd_ios(0),test_android_apk_and_aab(1)  # Kivy × android, ios.
+    TestWebAllFrameworks: sandbox(1),test_scaffold_noop(2),test_build_no_cmd_returns_success(2),test_build_with_cmd_runs_shell(2),test_platform_name(0)  # WebBuilder × all web frameworks.
+    TestAnsibleDeployDesktopAllCombinations: test_scaffold_artifacts_ansible_deploy(3)  # Ansible deploy for every desktop framework × OS combination.
+    TestAnsibleDeployMobileAllCombinations: test_scaffold_artifacts_ansible_deploy(3)  # Ansible deploy for every mobile framework × platform combina
+    TestAnsibleDeployWebAllFrameworks: test_web_framework_ansible_deploy(2)  # Ansible deploy for every web framework.
+    TestFrameworkRegistryCompleteness: test_all_desktop_frameworks_registered(0),test_all_mobile_frameworks_registered(0),test_all_frameworks_have_build_cmd(0),test_all_frameworks_have_artifact_patterns(0),test_desktop_enums_match_registry(0),test_mobile_enums_match_registry(0),test_web_enums(0)  # Verify all frameworks are registered and have correct metada
+    TestBuildCommandMatrix: test_electron_build_cmd_targets(1),test_tauri_build_cmd_ignores_targets(0),test_python_desktop_build_cmd(1),test_flutter_desktop_build_cmd(1),test_capacitor_build_cmd(1),test_react_native_build_cmd(1),test_flutter_mobile_build_cmd(1),test_kivy_build_cmd(1),test_unknown_desktop_framework_returns_empty(0),test_unknown_mobile_framework_returns_empty(0)  # Verify build commands for every framework × target combinati
+    TestArtifactCollectionMatrix: test_desktop_artifact_collection(3),test_flutter_desktop_linux_artifacts(1),test_mobile_artifact_collection(3),test_flutter_mobile_android_artifacts(1),test_unknown_desktop_framework_fallback(1),test_unknown_mobile_framework_fallback(1),test_empty_sandbox_returns_no_artifacts(1)  # Verify artifact collection patterns for every framework × OS
+    TestElectronNoSandboxAllPatterns: test_commonjs_require(1),test_commonjs_double_quotes(1),test_es_module_single_quotes(1),test_es_module_double_quotes(1),test_app_whenready_fallback(1),test_app_on_fallback(1),test_ultimate_fallback_prepend(1),test_skip_already_patched(1),test_no_main_js(1)  # Verify no-sandbox patch works for all code patterns.
+    TestElectronBuilderFlagFilteringAllOS: test_linux_host_keeps_linux(2),test_linux_host_strips_mac(2),test_linux_host_strips_windows_no_wine(2),test_linux_host_keeps_windows_with_wine(2),test_linux_host_multi_target(2),test_macos_host_keeps_mac(2),test_macos_host_keeps_linux(2),test_windows_host_keeps_windows(2),test_windows_host_strips_mac(2),test_empty_targets_defaults_to_linux(0),test_none_targets_defaults_to_linux(0),test_no_duplicates(0),test_filter_cmd_strips_unsupported(0)  # Verify electron-builder flag filtering for all OS combinatio
+    TestElectronParallelBuild: test_single_target_falls_back_to_sequential(1),test_non_electron_falls_back_to_sequential(1)  # Verify parallel build logic for Electron multi-target.
+    TestFullE2EAllDesktopCombinations: test_all_os_e2e(2)  # End-to-end: scaffold → fake artifacts → collect → Ansible de
+    TestFullE2EAllMobileCombinations: test_all_platforms_e2e(2)  # End-to-end: scaffold → fake artifacts → collect → Ansible de
+    _deploy_config()
+    _create_artifacts(sandbox;artifacts)
+  tests/test_deploy_dockerfile.py:
+    e: test_python_dockerfile_healthcheck_does_not_use_curl,test_python_dockerfile_supports_pip_timeout_and_retries_build_args,test_node_dockerfile_falls_back_when_package_lock_missing,test_markpact_readme_python_materializes_and_generates_cmd_from_run_block,test_markpact_readme_node_materializes_package_json_and_generates_cmd_from_run_block,test_markpact_readme_static_web_no_deps_generates_cmd_from_run_block
+    test_python_dockerfile_healthcheck_does_not_use_curl()
+    test_python_dockerfile_supports_pip_timeout_and_retries_build_args()
+    test_node_dockerfile_falls_back_when_package_lock_missing()
+    test_markpact_readme_python_materializes_and_generates_cmd_from_run_block()
+    test_markpact_readme_node_materializes_package_json_and_generates_cmd_from_run_block()
+    test_markpact_readme_static_web_no_deps_generates_cmd_from_run_block()
+  tests/test_deploy_optimizations.py:
+    e: TestNpmCiSelection,TestElectronLazyScaffold,TestParallelMultiTargetBuild,TestBuildLogStreaming,TestIncrementalBuilds,TestCacheDirectories,TestElectronPinnedVersions,TestRunShellContract
+    TestNpmCiSelection: test_npm_install_when_no_lock(1),test_npm_ci_when_lock_exists(1),test_prefer_offline_only_without_lock(0)  # Verify _install_node_deps uses npm ci when package-lock.json
+    TestElectronLazyScaffold: test_already_scaffolded_returns_true(1),test_not_scaffolded_no_main_js(1),test_not_scaffolded_missing_electron(1),test_not_scaffolded_no_package_json(1),test_not_scaffolded_invalid_json(1),test_scaffold_skips_when_already_done(1),test_scaffold_runs_when_not_done(1)
+    TestParallelMultiTargetBuild: test_single_target_falls_back_to_sequential(1),test_non_electron_falls_back(1),test_explicit_build_cmd_falls_back(1),test_parallel_electron_multi_target(1),test_parallel_result_has_correct_fields(1)
+    TestBuildLogStreaming: test_stderr_merged_into_stdout(1),test_on_log_receives_lines_in_order(1),test_build_error_visible_in_logs(1)
+    TestIncrementalBuilds: _build(3),test_first_build_creates_hash_file(1),test_second_build_is_incremental(1),test_changed_readme_triggers_full_rebuild(1),test_incremental_still_scaffolds(1)
+    TestCacheDirectories: test_all_cache_dirs_created(1),test_electron_builder_cache_created_on_build(1)
+    TestElectronPinnedVersions: test_ensure_electron_dev_deps_uses_pinned(1),test_existing_version_not_overwritten(1)
+    TestRunShellContract: test_success_returns_zero(1),test_failure_returns_nonzero(1),test_stderr_merged(1)
+  tests/test_deploy_platforms.py:
+    e: _readme,_sandbox_and_manager,_create_sandbox_from_readme,TestDeployDesktopElectron,TestDeployDesktopTauri,TestDeployDesktopPyInstaller,TestDeployDesktopPyQt,TestDeployDesktopTkinter,TestDeployDesktopFlutter,TestDeployMobileCapacitor,TestDeployMobileReactNative,TestDeployMobileKivy,TestDeployMobileFlutter,TestDeployWebFastAPI,TestDeployWebFlask,TestDeployWebExpress,TestDeployWebStatic,TestIaCSpecAllPlatforms,TestComposeHealthcheckPerPlatform,TestDockerfilePerPlatform,TestBuildServiceIntegration,TestNodeModulesCacheIntegration,TestFrameworkMetaDeploymentReady
+    TestDeployDesktopElectron: test_sandbox_creation(1),test_target_parsing(0),test_scaffold_creates_package_json_and_main_js(1),test_build_produces_artifacts(1),test_build_result_has_logs(1),test_iac_spec_for_electron(1)
+    TestDeployDesktopTauri: test_scaffold_creates_tauri_conf(1),test_full_build(1),test_default_build_cmd(0)
+    TestDeployDesktopPyInstaller: test_scaffold_creates_spec(1),test_full_build(1),test_sandbox_writes_requirements(1),test_iac_python_runtime(1),test_dockerfile_generation(1)
+    TestDeployDesktopPyQt: test_scaffold_creates_spec_with_icon(1),test_full_build(1),test_framework_meta(0)
+    TestDeployDesktopTkinter: test_scaffold_and_build(1),test_default_cmd_uses_pyinstaller(0)
+    TestDeployDesktopFlutter: test_parse_and_build(1),test_default_cmd(0)
+    TestDeployMobileCapacitor: test_scaffold_creates_capacitor_config(1),test_scaffold_creates_package_json_scripts(1),test_full_build(1),test_builder_registry(0),test_iac_node_runtime(1)
+    TestDeployMobileReactNative: test_scaffold_creates_app_json(1),test_full_build(1),test_default_cmd_android(0),test_default_cmd_ios(0)
+    TestDeployMobileKivy: test_scaffold_creates_buildozer_spec(1),test_full_build(1),test_sandbox_creates_requirements(1),test_iac_python_runtime(1)
+    TestDeployMobileFlutter: test_parse(0),test_build(1),test_default_cmd_android(0),test_default_cmd_ios(0)
+    TestDeployWebFastAPI: test_sandbox_creation(1),test_iac_manifest(1),test_dockerfile_python_image(1),test_compose_yaml(1),test_web_builder_no_artifacts(1),test_run_cmd_extracted(0)
+    TestDeployWebFlask: test_sandbox_creation(1),test_iac_manifest_python(1),test_dockerfile_python(1),test_compose_with_port(1)
+    TestDeployWebExpress: test_sandbox_creates_package_json(1),test_iac_manifest_node(1),test_dockerfile_node_image(1),test_compose_healthcheck_node(1)
+    TestDeployWebStatic: test_sandbox_no_deps(1),test_iac_manifest(1),test_web_builder_build_step(1)
+    TestIaCSpecAllPlatforms: test_python_web_spec(0),test_node_web_spec(0),test_desktop_electron_spec(0),test_mobile_kivy_spec(0),test_mobile_capacitor_spec(0)  # Verify IaC sandbox spec is correct for every platform type.
+    TestComposeHealthcheckPerPlatform: test_python_healthcheck_uses_urllib(0),test_node_healthcheck_uses_http_module(0),test_no_port_no_port_mapping(0)
+    TestDockerfilePerPlatform: test_python_dockerfile(1),test_node_dockerfile(1),test_python_no_deps_no_requirements_copy(1),test_python_dockerfile_run_cmd_none(1),test_node_dockerfile_run_cmd_none(1)
+    TestBuildServiceIntegration: _build(5),test_electron_build_service(1),test_pyinstaller_build_service(1),test_capacitor_build_service(1),test_kivy_build_service(1),test_web_build_service(1),test_build_failure_propagated(1),test_build_env_contains_electron_builder_cache(1)  # Tests that exercise SandboxManager.build_service() end-to-en
+    TestNodeModulesCacheIntegration: test_node_cache_initialized(1),test_cache_dir_created(1),test_dep_cache_initialized(1)  # Verify that NodeModulesCache is wired into build_service.
+    TestFrameworkMetaDeploymentReady: test_framework_has_build_cmd(1),test_framework_has_artifact_patterns(1),test_framework_platform_correct(2)  # Verify every registered framework has enough metadata for de
+    _readme(content)
+    _sandbox_and_manager(tmp)
+    _create_sandbox_from_readme(tmp;readme_text;service_name;port;target;framework)
+  tests/test_e2e_build.py:
+    e: _write_readme,_parse_and_resolve,TestE2EDesktopElectron,TestE2EDesktopPyInstaller,TestE2EDesktopTauri,TestE2EMobileCapacitor,TestE2EMobileKivy,TestE2EWebBuilder,TestE2EServiceConfigTargets,TestE2ECrossPlatformScenario
+    TestE2EDesktopElectron: test_parse_all_blocks(1),test_scaffold_creates_package_json(1),test_full_build_with_dummy_cmd(1),test_builder_registry_resolves_desktop(1)  # Full pipeline for an Electron desktop app.
+    TestE2EDesktopPyInstaller: test_full_pipeline(1)
+    TestE2EDesktopTauri: test_scaffold_and_parse(1)
+    TestE2EMobileCapacitor: test_full_pipeline(1)
+    TestE2EMobileKivy: test_full_pipeline(1)
+    TestE2EWebBuilder: test_web_no_target_block_defaults_to_web(1),test_web_build_succeeds_without_cmd(1),test_web_build_with_optional_step(1)
+    TestE2EServiceConfigTargets: test_service_config_from_dict_with_target(0),test_service_config_defaults_to_web(0),test_service_config_build_targets_as_csv_string(0)
+    TestE2ECrossPlatformScenario: test_same_app_different_platforms(1),test_build_failure_returns_failed_result(1)  # Verify that the same builder infrastructure supports switchi
+    _write_readme(tmp_path;content)
+    _parse_and_resolve(readme)
+  tests/test_e2e_build_extended.py:
+    e: _write_readme,_parse_and_resolve,TestElectronDevDepsRegression,TestE2EDesktopPyQt,TestE2EDesktopTkinter,TestE2EDesktopTauriBuild,TestE2EMobileReactNative,TestE2EMobileFlutter,TestE2EDesktopFlutter,TestArtifactCollection,TestDefaultBuildCmdResolution,TestOnLogCallback,TestBuildWithEnvVars,TestScaffoldIdempotency,TestUnknownFrameworkFallback,TestTargetConfigEdgeCases,TestFrameworkRegistry,TestInferTargetFromDeps,TestExtractRunCommand,TestBuildFailures,TestServiceConfigBuildTargets,TestE2EPythonApiToElectronDesktop
+    TestElectronDevDepsRegression: test_new_package_json_has_electron_in_dev_deps(1),test_existing_package_json_gets_electron_added(1),test_electron_moved_from_deps_to_dev_deps(1),test_ensure_electron_dev_deps_idempotent(1)  # Verify that _ensure_electron_dev_deps is called during scaff
+    TestE2EDesktopPyQt: test_parse_pyqt_target(1),test_scaffold_creates_spec_with_icon(1),test_full_build(1),test_builder_registry_resolves(1)
+    TestE2EDesktopTkinter: test_parse_and_scaffold(1),test_full_build(1)
+    TestE2EDesktopTauriBuild: test_scaffold_with_window_size(1),test_full_build_with_artifact_collection(1)
+    TestE2EMobileReactNative: test_parse_react_native(1),test_scaffold_creates_app_json(1),test_scaffold_react_native_custom_display_name(1),test_full_build(1),test_builder_registry_resolves_mobile(1)
+    TestE2EMobileFlutter: test_parse_flutter_mobile(1),test_scaffold_flutter_is_noop(1),test_full_build(1)
+    TestE2EDesktopFlutter: test_parse(1),test_full_build(1)
+    TestArtifactCollection: test_electron_artifacts(1),test_pyinstaller_artifacts(1),test_capacitor_apk_artifacts(1),test_kivy_artifacts(1),test_react_native_artifacts(1),test_flutter_mobile_artifacts(1),test_no_artifacts_empty_dir(1),test_tauri_artifacts(1)  # Verify that _collect_artifacts finds files matching framewor
+    TestDefaultBuildCmdResolution: test_desktop_electron_default_cmd(0),test_desktop_tauri_default_cmd(0),test_desktop_pyinstaller_default_cmd(0),test_desktop_pyqt_default_cmd(0),test_desktop_flutter_default_cmd(0),test_desktop_flutter_default_cmd_no_targets(0),test_mobile_capacitor_default_cmd(0),test_mobile_react_native_android_default_cmd(0),test_mobile_react_native_ios_default_cmd(0),test_mobile_flutter_android_default_cmd(0),test_mobile_flutter_ios_default_cmd(0),test_mobile_kivy_default_cmd(0),test_unknown_framework_returns_empty(0),test_no_cmd_no_framework_returns_failed_result(1),test_mobile_no_cmd_no_framework_returns_failed_result(1)  # When no markpact:build block is present, the builder should 
+    TestOnLogCallback: test_desktop_build_streams_logs(1),test_mobile_build_streams_logs(1),test_web_build_streams_logs(1),test_scaffold_sends_log(1),test_broken_on_log_does_not_crash(1)  # Verify that on_log receives build progress messages.
+    TestBuildWithEnvVars: test_env_passed_to_build_cmd(1),test_mobile_env_passed(1)
+    TestScaffoldIdempotency: test_electron_scaffold_twice(1),test_tauri_scaffold_twice(1),test_capacitor_scaffold_twice(1),test_kivy_scaffold_twice(1),test_pyinstaller_scaffold_twice(1),test_react_native_scaffold_twice(1)  # Scaffolding the same directory twice should not break anythi
+    TestUnknownFrameworkFallback: test_desktop_unknown_framework_scaffold_noop(1),test_mobile_unknown_framework_scaffold_noop(1),test_desktop_empty_framework_scaffold_noop(1),test_mobile_empty_framework_scaffold_noop(1)
+    TestTargetConfigEdgeCases: test_from_dict_unknown_platform_defaults_to_web(0),test_targets_as_csv_string(0),test_effective_build_targets_defaults(0),test_effective_build_targets_explicit(0),test_is_buildable(0),test_needs_port(0),test_extra_fields_preserved(0),test_window_dimensions_parsed_as_int(0),test_window_dimensions_invalid_returns_none(0)
+    TestFrameworkRegistry: test_all_desktop_frameworks_registered(0),test_all_mobile_frameworks_registered(0),test_flutter_desktop_registered(0),test_flutter_mobile_registered(0),test_case_insensitive_lookup(0),test_unknown_framework_returns_none(0),test_list_frameworks_all(0),test_list_frameworks_desktop(0),test_list_frameworks_mobile(0),test_node_frameworks_have_needs_node_true(0),test_python_frameworks_have_needs_python_true(0),test_every_framework_has_default_build_cmd(0)
+    TestInferTargetFromDeps: test_electron_dep_infers_desktop(0),test_pyqt_dep_infers_desktop(0),test_capacitor_dep_infers_mobile(0),test_react_native_dep_infers_mobile(0),test_buildozer_dep_infers_mobile(0),test_fastapi_dep_infers_web(0),test_empty_deps_infers_web(0),test_mobile_takes_priority_over_desktop(0)
+    TestExtractRunCommand: test_explicit_run_block(1),test_framework_default_run_cmd(1),test_file_heuristic_main_py(1),test_file_heuristic_index_js(1),test_no_run_cmd_returns_none(1)
+    TestBuildFailures: test_desktop_build_failure_returns_details(1),test_mobile_build_failure_returns_details(1),test_web_build_failure_returns_details(1),test_build_with_stderr_captured(1)
+    TestServiceConfigBuildTargets: test_desktop_electron_from_service_config(0),test_mobile_capacitor_from_service_config(0),test_mobile_kivy_from_service_config(0),test_desktop_pyqt_from_service_config(0)
+    TestE2EPythonApiToElectronDesktop: test_parse_python_api_as_electron(1),test_scaffold_with_python_deps_package_json(1),test_full_build_succeeds(1)  # Regression test for the exact scenario that caused the origi
+    _write_readme(tmp_path;content)
+    _parse_and_resolve(readme)
+  tests/test_e2e_deploy_desktop_mobile.py:
+    e: _make_proc_mock,_fake_popen_factory,_write_readme,_headless_env,manager,_deploy,TestE2EDeployElectron,TestE2EDeployPyQt,TestE2EDeployTauri,TestE2EDeployCapacitor,TestE2EDeployKivy,TestE2EDeployReactNative,TestE2EWebServiceNotAffected,TestE2EAssetDiscovery,TestE2EPreviewCommandGeneration,TestE2EDetectionPerFramework,TestE2ESystemDeps
+    TestE2EDeployElectron: test_headless_deploys_via_http(4),test_headless_serves_correct_port(4),test_scaffold_creates_electron_files(1),test_native_with_display(3),test_index_html_written_to_sandbox(4)
+    TestE2EDeployPyQt: test_headless_deploys_via_http(4),test_scaffold_creates_spec(1),test_native_with_display(3)
+    TestE2EDeployTauri: test_headless_deploys_via_http(4),test_scaffold_creates_tauri_config(1),test_native_with_display(3)
+    TestE2EDeployCapacitor: test_headless_deploys_via_http(4),test_serves_from_www_dir(4),test_scaffold_creates_capacitor_config(1),test_native_with_display(3)
+    TestE2EDeployKivy: test_headless_deploys_via_http(4),test_scaffold_creates_buildozer_spec(1),test_native_with_display(3)
+    TestE2EDeployReactNative: test_headless_deploys_via_http(4),test_native_with_display(3)
+    TestE2EWebServiceNotAffected: test_fastapi_runs_normally_on_headless(4),test_express_runs_normally_on_headless(4)
+    TestE2EAssetDiscovery: test_capacitor_www_dir(1),test_react_build_dir(1),test_vite_dist_dir(1),test_public_dir(1),test_root_fallback(1),test_no_index_falls_back_to_root(1),test_priority_www_over_dist(1),test_priority_dist_over_build(1)
+    TestE2EPreviewCommandGeneration: test_python_fallback_includes_bind(2),test_npx_serve_with_spa_flag(2),test_serves_subdir_when_index_in_www(2),test_venv_python_preferred(2),test_creates_fallback_html_for_python_desktop(2)
+    TestE2EDetectionPerFramework: _no_display(1),test_electron_dot(0),test_npx_electron(0),test_cap_run(0),test_cap_open(0),test_tauri_dev(0),test_flutter_run(0),test_react_native_run(0),test_python_main_with_kivy_target(0),test_python_main_with_pyqt_target(0),test_python_main_with_pyinstaller_target(0),test_python_main_with_tkinter_target(0),test_python_main_without_target_not_affected(0),test_uvicorn_not_affected(0),test_node_not_affected(0),test_display_set_skips_preview(0),test_xvfb_available_skips_preview(1),test_target_cfg_framework_triggers_preview(0),test_web_target_not_affected(0)
+    TestE2ESystemDeps: test_framework_system_deps_registry_has_tkinter(0),test_framework_system_deps_registry_has_electron(0),test_framework_system_deps_registry_has_kivy(0),test_import_to_apt_maps_tkinter(0),test_install_system_deps_skips_unknown_framework(1),test_install_system_deps_skips_when_all_installed(1),test_install_system_deps_calls_apt_when_missing(1),test_install_system_deps_nonfatal_on_apt_missing(1)
+    _make_proc_mock()
+    _fake_popen_factory(captured)
+    _write_readme(tmp_path;content)
+    _headless_env(monkeypatch)
+    manager(tmp_path;monkeypatch)
+    _deploy(manager;tmp_path;monkeypatch;readme_text;port)
+  tests/test_electron_xvfb.py:
+    e: _make_proc_mock,manager,readme_path,service,_fake_popen_factory,TestDetectWebPreviewNeeded,TestFindWebAssetsDir,TestBuildWebPreviewCmd,TestWebPreviewIntegration
+    TestDetectWebPreviewNeeded: test_electron_cmd_no_display_no_xvfb(1),test_electron_cmd_with_display(1),test_electron_cmd_with_xvfb(1),test_capacitor_cmd_headless(1),test_web_cmd_not_affected(1),test_python_main_only_native_with_target(1),test_python_main_native_with_desktop_target(1)
+    TestFindWebAssetsDir: test_index_at_root(1),test_www_subdir(1),test_dist_subdir(1),test_fallback_to_root(1),test_www_preferred_over_dist(1)
+    TestBuildWebPreviewCmd: test_fallback_to_python_http_server(2),test_uses_npx_serve_when_available(2)
+    TestWebPreviewIntegration: test_electron_uses_web_preview_on_headless(4),test_electron_runs_natively_with_display(4)
+    _make_proc_mock()
+    manager(tmp_path;monkeypatch)
+    readme_path(tmp_path)
+    service(readme_path)
+    _fake_popen_factory(captured)
+  tests/test_iac_manifest.py:
+    e: test_create_sandbox_writes_iac_manifest_and_compose_and_dockerfile,test_create_sandbox_node_inferred_writes_manifest
+    test_create_sandbox_writes_iac_manifest_and_compose_and_dockerfile()
+    test_create_sandbox_node_inferred_writes_manifest()
+  tests/test_llm.py:
+    e: TestLLMStatus,TestLLMPriority,TestLLMReset,TestLLMTest,TestLLMDoctor,TestLLMModule,TestPactownLLMClass
+    TestLLMStatus: test_llm_status_without_lolm(0),test_llm_status_with_providers(0),test_llm_status_no_providers_available(0)  # Tests for pactown llm status command.
+    TestLLMPriority: test_llm_priority_set_success(0),test_llm_priority_set_failure(0),test_llm_priority_without_lolm(0)  # Tests for pactown llm priority command.
+    TestLLMReset: test_llm_reset_success(0),test_llm_reset_failure(0)  # Tests for pactown llm reset command.
+    TestLLMTest: test_llm_test_basic(0),test_llm_test_with_rotation(0),test_llm_test_with_provider(0),test_llm_test_error(0)  # Tests for pactown llm test command.
+    TestLLMDoctor: test_llm_doctor_outputs_environment_info(0)  # Tests for pactown llm doctor command.
+    TestLLMModule: test_is_lolm_available_false(0),test_get_llm_status_without_lolm(0)  # Tests for pactown.llm module functions.
+    TestPactownLLMClass: test_pactown_llm_singleton(0),test_pactown_llm_generate_with_rotation(0)  # Tests for PactownLLM class.
+  tests/test_markpact_blocks.py:
+    e: test_parse_blocks_new_format_includes_lang,test_parse_blocks_old_format_is_supported,test_parse_blocks_run_block_new_format,test_extract_run_command_explicit_block,test_extract_run_command_from_target_framework,test_extract_run_command_file_heuristic_main_py,test_extract_run_command_file_heuristic_index_js,test_extract_run_command_returns_none_when_no_hint,test_extract_run_command_explicit_overrides_framework
+    test_parse_blocks_new_format_includes_lang()
+    test_parse_blocks_old_format_is_supported()
+    test_parse_blocks_run_block_new_format()
+    test_extract_run_command_explicit_block()
+    test_extract_run_command_from_target_framework()
+    test_extract_run_command_file_heuristic_main_py()
+    test_extract_run_command_file_heuristic_index_js()
+    test_extract_run_command_returns_none_when_no_hint()
+    test_extract_run_command_explicit_overrides_framework()
+  tests/test_markpact_target_blocks.py:
+    e: test_parse_target_block_yaml,test_extract_target_config_desktop,test_extract_target_config_mobile,test_extract_target_config_none_when_missing,test_parse_build_block,test_extract_build_cmd,test_extract_build_cmd_none_when_missing,test_full_desktop_markpact,test_full_mobile_markpact,test_get_meta_value
+    test_parse_target_block_yaml()
+    test_extract_target_config_desktop()
+    test_extract_target_config_mobile()
+    test_extract_target_config_none_when_missing()
+    test_parse_build_block()
+    test_extract_build_cmd()
+    test_extract_build_cmd_none_when_missing()
+    test_full_desktop_markpact()
+    test_full_mobile_markpact()
+    test_get_meta_value()
+  tests/test_network.py:
+    e: test_port_allocator_allocate,test_port_allocator_preferred_port,test_port_allocator_release,test_service_endpoint,test_service_registry_register,test_service_registry_get,test_service_registry_get_url,test_service_registry_environment,test_service_registry_unregister,test_service_registry_dynamic_port,test_find_free_port,test_check_port
+    test_port_allocator_allocate()
+    test_port_allocator_preferred_port()
+    test_port_allocator_release()
+    test_service_endpoint()
+    test_service_registry_register()
+    test_service_registry_get()
+    test_service_registry_get_url()
+    test_service_registry_environment()
+    test_service_registry_unregister()
+    test_service_registry_dynamic_port()
+    test_find_free_port()
+    test_check_port()
+  tests/test_node_cache.py:
+    e: _make_pkg_json,_populate_node_modules,TestHashStability,TestSaveRestore,TestPersistence,TestInvalidation,TestEviction,TestStats,TestOnLog,TestSortedDeps
+    TestHashStability: test_same_deps_same_hash(0),test_different_deps_different_hash(0),test_order_independent(0),test_description_change_does_not_bust_cache(0),test_scripts_change_does_not_bust_cache(0),test_name_change_busts_cache(0),test_invalid_json_returns_stable_hash(0)
+    TestSaveRestore: test_save_and_restore(1),test_cache_miss_returns_false(1),test_save_without_node_modules_returns_none(1),test_restore_overwrites_existing_node_modules(1)
+    TestPersistence: test_new_instance_loads_existing_cache(1)
+    TestInvalidation: test_invalidate_removes_entry(1),test_invalidate_nonexistent_is_noop(1)
+    TestEviction: test_max_entries_evicts_lru(1)
+    TestStats: test_get_stats_empty(1),test_get_stats_with_entries(1)
+    TestOnLog: test_save_sends_log(1),test_restore_sends_log(1)
+    TestSortedDeps: test_sorts_dict(0),test_non_dict_returns_empty(0),test_empty_dict(0)
+    _make_pkg_json(name;deps;dev_deps)
+    _populate_node_modules(sandbox;modules)
+  tests/test_parallel.py:
+    e: test_run_parallel_basic,test_run_parallel_with_error,test_run_parallel_timing,test_run_in_dependency_waves,test_run_in_dependency_waves_diamond,test_task_result_dataclass
+    test_run_parallel_basic()
+    test_run_parallel_with_error()
+    test_run_parallel_timing()
+    test_run_in_dependency_waves()
+    test_run_in_dependency_waves_diamond()
+    test_task_result_dataclass()
+  tests/test_platform.py:
+    e: test_normalize_host_strips_scheme_and_port,test_normalize_domain_strips_www_and_scheme,test_build_project_host_dash_separator_normalizes_username,test_build_project_host_dot_separator_normalizes_username,test_parse_project_host,test_build_project_subdomain_limits_length,test_build_service_subdomain_dash,test_build_service_subdomain_dot
+    test_normalize_host_strips_scheme_and_port()
+    test_normalize_domain_strips_www_and_scheme()
+    test_build_project_host_dash_separator_normalizes_username()
+    test_build_project_host_dot_separator_normalizes_username()
+    test_parse_project_host(host)
+    test_build_project_subdomain_limits_length()
+    test_build_service_subdomain_dash()
+    test_build_service_subdomain_dot()
+  tests/test_quadlet_security.py:
+    e: temp_dir,mock_systemctl,TestContainerNameInjection,TestEnvironmentVariableInjection,TestVolumeMountInjection,TestTraefikLabelInjection,TestSystemdUnitInjection,TestTenantIsolation,TestCommandInjection,TestAPISecurityInjection,TestSecurityHardening,TestInputSanitization
+    TestContainerNameInjection: test_container_name_sanitization(0),test_filename_sanitization(0)  # Test container name sanitization against injection attacks.
+    TestEnvironmentVariableInjection: test_env_value_sanitization(0),test_env_key_sanitization(0)  # Test environment variable injection attacks.
+    TestVolumeMountInjection: test_volume_path_validation(0),test_volume_options_injection(0)  # Test volume mount path traversal and injection.
+    TestTraefikLabelInjection: test_domain_injection(0),test_middleware_injection(0)  # Test Traefik routing label injection attacks.
+    TestSystemdUnitInjection: test_section_injection(0),test_directive_injection(0)  # Test systemd unit file injection attacks.
+    TestTenantIsolation: test_tenant_path_traversal(0),test_tenant_network_isolation(0)  # Test tenant isolation and privilege escalation.
+    TestCommandInjection: test_health_check_injection(0),test_image_name_injection(0)  # Test command injection via various vectors.
+    TestAPISecurityInjection: api_client(0),test_markdown_content_injection(1),test_tenant_id_injection(1)  # Test API endpoint security against injection.
+    TestSecurityHardening: test_no_new_privileges(0),test_capability_drop(0),test_resource_limits(0),test_read_only_filesystem(0)  # Test that security hardening options are properly applied.
+    TestInputSanitization: test_sanitize_name(0)  # Test input sanitization functions.
+    temp_dir()
+    mock_systemctl()
+  tests/test_registry.py:
+    e: test_artifact_version_to_dict,test_artifact_version_from_dict,test_artifact_full_name,test_artifact_add_version,test_artifact_get_version,test_registry_storage_save_and_get,test_registry_storage_list,test_registry_storage_delete,test_registry_storage_search,test_registry_storage_persistence
+    test_artifact_version_to_dict()
+    test_artifact_version_from_dict()
+    test_artifact_full_name()
+    test_artifact_add_version()
+    test_artifact_get_version()
+    test_registry_storage_save_and_get()
+    test_registry_storage_list()
+    test_registry_storage_delete()
+    test_registry_storage_search()
+    test_registry_storage_persistence()
+  tests/test_resolver.py:
+    e: make_config,test_startup_order_no_deps,test_startup_order_linear,test_startup_order_diamond,test_circular_dependency_detection,test_shutdown_order,test_resolve_service_deps,test_get_environment,test_validate_missing_dep,test_print_graph
+    make_config(services)
+    test_startup_order_no_deps()
+    test_startup_order_linear()
+    test_startup_order_diamond()
+    test_circular_dependency_detection()
+    test_shutdown_order()
+    test_resolve_service_deps()
+    test_get_environment()
+    test_validate_missing_dep()
+    test_print_graph()
+  tests/test_runner_api.py:
+    e: _sample_markdown,test_validate_ok,test_run_fails_fast_on_missing_required_env_vars,test_run_passes_pip_timeout_and_retries_to_pip_install,test_sandbox_prepare_and_file_ops,test_status_filtering,test_run_failure_includes_error_report_md,test_run_stream_failure_includes_error_report_md
+    _sample_markdown()
+    test_validate_ok(tmp_path)
+    test_run_fails_fast_on_missing_required_env_vars(tmp_path)
+    test_run_passes_pip_timeout_and_retries_to_pip_install(tmp_path;monkeypatch)
+    test_sandbox_prepare_and_file_ops(tmp_path)
+    test_status_filtering(tmp_path)
+    test_run_failure_includes_error_report_md(tmp_path;monkeypatch)
+    test_run_stream_failure_includes_error_report_md(tmp_path;monkeypatch)
+  tests/test_sandbox_manager_env_injection.py:
+    e: test_sandbox_manager_passes_env_to_pip_install
+    test_sandbox_manager_passes_env_to_pip_install(tmp_path;monkeypatch)
+  tests/test_sandbox_manager_node_deps.py:
+    e: test_node_project_uses_npm_instead_of_pip_even_if_deps_lang_is_wrong,test_node_deps_block_creates_package_json_and_calls_npm
+    test_node_project_uses_npm_instead_of_pip_even_if_deps_lang_is_wrong(tmp_path;monkeypatch)
+    test_node_deps_block_creates_package_json_and_calls_npm(tmp_path;monkeypatch)
+  tests/test_sandbox_manager_node_run_env.py:
+    e: test_sandbox_manager_passes_env_to_node_run
+    test_sandbox_manager_passes_env_to_node_run(tmp_path;monkeypatch)
+  tests/test_sandbox_manager_venv_heal.py:
+    e: test_self_heal_corrupted_cache
+    test_self_heal_corrupted_cache(tmp_path)
+  tests/test_security.py:
+    e: _pip_audit_available,TestInputSanitization,TestPathTraversal,TestCommandInjection,TestSecretsLeakage,TestNetworkSecurity,TestAuthorizationChecks,TestRateLimiting,TestCryptography,TestDependencySecurity
+    TestInputSanitization: test_service_name_rejects_path_traversal(0),test_tenant_id_sanitization(0)  # Test input sanitization functions.
+    TestPathTraversal: test_sandbox_path_stays_within_root(0)  # Test path traversal prevention.
+    TestCommandInjection: test_quadlet_sanitize_name(0),test_env_value_no_newlines(0)  # Test command injection prevention.
+    TestSecretsLeakage: test_config_env_handling(0),test_error_messages_do_not_leak_secrets(0)  # Test that secrets are not leaked.
+    TestNetworkSecurity: test_port_allocation_within_range(0),test_service_endpoint_creation(0)  # Test network-related security.
+    TestAuthorizationChecks: test_security_policy_user_profile(0),test_service_runner_creates_sandbox(0)  # Test authorization and access control.
+    TestRateLimiting: test_rate_limiter_exists(0),test_api_rate_limit_headers(0)  # Test rate limiting mechanisms.
+    TestCryptography: test_no_weak_random(0)  # Test cryptographic practices.
+    TestDependencySecurity: test_no_known_vulnerabilities(0)  # Test for known vulnerable dependencies.
+    _pip_audit_available()
+  tests/test_service_runner_fast_run_fallback.py:
+    e: test_fast_run_fallback_sets_serviceconfig_readme_and_cleans_temp_file
+    test_fast_run_fallback_sets_serviceconfig_readme_and_cleans_temp_file(tmp_path;monkeypatch)
+  tests/test_service_runner_validation.py:
+    e: test_validate_content_dependency_mismatch
+    test_validate_content_dependency_mismatch()
+  tests/test_targets.py:
+    e: test_target_platform_values,test_target_config_from_yaml_desktop,test_target_config_from_yaml_mobile,test_target_config_defaults_to_web,test_target_config_from_dict_targets_as_string,test_target_config_effective_build_targets_desktop,test_target_config_effective_build_targets_mobile,test_target_config_effective_build_targets_explicit,test_target_config_extra_keys_preserved,test_get_framework_meta_electron,test_get_framework_meta_capacitor,test_get_framework_meta_pyinstaller,test_get_framework_meta_unknown,test_list_frameworks_all,test_list_frameworks_desktop_only,test_list_frameworks_mobile_only,test_infer_desktop_from_electron_dep,test_infer_mobile_from_capacitor_dep,test_infer_web_from_fastapi_dep,test_infer_web_from_empty_deps,test_infer_mobile_over_desktop_when_both
+    test_target_platform_values()
+    test_target_config_from_yaml_desktop()
+    test_target_config_from_yaml_mobile()
+    test_target_config_defaults_to_web()
+    test_target_config_from_dict_targets_as_string()
+    test_target_config_effective_build_targets_desktop()
+    test_target_config_effective_build_targets_mobile()
+    test_target_config_effective_build_targets_explicit()
+    test_target_config_extra_keys_preserved()
+    test_get_framework_meta_electron()
+    test_get_framework_meta_capacitor()
+    test_get_framework_meta_pyinstaller()
+    test_get_framework_meta_unknown()
+    test_list_frameworks_all()
+    test_list_frameworks_desktop_only()
+    test_list_frameworks_mobile_only()
+    test_infer_desktop_from_electron_dep()
+    test_infer_mobile_from_capacitor_dep()
+    test_infer_web_from_fastapi_dep()
+    test_infer_web_from_empty_deps()
+    test_infer_mobile_over_desktop_when_both()
+  tests/test_user_isolation_manager.py:
+    e: test_sanitize_gecos_removes_colon_and_control_chars,test_get_or_create_user_non_root_virtual_user,test_get_or_create_user_reuses_existing_linux_user,test_get_or_create_user_root_creates_user_with_sanitized_comment,test_delete_user_root_builds_userdel_cmd
+    test_sanitize_gecos_removes_colon_and_control_chars()
+    test_get_or_create_user_non_root_virtual_user(tmp_path;monkeypatch)
+    test_get_or_create_user_reuses_existing_linux_user(tmp_path;monkeypatch)
+    test_get_or_create_user_root_creates_user_with_sanitized_comment(tmp_path;monkeypatch)
+    test_delete_user_root_builds_userdel_cmd(tmp_path;monkeypatch)
+  tools/sync_pactown_com_dependency.py:
+    e: _read_pactown_version,_update_requirements_pin,main
+    _read_pactown_version(pyproject_path)
+    _update_requirements_pin(req_path)
+    main()
+  tools/validate_artifacts_docker.py:
+    e: docker_available,docker_run,_py_script,_py_yaml_script,_reg,collect_artifacts,get_validator,_find_service_dir,validate_artifact,main,ValidationResult,ValidationReport
+    ValidationResult:
+    ValidationReport: total(0),passed(0),failed(0),print_summary(0)
+    docker_available()
+    docker_run(image;mount_src;mount_dst;script;timeout;retries)
+    _py_script(code)
+    _py_yaml_script(code)
+    _reg(ext;image;script)
+    collect_artifacts(root)
+    get_validator(filepath)
+    _find_service_dir(filepath;root)
+    validate_artifact(filepath;root;docker_image;script_template)
+    main()

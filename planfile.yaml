@@ -1,0 +1,1319 @@
+name: Code Quality Improvement
+project_name: ''
+project_type: prefactoring
+domain: dev-tools
+goal: Improve code quality using prefact
+goals:
+- Fix all prefact-detected issues
+- Improve code maintainability
+- Ensure consistent code style
+quality_gates:
+- metric: Prefact Issues
+  threshold: '0'
+sprints:
+- id: sprint-1
+  name: Code Quality Improvements
+  duration: 2 weeks
+  objectives:
+  - Fix code quality issues
+  task_patterns:
+  - id: ticket-26fbccf6
+    name: Fix smart-return-type issues
+    description: Resolve 2 smart-return-type issues in .pactown/test-flask/app.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - .pactown/test-flask/app.py
+    rule_id: smart-return-type
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-5e7da9f8
+    name: Fix magic-numbers issues
+    description: Resolve 1 magic-numbers issues in .pactown/test-flask/app.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - .pactown/test-flask/app.py
+    rule_id: magic-numbers
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-f1213b4a
+    name: Fix ai-boilerplate issues
+    description: Resolve 1 ai-boilerplate issues in .pactown/test-flask/app.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - .pactown/test-flask/app.py
+    rule_id: ai-boilerplate
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-38543414
+    name: Fix smart-return-type issues
+    description: Resolve 2 smart-return-type issues in .pactown/test-fastapi/main.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - .pactown/test-fastapi/main.py
+    rule_id: smart-return-type
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-db8e7d02
+    name: Fix smart-return-type issues
+    description: Resolve 1 smart-return-type issues in .pactown/test-iac-python/main.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - .pactown/test-iac-python/main.py
+    rule_id: smart-return-type
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-397d2ef0
+    name: Fix ai-boilerplate issues
+    description: Resolve 1 ai-boilerplate issues in .pactown/test-flask/wsgi.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - .pactown/test-flask/wsgi.py
+    rule_id: ai-boilerplate
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-727550b0
+    name: Fix relative-imports issues
+    description: Resolve 10 relative-imports issues in src/pactown/builders/__init__.py
+    task_type: prefactor
+    priority: high
+    estimate: 2d
+    files:
+    - src/pactown/builders/__init__.py
+    rule_id: relative-imports
+    count: 10
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-73cc59ed
+    name: Fix relative-imports issues
+    description: Resolve 30 relative-imports issues in src/pactown/__init__.py
+    task_type: prefactor
+    priority: high
+    estimate: 3d
+    files:
+    - src/pactown/__init__.py
+    rule_id: relative-imports
+    count: 30
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-56fdaaca
+    name: Fix relative-imports issues
+    description: Resolve 4 relative-imports issues in src/pactown/builders/desktop.py
+    task_type: prefactor
+    priority: medium
+    estimate: 2d
+    files:
+    - src/pactown/builders/desktop.py
+    rule_id: relative-imports
+    count: 4
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-faffdfc6
+    name: Fix smart-return-type issues
+    description: Resolve 1 smart-return-type issues in src/pactown/builders/desktop.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/builders/desktop.py
+    rule_id: smart-return-type
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-c40dbd23
+    name: Fix string-concat issues
+    description: Resolve 7 string-concat issues in src/pactown/builders/desktop.py
+    task_type: prefactor
+    priority: high
+    estimate: 2d
+    files:
+    - src/pactown/builders/desktop.py
+    rule_id: string-concat
+    count: 7
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-de45bb6b
+    name: Fix unused-imports issues
+    description: Resolve 6 unused-imports issues in src/pactown/builders/desktop.py
+    task_type: prefactor
+    priority: high
+    estimate: 2d
+    files:
+    - src/pactown/builders/desktop.py
+    rule_id: unused-imports
+    count: 6
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-ee506f2a
+    name: Fix magic-numbers issues
+    description: Resolve 7 magic-numbers issues in src/pactown/builders/desktop.py
+    task_type: prefactor
+    priority: high
+    estimate: 2d
+    files:
+    - src/pactown/builders/desktop.py
+    rule_id: magic-numbers
+    count: 7
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-3224f098
+    name: Fix relative-imports issues
+    description: Resolve 10 relative-imports issues in src/pactown/builders/registry.py
+    task_type: prefactor
+    priority: high
+    estimate: 2d
+    files:
+    - src/pactown/builders/registry.py
+    rule_id: relative-imports
+    count: 10
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-2f5dd204
+    name: Fix unused-imports issues
+    description: Resolve 2 unused-imports issues in src/pactown/builders/registry.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/builders/registry.py
+    rule_id: unused-imports
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-c6027905
+    name: Fix relative-imports issues
+    description: Resolve 6 relative-imports issues in src/pactown/builders/mobile.py
+    task_type: prefactor
+    priority: high
+    estimate: 2d
+    files:
+    - src/pactown/builders/mobile.py
+    rule_id: relative-imports
+    count: 6
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-d2918cff
+    name: Fix smart-return-type issues
+    description: Resolve 1 smart-return-type issues in src/pactown/builders/mobile.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/builders/mobile.py
+    rule_id: smart-return-type
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-a6035161
+    name: Fix string-concat issues
+    description: Resolve 1 string-concat issues in src/pactown/builders/mobile.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/builders/mobile.py
+    rule_id: string-concat
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-f281c693
+    name: Fix unused-imports issues
+    description: Resolve 2 unused-imports issues in src/pactown/builders/mobile.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/builders/mobile.py
+    rule_id: unused-imports
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-c19627ab
+    name: Fix magic-numbers issues
+    description: Resolve 2 magic-numbers issues in src/pactown/builders/mobile.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/builders/mobile.py
+    rule_id: magic-numbers
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-90578398
+    name: Fix relative-imports issues
+    description: Resolve 2 relative-imports issues in src/pactown/builders/base.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/builders/base.py
+    rule_id: relative-imports
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-a960066f
+    name: Fix unused-imports issues
+    description: Resolve 2 unused-imports issues in src/pactown/builders/base.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/builders/base.py
+    rule_id: unused-imports
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-b7e6b7ab
+    name: Fix magic-numbers issues
+    description: Resolve 2 magic-numbers issues in src/pactown/builders/base.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/builders/base.py
+    rule_id: magic-numbers
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-1737dba8
+    name: Fix relative-imports issues
+    description: Resolve 4 relative-imports issues in src/pactown/builders/web.py
+    task_type: prefactor
+    priority: medium
+    estimate: 2d
+    files:
+    - src/pactown/builders/web.py
+    rule_id: relative-imports
+    count: 4
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-4a6859a6
+    name: Fix smart-return-type issues
+    description: Resolve 1 smart-return-type issues in src/pactown/builders/web.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/builders/web.py
+    rule_id: smart-return-type
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-06fc4bc7
+    name: Fix unused-imports issues
+    description: Resolve 2 unused-imports issues in src/pactown/builders/web.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/builders/web.py
+    rule_id: unused-imports
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-46709c34
+    name: Fix relative-imports issues
+    description: Resolve 14 relative-imports issues in src/pactown/deploy/__init__.py
+    task_type: prefactor
+    priority: high
+    estimate: 3d
+    files:
+    - src/pactown/deploy/__init__.py
+    rule_id: relative-imports
+    count: 14
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-375e9f95
+    name: Fix relative-imports issues
+    description: Resolve 35 relative-imports issues in src/pactown/cli.py
+    task_type: prefactor
+    priority: high
+    estimate: 3d
+    files:
+    - src/pactown/cli.py
+    rule_id: relative-imports
+    count: 35
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-1bca552c
+    name: Fix smart-return-type issues
+    description: Resolve 15 smart-return-type issues in src/pactown/cli.py
+    task_type: prefactor
+    priority: high
+    estimate: 3d
+    files:
+    - src/pactown/cli.py
+    rule_id: smart-return-type
+    count: 15
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-25a9334e
+    name: Fix magic-numbers issues
+    description: Resolve 0 magic-numbers issues in src/pactown/cli.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/cli.py
+    rule_id: magic-numbers
+    count: 0
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-bf9629de
+    name: Fix llm-generated-code issues
+    description: Resolve 0 llm-generated-code issues in src/pactown/cli.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/cli.py
+    rule_id: llm-generated-code
+    count: 0
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-e1a8e7ae
+    name: Fix ai-boilerplate issues
+    description: Resolve 0 ai-boilerplate issues in src/pactown/cli.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/cli.py
+    rule_id: ai-boilerplate
+    count: 0
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-e8a66f6e
+    name: Fix string-concat issues
+    description: Resolve 1 string-concat issues in src/pactown/config.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/config.py
+    rule_id: string-concat
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-513b1c16
+    name: Fix magic-numbers issues
+    description: Resolve 2 magic-numbers issues in src/pactown/config.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/config.py
+    rule_id: magic-numbers
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-b9fc2c5e
+    name: Fix relative-imports issues
+    description: Resolve 4 relative-imports issues in src/pactown/deploy/ansible.py
+    task_type: prefactor
+    priority: medium
+    estimate: 2d
+    files:
+    - src/pactown/deploy/ansible.py
+    rule_id: relative-imports
+    count: 4
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-88f77088
+    name: Fix smart-return-type issues
+    description: Resolve 1 smart-return-type issues in src/pactown/deploy/ansible.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/ansible.py
+    rule_id: smart-return-type
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-8d7c510c
+    name: Fix string-concat issues
+    description: Resolve 2 string-concat issues in src/pactown/deploy/ansible.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/ansible.py
+    rule_id: string-concat
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-eea4eb18
+    name: Fix unused-imports issues
+    description: Resolve 6 unused-imports issues in src/pactown/deploy/ansible.py
+    task_type: prefactor
+    priority: high
+    estimate: 2d
+    files:
+    - src/pactown/deploy/ansible.py
+    rule_id: unused-imports
+    count: 6
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-e55aeb58
+    name: Fix magic-numbers issues
+    description: Resolve 3 magic-numbers issues in src/pactown/deploy/ansible.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/ansible.py
+    rule_id: magic-numbers
+    count: 3
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-5916f8fd
+    name: Fix relative-imports issues
+    description: Resolve 6 relative-imports issues in src/pactown/deploy/docker.py
+    task_type: prefactor
+    priority: high
+    estimate: 2d
+    files:
+    - src/pactown/deploy/docker.py
+    rule_id: relative-imports
+    count: 6
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-81e9e501
+    name: Fix smart-return-type issues
+    description: Resolve 1 smart-return-type issues in src/pactown/deploy/docker.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/docker.py
+    rule_id: smart-return-type
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-7c55d748
+    name: Fix string-concat issues
+    description: Resolve 1 string-concat issues in src/pactown/deploy/docker.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/docker.py
+    rule_id: string-concat
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-29a2d233
+    name: Fix unused-imports issues
+    description: Resolve 2 unused-imports issues in src/pactown/deploy/docker.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/docker.py
+    rule_id: unused-imports
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-27a8c516
+    name: Fix magic-numbers issues
+    description: Resolve 4 magic-numbers issues in src/pactown/deploy/docker.py
+    task_type: prefactor
+    priority: medium
+    estimate: 2d
+    files:
+    - src/pactown/deploy/docker.py
+    rule_id: magic-numbers
+    count: 4
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-17f01afd
+    name: Fix relative-imports issues
+    description: Resolve 2 relative-imports issues in src/pactown/deploy/base.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/base.py
+    rule_id: relative-imports
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-cb71a0dc
+    name: Fix smart-return-type issues
+    description: Resolve 1 smart-return-type issues in src/pactown/deploy/base.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/base.py
+    rule_id: smart-return-type
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-3fee4f09
+    name: Fix string-concat issues
+    description: Resolve 4 string-concat issues in src/pactown/deploy/base.py
+    task_type: prefactor
+    priority: medium
+    estimate: 2d
+    files:
+    - src/pactown/deploy/base.py
+    rule_id: string-concat
+    count: 4
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-c84e88f8
+    name: Fix relative-imports issues
+    description: Resolve 14 relative-imports issues in src/pactown/deploy/compose.py
+    task_type: prefactor
+    priority: high
+    estimate: 3d
+    files:
+    - src/pactown/deploy/compose.py
+    rule_id: relative-imports
+    count: 14
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-fb3d7a61
+    name: Fix smart-return-type issues
+    description: Resolve 1 smart-return-type issues in src/pactown/deploy/compose.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/compose.py
+    rule_id: smart-return-type
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-2ddd7726
+    name: Fix string-concat issues
+    description: Resolve 1 string-concat issues in src/pactown/deploy/compose.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/compose.py
+    rule_id: string-concat
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-54579e4c
+    name: Fix unused-imports issues
+    description: Resolve 2 unused-imports issues in src/pactown/deploy/compose.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/compose.py
+    rule_id: unused-imports
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-06b6f3c6
+    name: Fix llm-generated-code issues
+    description: Resolve 2 llm-generated-code issues in src/pactown/deploy/compose.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/compose.py
+    rule_id: llm-generated-code
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-915dda0d
+    name: Fix relative-imports issues
+    description: Resolve 6 relative-imports issues in src/pactown/deploy/kubernetes.py
+    task_type: prefactor
+    priority: high
+    estimate: 2d
+    files:
+    - src/pactown/deploy/kubernetes.py
+    rule_id: relative-imports
+    count: 6
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-71039b43
+    name: Fix smart-return-type issues
+    description: Resolve 1 smart-return-type issues in src/pactown/deploy/kubernetes.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/kubernetes.py
+    rule_id: smart-return-type
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-ba70826e
+    name: Fix string-concat issues
+    description: Resolve 1 string-concat issues in src/pactown/deploy/kubernetes.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/kubernetes.py
+    rule_id: string-concat
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-586f7280
+    name: Fix unused-imports issues
+    description: Resolve 2 unused-imports issues in src/pactown/deploy/kubernetes.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/kubernetes.py
+    rule_id: unused-imports
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-5b1465fe
+    name: Fix magic-numbers issues
+    description: Resolve 3 magic-numbers issues in src/pactown/deploy/kubernetes.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/kubernetes.py
+    rule_id: magic-numbers
+    count: 3
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-aa38aeeb
+    name: Fix relative-imports issues
+    description: Resolve 6 relative-imports issues in src/pactown/deploy/podman.py
+    task_type: prefactor
+    priority: high
+    estimate: 2d
+    files:
+    - src/pactown/deploy/podman.py
+    rule_id: relative-imports
+    count: 6
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-aa53ce4a
+    name: Fix smart-return-type issues
+    description: Resolve 1 smart-return-type issues in src/pactown/deploy/podman.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/podman.py
+    rule_id: smart-return-type
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-3101e0a4
+    name: Fix string-concat issues
+    description: Resolve 1 string-concat issues in src/pactown/deploy/podman.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/podman.py
+    rule_id: string-concat
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-247d8005
+    name: Fix unused-imports issues
+    description: Resolve 2 unused-imports issues in src/pactown/deploy/podman.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/podman.py
+    rule_id: unused-imports
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-6141d4e7
+    name: Fix magic-numbers issues
+    description: Resolve 4 magic-numbers issues in src/pactown/deploy/podman.py
+    task_type: prefactor
+    priority: medium
+    estimate: 2d
+    files:
+    - src/pactown/deploy/podman.py
+    rule_id: magic-numbers
+    count: 4
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-0a504c7b
+    name: Fix relative-imports issues
+    description: Resolve 6 relative-imports issues in src/pactown/deploy/quadlet_shell.py
+    task_type: prefactor
+    priority: high
+    estimate: 2d
+    files:
+    - src/pactown/deploy/quadlet_shell.py
+    rule_id: relative-imports
+    count: 6
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-5901ce86
+    name: Fix smart-return-type issues
+    description: Resolve 23 smart-return-type issues in src/pactown/deploy/quadlet_shell.py
+    task_type: prefactor
+    priority: high
+    estimate: 3d
+    files:
+    - src/pactown/deploy/quadlet_shell.py
+    rule_id: smart-return-type
+    count: 23
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-14a70f67
+    name: Fix unused-imports issues
+    description: Resolve 2 unused-imports issues in src/pactown/deploy/quadlet_shell.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/quadlet_shell.py
+    rule_id: unused-imports
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-1e4d0d7a
+    name: Fix magic-numbers issues
+    description: Resolve 1 magic-numbers issues in src/pactown/deploy/quadlet_shell.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/quadlet_shell.py
+    rule_id: magic-numbers
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-dafc9103
+    name: Fix llm-generated-code issues
+    description: Resolve 5 llm-generated-code issues in src/pactown/deploy/quadlet_shell.py
+    task_type: prefactor
+    priority: medium
+    estimate: 2d
+    files:
+    - src/pactown/deploy/quadlet_shell.py
+    rule_id: llm-generated-code
+    count: 5
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-ab2448b5
+    name: Fix ai-boilerplate issues
+    description: Resolve 1 ai-boilerplate issues in src/pactown/deploy/quadlet_shell.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/quadlet_shell.py
+    rule_id: ai-boilerplate
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-1d561a58
+    name: Fix relative-imports issues
+    description: Resolve 6 relative-imports issues in src/pactown/deploy/quadlet.py
+    task_type: prefactor
+    priority: high
+    estimate: 2d
+    files:
+    - src/pactown/deploy/quadlet.py
+    rule_id: relative-imports
+    count: 6
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-6bebc4bb
+    name: Fix smart-return-type issues
+    description: Resolve 1 smart-return-type issues in src/pactown/deploy/quadlet.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/quadlet.py
+    rule_id: smart-return-type
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-917ab4a1
+    name: Fix string-concat issues
+    description: Resolve 3 string-concat issues in src/pactown/deploy/quadlet.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/quadlet.py
+    rule_id: string-concat
+    count: 3
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-bdbe980f
+    name: Fix unused-imports issues
+    description: Resolve 2 unused-imports issues in src/pactown/deploy/quadlet.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/quadlet.py
+    rule_id: unused-imports
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-3bfbc7ec
+    name: Fix magic-numbers issues
+    description: Resolve 6 magic-numbers issues in src/pactown/deploy/quadlet.py
+    task_type: prefactor
+    priority: high
+    estimate: 2d
+    files:
+    - src/pactown/deploy/quadlet.py
+    rule_id: magic-numbers
+    count: 6
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-65d055b8
+    name: Fix string-concat issues
+    description: Resolve 3 string-concat issues in src/pactown/error_context.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/error_context.py
+    rule_id: string-concat
+    count: 3
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-13d29d45
+    name: Fix magic-numbers issues
+    description: Resolve 3 magic-numbers issues in src/pactown/error_context.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/error_context.py
+    rule_id: magic-numbers
+    count: 3
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-96df8deb
+    name: Fix relative-imports issues
+    description: Resolve 2 relative-imports issues in src/pactown/generator.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/generator.py
+    rule_id: relative-imports
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-7a6d041c
+    name: Fix string-concat issues
+    description: Resolve 1 string-concat issues in src/pactown/generator.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/generator.py
+    rule_id: string-concat
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-c665f3e7
+    name: Fix unused-imports issues
+    description: Resolve 2 unused-imports issues in src/pactown/generator.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/generator.py
+    rule_id: unused-imports
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-c61c8cf1
+    name: Fix magic-numbers issues
+    description: Resolve 2 magic-numbers issues in src/pactown/generator.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/generator.py
+    rule_id: magic-numbers
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-b223dcfd
+    name: Fix llm-generated-code issues
+    description: Resolve 2 llm-generated-code issues in src/pactown/generator.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/generator.py
+    rule_id: llm-generated-code
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-0e49f69a
+    name: Fix relative-imports issues
+    description: Resolve 4 relative-imports issues in src/pactown/fast_start.py
+    task_type: prefactor
+    priority: medium
+    estimate: 2d
+    files:
+    - src/pactown/fast_start.py
+    rule_id: relative-imports
+    count: 4
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-c1b2d0db
+    name: Fix smart-return-type issues
+    description: Resolve 5 smart-return-type issues in src/pactown/fast_start.py
+    task_type: prefactor
+    priority: medium
+    estimate: 2d
+    files:
+    - src/pactown/fast_start.py
+    rule_id: smart-return-type
+    count: 5
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-2eaf5e3a
+    name: Fix string-concat issues
+    description: Resolve 7 string-concat issues in src/pactown/fast_start.py
+    task_type: prefactor
+    priority: high
+    estimate: 2d
+    files:
+    - src/pactown/fast_start.py
+    rule_id: string-concat
+    count: 7
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-eb1f52b4
+    name: Fix unused-imports issues
+    description: Resolve 8 unused-imports issues in src/pactown/fast_start.py
+    task_type: prefactor
+    priority: high
+    estimate: 2d
+    files:
+    - src/pactown/fast_start.py
+    rule_id: unused-imports
+    count: 8
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-9a85d9af
+    name: Fix magic-numbers issues
+    description: Resolve 3 magic-numbers issues in src/pactown/fast_start.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/fast_start.py
+    rule_id: magic-numbers
+    count: 3
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-3b279c2c
+    name: Fix relative-imports issues
+    description: Resolve 6 relative-imports issues in src/pactown/deploy/quadlet_api.py
+    task_type: prefactor
+    priority: high
+    estimate: 2d
+    files:
+    - src/pactown/deploy/quadlet_api.py
+    rule_id: relative-imports
+    count: 6
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-42347053
+    name: Fix smart-return-type issues
+    description: Resolve 2 smart-return-type issues in src/pactown/deploy/quadlet_api.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/quadlet_api.py
+    rule_id: smart-return-type
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-c6a24d4f
+    name: Fix unused-imports issues
+    description: Resolve 4 unused-imports issues in src/pactown/deploy/quadlet_api.py
+    task_type: prefactor
+    priority: medium
+    estimate: 2d
+    files:
+    - src/pactown/deploy/quadlet_api.py
+    rule_id: unused-imports
+    count: 4
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-bed56722
+    name: Fix magic-numbers issues
+    description: Resolve 7 magic-numbers issues in src/pactown/deploy/quadlet_api.py
+    task_type: prefactor
+    priority: high
+    estimate: 2d
+    files:
+    - src/pactown/deploy/quadlet_api.py
+    rule_id: magic-numbers
+    count: 7
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-5fcdb212
+    name: Fix ai-boilerplate issues
+    description: Resolve 1 ai-boilerplate issues in src/pactown/deploy/quadlet_api.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/deploy/quadlet_api.py
+    rule_id: ai-boilerplate
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-99b35abf
+    name: Fix relative-imports issues
+    description: Resolve 4 relative-imports issues in src/pactown/iac.py
+    task_type: prefactor
+    priority: medium
+    estimate: 2d
+    files:
+    - src/pactown/iac.py
+    rule_id: relative-imports
+    count: 4
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-0fca5acb
+    name: Fix string-concat issues
+    description: Resolve 1 string-concat issues in src/pactown/iac.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/iac.py
+    rule_id: string-concat
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-033abf9b
+    name: Fix unused-imports issues
+    description: Resolve 2 unused-imports issues in src/pactown/iac.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/iac.py
+    rule_id: unused-imports
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-04267577
+    name: Fix relative-imports issues
+    description: Resolve 2 relative-imports issues in src/pactown/events.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/events.py
+    rule_id: relative-imports
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-81e21fdd
+    name: Fix smart-return-type issues
+    description: Resolve 2 smart-return-type issues in src/pactown/events.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/events.py
+    rule_id: smart-return-type
+    count: 2
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-7a59908e
+    name: Fix string-concat issues
+    description: Resolve 1 string-concat issues in src/pactown/events.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/events.py
+    rule_id: string-concat
+    count: 1
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-504335bb
+    name: Fix unused-imports issues
+    description: Resolve 4 unused-imports issues in src/pactown/events.py
+    task_type: prefactor
+    priority: medium
+    estimate: 2d
+    files:
+    - src/pactown/events.py
+    rule_id: unused-imports
+    count: 4
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-ead545b0
+    name: Fix magic-numbers issues
+    description: Resolve 3 magic-numbers issues in src/pactown/events.py
+    task_type: prefactor
+    priority: medium
+    estimate: 1d
+    files:
+    - src/pactown/events.py
+    rule_id: magic-numbers
+    count: 3
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-b4a121b0
+    name: Fix llm-generated-code issues
+    description: Resolve 5 llm-generated-code issues in src/pactown/events.py
+    task_type: prefactor
+    priority: medium
+    estimate: 2d
+    files:
+    - src/pactown/events.py
+    rule_id: llm-generated-code
+    count: 5
+    model_hints:
+      planning: balanced
+      implementation: balanced
+  - id: ticket-cd9a1f36
+    name: Fix unused-imports issues
+    description: Resolve 10 unused-imports issues in src/pactown/nfo_config.py
+    task_type: prefactor
+    priority: high
+    estimate: 2d
+    files:
+    - src/pactown/nfo_config.py
+    rule_id: unused-imports
+    count: 10
+    model_hints:
+      planning: balanced
+      implementation: balanced

@@ -1,0 +1,3342 @@
+source: code2llm
+# generated in 0.11s
+schema: code2llm.planfile_tickets.v1
+project_root: /home/tom/github/wronai/pactown
+tickets:
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.error_context.build_error_context
+    (CC=41)'
+  description: 'code2llm reports `src.pactown.error_context.build_error_context` at
+    `src/pactown/error_context.py:136` with cyclomatic complexity 41 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/error_context.py
+  dedupe_key: code2llm:cc:src/pactown/error_context.py:src.pactown.error_context.build_error_context
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.error_context.render_error_report_md
+    (CC=43)'
+  description: 'code2llm reports `src.pactown.error_context.render_error_report_md`
+    at `src/pactown/error_context.py:242` with cyclomatic complexity 43 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/error_context.py
+  dedupe_key: code2llm:cc:src/pactown/error_context.py:src.pactown.error_context.render_error_report_md
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.runner_types.kill_process_on_port
+    (CC=25)'
+  description: 'code2llm reports `src.pactown.runner_types.kill_process_on_port` at
+    `src/pactown/runner_types.py:99` with cyclomatic complexity 25 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/runner_types.py
+  dedupe_key: code2llm:cc:src/pactown/runner_types.py:src.pactown.runner_types.kill_process_on_port
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.sandbox_manager.SandboxManager._install_node_deps
+    (CC=34)'
+  description: 'code2llm reports `src.pactown.sandbox_manager.SandboxManager._install_node_deps`
+    at `src/pactown/sandbox_manager.py:605` with cyclomatic complexity 34 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/sandbox_manager.py
+  dedupe_key: code2llm:cc:src/pactown/sandbox_manager.py:src.pactown.sandbox_manager.SandboxManager._install_node_deps
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.sandbox_manager.SandboxManager.build_service
+    (CC=40)'
+  description: 'code2llm reports `src.pactown.sandbox_manager.SandboxManager.build_service`
+    at `src/pactown/sandbox_manager.py:1099` with cyclomatic complexity 40 (limit
+    15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/sandbox_manager.py
+  dedupe_key: code2llm:cc:src/pactown/sandbox_manager.py:src.pactown.sandbox_manager.SandboxManager.build_service
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.sandbox_manager.SandboxManager.create_sandbox
+    (CC=67)'
+  description: 'code2llm reports `src.pactown.sandbox_manager.SandboxManager.create_sandbox`
+    at `src/pactown/sandbox_manager.py:754` with cyclomatic complexity 67 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/sandbox_manager.py
+  dedupe_key: code2llm:cc:src/pactown/sandbox_manager.py:src.pactown.sandbox_manager.SandboxManager.create_sandbox
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.sandbox_manager.SandboxManager.start_service
+    (CC=53)'
+  description: 'code2llm reports `src.pactown.sandbox_manager.SandboxManager.start_service`
+    at `src/pactown/sandbox_manager.py:1292` with cyclomatic complexity 53 (limit
+    15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/sandbox_manager.py
+  dedupe_key: code2llm:cc:src/pactown/sandbox_manager.py:src.pactown.sandbox_manager.SandboxManager.start_service
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.service_runner.ServiceRunner._wait_for_health
+    (CC=30)'
+  description: 'code2llm reports `src.pactown.service_runner.ServiceRunner._wait_for_health`
+    at `src/pactown/service_runner.py:642` with cyclomatic complexity 30 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/service_runner.py
+  dedupe_key: code2llm:cc:src/pactown/service_runner.py:src.pactown.service_runner.ServiceRunner._wait_for_health
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.service_runner.ServiceRunner.fast_run
+    (CC=36)'
+  description: 'code2llm reports `src.pactown.service_runner.ServiceRunner.fast_run`
+    at `src/pactown/service_runner.py:903` with cyclomatic complexity 36 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/service_runner.py
+  dedupe_key: code2llm:cc:src/pactown/service_runner.py:src.pactown.service_runner.ServiceRunner.fast_run
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.service_runner.ServiceRunner.run_from_content
+    (CC=37)'
+  description: 'code2llm reports `src.pactown.service_runner.ServiceRunner.run_from_content`
+    at `src/pactown/service_runner.py:266` with cyclomatic complexity 37 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/service_runner.py
+  dedupe_key: code2llm:cc:src/pactown/service_runner.py:src.pactown.service_runner.ServiceRunner.run_from_content
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.service_runner.ServiceRunner.validate_content
+    (CC=25)'
+  description: 'code2llm reports `src.pactown.service_runner.ServiceRunner.validate_content`
+    at `src/pactown/service_runner.py:120` with cyclomatic complexity 25 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/service_runner.py
+  dedupe_key: code2llm:cc:src/pactown/service_runner.py:src.pactown.service_runner.ServiceRunner.validate_content
+- signal: code2llm_god
+  title: 'Split god module: src/pactown/deploy/quadlet.py'
+  description: 'code2llm reports `src/pactown/deploy/quadlet.py` as a large module
+    (1044 lines, 4 classes).
+
+
+    Split it by responsibility, keep public imports stable, and add focused tests
+    around the moved behavior.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - god-module
+  - refactor
+  files:
+  - src/pactown/deploy/quadlet.py
+  dedupe_key: code2llm:god:src/pactown/deploy/quadlet.py
+- signal: code2llm_god
+  title: 'Split god module: src/pactown/deploy/quadlet_api.py'
+  description: 'code2llm reports `src/pactown/deploy/quadlet_api.py` as a large module
+    (539 lines, 7 classes).
+
+
+    Split it by responsibility, keep public imports stable, and add focused tests
+    around the moved behavior.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - god-module
+  - refactor
+  files:
+  - src/pactown/deploy/quadlet_api.py
+  dedupe_key: code2llm:god:src/pactown/deploy/quadlet_api.py
+- signal: code2llm_god
+  title: 'Split god module: src/pactown/events.py'
+  description: 'code2llm reports `src/pactown/events.py` as a large module (1075 lines,
+    13 classes).
+
+
+    Split it by responsibility, keep public imports stable, and add focused tests
+    around the moved behavior.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - god-module
+  - refactor
+  files:
+  - src/pactown/events.py
+  dedupe_key: code2llm:god:src/pactown/events.py
+- signal: code2llm_god
+  title: 'Split god module: src/pactown/fast_start.py'
+  description: 'code2llm reports `src/pactown/fast_start.py` as a large module (754
+    lines, 7 classes).
+
+
+    Split it by responsibility, keep public imports stable, and add focused tests
+    around the moved behavior.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - god-module
+  - refactor
+  files:
+  - src/pactown/fast_start.py
+  dedupe_key: code2llm:god:src/pactown/fast_start.py
+- signal: code2llm_god
+  title: 'Split god module: src/pactown/runner_api.py'
+  description: 'code2llm reports `src/pactown/runner_api.py` as a large module (635
+    lines, 8 classes).
+
+
+    Split it by responsibility, keep public imports stable, and add focused tests
+    around the moved behavior.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - god-module
+  - refactor
+  files:
+  - src/pactown/runner_api.py
+  dedupe_key: code2llm:god:src/pactown/runner_api.py
+- signal: code2llm_god
+  title: 'Split god module: src/pactown/security.py'
+  description: 'code2llm reports `src/pactown/security.py` as a large module (690
+    lines, 9 classes).
+
+
+    Split it by responsibility, keep public imports stable, and add focused tests
+    around the moved behavior.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - god-module
+  - refactor
+  files:
+  - src/pactown/security.py
+  dedupe_key: code2llm:god:src/pactown/security.py
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: build'
+  description: 'code2llm reports `God Function: build` in `src/pactown/cli.py:331`.
+
+
+    Function ''build'' is oversized: CC=14, fan-out=25, mutations=17.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/cli.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/cli.py:331:God Function: build'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: create_quadlet_api'
+  description: 'code2llm reports `God Function: create_quadlet_api` in `src/pactown/deploy/quadlet_api.py:126`.
+
+
+    Function ''create_quadlet_api'' is oversized: CC=1, fan-out=45, mutations=55.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/deploy/quadlet_api.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/deploy/quadlet_api.py:126:God
+    Function: create_quadlet_api'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: create_runner_api'
+  description: 'code2llm reports `God Function: create_runner_api` in `src/pactown/runner_api.py:330`.
+
+
+    Function ''create_runner_api'' is oversized: CC=1, fan-out=53, mutations=42.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/runner_api.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/runner_api.py:330:God Function:
+    create_runner_api'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: run_parallel'
+  description: 'code2llm reports `God Function: run_parallel` in `src/pactown/parallel.py:31`.
+
+
+    Function ''run_parallel'' is oversized: CC=8, fan-out=16, mutations=23.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/parallel.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/parallel.py:31:God Function:
+    run_parallel'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: app'
+  description: 'code2llm reports `Shotgun Surgery: app` in `src/pactown/registry/server.py:57`.
+
+
+    Mutation of variable ''app'' spans 6 functions. Changing this logic requires work
+    in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/registry/server.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/registry/server.py:57:Shotgun
+    Surgery: app'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: artifacts'
+  description: 'code2llm reports `Shotgun Surgery: artifacts` in `tools/validate_artifacts_docker.py:386`.
+
+
+    Mutation of variable ''artifacts'' spans 5 functions. Changing this logic requires
+    work in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - tools/validate_artifacts_docker.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:tools/validate_artifacts_docker.py:386:Shotgun
+    Surgery: artifacts'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: cmd'
+  description: 'code2llm reports `Shotgun Surgery: cmd` in `src/pactown/markpact_blocks.py:33`.
+
+
+    Mutation of variable ''cmd'' spans 19 functions. Changing this logic requires
+    work in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/markpact_blocks.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/markpact_blocks.py:33:Shotgun
+    Surgery: cmd'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: config'
+  description: 'code2llm reports `Shotgun Surgery: config` in `src/pactown/cli.py:645`.
+
+
+    Mutation of variable ''config'' spans 21 functions. Changing this logic requires
+    work in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/cli.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/cli.py:645:Shotgun Surgery:
+    config'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: content'
+  description: 'code2llm reports `Shotgun Surgery: content` in `src/pactown/error_context.py:242`.
+
+
+    Mutation of variable ''content'' spans 13 functions. Changing this logic requires
+    work in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/error_context.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/error_context.py:242:Shotgun
+    Surgery: content'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: deploy_config'
+  description: 'code2llm reports `Shotgun Surgery: deploy_config` in `src/pactown/deploy/quadlet_api.py:126`.
+
+
+    Mutation of variable ''deploy_config'' spans 5 functions. Changing this logic
+    requires work in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/deploy/quadlet_api.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/deploy/quadlet_api.py:126:Shotgun
+    Surgery: deploy_config'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: files'
+  description: 'code2llm reports `Shotgun Surgery: files` in `src/pactown/error_context.py:242`.
+
+
+    Mutation of variable ''files'' spans 6 functions. Changing this logic requires
+    work in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/error_context.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/error_context.py:242:Shotgun
+    Surgery: files'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: lines'
+  description: 'code2llm reports `Shotgun Surgery: lines` in `src/pactown/error_context.py:242`.
+
+
+    Mutation of variable ''lines'' spans 9 functions. Changing this logic requires
+    work in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/error_context.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/error_context.py:242:Shotgun
+    Surgery: lines'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: llm'
+  description: 'code2llm reports `Shotgun Surgery: llm` in `src/pactown/llm.py:404`.
+
+
+    Mutation of variable ''llm'' spans 5 functions. Changing this logic requires work
+    in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/llm.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/llm.py:404:Shotgun Surgery:
+    llm'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: now'
+  description: 'code2llm reports `Shotgun Surgery: now` in `src/pactown/iac.py:52`.
+
+
+    Mutation of variable ''now'' spans 5 functions. Changing this logic requires work
+    in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/iac.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/iac.py:52:Shotgun Surgery:
+    now'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: orch'
+  description: 'code2llm reports `Shotgun Surgery: orch` in `src/pactown/orchestrator.py:437`.
+
+
+    Mutation of variable ''orch'' spans 5 functions. Changing this logic requires
+    work in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/orchestrator.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/orchestrator.py:437:Shotgun
+    Surgery: orch'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: output_dir'
+  description: 'code2llm reports `Shotgun Surgery: output_dir` in `src/pactown/cli.py:568`.
+
+
+    Mutation of variable ''output_dir'' spans 6 functions. Changing this logic requires
+    work in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/cli.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/cli.py:568:Shotgun Surgery:
+    output_dir'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: output_path'
+  description: 'code2llm reports `Shotgun Surgery: output_path` in `src/pactown/cli.py:174`.
+
+
+    Mutation of variable ''output_path'' spans 6 functions. Changing this logic requires
+    work in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/cli.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/cli.py:174:Shotgun Surgery:
+    output_path'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: p'
+  description: 'code2llm reports `Shotgun Surgery: p` in `src/pactown/error_context.py:58`.
+
+
+    Mutation of variable ''p'' spans 8 functions. Changing this logic requires work
+    in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/error_context.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/error_context.py:58:Shotgun
+    Surgery: p'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: pid'
+  description: 'code2llm reports `Shotgun Surgery: pid` in `src/pactown/error_context.py:242`.
+
+
+    Mutation of variable ''pid'' spans 5 functions. Changing this logic requires work
+    in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/error_context.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/error_context.py:242:Shotgun
+    Surgery: pid'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: port'
+  description: 'code2llm reports `Shotgun Surgery: port` in `src/pactown/error_context.py:242`.
+
+
+    Mutation of variable ''port'' spans 12 functions. Changing this logic requires
+    work in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/error_context.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/error_context.py:242:Shotgun
+    Surgery: port'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: proc'
+  description: 'code2llm reports `Shotgun Surgery: proc` in `src/pactown/fast_start.py:90`.
+
+
+    Mutation of variable ''proc'' spans 10 functions. Changing this logic requires
+    work in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/fast_start.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/fast_start.py:90:Shotgun
+    Surgery: proc'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: process'
+  description: 'code2llm reports `Shotgun Surgery: process` in `examples/user-isolation/demo.py:18`.
+
+
+    Mutation of variable ''process'' spans 5 functions. Changing this logic requires
+    work in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - examples/user-isolation/demo.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:examples/user-isolation/demo.py:18:Shotgun
+    Surgery: process'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: rel'
+  description: 'code2llm reports `Shotgun Surgery: rel` in `src/pactown/error_context.py:242`.
+
+
+    Mutation of variable ''rel'' spans 9 functions. Changing this logic requires work
+    in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/error_context.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/error_context.py:242:Shotgun
+    Surgery: rel'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: s'
+  description: 'code2llm reports `Shotgun Surgery: s` in `src/pactown/error_context.py:92`.
+
+
+    Mutation of variable ''s'' spans 11 functions. Changing this logic requires work
+    in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/error_context.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/error_context.py:92:Shotgun
+    Surgery: s'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: sandbox'
+  description: 'code2llm reports `Shotgun Surgery: sandbox` in `src/pactown/error_context.py:242`.
+
+
+    Mutation of variable ''sandbox'' spans 12 functions. Changing this logic requires
+    work in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/error_context.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/error_context.py:242:Shotgun
+    Surgery: sandbox'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: service_id'
+  description: 'code2llm reports `Shotgun Surgery: service_id` in `src/pactown/error_context.py:242`.
+
+
+    Mutation of variable ''service_id'' spans 7 functions. Changing this logic requires
+    work in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/error_context.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/error_context.py:242:Shotgun
+    Surgery: service_id'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: service_name'
+  description: 'code2llm reports `Shotgun Surgery: service_name` in `src/pactown/error_context.py:242`.
+
+
+    Mutation of variable ''service_name'' spans 8 functions. Changing this logic requires
+    work in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/error_context.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/error_context.py:242:Shotgun
+    Surgery: service_name'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: status'
+  description: 'code2llm reports `Shotgun Surgery: status` in `src/pactown/llm.py:404`.
+
+
+    Mutation of variable ''status'' spans 17 functions. Changing this logic requires
+    work in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/llm.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/llm.py:404:Shotgun Surgery:
+    status'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: subprocess'
+  description: 'code2llm reports `Shotgun Surgery: subprocess` in `src/pactown/fast_start.py:90`.
+
+
+    Mutation of variable ''subprocess'' spans 7 functions. Changing this logic requires
+    work in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/fast_start.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/fast_start.py:90:Shotgun
+    Surgery: subprocess'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: svc'
+  description: 'code2llm reports `Shotgun Surgery: svc` in `src/pactown/cli.py:72`.
+
+
+    Mutation of variable ''svc'' spans 10 functions. Changing this logic requires
+    work in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/cli.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/cli.py:72:Shotgun Surgery:
+    svc'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: url'
+  description: 'code2llm reports `Shotgun Surgery: url` in `src/pactown/deploy/quadlet_api.py:126`.
+
+
+    Mutation of variable ''url'' spans 6 functions. Changing this logic requires work
+    in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/deploy/quadlet_api.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/deploy/quadlet_api.py:126:Shotgun
+    Surgery: url'
+- signal: code2llm_smell_shotgun_surgery
+  title: 'Address code smell: Shotgun Surgery: v'
+  description: 'code2llm reports `Shotgun Surgery: v` in `src/pactown/user_isolation.py:28`.
+
+
+    Mutation of variable ''v'' spans 14 functions. Changing this logic requires work
+    in many places.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: high
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - shotgun-surgery
+  files:
+  - src/pactown/user_isolation.py
+  dedupe_key: 'code2llm:smell:shotgun_surgery:src/pactown/user_isolation.py:28:Shotgun
+    Surgery: v'
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.builders.desktop.DesktopBuilder._patch_electron_no_sandbox
+    (CC=15)'
+  description: 'code2llm reports `src.pactown.builders.desktop.DesktopBuilder._patch_electron_no_sandbox`
+    at `src/pactown/builders/desktop.py:163` with cyclomatic complexity 15 (limit
+    15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/builders/desktop.py
+  dedupe_key: code2llm:cc:src/pactown/builders/desktop.py:src.pactown.builders.desktop.DesktopBuilder._patch_electron_no_sandbox
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.builders.desktop.DesktopBuilder._scaffold_electron
+    (CC=19)'
+  description: 'code2llm reports `src.pactown.builders.desktop.DesktopBuilder._scaffold_electron`
+    at `src/pactown/builders/desktop.py:228` with cyclomatic complexity 19 (limit
+    15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/builders/desktop.py
+  dedupe_key: code2llm:cc:src/pactown/builders/desktop.py:src.pactown.builders.desktop.DesktopBuilder._scaffold_electron
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.builders.desktop.DesktopBuilder.build_parallel
+    (CC=18)'
+  description: 'code2llm reports `src.pactown.builders.desktop.DesktopBuilder.build_parallel`
+    at `src/pactown/builders/desktop.py:479` with cyclomatic complexity 18 (limit
+    15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/builders/desktop.py
+  dedupe_key: code2llm:cc:src/pactown/builders/desktop.py:src.pactown.builders.desktop.DesktopBuilder.build_parallel
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.builders.mobile.MobileBuilder._scaffold_capacitor
+    (CC=24)'
+  description: 'code2llm reports `src.pactown.builders.mobile.MobileBuilder._scaffold_capacitor`
+    at `src/pactown/builders/mobile.py:200` with cyclomatic complexity 24 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/builders/mobile.py
+  dedupe_key: code2llm:cc:src/pactown/builders/mobile.py:src.pactown.builders.mobile.MobileBuilder._scaffold_capacitor
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.cli.llm_status (CC=18)'
+  description: 'code2llm reports `src.pactown.cli.llm_status` at `src/pactown/cli.py:760`
+    with cyclomatic complexity 18 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/cli.py
+  dedupe_key: code2llm:cc:src/pactown/cli.py:src.pactown.cli.llm_status
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.deploy.compose.ComposeGenerator._create_service
+    (CC=18)'
+  description: 'code2llm reports `src.pactown.deploy.compose.ComposeGenerator._create_service`
+    at `src/pactown/deploy/compose.py:114` with cyclomatic complexity 18 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/deploy/compose.py
+  dedupe_key: code2llm:cc:src/pactown/deploy/compose.py:src.pactown.deploy.compose.ComposeGenerator._create_service
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.deploy.docker.DockerBackend.deploy
+    (CC=16)'
+  description: 'code2llm reports `src.pactown.deploy.docker.DockerBackend.deploy`
+    at `src/pactown/deploy/docker.py:153` with cyclomatic complexity 16 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/deploy/docker.py
+  dedupe_key: code2llm:cc:src/pactown/deploy/docker.py:src.pactown.deploy.docker.DockerBackend.deploy
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.deploy.podman.PodmanBackend.deploy
+    (CC=17)'
+  description: 'code2llm reports `src.pactown.deploy.podman.PodmanBackend.deploy`
+    at `src/pactown/deploy/podman.py:168` with cyclomatic complexity 17 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/deploy/podman.py
+  dedupe_key: code2llm:cc:src/pactown/deploy/podman.py:src.pactown.deploy.podman.PodmanBackend.deploy
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.deploy.quadlet.QuadletTemplates.container
+    (CC=18)'
+  description: 'code2llm reports `src.pactown.deploy.quadlet.QuadletTemplates.container`
+    at `src/pactown/deploy/quadlet.py:452` with cyclomatic complexity 18 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/deploy/quadlet.py
+  dedupe_key: code2llm:cc:src/pactown/deploy/quadlet.py:src.pactown.deploy.quadlet.QuadletTemplates.container
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.events.EventStore.get_events (CC=19)'
+  description: 'code2llm reports `src.pactown.events.EventStore.get_events` at `src/pactown/events.py:287`
+    with cyclomatic complexity 19 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/events.py
+  dedupe_key: code2llm:cc:src/pactown/events.py:src.pactown.events.EventStore.get_events
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.fast_start.FastServiceStarter.fast_create_sandbox
+    (CC=20)'
+  description: 'code2llm reports `src.pactown.fast_start.FastServiceStarter.fast_create_sandbox`
+    at `src/pactown/fast_start.py:491` with cyclomatic complexity 20 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/fast_start.py
+  dedupe_key: code2llm:cc:src/pactown/fast_start.py:src.pactown.fast_start.FastServiceStarter.fast_create_sandbox
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.iac.build_sandbox_spec (CC=17)'
+  description: 'code2llm reports `src.pactown.iac.build_sandbox_spec` at `src/pactown/iac.py:52`
+    with cyclomatic complexity 17 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/iac.py
+  dedupe_key: code2llm:cc:src/pactown/iac.py:src.pactown.iac.build_sandbox_spec
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.markpact_blocks.extract_run_command
+    (CC=17)'
+  description: 'code2llm reports `src.pactown.markpact_blocks.extract_run_command`
+    at `src/pactown/markpact_blocks.py:33` with cyclomatic complexity 17 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/markpact_blocks.py
+  dedupe_key: code2llm:cc:src/pactown/markpact_blocks.py:src.pactown.markpact_blocks.extract_run_command
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.orchestrator.Orchestrator._start_all_parallel
+    (CC=19)'
+  description: 'code2llm reports `src.pactown.orchestrator.Orchestrator._start_all_parallel`
+    at `src/pactown/orchestrator.py:186` with cyclomatic complexity 19 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/orchestrator.py
+  dedupe_key: code2llm:cc:src/pactown/orchestrator.py:src.pactown.orchestrator.Orchestrator._start_all_parallel
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.sandbox_helpers._sanitize_inherited_env
+    (CC=16)'
+  description: 'code2llm reports `src.pactown.sandbox_helpers._sanitize_inherited_env`
+    at `src/pactown/sandbox_helpers.py:124` with cyclomatic complexity 16 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/sandbox_helpers.py
+  dedupe_key: code2llm:cc:src/pactown/sandbox_helpers.py:src.pactown.sandbox_helpers._sanitize_inherited_env
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.sandbox_manager.SandboxManager._infer_node_project
+    (CC=22)'
+  description: 'code2llm reports `src.pactown.sandbox_manager.SandboxManager._infer_node_project`
+    at `src/pactown/sandbox_manager.py:535` with cyclomatic complexity 22 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/sandbox_manager.py
+  dedupe_key: code2llm:cc:src/pactown/sandbox_manager.py:src.pactown.sandbox_manager.SandboxManager._infer_node_project
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.sandbox_manager._detect_web_preview_needed
+    (CC=16)'
+  description: 'code2llm reports `src.pactown.sandbox_manager._detect_web_preview_needed`
+    at `src/pactown/sandbox_manager.py:139` with cyclomatic complexity 16 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/sandbox_manager.py
+  dedupe_key: code2llm:cc:src/pactown/sandbox_manager.py:src.pactown.sandbox_manager._detect_web_preview_needed
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.sandbox_manager._inject_electron_web_polyfill
+    (CC=18)'
+  description: 'code2llm reports `src.pactown.sandbox_manager._inject_electron_web_polyfill`
+    at `src/pactown/sandbox_manager.py:284` with cyclomatic complexity 18 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/sandbox_manager.py
+  dedupe_key: code2llm:cc:src/pactown/sandbox_manager.py:src.pactown.sandbox_manager._inject_electron_web_polyfill
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.service_runner.ServiceRunner._extract_required_env_vars
+    (CC=19)'
+  description: 'code2llm reports `src.pactown.service_runner.ServiceRunner._extract_required_env_vars`
+    at `src/pactown/service_runner.py:175` with cyclomatic complexity 19 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/service_runner.py
+  dedupe_key: code2llm:cc:src/pactown/service_runner.py:src.pactown.service_runner.ServiceRunner._extract_required_env_vars
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.service_runner.ServiceRunner._generate_suggestions
+    (CC=18)'
+  description: 'code2llm reports `src.pactown.service_runner.ServiceRunner._generate_suggestions`
+    at `src/pactown/service_runner.py:548` with cyclomatic complexity 18 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/service_runner.py
+  dedupe_key: code2llm:cc:src/pactown/service_runner.py:src.pactown.service_runner.ServiceRunner._generate_suggestions
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: src.pactown.user_isolation.UserIsolationManager.get_or_create_user
+    (CC=15)'
+  description: 'code2llm reports `src.pactown.user_isolation.UserIsolationManager.get_or_create_user`
+    at `src/pactown/user_isolation.py:141` with cyclomatic complexity 15 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - src/pactown/user_isolation.py
+  dedupe_key: code2llm:cc:src/pactown/user_isolation.py:src.pactown.user_isolation.UserIsolationManager.get_or_create_user
+- signal: code2llm_cc
+  title: 'Reduce cyclomatic complexity: tools.validate_artifacts_docker.main (CC=17)'
+  description: 'code2llm reports `tools.validate_artifacts_docker.main` at `tools/validate_artifacts_docker.py:465`
+    with cyclomatic complexity 17 (limit 15).
+
+
+    Extract smaller functions, flatten conditionals, or split strategy branches. Re-run
+    code2llm after the change and keep tests green.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - complexity
+  - refactor
+  files:
+  - tools/validate_artifacts_docker.py
+  dedupe_key: code2llm:cc:tools/validate_artifacts_docker.py:tools.validate_artifacts_docker.main
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: base_url, self, timeout'
+  description: 'code2llm reports `Data Clump: base_url, self, timeout` in `src/pactown/registry/client.py:19`.
+
+
+    Arguments (base_url, self, timeout) are used together in multiple functions: src.pactown.registry.client.RegistryClient.__init__,
+    src.pactown.registry.client.AsyncRegistryClient.__init__.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/registry/client.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/registry/client.py:19:Data Clump:
+    base_url, self, timeout'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: base_url, self, timeout'
+  description: 'code2llm reports `Data Clump: base_url, self, timeout` in `src/pactown/registry/client.py:182`.
+
+
+    Arguments (base_url, self, timeout) are used together in multiple functions: src.pactown.registry.client.RegistryClient.__init__,
+    src.pactown.registry.client.AsyncRegistryClient.__init__.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/registry/client.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/registry/client.py:182:Data Clump:
+    base_url, self, timeout'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: domain, host, port, tenant'
+  description: 'code2llm reports `Data Clump: domain, host, port, tenant` in `src/pactown/cli.py:547`.
+
+
+    Arguments (domain, host, port, tenant) are used together in multiple functions:
+    src.pactown.cli.quadlet_api, src.pactown.deploy.quadlet_api.run_api.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/cli.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/cli.py:547:Data Clump: domain,
+    host, port, tenant'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: domain, host, port, tenant'
+  description: 'code2llm reports `Data Clump: domain, host, port, tenant` in `src/pactown/deploy/quadlet_api.py:520`.
+
+
+    Arguments (domain, host, port, tenant) are used together in multiple functions:
+    src.pactown.cli.quadlet_api, src.pactown.deploy.quadlet_api.run_api.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/quadlet_api.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/quadlet_api.py:520:Data
+    Clump: domain, host, port, tenant'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: folder, name, output, base_port'
+  description: 'code2llm reports `Data Clump: folder, name, output, base_port` in
+    `src/pactown/generator.py:113`.
+
+
+    Arguments (folder, name, output, base_port) are used together in multiple functions:
+    src.pactown.generator.generate_config, src.pactown.cli.generate.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/generator.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/generator.py:113:Data Clump:
+    folder, name, output, base_port'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: folder, name, output, base_port'
+  description: 'code2llm reports `Data Clump: folder, name, output, base_port` in
+    `src/pactown/cli.py:293`.
+
+
+    Arguments (folder, name, output, base_port) are used together in multiple functions:
+    src.pactown.generator.generate_config, src.pactown.cli.generate.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/cli.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/cli.py:293:Data Clump: folder,
+    name, output, base_port'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: limit, self, user_id'
+  description: 'code2llm reports `Data Clump: limit, self, user_id` in `src/pactown/events.py:878`.
+
+
+    Arguments (limit, self, user_id) are used together in multiple functions: src.pactown.events.ProjectQueries.get_recent_projects,
+    src.pactown.events.SecurityQueries.get_user_security_history.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/events.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/events.py:878:Data Clump: limit,
+    self, user_id'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: limit, self, user_id'
+  description: 'code2llm reports `Data Clump: limit, self, user_id` in `src/pactown/events.py:912`.
+
+
+    Arguments (limit, self, user_id) are used together in multiple functions: src.pactown.events.ProjectQueries.get_recent_projects,
+    src.pactown.events.SecurityQueries.get_user_security_history.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/events.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/events.py:912:Data Clump: limit,
+    self, user_id'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: max_workers, self, services, on_complete'
+  description: 'code2llm reports `Data Clump: max_workers, self, services, on_complete`
+    in `src/pactown/sandbox_manager.py:1726`.
+
+
+    Arguments (max_workers, self, services, on_complete) are used together in multiple
+    functions: src.pactown.sandbox_manager.SandboxManager.create_sandboxes_parallel,
+    src.pactown.sandbox_manager.SandboxManager.start_services_parallel.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/sandbox_manager.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/sandbox_manager.py:1726:Data
+    Clump: max_workers, self, services, on_complete'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: max_workers, self, services, on_complete'
+  description: 'code2llm reports `Data Clump: max_workers, self, services, on_complete`
+    in `src/pactown/sandbox_manager.py:1782`.
+
+
+    Arguments (max_workers, self, services, on_complete) are used together in multiple
+    functions: src.pactown.sandbox_manager.SandboxManager.create_sandboxes_parallel,
+    src.pactown.sandbox_manager.SandboxManager.start_services_parallel.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/sandbox_manager.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/sandbox_manager.py:1782:Data
+    Clump: max_workers, self, services, on_complete'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: name, self, namespace'
+  description: 'code2llm reports `Data Clump: name, self, namespace` in `src/pactown/registry/client.py:57`.
+
+
+    Arguments (name, self, namespace) are used together in multiple functions: src.pactown.registry.client.RegistryClient.get_artifact,
+    src.pactown.registry.client.RegistryClient.delete, src.pactown.registry.models.RegistryStorage.get,
+    src.pactown.registry.models.RegistryStorage.delete.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/registry/client.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/registry/client.py:57:Data Clump:
+    name, self, namespace'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: name, self, namespace'
+  description: 'code2llm reports `Data Clump: name, self, namespace` in `src/pactown/registry/client.py:158`.
+
+
+    Arguments (name, self, namespace) are used together in multiple functions: src.pactown.registry.client.RegistryClient.get_artifact,
+    src.pactown.registry.client.RegistryClient.delete, src.pactown.registry.models.RegistryStorage.get,
+    src.pactown.registry.models.RegistryStorage.delete.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/registry/client.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/registry/client.py:158:Data Clump:
+    name, self, namespace'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: name, self, namespace'
+  description: 'code2llm reports `Data Clump: name, self, namespace` in `src/pactown/registry/models.py:129`.
+
+
+    Arguments (name, self, namespace) are used together in multiple functions: src.pactown.registry.client.RegistryClient.get_artifact,
+    src.pactown.registry.client.RegistryClient.delete, src.pactown.registry.models.RegistryStorage.get,
+    src.pactown.registry.models.RegistryStorage.delete.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/registry/models.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/registry/models.py:129:Data Clump:
+    name, self, namespace'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: name, self, namespace'
+  description: 'code2llm reports `Data Clump: name, self, namespace` in `src/pactown/registry/models.py:141`.
+
+
+    Arguments (name, self, namespace) are used together in multiple functions: src.pactown.registry.client.RegistryClient.get_artifact,
+    src.pactown.registry.client.RegistryClient.delete, src.pactown.registry.models.RegistryStorage.get,
+    src.pactown.registry.models.RegistryStorage.delete.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/registry/models.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/registry/models.py:141:Data Clump:
+    name, self, namespace'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: name, self, version, namespace'
+  description: 'code2llm reports `Data Clump: name, self, version, namespace` in `src/pactown/registry/client.py:70`.
+
+
+    Arguments (name, self, version, namespace) are used together in multiple functions:
+    src.pactown.registry.client.RegistryClient.get_version, src.pactown.registry.client.RegistryClient.get_readme,
+    src.pactown.registry.client.AsyncRegistryClient.get_readme.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/registry/client.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/registry/client.py:70:Data Clump:
+    name, self, version, namespace'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: name, self, version, namespace'
+  description: 'code2llm reports `Data Clump: name, self, version, namespace` in `src/pactown/registry/client.py:88`.
+
+
+    Arguments (name, self, version, namespace) are used together in multiple functions:
+    src.pactown.registry.client.RegistryClient.get_version, src.pactown.registry.client.RegistryClient.get_readme,
+    src.pactown.registry.client.AsyncRegistryClient.get_readme.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/registry/client.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/registry/client.py:88:Data Clump:
+    name, self, version, namespace'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: name, self, version, namespace'
+  description: 'code2llm reports `Data Clump: name, self, version, namespace` in `src/pactown/registry/client.py:218`.
+
+
+    Arguments (name, self, version, namespace) are used together in multiple functions:
+    src.pactown.registry.client.RegistryClient.get_version, src.pactown.registry.client.RegistryClient.get_readme,
+    src.pactown.registry.client.AsyncRegistryClient.get_readme.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/registry/client.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/registry/client.py:218:Data Clump:
+    name, self, version, namespace'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: registry, self, image_name'
+  description: 'code2llm reports `Data Clump: registry, self, image_name` in `src/pactown/deploy/kubernetes.py:128`.
+
+
+    Arguments (registry, self, image_name) are used together in multiple functions:
+    src.pactown.deploy.kubernetes.KubernetesBackend.push_image, src.pactown.deploy.base.DeploymentBackend.push_image,
+    src.pactown.deploy.docker.DockerBackend.push_image, src.pactown.deploy.podman.PodmanBackend.push_image,
+    src.pactown.deploy.ansible.AnsibleBackend.push_image, src.pactown.deploy.quadlet.QuadletBackend.push_image.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/kubernetes.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/kubernetes.py:128:Data
+    Clump: registry, self, image_name'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: registry, self, image_name'
+  description: 'code2llm reports `Data Clump: registry, self, image_name` in `src/pactown/deploy/base.py:147`.
+
+
+    Arguments (registry, self, image_name) are used together in multiple functions:
+    src.pactown.deploy.kubernetes.KubernetesBackend.push_image, src.pactown.deploy.base.DeploymentBackend.push_image,
+    src.pactown.deploy.docker.DockerBackend.push_image, src.pactown.deploy.podman.PodmanBackend.push_image,
+    src.pactown.deploy.ansible.AnsibleBackend.push_image, src.pactown.deploy.quadlet.QuadletBackend.push_image.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/base.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/base.py:147:Data Clump:
+    registry, self, image_name'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: registry, self, image_name'
+  description: 'code2llm reports `Data Clump: registry, self, image_name` in `src/pactown/deploy/docker.py:115`.
+
+
+    Arguments (registry, self, image_name) are used together in multiple functions:
+    src.pactown.deploy.kubernetes.KubernetesBackend.push_image, src.pactown.deploy.base.DeploymentBackend.push_image,
+    src.pactown.deploy.docker.DockerBackend.push_image, src.pactown.deploy.podman.PodmanBackend.push_image,
+    src.pactown.deploy.ansible.AnsibleBackend.push_image, src.pactown.deploy.quadlet.QuadletBackend.push_image.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/docker.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/docker.py:115:Data Clump:
+    registry, self, image_name'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: registry, self, image_name'
+  description: 'code2llm reports `Data Clump: registry, self, image_name` in `src/pactown/deploy/podman.py:131`.
+
+
+    Arguments (registry, self, image_name) are used together in multiple functions:
+    src.pactown.deploy.kubernetes.KubernetesBackend.push_image, src.pactown.deploy.base.DeploymentBackend.push_image,
+    src.pactown.deploy.docker.DockerBackend.push_image, src.pactown.deploy.podman.PodmanBackend.push_image,
+    src.pactown.deploy.ansible.AnsibleBackend.push_image, src.pactown.deploy.quadlet.QuadletBackend.push_image.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/podman.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/podman.py:131:Data Clump:
+    registry, self, image_name'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: registry, self, image_name'
+  description: 'code2llm reports `Data Clump: registry, self, image_name` in `src/pactown/deploy/ansible.py:358`.
+
+
+    Arguments (registry, self, image_name) are used together in multiple functions:
+    src.pactown.deploy.kubernetes.KubernetesBackend.push_image, src.pactown.deploy.base.DeploymentBackend.push_image,
+    src.pactown.deploy.docker.DockerBackend.push_image, src.pactown.deploy.podman.PodmanBackend.push_image,
+    src.pactown.deploy.ansible.AnsibleBackend.push_image, src.pactown.deploy.quadlet.QuadletBackend.push_image.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/ansible.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/ansible.py:358:Data Clump:
+    registry, self, image_name'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: registry, self, image_name'
+  description: 'code2llm reports `Data Clump: registry, self, image_name` in `src/pactown/deploy/quadlet.py:711`.
+
+
+    Arguments (registry, self, image_name) are used together in multiple functions:
+    src.pactown.deploy.kubernetes.KubernetesBackend.push_image, src.pactown.deploy.base.DeploymentBackend.push_image,
+    src.pactown.deploy.docker.DockerBackend.push_image, src.pactown.deploy.podman.PodmanBackend.push_image,
+    src.pactown.deploy.ansible.AnsibleBackend.push_image, src.pactown.deploy.quadlet.QuadletBackend.push_image.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/quadlet.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/quadlet.py:711:Data Clump:
+    registry, self, image_name'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: sandbox_path, on_log, cls'
+  description: 'code2llm reports `Data Clump: sandbox_path, on_log, cls` in `src/pactown/builders/desktop.py:163`.
+
+
+    Arguments (sandbox_path, on_log, cls) are used together in multiple functions:
+    src.pactown.builders.desktop.DesktopBuilder._patch_electron_no_sandbox, src.pactown.builders.desktop.DesktopBuilder._generate_linux_launcher.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/builders/desktop.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/builders/desktop.py:163:Data
+    Clump: sandbox_path, on_log, cls'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: sandbox_path, on_log, cls'
+  description: 'code2llm reports `Data Clump: sandbox_path, on_log, cls` in `src/pactown/builders/desktop.py:582`.
+
+
+    Arguments (sandbox_path, on_log, cls) are used together in multiple functions:
+    src.pactown.builders.desktop.DesktopBuilder._patch_electron_no_sandbox, src.pactown.builders.desktop.DesktopBuilder._generate_linux_launcher.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/builders/desktop.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/builders/desktop.py:582:Data
+    Clump: sandbox_path, on_log, cls'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: self, namespace, search'
+  description: 'code2llm reports `Data Clump: self, namespace, search` in `src/pactown/registry/client.py:41`.
+
+
+    Arguments (self, namespace, search) are used together in multiple functions: src.pactown.registry.client.RegistryClient.list_artifacts,
+    src.pactown.registry.client.AsyncRegistryClient.list_artifacts.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/registry/client.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/registry/client.py:41:Data Clump:
+    self, namespace, search'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: self, namespace, search'
+  description: 'code2llm reports `Data Clump: self, namespace, search` in `src/pactown/registry/client.py:203`.
+
+
+    Arguments (self, namespace, search) are used together in multiple functions: src.pactown.registry.client.RegistryClient.list_artifacts,
+    src.pactown.registry.client.AsyncRegistryClient.list_artifacts.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/registry/client.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/registry/client.py:203:Data Clump:
+    self, namespace, search'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: self, port, health_check, image_name, service_name,
+    env'
+  description: 'code2llm reports `Data Clump: self, port, health_check, image_name,
+    service_name, env` in `src/pactown/deploy/kubernetes.py:159`.
+
+
+    Arguments (self, port, health_check, image_name, service_name, env) are used together
+    in multiple functions: src.pactown.deploy.kubernetes.KubernetesBackend.deploy,
+    src.pactown.deploy.base.DeploymentBackend.deploy, src.pactown.deploy.docker.DockerBackend.deploy,
+    src.pactown.deploy.podman.PodmanBackend.deploy, src.pactown.deploy.ansible.AnsibleBackend.deploy,
+    src.pactown.deploy.quadlet.QuadletBackend.deploy.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/kubernetes.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/kubernetes.py:159:Data
+    Clump: self, port, health_check, image_name, service_name, env'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: self, port, health_check, image_name, service_name,
+    env'
+  description: 'code2llm reports `Data Clump: self, port, health_check, image_name,
+    service_name, env` in `src/pactown/deploy/base.py:156`.
+
+
+    Arguments (self, port, health_check, image_name, service_name, env) are used together
+    in multiple functions: src.pactown.deploy.kubernetes.KubernetesBackend.deploy,
+    src.pactown.deploy.base.DeploymentBackend.deploy, src.pactown.deploy.docker.DockerBackend.deploy,
+    src.pactown.deploy.podman.PodmanBackend.deploy, src.pactown.deploy.ansible.AnsibleBackend.deploy,
+    src.pactown.deploy.quadlet.QuadletBackend.deploy.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/base.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/base.py:156:Data Clump:
+    self, port, health_check, image_name, service_name, env'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: self, port, health_check, image_name, service_name,
+    env'
+  description: 'code2llm reports `Data Clump: self, port, health_check, image_name,
+    service_name, env` in `src/pactown/deploy/docker.py:153`.
+
+
+    Arguments (self, port, health_check, image_name, service_name, env) are used together
+    in multiple functions: src.pactown.deploy.kubernetes.KubernetesBackend.deploy,
+    src.pactown.deploy.base.DeploymentBackend.deploy, src.pactown.deploy.docker.DockerBackend.deploy,
+    src.pactown.deploy.podman.PodmanBackend.deploy, src.pactown.deploy.ansible.AnsibleBackend.deploy,
+    src.pactown.deploy.quadlet.QuadletBackend.deploy.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/docker.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/docker.py:153:Data Clump:
+    self, port, health_check, image_name, service_name, env'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: self, port, health_check, image_name, service_name,
+    env'
+  description: 'code2llm reports `Data Clump: self, port, health_check, image_name,
+    service_name, env` in `src/pactown/deploy/podman.py:168`.
+
+
+    Arguments (self, port, health_check, image_name, service_name, env) are used together
+    in multiple functions: src.pactown.deploy.kubernetes.KubernetesBackend.deploy,
+    src.pactown.deploy.base.DeploymentBackend.deploy, src.pactown.deploy.docker.DockerBackend.deploy,
+    src.pactown.deploy.podman.PodmanBackend.deploy, src.pactown.deploy.ansible.AnsibleBackend.deploy,
+    src.pactown.deploy.quadlet.QuadletBackend.deploy.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/podman.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/podman.py:168:Data Clump:
+    self, port, health_check, image_name, service_name, env'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: self, port, health_check, image_name, service_name,
+    env'
+  description: 'code2llm reports `Data Clump: self, port, health_check, image_name,
+    service_name, env` in `src/pactown/deploy/ansible.py:394`.
+
+
+    Arguments (self, port, health_check, image_name, service_name, env) are used together
+    in multiple functions: src.pactown.deploy.kubernetes.KubernetesBackend.deploy,
+    src.pactown.deploy.base.DeploymentBackend.deploy, src.pactown.deploy.docker.DockerBackend.deploy,
+    src.pactown.deploy.podman.PodmanBackend.deploy, src.pactown.deploy.ansible.AnsibleBackend.deploy,
+    src.pactown.deploy.quadlet.QuadletBackend.deploy.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/ansible.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/ansible.py:394:Data Clump:
+    self, port, health_check, image_name, service_name, env'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: self, port, health_check, image_name, service_name,
+    env'
+  description: 'code2llm reports `Data Clump: self, port, health_check, image_name,
+    service_name, env` in `src/pactown/deploy/quadlet.py:776`.
+
+
+    Arguments (self, port, health_check, image_name, service_name, env) are used together
+    in multiple functions: src.pactown.deploy.kubernetes.KubernetesBackend.deploy,
+    src.pactown.deploy.base.DeploymentBackend.deploy, src.pactown.deploy.docker.DockerBackend.deploy,
+    src.pactown.deploy.podman.PodmanBackend.deploy, src.pactown.deploy.ansible.AnsibleBackend.deploy,
+    src.pactown.deploy.quadlet.QuadletBackend.deploy.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/quadlet.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/quadlet.py:776:Data Clump:
+    self, port, health_check, image_name, service_name, env'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: self, tag, dockerfile_path, context_path,
+    service_name, build_args'
+  description: 'code2llm reports `Data Clump: self, tag, dockerfile_path, context_path,
+    service_name, build_args` in `src/pactown/deploy/kubernetes.py:73`.
+
+
+    Arguments (self, tag, dockerfile_path, context_path, service_name, build_args)
+    are used together in multiple functions: src.pactown.deploy.kubernetes.KubernetesBackend.build_image,
+    src.pactown.deploy.base.DeploymentBackend.build_image, src.pactown.deploy.docker.DockerBackend.build_image,
+    src.pactown.deploy.podman.PodmanBackend.build_image, src.pactown.deploy.ansible.AnsibleBackend.build_image,
+    src.pactown.deploy.quadlet.QuadletBackend.build_image.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/kubernetes.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/kubernetes.py:73:Data
+    Clump: self, tag, dockerfile_path, context_path, service_name, build_args'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: self, tag, dockerfile_path, context_path,
+    service_name, build_args'
+  description: 'code2llm reports `Data Clump: self, tag, dockerfile_path, context_path,
+    service_name, build_args` in `src/pactown/deploy/base.py:135`.
+
+
+    Arguments (self, tag, dockerfile_path, context_path, service_name, build_args)
+    are used together in multiple functions: src.pactown.deploy.kubernetes.KubernetesBackend.build_image,
+    src.pactown.deploy.base.DeploymentBackend.build_image, src.pactown.deploy.docker.DockerBackend.build_image,
+    src.pactown.deploy.podman.PodmanBackend.build_image, src.pactown.deploy.ansible.AnsibleBackend.build_image,
+    src.pactown.deploy.quadlet.QuadletBackend.build_image.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/base.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/base.py:135:Data Clump:
+    self, tag, dockerfile_path, context_path, service_name, build_args'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: self, tag, dockerfile_path, context_path,
+    service_name, build_args'
+  description: 'code2llm reports `Data Clump: self, tag, dockerfile_path, context_path,
+    service_name, build_args` in `src/pactown/deploy/docker.py:46`.
+
+
+    Arguments (self, tag, dockerfile_path, context_path, service_name, build_args)
+    are used together in multiple functions: src.pactown.deploy.kubernetes.KubernetesBackend.build_image,
+    src.pactown.deploy.base.DeploymentBackend.build_image, src.pactown.deploy.docker.DockerBackend.build_image,
+    src.pactown.deploy.podman.PodmanBackend.build_image, src.pactown.deploy.ansible.AnsibleBackend.build_image,
+    src.pactown.deploy.quadlet.QuadletBackend.build_image.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/docker.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/docker.py:46:Data Clump:
+    self, tag, dockerfile_path, context_path, service_name, build_args'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: self, tag, dockerfile_path, context_path,
+    service_name, build_args'
+  description: 'code2llm reports `Data Clump: self, tag, dockerfile_path, context_path,
+    service_name, build_args` in `src/pactown/deploy/podman.py:58`.
+
+
+    Arguments (self, tag, dockerfile_path, context_path, service_name, build_args)
+    are used together in multiple functions: src.pactown.deploy.kubernetes.KubernetesBackend.build_image,
+    src.pactown.deploy.base.DeploymentBackend.build_image, src.pactown.deploy.docker.DockerBackend.build_image,
+    src.pactown.deploy.podman.PodmanBackend.build_image, src.pactown.deploy.ansible.AnsibleBackend.build_image,
+    src.pactown.deploy.quadlet.QuadletBackend.build_image.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/podman.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/podman.py:58:Data Clump:
+    self, tag, dockerfile_path, context_path, service_name, build_args'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: self, tag, dockerfile_path, context_path,
+    service_name, build_args'
+  description: 'code2llm reports `Data Clump: self, tag, dockerfile_path, context_path,
+    service_name, build_args` in `src/pactown/deploy/ansible.py:326`.
+
+
+    Arguments (self, tag, dockerfile_path, context_path, service_name, build_args)
+    are used together in multiple functions: src.pactown.deploy.kubernetes.KubernetesBackend.build_image,
+    src.pactown.deploy.base.DeploymentBackend.build_image, src.pactown.deploy.docker.DockerBackend.build_image,
+    src.pactown.deploy.podman.PodmanBackend.build_image, src.pactown.deploy.ansible.AnsibleBackend.build_image,
+    src.pactown.deploy.quadlet.QuadletBackend.build_image.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/ansible.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/ansible.py:326:Data Clump:
+    self, tag, dockerfile_path, context_path, service_name, build_args'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: self, tag, dockerfile_path, context_path,
+    service_name, build_args'
+  description: 'code2llm reports `Data Clump: self, tag, dockerfile_path, context_path,
+    service_name, build_args` in `src/pactown/deploy/quadlet.py:653`.
+
+
+    Arguments (self, tag, dockerfile_path, context_path, service_name, build_args)
+    are used together in multiple functions: src.pactown.deploy.kubernetes.KubernetesBackend.build_image,
+    src.pactown.deploy.base.DeploymentBackend.build_image, src.pactown.deploy.docker.DockerBackend.build_image,
+    src.pactown.deploy.podman.PodmanBackend.build_image, src.pactown.deploy.ansible.AnsibleBackend.build_image,
+    src.pactown.deploy.quadlet.QuadletBackend.build_image.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/quadlet.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/quadlet.py:653:Data Clump:
+    self, tag, dockerfile_path, context_path, service_name, build_args'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: self, user_id, service_id'
+  description: 'code2llm reports `Data Clump: self, user_id, service_id` in `src/pactown/security.py:457`.
+
+
+    Arguments (self, user_id, service_id) are used together in multiple functions:
+    src.pactown.security.SecurityPolicy.register_service, src.pactown.security.SecurityPolicy.unregister_service,
+    src.pactown.events.ServiceCommands.delete_service.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/security.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/security.py:457:Data Clump: self,
+    user_id, service_id'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: self, user_id, service_id'
+  description: 'code2llm reports `Data Clump: self, user_id, service_id` in `src/pactown/security.py:476`.
+
+
+    Arguments (self, user_id, service_id) are used together in multiple functions:
+    src.pactown.security.SecurityPolicy.register_service, src.pactown.security.SecurityPolicy.unregister_service,
+    src.pactown.events.ServiceCommands.delete_service.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/security.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/security.py:476:Data Clump: self,
+    user_id, service_id'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: self, user_id, service_id'
+  description: 'code2llm reports `Data Clump: self, user_id, service_id` in `src/pactown/events.py:641`.
+
+
+    Arguments (self, user_id, service_id) are used together in multiple functions:
+    src.pactown.security.SecurityPolicy.register_service, src.pactown.security.SecurityPolicy.unregister_service,
+    src.pactown.events.ServiceCommands.delete_service.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/events.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/events.py:641:Data Clump: self,
+    user_id, service_id'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: tail, self, service_name'
+  description: 'code2llm reports `Data Clump: tail, self, service_name` in `src/pactown/deploy/kubernetes.py:221`.
+
+
+    Arguments (tail, self, service_name) are used together in multiple functions:
+    src.pactown.deploy.kubernetes.KubernetesBackend.logs, src.pactown.deploy.base.DeploymentBackend.logs,
+    src.pactown.deploy.docker.DockerBackend.logs, src.pactown.deploy.podman.PodmanBackend.logs,
+    src.pactown.deploy.ansible.AnsibleBackend.logs, src.pactown.deploy.quadlet.QuadletBackend.logs.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/kubernetes.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/kubernetes.py:221:Data
+    Clump: tail, self, service_name'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: tail, self, service_name'
+  description: 'code2llm reports `Data Clump: tail, self, service_name` in `src/pactown/deploy/base.py:173`.
+
+
+    Arguments (tail, self, service_name) are used together in multiple functions:
+    src.pactown.deploy.kubernetes.KubernetesBackend.logs, src.pactown.deploy.base.DeploymentBackend.logs,
+    src.pactown.deploy.docker.DockerBackend.logs, src.pactown.deploy.podman.PodmanBackend.logs,
+    src.pactown.deploy.ansible.AnsibleBackend.logs, src.pactown.deploy.quadlet.QuadletBackend.logs.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/base.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/base.py:173:Data Clump:
+    tail, self, service_name'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: tail, self, service_name'
+  description: 'code2llm reports `Data Clump: tail, self, service_name` in `src/pactown/deploy/docker.py:286`.
+
+
+    Arguments (tail, self, service_name) are used together in multiple functions:
+    src.pactown.deploy.kubernetes.KubernetesBackend.logs, src.pactown.deploy.base.DeploymentBackend.logs,
+    src.pactown.deploy.docker.DockerBackend.logs, src.pactown.deploy.podman.PodmanBackend.logs,
+    src.pactown.deploy.ansible.AnsibleBackend.logs, src.pactown.deploy.quadlet.QuadletBackend.logs.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/docker.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/docker.py:286:Data Clump:
+    tail, self, service_name'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: tail, self, service_name'
+  description: 'code2llm reports `Data Clump: tail, self, service_name` in `src/pactown/deploy/podman.py:310`.
+
+
+    Arguments (tail, self, service_name) are used together in multiple functions:
+    src.pactown.deploy.kubernetes.KubernetesBackend.logs, src.pactown.deploy.base.DeploymentBackend.logs,
+    src.pactown.deploy.docker.DockerBackend.logs, src.pactown.deploy.podman.PodmanBackend.logs,
+    src.pactown.deploy.ansible.AnsibleBackend.logs, src.pactown.deploy.quadlet.QuadletBackend.logs.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/podman.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/podman.py:310:Data Clump:
+    tail, self, service_name'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: tail, self, service_name'
+  description: 'code2llm reports `Data Clump: tail, self, service_name` in `src/pactown/deploy/ansible.py:444`.
+
+
+    Arguments (tail, self, service_name) are used together in multiple functions:
+    src.pactown.deploy.kubernetes.KubernetesBackend.logs, src.pactown.deploy.base.DeploymentBackend.logs,
+    src.pactown.deploy.docker.DockerBackend.logs, src.pactown.deploy.podman.PodmanBackend.logs,
+    src.pactown.deploy.ansible.AnsibleBackend.logs, src.pactown.deploy.quadlet.QuadletBackend.logs.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/ansible.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/ansible.py:444:Data Clump:
+    tail, self, service_name'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: tail, self, service_name'
+  description: 'code2llm reports `Data Clump: tail, self, service_name` in `src/pactown/deploy/quadlet.py:854`.
+
+
+    Arguments (tail, self, service_name) are used together in multiple functions:
+    src.pactown.deploy.kubernetes.KubernetesBackend.logs, src.pactown.deploy.base.DeploymentBackend.logs,
+    src.pactown.deploy.docker.DockerBackend.logs, src.pactown.deploy.podman.PodmanBackend.logs,
+    src.pactown.deploy.ansible.AnsibleBackend.logs, src.pactown.deploy.quadlet.QuadletBackend.logs.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/deploy/quadlet.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/deploy/quadlet.py:854:Data Clump:
+    tail, self, service_name'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: timeout, self, service_name'
+  description: 'code2llm reports `Data Clump: timeout, self, service_name` in `src/pactown/orchestrator.py:355`.
+
+
+    Arguments (timeout, self, service_name) are used together in multiple functions:
+    src.pactown.orchestrator.Orchestrator._wait_for_health, src.pactown.sandbox_manager.SandboxManager.stop_service.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/orchestrator.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/orchestrator.py:355:Data Clump:
+    timeout, self, service_name'
+- signal: code2llm_smell_data_clump
+  title: 'Address code smell: Data Clump: timeout, self, service_name'
+  description: 'code2llm reports `Data Clump: timeout, self, service_name` in `src/pactown/sandbox_manager.py:1634`.
+
+
+    Arguments (timeout, self, service_name) are used together in multiple functions:
+    src.pactown.orchestrator.Orchestrator._wait_for_health, src.pactown.sandbox_manager.SandboxManager.stop_service.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - data-clump
+  files:
+  - src/pactown/sandbox_manager.py
+  dedupe_key: 'code2llm:smell:data_clump:src/pactown/sandbox_manager.py:1634:Data
+    Clump: timeout, self, service_name'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: _build_web_preview_cmd'
+  description: 'code2llm reports `God Function: _build_web_preview_cmd` in `src/pactown/sandbox_manager.py:414`.
+
+
+    Function ''_build_web_preview_cmd'' is oversized: CC=14, fan-out=15, mutations=11.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/sandbox_manager.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/sandbox_manager.py:414:God
+    Function: _build_web_preview_cmd'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: _ensure_package_json'
+  description: 'code2llm reports `God Function: _ensure_package_json` in `src/pactown/sandbox_manager.py:559`.
+
+
+    Function ''_ensure_package_json'' is oversized: CC=12, fan-out=12, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/sandbox_manager.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/sandbox_manager.py:559:God
+    Function: _ensure_package_json'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: _filter_runtime_env'
+  description: 'code2llm reports `God Function: _filter_runtime_env` in `src/pactown/sandbox_helpers.py:92`.
+
+
+    Function ''_filter_runtime_env'' is oversized: CC=9, fan-out=5, mutations=8.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/sandbox_helpers.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/sandbox_helpers.py:92:God Function:
+    _filter_runtime_env'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: _install_system_deps'
+  description: 'code2llm reports `God Function: _install_system_deps` in `src/pactown/sandbox_manager.py:223`.
+
+
+    Function ''_install_system_deps'' is oversized: CC=11, fan-out=9, mutations=10.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/sandbox_manager.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/sandbox_manager.py:223:God
+    Function: _install_system_deps'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: _load_existing'
+  description: 'code2llm reports `God Function: _load_existing` in `src/pactown/fast_start.py:148`.
+
+
+    Function ''_load_existing'' is oversized: CC=5, fan-out=11, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/fast_start.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/fast_start.py:148:God Function:
+    _load_existing'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: _path_debug'
+  description: 'code2llm reports `God Function: _path_debug` in `src/pactown/sandbox_helpers.py:217`.
+
+
+    Function ''_path_debug'' is oversized: CC=7, fan-out=7, mutations=19.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/sandbox_helpers.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/sandbox_helpers.py:217:God
+    Function: _path_debug'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: _prune_stale_user_services'
+  description: 'code2llm reports `God Function: _prune_stale_user_services` in `src/pactown/service_runner.py:226`.
+
+
+    Function ''_prune_stale_user_services'' is oversized: CC=14, fan-out=9, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/service_runner.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/service_runner.py:226:God Function:
+    _prune_stale_user_services'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: _run_shell'
+  description: 'code2llm reports `God Function: _run_shell` in `src/pactown/builders/base.py:81`.
+
+
+    Function ''_run_shell'' is oversized: CC=13, fan-out=16, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/builders/base.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/builders/base.py:81:God Function:
+    _run_shell'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: _update_requirements_pin'
+  description: 'code2llm reports `God Function: _update_requirements_pin` in `tools/sync_pactown_com_dependency.py:14`.
+
+
+    Function ''_update_requirements_pin'' is oversized: CC=8, fan-out=9, mutations=20.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - tools/sync_pactown_com_dependency.py
+  dedupe_key: 'code2llm:smell:god_function:tools/sync_pactown_com_dependency.py:14:God
+    Function: _update_requirements_pin'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: build'
+  description: 'code2llm reports `God Function: build` in `src/pactown/builders/mobile.py:92`.
+
+
+    Function ''build'' is oversized: CC=10, fan-out=13, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/builders/mobile.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/builders/mobile.py:92:God Function:
+    build'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: build'
+  description: 'code2llm reports `God Function: build` in `src/pactown/builders/desktop.py:61`.
+
+
+    Function ''build'' is oversized: CC=11, fan-out=14, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/builders/desktop.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/builders/desktop.py:61:God
+    Function: build'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: build_image'
+  description: 'code2llm reports `God Function: build_image` in `src/pactown/deploy/docker.py:46`.
+
+
+    Function ''build_image'' is oversized: CC=9, fan-out=11, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/deploy/docker.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/deploy/docker.py:46:God Function:
+    build_image'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: build_image'
+  description: 'code2llm reports `God Function: build_image` in `src/pactown/deploy/podman.py:58`.
+
+
+    Function ''build_image'' is oversized: CC=10, fan-out=11, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/deploy/podman.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/deploy/podman.py:58:God Function:
+    build_image'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: check_can_start_service'
+  description: 'code2llm reports `God Function: check_can_start_service` in `src/pactown/security.py:495`.
+
+
+    Function ''check_can_start_service'' is oversized: CC=14, fan-out=13, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/security.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/security.py:495:God Function:
+    check_can_start_service'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: create_and_cache'
+  description: 'code2llm reports `God Function: create_and_cache` in `src/pactown/fast_start.py:255`.
+
+
+    Function ''create_and_cache'' is oversized: CC=6, fan-out=20, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/fast_start.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/fast_start.py:255:God Function:
+    create_and_cache'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: create_app'
+  description: 'code2llm reports `God Function: create_app` in `src/pactown/registry/server.py:57`.
+
+
+    Function ''create_app'' is oversized: CC=1, fan-out=32, mutations=4.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/registry/server.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/registry/server.py:57:God Function:
+    create_app'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: create_sandboxes_parallel'
+  description: 'code2llm reports `God Function: create_sandboxes_parallel` in `src/pactown/sandbox_manager.py:1726`.
+
+
+    Function ''create_sandboxes_parallel'' is oversized: CC=8, fan-out=12, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/sandbox_manager.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/sandbox_manager.py:1726:God
+    Function: create_sandboxes_parallel'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: deploy'
+  description: 'code2llm reports `God Function: deploy` in `src/pactown/cli.py:463`.
+
+
+    Function ''deploy'' is oversized: CC=7, fan-out=18, mutations=8.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/cli.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/cli.py:463:God Function: deploy'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: do_generate'
+  description: 'code2llm reports `God Function: do_generate` in `src/pactown/deploy/quadlet_shell.py:143`.
+
+
+    Function ''do_generate'' is oversized: CC=7, fan-out=12, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/deploy/quadlet_shell.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/deploy/quadlet_shell.py:143:God
+    Function: do_generate'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: format_parallel_results'
+  description: 'code2llm reports `God Function: format_parallel_results` in `src/pactown/parallel.py:255`.
+
+
+    Function ''format_parallel_results'' is oversized: CC=8, fan-out=5, mutations=8.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/parallel.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/parallel.py:255:God Function:
+    format_parallel_results'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: from_dict'
+  description: 'code2llm reports `God Function: from_dict` in `src/pactown/targets.py:230`.
+
+
+    Function ''from_dict'' is oversized: CC=10, fan-out=12, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/targets.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/targets.py:230:God Function:
+    from_dict'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: generate_compose_from_config'
+  description: 'code2llm reports `God Function: generate_compose_from_config` in `src/pactown/deploy/compose.py:355`.
+
+
+    Function ''generate_compose_from_config'' is oversized: CC=4, fan-out=21, mutations=7.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/deploy/compose.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/deploy/compose.py:355:God Function:
+    generate_compose_from_config'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: generate_config'
+  description: 'code2llm reports `God Function: generate_config` in `src/pactown/generator.py:113`.
+
+
+    Function ''generate_config'' is oversized: CC=9, fan-out=9, mutations=13.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/generator.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/generator.py:113:God Function:
+    generate_config'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: generate_deploy_playbook'
+  description: 'code2llm reports `God Function: generate_deploy_playbook` in `src/pactown/deploy/ansible.py:113`.
+
+
+    Function ''generate_deploy_playbook'' is oversized: CC=10, fan-out=1, mutations=12.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/deploy/ansible.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/deploy/ansible.py:113:God Function:
+    generate_deploy_playbook'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: get_anomaly_summary'
+  description: 'code2llm reports `God Function: get_anomaly_summary` in `src/pactown/security.py:644`.
+
+
+    Function ''get_anomaly_summary'' is oversized: CC=7, fan-out=12, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/security.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/security.py:644:God Function:
+    get_anomaly_summary'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: get_validator'
+  description: 'code2llm reports `God Function: get_validator` in `tools/validate_artifacts_docker.py:398`.
+
+
+    Function ''get_validator'' is oversized: CC=5, fan-out=2, mutations=14.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - tools/validate_artifacts_docker.py
+  dedupe_key: 'code2llm:smell:god_function:tools/validate_artifacts_docker.py:398:God
+    Function: get_validator'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: list_sandbox_files'
+  description: 'code2llm reports `God Function: list_sandbox_files` in `src/pactown/runner_api.py:157`.
+
+
+    Function ''list_sandbox_files'' is oversized: CC=5, fan-out=12, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/runner_api.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/runner_api.py:157:God Function:
+    list_sandbox_files'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: log'
+  description: 'code2llm reports `God Function: log` in `src/pactown/security.py:188`.
+
+
+    Function ''log'' is oversized: CC=6, fan-out=13, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/security.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/security.py:188:God Function:
+    log'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: main'
+  description: 'code2llm reports `God Function: main` in `examples/security-policy/demo.py:18`.
+
+
+    Function ''main'' is oversized: CC=7, fan-out=12, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - examples/security-policy/demo.py
+  dedupe_key: 'code2llm:smell:god_function:examples/security-policy/demo.py:18:God
+    Function: main'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: main'
+  description: 'code2llm reports `God Function: main` in `examples/user-isolation/demo.py:18`.
+
+
+    Function ''main'' is oversized: CC=5, fan-out=17, mutations=16.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - examples/user-isolation/demo.py
+  dedupe_key: 'code2llm:smell:god_function:examples/user-isolation/demo.py:18:God
+    Function: main'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: main'
+  description: 'code2llm reports `God Function: main` in `tools/sync_pactown_com_dependency.py:46`.
+
+
+    Function ''main'' is oversized: CC=8, fan-out=14, mutations=15.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - tools/sync_pactown_com_dependency.py
+  dedupe_key: 'code2llm:smell:god_function:tools/sync_pactown_com_dependency.py:46:God
+    Function: main'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: print_scan_results'
+  description: 'code2llm reports `God Function: print_scan_results` in `src/pactown/generator.py:185`.
+
+
+    Function ''print_scan_results'' is oversized: CC=5, fan-out=8, mutations=9.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/generator.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/generator.py:185:God Function:
+    print_scan_results'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: publish'
+  description: 'code2llm reports `God Function: publish` in `src/pactown/cli.py:219`.
+
+
+    Function ''publish'' is oversized: CC=6, fan-out=14, mutations=4.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/cli.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/cli.py:219:God Function: publish'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: pull'
+  description: 'code2llm reports `God Function: pull` in `src/pactown/cli.py:254`.
+
+
+    Function ''pull'' is oversized: CC=7, fan-out=11, mutations=3.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/cli.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/cli.py:254:God Function: pull'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: quadlet_deploy'
+  description: 'code2llm reports `God Function: quadlet_deploy` in `src/pactown/cli.py:645`.
+
+
+    Function ''quadlet_deploy'' is oversized: CC=5, fan-out=16, mutations=8.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/cli.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/cli.py:645:God Function: quadlet_deploy'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: quadlet_generate'
+  description: 'code2llm reports `God Function: quadlet_generate` in `src/pactown/cli.py:568`.
+
+
+    Function ''quadlet_generate'' is oversized: CC=2, fan-out=11, mutations=4.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/cli.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/cli.py:568:God Function: quadlet_generate'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: quadlet_list'
+  description: 'code2llm reports `God Function: quadlet_list` in `src/pactown/cli.py:700`.
+
+
+    Function ''quadlet_list'' is oversized: CC=4, fan-out=11, mutations=10.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/cli.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/cli.py:700:God Function: quadlet_list'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: run'
+  description: 'code2llm reports `God Function: run` in `src/pactown/runner_api.py:253`.
+
+
+    Function ''run'' is oversized: CC=14, fan-out=12, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/runner_api.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/runner_api.py:253:God Function:
+    run'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: run_in_dependency_waves'
+  description: 'code2llm reports `God Function: run_in_dependency_waves` in `src/pactown/parallel.py:117`.
+
+
+    Function ''run_in_dependency_waves'' is oversized: CC=12, fan-out=13, mutations=11.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/parallel.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/parallel.py:117:God Function:
+    run_in_dependency_waves'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: sanitize_name'
+  description: 'code2llm reports `God Function: sanitize_name` in `src/pactown/deploy/quadlet.py:71`.
+
+
+    Function ''sanitize_name'' is oversized: CC=5, fan-out=5, mutations=7.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/deploy/quadlet.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/deploy/quadlet.py:71:God Function:
+    sanitize_name'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: save'
+  description: 'code2llm reports `God Function: save` in `src/pactown/node_cache.py:109`.
+
+
+    Function ''save'' is oversized: CC=5, fan-out=11, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/node_cache.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/node_cache.py:109:God Function:
+    save'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: save_existing_venv'
+  description: 'code2llm reports `God Function: save_existing_venv` in `src/pactown/fast_start.py:195`.
+
+
+    Function ''save_existing_venv'' is oversized: CC=5, fan-out=20, mutations=0.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/fast_start.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/fast_start.py:195:God Function:
+    save_existing_venv'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: scan_readme'
+  description: 'code2llm reports `God Function: scan_readme` in `src/pactown/generator.py:14`.
+
+
+    Function ''scan_readme'' is oversized: CC=12, fan-out=10, mutations=16.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/generator.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/generator.py:14:God Function:
+    scan_readme'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: targets'
+  description: 'code2llm reports `God Function: targets` in `src/pactown/cli.py:424`.
+
+
+    Function ''targets'' is oversized: CC=5, fan-out=10, mutations=9.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/cli.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/cli.py:424:God Function: targets'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: up'
+  description: 'code2llm reports `God Function: up` in `src/pactown/cli.py:72`.
+
+
+    Function ''up'' is oversized: CC=9, fan-out=17, mutations=7.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/cli.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/cli.py:72:God Function: up'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: validate_artifact'
+  description: 'code2llm reports `God Function: validate_artifact` in `tools/validate_artifacts_docker.py:427`.
+
+
+    Function ''validate_artifact'' is oversized: CC=6, fan-out=11, mutations=14.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - tools/validate_artifacts_docker.py
+  dedupe_key: 'code2llm:smell:god_function:tools/validate_artifacts_docker.py:427:God
+    Function: validate_artifact'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Function: write_sandbox_iac'
+  description: 'code2llm reports `God Function: write_sandbox_iac` in `src/pactown/iac.py:206`.
+
+
+    Function ''write_sandbox_iac'' is oversized: CC=5, fan-out=9, mutations=7.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/iac.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/iac.py:206:God Function: write_sandbox_iac'
+- signal: code2llm_smell_god_function
+  title: 'Address code smell: God Module: src.pactown.events'
+  description: 'code2llm reports `God Module: src.pactown.events` in `src/pactown/events.py:1`.
+
+
+    Module ''src.pactown.events'' is too large (75 functions, 13 classes). Consider
+    splitting into sub-modules.
+
+
+    Make the smallest refactor that removes the smell and run local tests.'
+  priority: normal
+  labels:
+  - llm-ready
+  - code2llm
+  - code-smell
+  - god-function
+  files:
+  - src/pactown/events.py
+  dedupe_key: 'code2llm:smell:god_function:src/pactown/events.py:1:God Module: src.pactown.events'
+applied: []
+skipped: []

@@ -1,5 +1,109 @@
 ## [0.1.167] - 2026-02-19
 
+## [0.1.10] - 2026-06-06
+
+### Fixed
+- Fix smart-return-type issues (ticket-26fbccf6)
+- Fix magic-numbers issues (ticket-5e7da9f8)
+- Fix ai-boilerplate issues (ticket-f1213b4a)
+- Fix smart-return-type issues (ticket-38543414)
+- Fix smart-return-type issues (ticket-db8e7d02)
+- Fix ai-boilerplate issues (ticket-397d2ef0)
+- Fix relative-imports issues (ticket-727550b0)
+- Fix relative-imports issues (ticket-73cc59ed)
+- Fix relative-imports issues (ticket-56fdaaca)
+- Fix smart-return-type issues (ticket-faffdfc6)
+- Fix string-concat issues (ticket-c40dbd23)
+- Fix unused-imports issues (ticket-de45bb6b)
+- Fix magic-numbers issues (ticket-ee506f2a)
+- Fix relative-imports issues (ticket-3224f098)
+- Fix unused-imports issues (ticket-2f5dd204)
+- Fix relative-imports issues (ticket-c6027905)
+- Fix smart-return-type issues (ticket-d2918cff)
+- Fix string-concat issues (ticket-a6035161)
+- Fix unused-imports issues (ticket-f281c693)
+- Fix magic-numbers issues (ticket-c19627ab)
+- Fix relative-imports issues (ticket-90578398)
+- Fix unused-imports issues (ticket-a960066f)
+- Fix magic-numbers issues (ticket-b7e6b7ab)
+- Fix relative-imports issues (ticket-1737dba8)
+- Fix smart-return-type issues (ticket-4a6859a6)
+- Fix unused-imports issues (ticket-06fc4bc7)
+- Fix relative-imports issues (ticket-46709c34)
+- Fix relative-imports issues (ticket-375e9f95)
+- Fix smart-return-type issues (ticket-1bca552c)
+- Fix magic-numbers issues (ticket-25a9334e)
+- Fix llm-generated-code issues (ticket-bf9629de)
+- Fix ai-boilerplate issues (ticket-e1a8e7ae)
+- Fix string-concat issues (ticket-e8a66f6e)
+- Fix magic-numbers issues (ticket-513b1c16)
+- Fix relative-imports issues (ticket-b9fc2c5e)
+- Fix smart-return-type issues (ticket-88f77088)
+- Fix string-concat issues (ticket-8d7c510c)
+- Fix unused-imports issues (ticket-eea4eb18)
+- Fix magic-numbers issues (ticket-e55aeb58)
+- Fix relative-imports issues (ticket-5916f8fd)
+- Fix smart-return-type issues (ticket-81e9e501)
+- Fix string-concat issues (ticket-7c55d748)
+- Fix unused-imports issues (ticket-29a2d233)
+- Fix magic-numbers issues (ticket-27a8c516)
+- Fix relative-imports issues (ticket-17f01afd)
+- Fix smart-return-type issues (ticket-cb71a0dc)
+- Fix string-concat issues (ticket-3fee4f09)
+- Fix relative-imports issues (ticket-c84e88f8)
+- Fix smart-return-type issues (ticket-fb3d7a61)
+- Fix string-concat issues (ticket-2ddd7726)
+- Fix unused-imports issues (ticket-54579e4c)
+- Fix llm-generated-code issues (ticket-06b6f3c6)
+- Fix relative-imports issues (ticket-915dda0d)
+- Fix smart-return-type issues (ticket-71039b43)
+- Fix string-concat issues (ticket-ba70826e)
+- Fix unused-imports issues (ticket-586f7280)
+- Fix magic-numbers issues (ticket-5b1465fe)
+- Fix relative-imports issues (ticket-aa38aeeb)
+- Fix smart-return-type issues (ticket-aa53ce4a)
+- Fix string-concat issues (ticket-3101e0a4)
+- Fix unused-imports issues (ticket-247d8005)
+- Fix magic-numbers issues (ticket-6141d4e7)
+- Fix relative-imports issues (ticket-0a504c7b)
+- Fix smart-return-type issues (ticket-5901ce86)
+- Fix unused-imports issues (ticket-14a70f67)
+- Fix magic-numbers issues (ticket-1e4d0d7a)
+- Fix llm-generated-code issues (ticket-dafc9103)
+- Fix ai-boilerplate issues (ticket-ab2448b5)
+- Fix relative-imports issues (ticket-1d561a58)
+- Fix smart-return-type issues (ticket-6bebc4bb)
+- Fix string-concat issues (ticket-917ab4a1)
+- Fix unused-imports issues (ticket-bdbe980f)
+- Fix magic-numbers issues (ticket-3bfbc7ec)
+- Fix string-concat issues (ticket-65d055b8)
+- Fix magic-numbers issues (ticket-13d29d45)
+- Fix relative-imports issues (ticket-96df8deb)
+- Fix string-concat issues (ticket-7a6d041c)
+- Fix unused-imports issues (ticket-c665f3e7)
+- Fix magic-numbers issues (ticket-c61c8cf1)
+- Fix llm-generated-code issues (ticket-b223dcfd)
+- Fix relative-imports issues (ticket-0e49f69a)
+- Fix smart-return-type issues (ticket-c1b2d0db)
+- Fix string-concat issues (ticket-2eaf5e3a)
+- Fix unused-imports issues (ticket-eb1f52b4)
+- Fix magic-numbers issues (ticket-9a85d9af)
+- Fix relative-imports issues (ticket-3b279c2c)
+- Fix smart-return-type issues (ticket-42347053)
+- Fix unused-imports issues (ticket-c6a24d4f)
+- Fix magic-numbers issues (ticket-bed56722)
+- Fix ai-boilerplate issues (ticket-5fcdb212)
+- Fix relative-imports issues (ticket-99b35abf)
+- Fix string-concat issues (ticket-0fca5acb)
+- Fix unused-imports issues (ticket-033abf9b)
+- Fix relative-imports issues (ticket-04267577)
+- Fix smart-return-type issues (ticket-81e21fdd)
+- Fix string-concat issues (ticket-7a59908e)
+- Fix unused-imports issues (ticket-504335bb)
+- Fix magic-numbers issues (ticket-ead545b0)
+- Fix llm-generated-code issues (ticket-b4a121b0)
+- Fix unused-imports issues (ticket-cd9a1f36)
+
 ### Summary
 
 chore(goal): deep code analysis engine with 7 supporting modules
@@ -387,6 +491,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Multiple Quadlet injection vectors (container name, env var, volume, Traefik label, systemd unit) mitigated via input sanitization.
 - Ruff lint issues across `src/` and `tests/`.
+
+## [0.1.171] - 2026-06-06
+
+### Docs
+- Update CHANGELOG.md
+- Update README.md
+- Update SUMD.md
+- Update SUMR.md
+- Update TODO.md
+- Update project/README.md
+- Update project/context.md
+
+### Test
+- Update testql-scenarios/generated-api-integration.testql.toon.yaml
+- Update testql-scenarios/generated-api-smoke.testql.toon.yaml
+- Update testql-scenarios/generated-from-pytests.testql.toon.yaml
+
+### Other
+- Update app.doql.less
+- Update planfile.yaml
+- Update prefact.yaml
+- Update project.sh
+- Update project/analysis.toon.yaml
+- Update project/calls.mmd
+- Update project/calls.png
+- Update project/calls.toon.yaml
+- Update project/calls.yaml
+- Update project/compact_flow.mmd
+- ... and 14 more files
 
 ## [0.1.170] - 2026-05-31
 

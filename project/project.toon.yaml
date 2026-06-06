@@ -1,0 +1,60 @@
+# pactown | 603 func | 46f | 21094L | python | 2026-06-06
+# generated in 0.00s
+
+HEALTH:
+  CC̄=4.5  critical=61 (limit:10)  dup=1  cycles=0
+
+ALERTS[20]:
+  !!! high_fan_out     SandboxManager.create_sandbox = 78 (limit:10)
+  !!! cc_exceeded      SandboxManager.create_sandbox = 67 (limit:15)
+  !!! high_fan_out     SandboxManager.start_service = 66 (limit:10)
+  !!! cc_exceeded      SandboxManager.start_service = 53 (limit:15)
+  !!! high_fan_out     create_runner_api = 53 (limit:10)
+  !!! high_fan_out     ServiceRunner.fast_run = 48 (limit:10)
+  !!! high_fan_out     SandboxManager.build_service = 45 (limit:10)
+  !!! high_fan_out     create_quadlet_api = 45 (limit:10)
+  !!! cc_exceeded      render_error_report_md = 43 (limit:15)
+  !!! cc_exceeded      build_error_context = 41 (limit:15)
+
+MODULES[62] (top by size):
+  M[src/pactown/sandbox_manager.py] 1839L C:2 F:24 CC↑67 D:0 (python)
+  M[src/pactown/service_runner.py] 1234L C:1 F:16 CC↑37 D:0 (python)
+  M[src/pactown/events.py] 1075L C:13 F:75 CC↑19 D:0 (python)
+  M[src/pactown/deploy/quadlet.py] 1044L C:4 F:28 CC↑18 D:3 (python)
+  M[src/pactown/cli.py] 990L C:0 F:34 CC↑18 D:0 (python)
+  M[src/pactown/fast_start.py] 754L C:7 F:26 CC↑20 D:0 (python)
+  M[src/pactown/security.py] 690L C:9 F:32 CC↑14 D:3 (python)
+  M[src/pactown/builders/desktop.py] 665L C:1 F:15 CC↑19 D:0 (python)
+  M[src/pactown/runner_api.py] 635L C:8 F:19 CC↑14 D:0 (python)
+  M[src/pactown/deploy/ansible.py] 586L C:2 F:18 CC↑10 D:0 (python)
+  M[src/pactown/deploy/quadlet_shell.py] 564L C:1 F:23 CC↑9 D:1 (python)
+  M[tools/validate_artifacts_docker.py] 546L C:2 F:11 CC↑17 D:0 (python)
+  M[src/pactown/deploy/quadlet_api.py] 539L C:7 F:2 CC↑1 D:1 (python)
+  M[src/pactown/deploy/kubernetes.py] 473L C:1 F:12 CC↑9 D:0 (python)
+  M[src/pactown/builders/mobile.py] 471L C:1 F:10 CC↑24 D:0 (python)
+  LANGS: python:50/yaml:5/shell:2/cfg:1/other:1/toml:1/ini:1/txt:1
+
+HOTSPOTS[10]:
+  ★ SandboxManager.create_sandbox fan=78  // Create a sandbox for a service from its README.
+  ★ SandboxManager.start_service fan=66  // Start a service in its sandbox.
+
+Args:
+    service: Service configuration
+    re
+  ★ create_runner_api fan=53  // Orchestrates 53 calls
+  ★ ServiceRunner.fast_run fan=48  // Fast service startup with dependency caching.
+
+Uses cached venvs to achieve mill
+  ★ SandboxManager.build_service fan=45  // Build a desktop or mobile application from its markpact README.
+
+Unlike ``start_
+
+REFACTOR[15]:
+  [1] H/L Split build_error_context (CC=41)
+  [2] H/L Split render_error_report_md (CC=43)
+  [3] H/L Split ServiceRunner.validate_content (CC=25)
+  [4] H/L Split ServiceRunner.run_from_content (CC=37)
+  [5] H/L Split ServiceRunner._wait_for_health (CC=30)
+
+EVOLUTION:
+  2026-06-06 CC̄=4.5 crit=61 21094L // Automated analysis

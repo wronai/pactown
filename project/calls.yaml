@@ -1,0 +1,2471 @@
+project: /home/tom/github/wronai/pactown
+generated_from: code2llm call graph analysis
+stats:
+  total_nodes: 181
+  total_edges: 160
+  modules_count: 37
+nodes:
+  src.pactown.service_runner.ServiceRunner.__init__:
+    name: __init__
+    module: src.pactown.service_runner
+    line: 82
+    cyclomatic_complexity: 5
+    calls_out: 9
+    calls_in: 0
+  src.pactown.error_context.extract_file_paths:
+    name: extract_file_paths
+    module: src.pactown.error_context
+    line: 58
+    cyclomatic_complexity: 9
+    calls_out: 8
+    calls_in: 1
+  src.pactown.builders.desktop.DesktopBuilder.build:
+    name: build
+    module: src.pactown.builders.desktop
+    line: 61
+    cyclomatic_complexity: 11
+    calls_out: 22
+    calls_in: 0
+  src.pactown.cli.llm_reset:
+    name: llm_reset
+    module: src.pactown.cli
+    line: 932
+    cyclomatic_complexity: 3
+    calls_out: 7
+    calls_in: 0
+  tools.validate_artifacts_docker.docker_run:
+    name: docker_run
+    module: tools.validate_artifacts_docker
+    line: 124
+    cyclomatic_complexity: 6
+    calls_out: 4
+    calls_in: 1
+  src.pactown.iac.write_sandbox_manifest:
+    name: write_sandbox_manifest
+    module: src.pactown.iac
+    line: 125
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 1
+  tools.validate_artifacts_docker.main:
+    name: main
+    module: tools.validate_artifacts_docker
+    line: 465
+    cyclomatic_complexity: 17
+    calls_out: 42
+    calls_in: 0
+  src.pactown.iac.build_single_service_compose:
+    name: build_single_service_compose
+    module: src.pactown.iac
+    line: 131
+    cyclomatic_complexity: 8
+    calls_out: 4
+    calls_in: 1
+  tools.sync_pactown_com_dependency._read_pactown_version:
+    name: _read_pactown_version
+    module: tools.sync_pactown_com_dependency
+    line: 6
+    cyclomatic_complexity: 2
+    calls_out: 5
+    calls_in: 1
+  src.pactown.cli.set_llm_priority:
+    name: set_llm_priority
+    module: src.pactown.cli
+    line: 46
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 1
+  src.pactown.service_runner.ServiceRunner.stop_all:
+    name: stop_all
+    module: src.pactown.service_runner
+    line: 898
+    cyclomatic_complexity: 2
+    calls_out: 3
+    calls_in: 0
+  src.pactown.cli.quadlet_generate:
+    name: quadlet_generate
+    module: src.pactown.cli
+    line: 568
+    cyclomatic_complexity: 2
+    calls_out: 20
+    calls_in: 0
+  src.pactown.platform.build_service_subdomain:
+    name: build_service_subdomain
+    module: src.pactown.platform
+    line: 137
+    cyclomatic_complexity: 2
+    calls_out: 6
+    calls_in: 0
+  src.pactown.cli.main:
+    name: main
+    module: src.pactown.cli
+    line: 984
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 0
+  src.pactown.targets.list_frameworks:
+    name: list_frameworks
+    module: src.pactown.targets
+    line: 191
+    cyclomatic_complexity: 4
+    calls_out: 3
+    calls_in: 1
+  src.pactown.runner_api.RunnerService.write_sandbox_file:
+    name: write_sandbox_file
+    module: src.pactown.runner_api
+    line: 196
+    cyclomatic_complexity: 1
+    calls_out: 6
+    calls_in: 0
+  src.pactown.deploy.quadlet.validate_volume:
+    name: validate_volume
+    module: src.pactown.deploy.quadlet
+    line: 237
+    cyclomatic_complexity: 7
+    calls_out: 2
+    calls_in: 1
+  src.pactown.events.get_service_queries:
+    name: get_service_queries
+    module: src.pactown.events
+    line: 1053
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 0
+  src.pactown.deploy.quadlet_shell.QuadletShell.do_init:
+    name: do_init
+    module: src.pactown.deploy.quadlet_shell
+    line: 435
+    cyclomatic_complexity: 3
+    calls_out: 14
+    calls_in: 0
+  src.pactown.resolver.DependencyResolver.get_shutdown_order:
+    name: get_shutdown_order
+    module: src.pactown.resolver
+    line: 67
+    cyclomatic_complexity: 1
+    calls_out: 3
+    calls_in: 0
+  src.pactown.llm.get_llm_status:
+    name: get_llm_status
+    module: src.pactown.llm
+    line: 404
+    cyclomatic_complexity: 3
+    calls_out: 7
+    calls_in: 0
+  tools.sync_pactown_com_dependency.main:
+    name: main
+    module: tools.sync_pactown_com_dependency
+    line: 46
+    cyclomatic_complexity: 8
+    calls_out: 29
+    calls_in: 0
+  src.pactown.deploy.ansible.AnsibleBackend.write_all:
+    name: write_all
+    module: src.pactown.deploy.ansible
+    line: 502
+    cyclomatic_complexity: 1
+    calls_out: 5
+    calls_in: 0
+  src.pactown.sandbox_helpers._write_dotenv_file:
+    name: _write_dotenv_file
+    module: src.pactown.sandbox_helpers
+    line: 164
+    cyclomatic_complexity: 8
+    calls_out: 9
+    calls_in: 2
+  src.pactown.node_cache._sorted_deps:
+    name: _sorted_deps
+    module: src.pactown.node_cache
+    line: 244
+    cyclomatic_complexity: 2
+    calls_out: 4
+    calls_in: 2
+  src.pactown.fast_start._run_streamed:
+    name: _run_streamed
+    module: src.pactown.fast_start
+    line: 90
+    cyclomatic_complexity: 10
+    calls_out: 7
+    calls_in: 4
+  src.pactown.sandbox_helpers._call_on_log:
+    name: _call_on_log
+    module: src.pactown.sandbox_helpers
+    line: 40
+    cyclomatic_complexity: 6
+    calls_out: 7
+    calls_in: 7
+  src.pactown.node_cache.NodeModulesCache.restore:
+    name: restore
+    module: src.pactown.node_cache
+    line: 85
+    cyclomatic_complexity: 4
+    calls_out: 5
+    calls_in: 0
+  src.pactown.cli.graph:
+    name: graph
+    module: src.pactown.cli
+    line: 160
+    cyclomatic_complexity: 2
+    calls_out: 10
+    calls_in: 0
+  src.pactown.deploy.quadlet_shell.QuadletShell.do_generate_traefik:
+    name: do_generate_traefik
+    module: src.pactown.deploy.quadlet_shell
+    line: 224
+    cyclomatic_complexity: 4
+    calls_out: 10
+    calls_in: 0
+  src.pactown.deploy.quadlet_shell.QuadletShell.do_deploy:
+    name: do_deploy
+    module: src.pactown.deploy.quadlet_shell
+    line: 363
+    cyclomatic_complexity: 7
+    calls_out: 20
+    calls_in: 0
+  src.pactown.runner_api._validate_service_id:
+    name: _validate_service_id
+    module: src.pactown.runner_api
+    line: 37
+    cyclomatic_complexity: 5
+    calls_out: 3
+    calls_in: 10
+  src.pactown.deploy.quadlet.sanitize_env_key:
+    name: sanitize_env_key
+    module: src.pactown.deploy.quadlet
+    line: 127
+    cyclomatic_complexity: 4
+    calls_out: 5
+    calls_in: 1
+  src.pactown.runner_api._dns_label:
+    name: _dns_label
+    module: src.pactown.runner_api
+    line: 33
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 1
+  src.pactown.error_context._truncate_text:
+    name: _truncate_text
+    module: src.pactown.error_context
+    line: 37
+    cyclomatic_complexity: 4
+    calls_out: 1
+    calls_in: 2
+  src.pactown.deploy.quadlet.sanitize_image:
+    name: sanitize_image
+    module: src.pactown.deploy.quadlet
+    line: 190
+    cyclomatic_complexity: 3
+    calls_out: 5
+    calls_in: 1
+  src.pactown.sandbox_helpers._heartbeat:
+    name: _heartbeat
+    module: src.pactown.sandbox_helpers
+    line: 187
+    cyclomatic_complexity: 4
+    calls_out: 6
+    calls_in: 0
+  src.pactown.runner_api._resolve_in_dir:
+    name: _resolve_in_dir
+    module: src.pactown.runner_api
+    line: 63
+    cyclomatic_complexity: 2
+    calls_out: 4
+    calls_in: 3
+  src.pactown.deploy.quadlet.sanitize_path:
+    name: sanitize_path
+    module: src.pactown.deploy.quadlet
+    line: 148
+    cyclomatic_complexity: 3
+    calls_out: 4
+    calls_in: 1
+  src.pactown.runner_api.RunnerService.delete_sandbox_file:
+    name: delete_sandbox_file
+    module: src.pactown.runner_api
+    line: 205
+    cyclomatic_complexity: 4
+    calls_out: 9
+    calls_in: 0
+  src.pactown.fast_start.ParallelServiceRunner.run_parallel:
+    name: run_parallel
+    module: src.pactown.fast_start
+    line: 710
+    cyclomatic_complexity: 2
+    calls_out: 5
+    calls_in: 0
+  src.pactown.cli.cli:
+    name: cli
+    module: src.pactown.cli
+    line: 60
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 1
+  src.pactown.iac._runtime_type:
+    name: _runtime_type
+    module: src.pactown.iac
+    line: 44
+    cyclomatic_complexity: 2
+    calls_out: 0
+    calls_in: 1
+  src.pactown.fast_start.FastServiceStarter._write_files_parallel:
+    name: _write_files_parallel
+    module: src.pactown.fast_start
+    line: 663
+    cyclomatic_complexity: 1
+    calls_out: 6
+    calls_in: 0
+  src.pactown.platform.parse_project_subdomain:
+    name: parse_project_subdomain
+    module: src.pactown.platform
+    line: 93
+    cyclomatic_complexity: 5
+    calls_out: 7
+    calls_in: 1
+  src.pactown.iac.build_sandbox_spec:
+    name: build_sandbox_spec
+    module: src.pactown.iac
+    line: 52
+    cyclomatic_complexity: 17
+    calls_out: 21
+    calls_in: 1
+  src.pactown.events.get_security_commands:
+    name: get_security_commands
+    module: src.pactown.events
+    line: 1068
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 0
+  src.pactown.markpact_blocks.extract_run_command:
+    name: extract_run_command
+    module: src.pactown.markpact_blocks
+    line: 33
+    cyclomatic_complexity: 17
+    calls_out: 4
+    calls_in: 4
+  src.pactown.events.get_project_commands:
+    name: get_project_commands
+    module: src.pactown.events
+    line: 1058
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 0
+  src.pactown.fast_start.FastServiceStarter._install_deps_direct:
+    name: _install_deps_direct
+    module: src.pactown.fast_start
+    line: 674
+    cyclomatic_complexity: 2
+    calls_out: 7
+    calls_in: 0
+  src.pactown.sandbox_helpers._should_emit_to_ui:
+    name: _should_emit_to_ui
+    module: src.pactown.sandbox_helpers
+    line: 32
+    cyclomatic_complexity: 2
+    calls_out: 5
+    calls_in: 7
+  src.pactown.sandbox_manager.SandboxManager.stop_all:
+    name: stop_all
+    module: src.pactown.sandbox_manager
+    line: 1686
+    cyclomatic_complexity: 2
+    calls_out: 3
+    calls_in: 0
+  src.pactown.runner_api.RunnerService.prepare_sandbox:
+    name: prepare_sandbox
+    module: src.pactown.runner_api
+    line: 218
+    cyclomatic_complexity: 4
+    calls_out: 11
+    calls_in: 0
+  src.pactown.runner_api._validate_rel_path:
+    name: _validate_rel_path
+    module: src.pactown.runner_api
+    line: 52
+    cyclomatic_complexity: 5
+    calls_out: 7
+    calls_in: 3
+  src.pactown.builders.desktop.DesktopBuilder.build_parallel:
+    name: build_parallel
+    module: src.pactown.builders.desktop
+    line: 479
+    cyclomatic_complexity: 18
+    calls_out: 37
+    calls_in: 0
+  src.pactown.cli.get_llm_status:
+    name: get_llm_status
+    module: src.pactown.cli
+    line: 34
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 1
+  src.pactown.sandbox_helpers._escape_dotenv_value:
+    name: _escape_dotenv_value
+    module: src.pactown.sandbox_helpers
+    line: 155
+    cyclomatic_complexity: 1
+    calls_out: 5
+    calls_in: 1
+  tools.validate_artifacts_docker.collect_artifacts:
+    name: collect_artifacts
+    module: tools.validate_artifacts_docker
+    line: 386
+    cyclomatic_complexity: 6
+    calls_out: 8
+    calls_in: 1
+  src.pactown.events.get_security_queries:
+    name: get_security_queries
+    module: src.pactown.events
+    line: 1073
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 0
+  src.pactown.cli.generate:
+    name: generate
+    module: src.pactown.cli
+    line: 293
+    cyclomatic_complexity: 2
+    calls_out: 20
+    calls_in: 0
+  src.pactown.deploy.ansible.generate_teardown_playbook:
+    name: generate_teardown_playbook
+    module: src.pactown.deploy.ansible
+    line: 216
+    cyclomatic_complexity: 1
+    calls_out: 0
+    calls_in: 2
+  src.pactown.cli.targets:
+    name: targets
+    module: src.pactown.cli
+    line: 424
+    cyclomatic_complexity: 5
+    calls_out: 14
+    calls_in: 0
+  src.pactown.cli.quadlet_api:
+    name: quadlet_api
+    module: src.pactown.cli
+    line: 547
+    cyclomatic_complexity: 1
+    calls_out: 10
+    calls_in: 0
+  src.pactown.runner_types.kill_process_on_port:
+    name: kill_process_on_port
+    module: src.pactown.runner_types
+    line: 99
+    cyclomatic_complexity: 25
+    calls_out: 18
+    calls_in: 2
+  src.pactown.deploy.compose.generate_compose_from_config:
+    name: generate_compose_from_config
+    module: src.pactown.deploy.compose
+    line: 355
+    cyclomatic_complexity: 4
+    calls_out: 23
+    calls_in: 1
+  src.pactown.builders.mobile._sanitize_java_package_id:
+    name: _sanitize_java_package_id
+    module: src.pactown.builders.mobile
+    line: 24
+    cyclomatic_complexity: 5
+    calls_out: 7
+    calls_in: 2
+  src.pactown.deploy.quadlet.generate_traefik_quadlet:
+    name: generate_traefik_quadlet
+    module: src.pactown.deploy.quadlet
+    line: 922
+    cyclomatic_complexity: 1
+    calls_out: 4
+    calls_in: 4
+  src.pactown.builders.base.Builder._log:
+    name: _log
+    module: src.pactown.builders.base
+    line: 73
+    cyclomatic_complexity: 3
+    calls_out: 1
+    calls_in: 19
+  src.pactown.iac._default_base_image:
+    name: _default_base_image
+    module: src.pactown.iac
+    line: 48
+    cyclomatic_complexity: 2
+    calls_out: 0
+    calls_in: 2
+  tools.validate_artifacts_docker.validate_artifact:
+    name: validate_artifact
+    module: tools.validate_artifacts_docker
+    line: 427
+    cyclomatic_complexity: 6
+    calls_out: 21
+    calls_in: 1
+  src.pactown.platform.to_dns_label:
+    name: to_dns_label
+    module: src.pactown.platform
+    line: 58
+    cyclomatic_complexity: 3
+    calls_out: 5
+    calls_in: 4
+  src.pactown.deploy.quadlet_shell.QuadletShell.do_generate:
+    name: do_generate
+    module: src.pactown.deploy.quadlet_shell
+    line: 143
+    cyclomatic_complexity: 7
+    calls_out: 18
+    calls_in: 0
+  src.pactown.cli.up:
+    name: up
+    module: src.pactown.cli
+    line: 72
+    cyclomatic_complexity: 9
+    calls_out: 27
+    calls_in: 0
+  src.pactown.cli.llm_test:
+    name: llm_test
+    module: src.pactown.cli
+    line: 953
+    cyclomatic_complexity: 5
+    calls_out: 12
+    calls_in: 0
+  src.pactown.node_cache.NodeModulesCache.save:
+    name: save
+    module: src.pactown.node_cache
+    line: 109
+    cyclomatic_complexity: 5
+    calls_out: 13
+    calls_in: 0
+  src.pactown.builders.desktop.DesktopBuilder._move_to_dev_deps:
+    name: _move_to_dev_deps
+    module: src.pactown.builders.desktop
+    line: 330
+    cyclomatic_complexity: 4
+    calls_out: 5
+    calls_in: 0
+  src.pactown.deploy.ansible.AnsibleBackend.deploy:
+    name: deploy
+    module: src.pactown.deploy.ansible
+    line: 394
+    cyclomatic_complexity: 3
+    calls_out: 5
+    calls_in: 0
+  src.pactown.deploy.ansible.generate_deploy_playbook:
+    name: generate_deploy_playbook
+    module: src.pactown.deploy.ansible
+    line: 113
+    cyclomatic_complexity: 10
+    calls_out: 4
+    calls_in: 2
+  src.pactown.sandbox_manager._inject_electron_web_polyfill:
+    name: _inject_electron_web_polyfill
+    module: src.pactown.sandbox_manager
+    line: 284
+    cyclomatic_complexity: 18
+    calls_out: 12
+    calls_in: 1
+  src.pactown.sandbox_helpers._sanitize_inherited_env:
+    name: _sanitize_inherited_env
+    module: src.pactown.sandbox_helpers
+    line: 124
+    cyclomatic_complexity: 16
+    calls_out: 18
+    calls_in: 6
+  src.pactown.user_isolation.UserIsolationManager.list_users:
+    name: list_users
+    module: src.pactown.user_isolation
+    line: 340
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.pactown.builders.web.WebBuilder.build:
+    name: build
+    module: src.pactown.builders.web
+    line: 48
+    cyclomatic_complexity: 4
+    calls_out: 11
+    calls_in: 0
+  src.pactown.platform.DomainConfig._normalize_separator:
+    name: _normalize_separator
+    module: src.pactown.platform
+    line: 81
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.pactown.cli.llm_priority:
+    name: llm_priority
+    module: src.pactown.cli
+    line: 913
+    cyclomatic_complexity: 3
+    calls_out: 8
+    calls_in: 0
+  src.pactown.runner_api.RunnerService._resolve_service_id:
+    name: _resolve_service_id
+    module: src.pactown.runner_api
+    line: 144
+    cyclomatic_complexity: 3
+    calls_out: 8
+    calls_in: 0
+  src.pactown.security.get_security_policy:
+    name: get_security_policy
+    module: src.pactown.security
+    line: 679
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 1
+  src.pactown.llm.get_llm:
+    name: get_llm
+    module: src.pactown.llm
+    line: 358
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 4
+  src.pactown.platform.build_project_subdomain:
+    name: build_project_subdomain
+    module: src.pactown.platform
+    line: 108
+    cyclomatic_complexity: 1
+    calls_out: 5
+    calls_in: 1
+  src.pactown.platform.is_local_domain:
+    name: is_local_domain
+    module: src.pactown.platform
+    line: 34
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 2
+  src.pactown.sandbox_manager.SandboxManager.build_service:
+    name: build_service
+    module: src.pactown.sandbox_manager
+    line: 1099
+    cyclomatic_complexity: 40
+    calls_out: 76
+    calls_in: 0
+  src.pactown.network.ServiceRegistry.list_services:
+    name: list_services
+    module: src.pactown.network
+    line: 210
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.pactown.events.get_event_store:
+    name: get_event_store
+    module: src.pactown.events
+    line: 358
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 6
+  src.pactown.runner_api.RunnerService._sandbox_path_for:
+    name: _sandbox_path_for
+    module: src.pactown.runner_api
+    line: 154
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.pactown.cli.llm_status:
+    name: llm_status
+    module: src.pactown.cli
+    line: 760
+    cyclomatic_complexity: 18
+    calls_out: 45
+    calls_in: 0
+  src.pactown.builders.mobile.MobileBuilder._scaffold_kivy:
+    name: _scaffold_kivy
+    module: src.pactown.builders.mobile
+    line: 343
+    cyclomatic_complexity: 8
+    calls_out: 8
+    calls_in: 0
+  src.pactown.cli.get_llm:
+    name: get_llm
+    module: src.pactown.cli
+    line: 40
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 1
+  src.pactown.cli.down:
+    name: down
+    module: src.pactown.cli
+    line: 116
+    cyclomatic_complexity: 2
+    calls_out: 10
+    calls_in: 0
+  src.pactown.deploy.quadlet.sanitize_name:
+    name: sanitize_name
+    module: src.pactown.deploy.quadlet
+    line: 71
+    cyclomatic_complexity: 5
+    calls_out: 9
+    calls_in: 3
+  src.pactown.deploy.ansible.AnsibleBackend.build_image:
+    name: build_image
+    module: src.pactown.deploy.ansible
+    line: 326
+    cyclomatic_complexity: 3
+    calls_out: 6
+    calls_in: 0
+  src.pactown.cli.publish:
+    name: publish
+    module: src.pactown.cli
+    line: 219
+    cyclomatic_complexity: 6
+    calls_out: 19
+    calls_in: 0
+  src.pactown.deploy.quadlet_shell.run_shell:
+    name: run_shell
+    module: src.pactown.deploy.quadlet_shell
+    line: 546
+    cyclomatic_complexity: 2
+    calls_out: 3
+    calls_in: 1
+  src.pactown.llm.reset_provider:
+    name: reset_provider
+    module: src.pactown.llm
+    line: 445
+    cyclomatic_complexity: 3
+    calls_out: 4
+    calls_in: 0
+  src.pactown.sandbox_helpers._ui_log_level:
+    name: _ui_log_level
+    module: src.pactown.sandbox_helpers
+    line: 19
+    cyclomatic_complexity: 7
+    calls_out: 4
+    calls_in: 1
+  src.pactown.deploy.ansible.AnsibleBackend._write_inventory:
+    name: _write_inventory
+    module: src.pactown.deploy.ansible
+    line: 490
+    cyclomatic_complexity: 1
+    calls_out: 4
+    calls_in: 0
+  src.pactown.sandbox_manager._find_web_assets_dir:
+    name: _find_web_assets_dir
+    module: src.pactown.sandbox_manager
+    line: 501
+    cyclomatic_complexity: 5
+    calls_out: 3
+    calls_in: 1
+  src.pactown.iac.write_single_service_compose:
+    name: write_single_service_compose
+    module: src.pactown.iac
+    line: 200
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 1
+  src.pactown.platform.coerce_subdomain_separator:
+    name: coerce_subdomain_separator
+    module: src.pactown.platform
+    line: 11
+    cyclomatic_complexity: 2
+    calls_out: 0
+    calls_in: 3
+  src.pactown.cli.validate:
+    name: validate
+    module: src.pactown.cli
+    line: 143
+    cyclomatic_complexity: 3
+    calls_out: 11
+    calls_in: 0
+  src.pactown.runner_api.main:
+    name: main
+    module: src.pactown.runner_api
+    line: 629
+    cyclomatic_complexity: 1
+    calls_out: 5
+    calls_in: 0
+  src.pactown.deploy.quadlet.QuadletTemplates.container:
+    name: container
+    module: src.pactown.deploy.quadlet
+    line: 452
+    cyclomatic_complexity: 18
+    calls_out: 22
+    calls_in: 0
+  src.pactown.generator.generate_config:
+    name: generate_config
+    module: src.pactown.generator
+    line: 113
+    cyclomatic_complexity: 9
+    calls_out: 11
+    calls_in: 1
+  src.pactown.cli.quadlet_shell:
+    name: quadlet_shell
+    module: src.pactown.cli
+    line: 532
+    cyclomatic_complexity: 1
+    calls_out: 5
+    calls_in: 0
+  src.pactown.parallel.run_parallel:
+    name: run_parallel
+    module: src.pactown.parallel
+    line: 31
+    cyclomatic_complexity: 8
+    calls_out: 24
+    calls_in: 2
+  src.pactown.cli.status:
+    name: status
+    module: src.pactown.cli
+    line: 130
+    cyclomatic_complexity: 2
+    calls_out: 9
+    calls_in: 0
+  src.pactown.registry.models.RegistryStorage.list:
+    name: list
+    module: src.pactown.registry.models
+    line: 132
+    cyclomatic_complexity: 4
+    calls_out: 3
+    calls_in: 33
+  src.pactown.fast_start.DependencyCache.create_and_cache:
+    name: create_and_cache
+    module: src.pactown.fast_start
+    line: 255
+    cyclomatic_complexity: 6
+    calls_out: 33
+    calls_in: 0
+  src.pactown.fast_start.FastServiceStarter.fast_create_sandbox:
+    name: fast_create_sandbox
+    module: src.pactown.fast_start
+    line: 491
+    cyclomatic_complexity: 20
+    calls_out: 63
+    calls_in: 0
+  src.pactown.sandbox_helpers._filter_runtime_env:
+    name: _filter_runtime_env
+    module: src.pactown.sandbox_helpers
+    line: 92
+    cyclomatic_complexity: 9
+    calls_out: 7
+    calls_in: 2
+  src.pactown.security.AnomalyLogger.log:
+    name: log
+    module: src.pactown.security
+    line: 188
+    cyclomatic_complexity: 6
+    calls_out: 13
+    calls_in: 87
+  src.pactown.platform.api_base_url:
+    name: api_base_url
+    module: src.pactown.platform
+    line: 52
+    cyclomatic_complexity: 2
+    calls_out: 5
+    calls_in: 0
+  src.pactown.runner_api.RunnerService.read_sandbox_file:
+    name: read_sandbox_file
+    module: src.pactown.runner_api
+    line: 181
+    cyclomatic_complexity: 5
+    calls_out: 10
+    calls_in: 0
+  src.pactown.config.load_config:
+    name: load_config
+    module: src.pactown.config
+    line: 247
+    cyclomatic_complexity: 2
+    calls_out: 4
+    calls_in: 10
+  src.pactown.user_isolation.UserIsolationManager.get_user_stats:
+    name: get_user_stats
+    module: src.pactown.user_isolation
+    line: 344
+    cyclomatic_complexity: 5
+    calls_out: 11
+    calls_in: 0
+  src.pactown.deploy.quadlet.sanitize_env_value:
+    name: sanitize_env_value
+    module: src.pactown.deploy.quadlet
+    line: 107
+    cyclomatic_complexity: 2
+    calls_out: 4
+    calls_in: 1
+  src.pactown.registry.server.main:
+    name: main
+    module: src.pactown.registry.server
+    line: 204
+    cyclomatic_complexity: 1
+    calls_out: 7
+    calls_in: 0
+  src.pactown.llm.set_provider_priority:
+    name: set_provider_priority
+    module: src.pactown.llm
+    line: 434
+    cyclomatic_complexity: 3
+    calls_out: 4
+    calls_in: 0
+  src.pactown.error_context.extract_trace_ids:
+    name: extract_trace_ids
+    module: src.pactown.error_context
+    line: 46
+    cyclomatic_complexity: 6
+    calls_out: 6
+    calls_in: 1
+  src.pactown.platform.DomainConfig._normalize_domain:
+    name: _normalize_domain
+    module: src.pactown.platform
+    line: 73
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 0
+  src.pactown.platform.parse_project_host:
+    name: parse_project_host
+    module: src.pactown.platform
+    line: 125
+    cyclomatic_complexity: 4
+    calls_out: 5
+    calls_in: 0
+  src.pactown.deploy.ansible.AnsibleBackend.stop:
+    name: stop
+    module: src.pactown.deploy.ansible
+    line: 427
+    cyclomatic_complexity: 2
+    calls_out: 4
+    calls_in: 0
+  src.pactown.cli.reset_llm_provider:
+    name: reset_llm_provider
+    module: src.pactown.cli
+    line: 52
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 1
+  src.pactown.generator.print_scan_results:
+    name: print_scan_results
+    module: src.pactown.generator
+    line: 185
+    cyclomatic_complexity: 5
+    calls_out: 14
+    calls_in: 2
+  src.pactown.cli.scan:
+    name: scan
+    module: src.pactown.cli
+    line: 283
+    cyclomatic_complexity: 1
+    calls_out: 5
+    calls_in: 0
+  src.pactown.registry.server.create_app:
+    name: create_app
+    module: src.pactown.registry.server
+    line: 57
+    cyclomatic_complexity: 1
+    calls_out: 52
+    calls_in: 1
+  src.pactown.builders.desktop.DesktopBuilder._generate_linux_launcher:
+    name: _generate_linux_launcher
+    module: src.pactown.builders.desktop
+    line: 582
+    cyclomatic_complexity: 3
+    calls_out: 8
+    calls_in: 0
+  src.pactown.platform.web_base_url:
+    name: web_base_url
+    module: src.pactown.platform
+    line: 46
+    cyclomatic_complexity: 2
+    calls_out: 5
+    calls_in: 0
+  src.pactown.service_runner.ServiceRunner.run_from_content:
+    name: run_from_content
+    module: src.pactown.service_runner
+    line: 266
+    cyclomatic_complexity: 37
+    calls_out: 74
+    calls_in: 0
+  src.pactown.parallel.run_in_dependency_waves:
+    name: run_in_dependency_waves
+    module: src.pactown.parallel
+    line: 117
+    cyclomatic_complexity: 12
+    calls_out: 14
+    calls_in: 0
+  src.pactown.deploy.quadlet.sanitize_domain:
+    name: sanitize_domain
+    module: src.pactown.deploy.quadlet
+    line: 169
+    cyclomatic_complexity: 3
+    calls_out: 5
+    calls_in: 1
+  src.pactown.error_context.most_probable_file:
+    name: most_probable_file
+    module: src.pactown.error_context
+    line: 74
+    cyclomatic_complexity: 7
+    calls_out: 7
+    calls_in: 2
+  src.pactown.builders.registry.get_builder_for_target:
+    name: get_builder_for_target
+    module: src.pactown.builders.registry
+    line: 28
+    cyclomatic_complexity: 2
+    calls_out: 1
+    calls_in: 2
+  src.pactown.runner_api.create_app:
+    name: create_app
+    module: src.pactown.runner_api
+    line: 619
+    cyclomatic_complexity: 1
+    calls_out: 3
+    calls_in: 1
+  src.pactown.resolver.DependencyResolver.print_graph:
+    name: print_graph
+    module: src.pactown.resolver
+    line: 143
+    cyclomatic_complexity: 6
+    calls_out: 7
+    calls_in: 0
+  src.pactown.cli.build:
+    name: build
+    module: src.pactown.cli
+    line: 331
+    cyclomatic_complexity: 14
+    calls_out: 43
+    calls_in: 0
+  src.pactown.iac.write_sandbox_iac:
+    name: write_sandbox_iac
+    module: src.pactown.iac
+    line: 206
+    cyclomatic_complexity: 5
+    calls_out: 9
+    calls_in: 1
+  src.pactown.deploy.quadlet_api.create_quadlet_api:
+    name: create_quadlet_api
+    module: src.pactown.deploy.quadlet_api
+    line: 126
+    cyclomatic_complexity: 1
+    calls_out: 114
+    calls_in: 1
+  src.pactown.llm.generate:
+    name: generate
+    module: src.pactown.llm
+    line: 380
+    cyclomatic_complexity: 2
+    calls_out: 3
+    calls_in: 0
+  src.pactown.runner_api._service_name_for:
+    name: _service_name_for
+    module: src.pactown.runner_api
+    line: 47
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 2
+  src.pactown.orchestrator.Orchestrator.from_file:
+    name: from_file
+    module: src.pactown.orchestrator
+    line: 57
+    cyclomatic_complexity: 1
+    calls_out: 3
+    calls_in: 0
+  tools.sync_pactown_com_dependency._update_requirements_pin:
+    name: _update_requirements_pin
+    module: tools.sync_pactown_com_dependency
+    line: 14
+    cyclomatic_complexity: 8
+    calls_out: 11
+    calls_in: 1
+  src.pactown.deploy.ansible.generate_inventory:
+    name: generate_inventory
+    module: src.pactown.deploy.ansible
+    line: 77
+    cyclomatic_complexity: 5
+    calls_out: 0
+    calls_in: 1
+  src.pactown.builders.mobile.MobileBuilder.build:
+    name: build
+    module: src.pactown.builders.mobile
+    line: 92
+    cyclomatic_complexity: 10
+    calls_out: 21
+    calls_in: 0
+  src.pactown.markpact_blocks.extract_target_config:
+    name: extract_target_config
+    module: src.pactown.markpact_blocks
+    line: 14
+    cyclomatic_complexity: 3
+    calls_out: 1
+    calls_in: 4
+  src.pactown.cli.is_lolm_available:
+    name: is_lolm_available
+    module: src.pactown.cli
+    line: 28
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 3
+  src.pactown.sandbox_manager._build_web_preview_cmd:
+    name: _build_web_preview_cmd
+    module: src.pactown.sandbox_manager
+    line: 414
+    cyclomatic_complexity: 14
+    calls_out: 25
+    calls_in: 1
+  src.pactown.node_cache.NodeModulesCache._hash_pkg:
+    name: _hash_pkg
+    module: src.pactown.node_cache
+    line: 181
+    cyclomatic_complexity: 2
+    calls_out: 10
+    calls_in: 0
+  src.pactown.cli.deploy:
+    name: deploy
+    module: src.pactown.cli
+    line: 463
+    cyclomatic_complexity: 7
+    calls_out: 30
+    calls_in: 0
+  src.pactown.events.ServiceStatusProjection.get_all:
+    name: get_all
+    module: src.pactown.events
+    line: 1030
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+  src.pactown.platform.normalize_host:
+    name: normalize_host
+    module: src.pactown.platform
+    line: 15
+    cyclomatic_complexity: 4
+    calls_out: 9
+    calls_in: 3
+  src.pactown.builders.registry.get_builder:
+    name: get_builder
+    module: src.pactown.builders.registry
+    line: 20
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 1
+  src.pactown.platform.normalize_domain:
+    name: normalize_domain
+    module: src.pactown.platform
+    line: 27
+    cyclomatic_complexity: 2
+    calls_out: 3
+    calls_in: 6
+  src.pactown.deploy.quadlet.generate_markdown_service_quadlet:
+    name: generate_markdown_service_quadlet
+    module: src.pactown.deploy.quadlet
+    line: 988
+    cyclomatic_complexity: 3
+    calls_out: 4
+    calls_in: 6
+  src.pactown.service_runner.ServiceRunner.fast_run:
+    name: fast_run
+    module: src.pactown.service_runner
+    line: 903
+    cyclomatic_complexity: 36
+    calls_out: 88
+    calls_in: 0
+  src.pactown.platform.build_origin:
+    name: build_origin
+    module: src.pactown.platform
+    line: 39
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 4
+  src.pactown.sandbox_manager.SandboxManager.start_service:
+    name: start_service
+    module: src.pactown.sandbox_manager
+    line: 1292
+    cyclomatic_complexity: 53
+    calls_out: 145
+    calls_in: 0
+  src.pactown.error_context.build_error_context:
+    name: build_error_context
+    module: src.pactown.error_context
+    line: 136
+    cyclomatic_complexity: 41
+    calls_out: 47
+    calls_in: 3
+  src.pactown.generator.scan_readme:
+    name: scan_readme
+    module: src.pactown.generator
+    line: 14
+    cyclomatic_complexity: 12
+    calls_out: 12
+    calls_in: 1
+  src.pactown.generator.scan_folder:
+    name: scan_folder
+    module: src.pactown.generator
+    line: 78
+    cyclomatic_complexity: 5
+    calls_out: 8
+    calls_in: 2
+  src.pactown.node_cache._copytree_hardlink:
+    name: _copytree_hardlink
+    module: src.pactown.node_cache
+    line: 251
+    cyclomatic_complexity: 3
+    calls_out: 4
+    calls_in: 2
+  src.pactown.cli.pull:
+    name: pull
+    module: src.pactown.cli
+    line: 254
+    cyclomatic_complexity: 7
+    calls_out: 15
+    calls_in: 0
+  src.pactown.deploy.quadlet_api.run_api:
+    name: run_api
+    module: src.pactown.deploy.quadlet_api
+    line: 520
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 1
+  src.pactown.cli.quadlet_init:
+    name: quadlet_init
+    module: src.pactown.cli
+    line: 606
+    cyclomatic_complexity: 4
+    calls_out: 14
+    calls_in: 0
+  tools.validate_artifacts_docker._find_service_dir:
+    name: _find_service_dir
+    module: tools.validate_artifacts_docker
+    line: 421
+    cyclomatic_complexity: 1
+    calls_out: 1
+    calls_in: 1
+  src.pactown.deploy.ansible.generate_build_playbook:
+    name: generate_build_playbook
+    module: src.pactown.deploy.ansible
+    line: 240
+    cyclomatic_complexity: 2
+    calls_out: 0
+    calls_in: 1
+  src.pactown.events.get_service_commands:
+    name: get_service_commands
+    module: src.pactown.events
+    line: 1048
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 0
+  src.pactown.events.get_project_queries:
+    name: get_project_queries
+    module: src.pactown.events
+    line: 1063
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 0
+  src.pactown.runner_api.create_runner_api:
+    name: create_runner_api
+    module: src.pactown.runner_api
+    line: 330
+    cyclomatic_complexity: 1
+    calls_out: 113
+    calls_in: 1
+  src.pactown.sandbox_manager._install_system_deps:
+    name: _install_system_deps
+    module: src.pactown.sandbox_manager
+    line: 223
+    cyclomatic_complexity: 11
+    calls_out: 18
+    calls_in: 1
+  src.pactown.service_runner.ServiceRunner._prune_stale_user_services:
+    name: _prune_stale_user_services
+    module: src.pactown.service_runner
+    line: 226
+    cyclomatic_complexity: 14
+    calls_out: 9
+    calls_in: 0
+  src.pactown.parallel.ParallelSandboxBuilder.build_sandboxes:
+    name: build_sandboxes
+    module: src.pactown.parallel
+    line: 224
+    cyclomatic_complexity: 2
+    calls_out: 2
+    calls_in: 0
+  src.pactown.platform.build_project_host:
+    name: build_project_host
+    module: src.pactown.platform
+    line: 119
+    cyclomatic_complexity: 1
+    calls_out: 2
+    calls_in: 0
+edges:
+- caller: src.pactown.sandbox_helpers._should_emit_to_ui
+  callee: src.pactown.sandbox_helpers._ui_log_level
+  call_type: resolved
+- caller: src.pactown.sandbox_helpers._call_on_log
+  callee: src.pactown.registry.models.RegistryStorage.list
+  call_type: resolved
+- caller: src.pactown.sandbox_helpers._sanitize_inherited_env
+  callee: src.pactown.registry.models.RegistryStorage.list
+  call_type: resolved
+- caller: src.pactown.sandbox_helpers._write_dotenv_file
+  callee: src.pactown.sandbox_helpers._escape_dotenv_value
+  call_type: resolved
+- caller: src.pactown.sandbox_helpers._heartbeat
+  callee: src.pactown.sandbox_helpers._should_emit_to_ui
+  call_type: resolved
+- caller: src.pactown.sandbox_helpers._heartbeat
+  callee: src.pactown.sandbox_helpers._call_on_log
+  call_type: resolved
+- caller: src.pactown.markpact_blocks.extract_run_command
+  callee: src.pactown.markpact_blocks.extract_target_config
+  call_type: resolved
+- caller: src.pactown.error_context.build_error_context
+  callee: src.pactown.error_context._truncate_text
+  call_type: resolved
+- caller: src.pactown.error_context.build_error_context
+  callee: src.pactown.error_context.extract_trace_ids
+  call_type: resolved
+- caller: src.pactown.error_context.build_error_context
+  callee: src.pactown.error_context.extract_file_paths
+  call_type: resolved
+- caller: src.pactown.error_context.build_error_context
+  callee: src.pactown.error_context.most_probable_file
+  call_type: resolved
+- caller: src.pactown.generator.scan_folder
+  callee: src.pactown.registry.models.RegistryStorage.list
+  call_type: resolved
+- caller: src.pactown.generator.scan_folder
+  callee: src.pactown.generator.scan_readme
+  call_type: resolved
+- caller: src.pactown.generator.generate_config
+  callee: src.pactown.generator.scan_folder
+  call_type: resolved
+- caller: src.pactown.generator.print_scan_results
+  callee: src.pactown.generator.scan_folder
+  call_type: resolved
+- caller: src.pactown.iac.build_sandbox_spec
+  callee: src.pactown.iac._runtime_type
+  call_type: resolved
+- caller: src.pactown.iac.write_sandbox_iac
+  callee: src.pactown.iac.build_single_service_compose
+  call_type: resolved
+- caller: src.pactown.iac.write_sandbox_iac
+  callee: src.pactown.iac.write_single_service_compose
+  call_type: resolved
+- caller: src.pactown.iac.write_sandbox_iac
+  callee: src.pactown.iac.build_sandbox_spec
+  call_type: resolved
+- caller: src.pactown.iac.write_sandbox_iac
+  callee: src.pactown.iac.write_sandbox_manifest
+  call_type: resolved
+- caller: src.pactown.iac.write_sandbox_iac
+  callee: src.pactown.iac._default_base_image
+  call_type: resolved
+- caller: src.pactown.user_isolation.UserIsolationManager.list_users
+  callee: src.pactown.registry.models.RegistryStorage.list
+  call_type: resolved
+- caller: src.pactown.user_isolation.UserIsolationManager.get_user_stats
+  callee: src.pactown.registry.models.RegistryStorage.list
+  call_type: resolved
+- caller: src.pactown.service_runner.ServiceRunner.__init__
+  callee: src.pactown.security.get_security_policy
+  call_type: resolved
+- caller: src.pactown.service_runner.ServiceRunner._prune_stale_user_services
+  callee: src.pactown.registry.models.RegistryStorage.list
+  call_type: resolved
+- caller: src.pactown.service_runner.ServiceRunner.run_from_content
+  callee: src.pactown.runner_types.kill_process_on_port
+  call_type: resolved
+- caller: src.pactown.service_runner.ServiceRunner.run_from_content
+  callee: src.pactown.security.AnomalyLogger.log
+  call_type: resolved
+- caller: src.pactown.service_runner.ServiceRunner.run_from_content
+  callee: src.pactown.sandbox_helpers._sanitize_inherited_env
+  call_type: resolved
+- caller: src.pactown.service_runner.ServiceRunner.stop_all
+  callee: src.pactown.registry.models.RegistryStorage.list
+  call_type: resolved
+- caller: src.pactown.service_runner.ServiceRunner.fast_run
+  callee: src.pactown.runner_types.kill_process_on_port
+  call_type: resolved
+- caller: src.pactown.service_runner.ServiceRunner.fast_run
+  callee: src.pactown.markpact_blocks.extract_run_command
+  call_type: resolved
+- caller: src.pactown.service_runner.ServiceRunner.fast_run
+  callee: src.pactown.sandbox_helpers._filter_runtime_env
+  call_type: resolved
+- caller: src.pactown.service_runner.ServiceRunner.fast_run
+  callee: src.pactown.sandbox_helpers._sanitize_inherited_env
+  call_type: resolved
+- caller: src.pactown.targets.list_frameworks
+  callee: src.pactown.registry.models.RegistryStorage.list
+  call_type: resolved
+- caller: src.pactown.builders.registry.get_builder_for_target
+  callee: src.pactown.builders.registry.get_builder
+  call_type: resolved
+- caller: src.pactown.builders.web.WebBuilder.build
+  callee: src.pactown.builders.base.Builder._log
+  call_type: resolved
+- caller: src.pactown.builders.mobile.MobileBuilder.build
+  callee: src.pactown.builders.base.Builder._log
+  call_type: resolved
+- caller: src.pactown.builders.mobile.MobileBuilder._scaffold_kivy
+  callee: src.pactown.builders.mobile._sanitize_java_package_id
+  call_type: resolved
+- caller: src.pactown.resolver.DependencyResolver.get_shutdown_order
+  callee: src.pactown.registry.models.RegistryStorage.list
+  call_type: resolved
+- caller: src.pactown.resolver.DependencyResolver.print_graph
+  callee: src.pactown.registry.models.RegistryStorage.list
+  call_type: resolved
+- caller: src.pactown.parallel.run_in_dependency_waves
+  callee: src.pactown.parallel.run_parallel
+  call_type: resolved
+- caller: src.pactown.parallel.ParallelSandboxBuilder.build_sandboxes
+  callee: src.pactown.parallel.run_parallel
+  call_type: resolved
+- caller: src.pactown.builders.desktop.DesktopBuilder.build
+  callee: src.pactown.builders.base.Builder._log
+  call_type: resolved
+- caller: src.pactown.builders.desktop.DesktopBuilder._move_to_dev_deps
+  callee: src.pactown.registry.models.RegistryStorage.list
+  call_type: resolved
+- caller: src.pactown.builders.desktop.DesktopBuilder.build_parallel
+  callee: src.pactown.builders.base.Builder._log
+  call_type: resolved
+- caller: src.pactown.builders.desktop.DesktopBuilder._generate_linux_launcher
+  callee: src.pactown.registry.models.RegistryStorage.list
+  call_type: resolved
+- caller: src.pactown.node_cache.NodeModulesCache.restore
+  callee: src.pactown.node_cache._copytree_hardlink
+  call_type: resolved
+- caller: src.pactown.node_cache.NodeModulesCache.save
+  callee: src.pactown.node_cache._copytree_hardlink
+  call_type: resolved
+- caller: src.pactown.node_cache.NodeModulesCache._hash_pkg
+  callee: src.pactown.node_cache._sorted_deps
+  call_type: resolved
+- caller: src.pactown.llm.generate
+  callee: src.pactown.llm.get_llm
+  call_type: resolved
+- caller: src.pactown.llm.get_llm_status
+  callee: src.pactown.llm.get_llm
+  call_type: resolved
+- caller: src.pactown.llm.set_provider_priority
+  callee: src.pactown.llm.get_llm
+  call_type: resolved
+- caller: src.pactown.llm.reset_provider
+  callee: src.pactown.llm.get_llm
+  call_type: resolved
+- caller: src.pactown.deploy.compose.generate_compose_from_config
+  callee: src.pactown.config.load_config
+  call_type: resolved
+- caller: src.pactown.cli.up
+  callee: src.pactown.config.load_config
+  call_type: resolved
+- caller: src.pactown.cli.down
+  callee: src.pactown.config.load_config
+  call_type: resolved
+- caller: src.pactown.cli.status
+  callee: src.pactown.config.load_config
+  call_type: resolved
+- caller: src.pactown.cli.validate
+  callee: src.pactown.config.load_config
+  call_type: resolved
+- caller: src.pactown.cli.graph
+  callee: src.pactown.config.load_config
+  call_type: resolved
+- caller: src.pactown.cli.publish
+  callee: src.pactown.config.load_config
+  call_type: resolved
+- caller: src.pactown.cli.pull
+  callee: src.pactown.config.load_config
+  call_type: resolved
+- caller: src.pactown.cli.scan
+  callee: src.pactown.generator.print_scan_results
+  call_type: resolved
+- caller: src.pactown.cli.generate
+  callee: src.pactown.generator.print_scan_results
+  call_type: resolved
+- caller: src.pactown.cli.build
+  callee: src.pactown.markpact_blocks.extract_target_config
+  call_type: resolved
+- caller: src.pactown.cli.targets
+  callee: src.pactown.targets.list_frameworks
+  call_type: resolved
+- caller: src.pactown.cli.deploy
+  callee: src.pactown.config.load_config
+  call_type: resolved
+- caller: src.pactown.cli.quadlet_shell
+  callee: src.pactown.deploy.quadlet_shell.run_shell
+  call_type: resolved
+- caller: src.pactown.cli.quadlet_api
+  callee: src.pactown.deploy.quadlet_api.run_api
+  call_type: resolved
+- caller: src.pactown.cli.quadlet_generate
+  callee: src.pactown.deploy.quadlet.generate_markdown_service_quadlet
+  call_type: resolved
+- caller: src.pactown.cli.quadlet_init
+  callee: src.pactown.deploy.quadlet.generate_traefik_quadlet
+  call_type: resolved
+- caller: src.pactown.cli.llm_status
+  callee: src.pactown.cli.get_llm_status
+  call_type: resolved
+- caller: src.pactown.cli.llm_priority
+  callee: src.pactown.cli.set_llm_priority
+  call_type: resolved
+- caller: src.pactown.cli.llm_priority
+  callee: src.pactown.cli.is_lolm_available
+  call_type: resolved
+- caller: src.pactown.cli.llm_reset
+  callee: src.pactown.cli.reset_llm_provider
+  call_type: resolved
+- caller: src.pactown.cli.llm_reset
+  callee: src.pactown.cli.is_lolm_available
+  call_type: resolved
+- caller: src.pactown.cli.llm_test
+  callee: src.pactown.cli.is_lolm_available
+  call_type: resolved
+- caller: src.pactown.cli.llm_test
+  callee: src.pactown.cli.get_llm
+  call_type: resolved
+- caller: src.pactown.cli.main
+  callee: src.pactown.cli.cli
+  call_type: resolved
+- caller: src.pactown.fast_start.DependencyCache.create_and_cache
+  callee: src.pactown.fast_start._run_streamed
+  call_type: resolved
+- caller: src.pactown.fast_start.FastServiceStarter.fast_create_sandbox
+  callee: src.pactown.security.AnomalyLogger.log
+  call_type: resolved
+- caller: src.pactown.fast_start.FastServiceStarter._write_files_parallel
+  callee: src.pactown.registry.models.RegistryStorage.list
+  call_type: resolved
+- caller: src.pactown.fast_start.FastServiceStarter._install_deps_direct
+  callee: src.pactown.fast_start._run_streamed
+  call_type: resolved
+- caller: src.pactown.fast_start.ParallelServiceRunner.run_parallel
+  callee: src.pactown.registry.models.RegistryStorage.list
+  call_type: resolved
+- caller: src.pactown.orchestrator.Orchestrator.from_file
+  callee: src.pactown.config.load_config
+  call_type: resolved
+- caller: tools.sync_pactown_com_dependency.main
+  callee: tools.sync_pactown_com_dependency._read_pactown_version
+  call_type: resolved
+- caller: tools.sync_pactown_com_dependency.main
+  callee: tools.sync_pactown_com_dependency._update_requirements_pin
+  call_type: resolved
+- caller: tools.validate_artifacts_docker.validate_artifact
+  callee: tools.validate_artifacts_docker._find_service_dir
+  call_type: resolved
+- caller: tools.validate_artifacts_docker.validate_artifact
+  callee: tools.validate_artifacts_docker.docker_run
+  call_type: resolved
+- caller: tools.validate_artifacts_docker.main
+  callee: tools.validate_artifacts_docker.collect_artifacts
+  call_type: resolved
+- caller: src.pactown.deploy.ansible.AnsibleBackend.build_image
+  callee: src.pactown.deploy.ansible.generate_build_playbook
+  call_type: resolved
+- caller: src.pactown.deploy.ansible.AnsibleBackend.deploy
+  callee: src.pactown.deploy.ansible.generate_deploy_playbook
+  call_type: resolved
+- caller: src.pactown.deploy.ansible.AnsibleBackend.stop
+  callee: src.pactown.deploy.ansible.generate_teardown_playbook
+  call_type: resolved
+- caller: src.pactown.deploy.ansible.AnsibleBackend._write_inventory
+  callee: src.pactown.deploy.ansible.generate_inventory
+  call_type: resolved
+- caller: src.pactown.deploy.ansible.AnsibleBackend.write_all
+  callee: src.pactown.deploy.ansible.generate_deploy_playbook
+  call_type: resolved
+- caller: src.pactown.deploy.ansible.AnsibleBackend.write_all
+  callee: src.pactown.deploy.ansible.generate_teardown_playbook
+  call_type: resolved
+- caller: src.pactown.deploy.quadlet.validate_volume
+  callee: src.pactown.deploy.quadlet.sanitize_path
+  call_type: resolved
+- caller: src.pactown.deploy.quadlet.QuadletTemplates.container
+  callee: src.pactown.deploy.quadlet.sanitize_name
+  call_type: resolved
+- caller: src.pactown.deploy.quadlet.QuadletTemplates.container
+  callee: src.pactown.deploy.quadlet.sanitize_image
+  call_type: resolved
+- caller: src.pactown.deploy.quadlet.QuadletTemplates.container
+  callee: src.pactown.deploy.quadlet.sanitize_domain
+  call_type: resolved
+- caller: src.pactown.deploy.quadlet.QuadletTemplates.container
+  callee: src.pactown.deploy.quadlet.sanitize_env_key
+  call_type: resolved
+- caller: src.pactown.deploy.quadlet.QuadletTemplates.container
+  callee: src.pactown.deploy.quadlet.sanitize_env_value
+  call_type: resolved
+- caller: src.pactown.network.ServiceRegistry.list_services
+  callee: src.pactown.registry.models.RegistryStorage.list
+  call_type: resolved
+- caller: src.pactown.deploy.quadlet_shell.QuadletShell.do_generate
+  callee: src.pactown.deploy.quadlet.generate_markdown_service_quadlet
+  call_type: resolved
+- caller: src.pactown.deploy.quadlet_shell.QuadletShell.do_generate_traefik
+  callee: src.pactown.deploy.quadlet.generate_traefik_quadlet
+  call_type: resolved
+- caller: src.pactown.deploy.quadlet_shell.QuadletShell.do_deploy
+  callee: src.pactown.deploy.quadlet.generate_markdown_service_quadlet
+  call_type: resolved
+- caller: src.pactown.deploy.quadlet_shell.QuadletShell.do_init
+  callee: src.pactown.deploy.quadlet.generate_traefik_quadlet
+  call_type: resolved
+- caller: src.pactown.sandbox_manager._install_system_deps
+  callee: src.pactown.security.AnomalyLogger.log
+  call_type: resolved
+- caller: src.pactown.sandbox_manager._inject_electron_web_polyfill
+  callee: src.pactown.security.AnomalyLogger.log
+  call_type: resolved
+- caller: src.pactown.sandbox_manager._build_web_preview_cmd
+  callee: src.pactown.sandbox_manager._find_web_assets_dir
+  call_type: resolved
+- caller: src.pactown.sandbox_manager._build_web_preview_cmd
+  callee: src.pactown.security.AnomalyLogger.log
+  call_type: resolved
+- caller: src.pactown.sandbox_manager._build_web_preview_cmd
+  callee: src.pactown.sandbox_manager._inject_electron_web_polyfill
+  call_type: resolved
+- caller: src.pactown.sandbox_manager.SandboxManager.build_service
+  callee: src.pactown.markpact_blocks.extract_target_config
+  call_type: resolved
+- caller: src.pactown.sandbox_manager.SandboxManager.build_service
+  callee: src.pactown.builders.registry.get_builder_for_target
+  call_type: resolved
+- caller: src.pactown.sandbox_manager.SandboxManager.start_service
+  callee: src.pactown.security.AnomalyLogger.log
+  call_type: resolved
+- caller: src.pactown.sandbox_manager.SandboxManager.start_service
+  callee: src.pactown.markpact_blocks.extract_target_config
+  call_type: resolved
+- caller: src.pactown.sandbox_manager.SandboxManager.start_service
+  callee: src.pactown.markpact_blocks.extract_run_command
+  call_type: resolved
+- caller: src.pactown.sandbox_manager.SandboxManager.stop_all
+  callee: src.pactown.registry.models.RegistryStorage.list
+  call_type: resolved
+- caller: src.pactown.events.ServiceStatusProjection.get_all
+  callee: src.pactown.registry.models.RegistryStorage.list
+  call_type: resolved
+- caller: src.pactown.events.get_service_commands
+  callee: src.pactown.events.get_event_store
+  call_type: resolved
+- caller: src.pactown.events.get_service_queries
+  callee: src.pactown.events.get_event_store
+  call_type: resolved
+- caller: src.pactown.events.get_project_commands
+  callee: src.pactown.events.get_event_store
+  call_type: resolved
+- caller: src.pactown.events.get_project_queries
+  callee: src.pactown.events.get_event_store
+  call_type: resolved
+- caller: src.pactown.events.get_security_commands
+  callee: src.pactown.events.get_event_store
+  call_type: resolved
+- caller: src.pactown.events.get_security_queries
+  callee: src.pactown.events.get_event_store
+  call_type: resolved
+- caller: src.pactown.platform.normalize_domain
+  callee: src.pactown.platform.normalize_host
+  call_type: resolved
+- caller: src.pactown.platform.is_local_domain
+  callee: src.pactown.platform.normalize_domain
+  call_type: resolved
+- caller: src.pactown.platform.build_origin
+  callee: src.pactown.platform.normalize_host
+  call_type: resolved
+- caller: src.pactown.platform.web_base_url
+  callee: src.pactown.platform.is_local_domain
+  call_type: resolved
+- caller: src.pactown.platform.web_base_url
+  callee: src.pactown.platform.build_origin
+  call_type: resolved
+- caller: src.pactown.platform.web_base_url
+  callee: src.pactown.platform.normalize_domain
+  call_type: resolved
+- caller: src.pactown.platform.api_base_url
+  callee: src.pactown.platform.is_local_domain
+  call_type: resolved
+- caller: src.pactown.platform.api_base_url
+  callee: src.pactown.platform.build_origin
+  call_type: resolved
+- caller: src.pactown.platform.api_base_url
+  callee: src.pactown.platform.normalize_domain
+  call_type: resolved
+- caller: src.pactown.platform.DomainConfig._normalize_domain
+  callee: src.pactown.platform.normalize_domain
+  call_type: resolved
+- caller: src.pactown.platform.DomainConfig._normalize_separator
+  callee: src.pactown.platform.coerce_subdomain_separator
+  call_type: resolved
+- caller: src.pactown.platform.build_project_subdomain
+  callee: src.pactown.platform.coerce_subdomain_separator
+  call_type: resolved
+- caller: src.pactown.platform.build_project_subdomain
+  callee: src.pactown.platform.to_dns_label
+  call_type: resolved
+- caller: src.pactown.platform.build_project_host
+  callee: src.pactown.platform.normalize_domain
+  call_type: resolved
+- caller: src.pactown.platform.build_project_host
+  callee: src.pactown.platform.build_project_subdomain
+  call_type: resolved
+- caller: src.pactown.platform.parse_project_host
+  callee: src.pactown.platform.normalize_host
+  call_type: resolved
+- caller: src.pactown.platform.parse_project_host
+  callee: src.pactown.platform.normalize_domain
+  call_type: resolved
+- caller: src.pactown.platform.parse_project_host
+  callee: src.pactown.platform.parse_project_subdomain
+  call_type: resolved
+- caller: src.pactown.platform.build_service_subdomain
+  callee: src.pactown.platform.coerce_subdomain_separator
+  call_type: resolved
+- caller: src.pactown.platform.build_service_subdomain
+  callee: src.pactown.platform.to_dns_label
+  call_type: resolved
+- caller: src.pactown.registry.server.main
+  callee: src.pactown.registry.server.create_app
+  call_type: resolved
+- caller: src.pactown.runner_api._dns_label
+  callee: src.pactown.platform.to_dns_label
+  call_type: resolved
+- caller: src.pactown.runner_api._service_name_for
+  callee: src.pactown.runner_api._validate_service_id
+  call_type: resolved
+- caller: src.pactown.runner_api.RunnerService._resolve_service_id
+  callee: src.pactown.runner_api._validate_service_id
+  call_type: resolved
+- caller: src.pactown.runner_api.RunnerService._resolve_service_id
+  callee: src.pactown.runner_api._dns_label
+  call_type: resolved
+- caller: src.pactown.runner_api.RunnerService._sandbox_path_for
+  callee: src.pactown.runner_api._service_name_for
+  call_type: resolved
+- caller: src.pactown.runner_api.RunnerService.read_sandbox_file
+  callee: src.pactown.runner_api._validate_rel_path
+  call_type: resolved
+- caller: src.pactown.runner_api.RunnerService.read_sandbox_file
+  callee: src.pactown.runner_api._resolve_in_dir
+  call_type: resolved
+- caller: src.pactown.runner_api.RunnerService.write_sandbox_file
+  callee: src.pactown.runner_api._validate_rel_path
+  call_type: resolved
+- caller: src.pactown.runner_api.RunnerService.write_sandbox_file
+  callee: src.pactown.runner_api._resolve_in_dir
+  call_type: resolved
+- caller: src.pactown.runner_api.RunnerService.delete_sandbox_file
+  callee: src.pactown.runner_api._validate_rel_path
+  call_type: resolved
+- caller: src.pactown.runner_api.RunnerService.delete_sandbox_file
+  callee: src.pactown.runner_api._resolve_in_dir
+  call_type: resolved
+- caller: src.pactown.runner_api.RunnerService.prepare_sandbox
+  callee: src.pactown.runner_api._service_name_for
+  call_type: resolved
+- caller: src.pactown.runner_api.create_app
+  callee: src.pactown.runner_api.create_runner_api
+  call_type: resolved
+- caller: src.pactown.runner_api.main
+  callee: src.pactown.runner_api.create_app
+  call_type: resolved
+- caller: src.pactown.deploy.quadlet_api.run_api
+  callee: src.pactown.deploy.quadlet_api.create_quadlet_api
+  call_type: resolved
+modules:
+  src.pactown.builders.base:
+  - src.pactown.builders.base.Builder._log
+  src.pactown.builders.desktop:
+  - src.pactown.builders.desktop.DesktopBuilder._generate_linux_launcher
+  - src.pactown.builders.desktop.DesktopBuilder._move_to_dev_deps
+  - src.pactown.builders.desktop.DesktopBuilder.build
+  - src.pactown.builders.desktop.DesktopBuilder.build_parallel
+  src.pactown.builders.mobile:
+  - src.pactown.builders.mobile.MobileBuilder._scaffold_kivy
+  - src.pactown.builders.mobile.MobileBuilder.build
+  - src.pactown.builders.mobile._sanitize_java_package_id
+  src.pactown.builders.registry:
+  - src.pactown.builders.registry.get_builder
+  - src.pactown.builders.registry.get_builder_for_target
+  src.pactown.builders.web:
+  - src.pactown.builders.web.WebBuilder.build
+  src.pactown.cli:
+  - src.pactown.cli.build
+  - src.pactown.cli.cli
+  - src.pactown.cli.deploy
+  - src.pactown.cli.down
+  - src.pactown.cli.generate
+  - src.pactown.cli.get_llm
+  - src.pactown.cli.get_llm_status
+  - src.pactown.cli.graph
+  - src.pactown.cli.is_lolm_available
+  - src.pactown.cli.llm_priority
+  - src.pactown.cli.llm_reset
+  - src.pactown.cli.llm_status
+  - src.pactown.cli.llm_test
+  - src.pactown.cli.main
+  - src.pactown.cli.publish
+  - src.pactown.cli.pull
+  - src.pactown.cli.quadlet_api
+  - src.pactown.cli.quadlet_generate
+  - src.pactown.cli.quadlet_init
+  - src.pactown.cli.quadlet_shell
+  - src.pactown.cli.reset_llm_provider
+  - src.pactown.cli.scan
+  - src.pactown.cli.set_llm_priority
+  - src.pactown.cli.status
+  - src.pactown.cli.targets
+  - src.pactown.cli.up
+  - src.pactown.cli.validate
+  src.pactown.config:
+  - src.pactown.config.load_config
+  src.pactown.deploy.ansible:
+  - src.pactown.deploy.ansible.AnsibleBackend._write_inventory
+  - src.pactown.deploy.ansible.AnsibleBackend.build_image
+  - src.pactown.deploy.ansible.AnsibleBackend.deploy
+  - src.pactown.deploy.ansible.AnsibleBackend.stop
+  - src.pactown.deploy.ansible.AnsibleBackend.write_all
+  - src.pactown.deploy.ansible.generate_build_playbook
+  - src.pactown.deploy.ansible.generate_deploy_playbook
+  - src.pactown.deploy.ansible.generate_inventory
+  - src.pactown.deploy.ansible.generate_teardown_playbook
+  src.pactown.deploy.compose:
+  - src.pactown.deploy.compose.generate_compose_from_config
+  src.pactown.deploy.quadlet:
+  - src.pactown.deploy.quadlet.QuadletTemplates.container
+  - src.pactown.deploy.quadlet.generate_markdown_service_quadlet
+  - src.pactown.deploy.quadlet.generate_traefik_quadlet
+  - src.pactown.deploy.quadlet.sanitize_domain
+  - src.pactown.deploy.quadlet.sanitize_env_key
+  - src.pactown.deploy.quadlet.sanitize_env_value
+  - src.pactown.deploy.quadlet.sanitize_image
+  - src.pactown.deploy.quadlet.sanitize_name
+  - src.pactown.deploy.quadlet.sanitize_path
+  - src.pactown.deploy.quadlet.validate_volume
+  src.pactown.deploy.quadlet_api:
+  - src.pactown.deploy.quadlet_api.create_quadlet_api
+  - src.pactown.deploy.quadlet_api.run_api
+  src.pactown.deploy.quadlet_shell:
+  - src.pactown.deploy.quadlet_shell.QuadletShell.do_deploy
+  - src.pactown.deploy.quadlet_shell.QuadletShell.do_generate
+  - src.pactown.deploy.quadlet_shell.QuadletShell.do_generate_traefik
+  - src.pactown.deploy.quadlet_shell.QuadletShell.do_init
+  - src.pactown.deploy.quadlet_shell.run_shell
+  src.pactown.error_context:
+  - src.pactown.error_context._truncate_text
+  - src.pactown.error_context.build_error_context
+  - src.pactown.error_context.extract_file_paths
+  - src.pactown.error_context.extract_trace_ids
+  - src.pactown.error_context.most_probable_file
+  src.pactown.events:
+  - src.pactown.events.ServiceStatusProjection.get_all
+  - src.pactown.events.get_event_store
+  - src.pactown.events.get_project_commands
+  - src.pactown.events.get_project_queries
+  - src.pactown.events.get_security_commands
+  - src.pactown.events.get_security_queries
+  - src.pactown.events.get_service_commands
+  - src.pactown.events.get_service_queries
+  src.pactown.fast_start:
+  - src.pactown.fast_start.DependencyCache.create_and_cache
+  - src.pactown.fast_start.FastServiceStarter._install_deps_direct
+  - src.pactown.fast_start.FastServiceStarter._write_files_parallel
+  - src.pactown.fast_start.FastServiceStarter.fast_create_sandbox
+  - src.pactown.fast_start.ParallelServiceRunner.run_parallel
+  - src.pactown.fast_start._run_streamed
+  src.pactown.generator:
+  - src.pactown.generator.generate_config
+  - src.pactown.generator.print_scan_results
+  - src.pactown.generator.scan_folder
+  - src.pactown.generator.scan_readme
+  src.pactown.iac:
+  - src.pactown.iac._default_base_image
+  - src.pactown.iac._runtime_type
+  - src.pactown.iac.build_sandbox_spec
+  - src.pactown.iac.build_single_service_compose
+  - src.pactown.iac.write_sandbox_iac
+  - src.pactown.iac.write_sandbox_manifest
+  - src.pactown.iac.write_single_service_compose
+  src.pactown.llm:
+  - src.pactown.llm.generate
+  - src.pactown.llm.get_llm
+  - src.pactown.llm.get_llm_status
+  - src.pactown.llm.reset_provider
+  - src.pactown.llm.set_provider_priority
+  src.pactown.markpact_blocks:
+  - src.pactown.markpact_blocks.extract_run_command
+  - src.pactown.markpact_blocks.extract_target_config
+  src.pactown.network:
+  - src.pactown.network.ServiceRegistry.list_services
+  src.pactown.node_cache:
+  - src.pactown.node_cache.NodeModulesCache._hash_pkg
+  - src.pactown.node_cache.NodeModulesCache.restore
+  - src.pactown.node_cache.NodeModulesCache.save
+  - src.pactown.node_cache._copytree_hardlink
+  - src.pactown.node_cache._sorted_deps
+  src.pactown.orchestrator:
+  - src.pactown.orchestrator.Orchestrator.from_file
+  src.pactown.parallel:
+  - src.pactown.parallel.ParallelSandboxBuilder.build_sandboxes
+  - src.pactown.parallel.run_in_dependency_waves
+  - src.pactown.parallel.run_parallel
+  src.pactown.platform:
+  - src.pactown.platform.DomainConfig._normalize_domain
+  - src.pactown.platform.DomainConfig._normalize_separator
+  - src.pactown.platform.api_base_url
+  - src.pactown.platform.build_origin
+  - src.pactown.platform.build_project_host
+  - src.pactown.platform.build_project_subdomain
+  - src.pactown.platform.build_service_subdomain
+  - src.pactown.platform.coerce_subdomain_separator
+  - src.pactown.platform.is_local_domain
+  - src.pactown.platform.normalize_domain
+  - src.pactown.platform.normalize_host
+  - src.pactown.platform.parse_project_host
+  - src.pactown.platform.parse_project_subdomain
+  - src.pactown.platform.to_dns_label
+  - src.pactown.platform.web_base_url
+  src.pactown.registry.models:
+  - src.pactown.registry.models.RegistryStorage.list
+  src.pactown.registry.server:
+  - src.pactown.registry.server.create_app
+  - src.pactown.registry.server.main
+  src.pactown.resolver:
+  - src.pactown.resolver.DependencyResolver.get_shutdown_order
+  - src.pactown.resolver.DependencyResolver.print_graph
+  src.pactown.runner_api:
+  - src.pactown.runner_api.RunnerService._resolve_service_id
+  - src.pactown.runner_api.RunnerService._sandbox_path_for
+  - src.pactown.runner_api.RunnerService.delete_sandbox_file
+  - src.pactown.runner_api.RunnerService.prepare_sandbox
+  - src.pactown.runner_api.RunnerService.read_sandbox_file
+  - src.pactown.runner_api.RunnerService.write_sandbox_file
+  - src.pactown.runner_api._dns_label
+  - src.pactown.runner_api._resolve_in_dir
+  - src.pactown.runner_api._service_name_for
+  - src.pactown.runner_api._validate_rel_path
+  - src.pactown.runner_api._validate_service_id
+  - src.pactown.runner_api.create_app
+  - src.pactown.runner_api.create_runner_api
+  - src.pactown.runner_api.main
+  src.pactown.runner_types:
+  - src.pactown.runner_types.kill_process_on_port
+  src.pactown.sandbox_helpers:
+  - src.pactown.sandbox_helpers._call_on_log
+  - src.pactown.sandbox_helpers._escape_dotenv_value
+  - src.pactown.sandbox_helpers._filter_runtime_env
+  - src.pactown.sandbox_helpers._heartbeat
+  - src.pactown.sandbox_helpers._sanitize_inherited_env
+  - src.pactown.sandbox_helpers._should_emit_to_ui
+  - src.pactown.sandbox_helpers._ui_log_level
+  - src.pactown.sandbox_helpers._write_dotenv_file
+  src.pactown.sandbox_manager:
+  - src.pactown.sandbox_manager.SandboxManager.build_service
+  - src.pactown.sandbox_manager.SandboxManager.start_service
+  - src.pactown.sandbox_manager.SandboxManager.stop_all
+  - src.pactown.sandbox_manager._build_web_preview_cmd
+  - src.pactown.sandbox_manager._find_web_assets_dir
+  - src.pactown.sandbox_manager._inject_electron_web_polyfill
+  - src.pactown.sandbox_manager._install_system_deps
+  src.pactown.security:
+  - src.pactown.security.AnomalyLogger.log
+  - src.pactown.security.get_security_policy
+  src.pactown.service_runner:
+  - src.pactown.service_runner.ServiceRunner.__init__
+  - src.pactown.service_runner.ServiceRunner._prune_stale_user_services
+  - src.pactown.service_runner.ServiceRunner.fast_run
+  - src.pactown.service_runner.ServiceRunner.run_from_content
+  - src.pactown.service_runner.ServiceRunner.stop_all
+  src.pactown.targets:
+  - src.pactown.targets.list_frameworks
+  src.pactown.user_isolation:
+  - src.pactown.user_isolation.UserIsolationManager.get_user_stats
+  - src.pactown.user_isolation.UserIsolationManager.list_users
+  tools.sync_pactown_com_dependency:
+  - tools.sync_pactown_com_dependency._read_pactown_version
+  - tools.sync_pactown_com_dependency._update_requirements_pin
+  - tools.sync_pactown_com_dependency.main
+  tools.validate_artifacts_docker:
+  - tools.validate_artifacts_docker._find_service_dir
+  - tools.validate_artifacts_docker.collect_artifacts
+  - tools.validate_artifacts_docker.docker_run
+  - tools.validate_artifacts_docker.main
+  - tools.validate_artifacts_docker.validate_artifact
+entry_points:
+- examples.fast-start-demo.demo.main
+- examples.security-policy.demo.main
+- examples.user-isolation.demo.main
+- src.pactown.builders.base.Builder._run_shell
+- src.pactown.builders.base.Builder.build
+- src.pactown.builders.base.Builder.scaffold
+- src.pactown.builders.desktop.DesktopBuilder._collect_artifacts
+- src.pactown.builders.desktop.DesktopBuilder._default_build_cmd
+- src.pactown.builders.desktop.DesktopBuilder._electron_already_scaffolded
+- src.pactown.builders.desktop.DesktopBuilder._electron_builder_flags
+- src.pactown.builders.desktop.DesktopBuilder._ensure_electron_dev_deps
+- src.pactown.builders.desktop.DesktopBuilder._filter_electron_builder_cmd
+- src.pactown.builders.desktop.DesktopBuilder._generate_linux_launcher
+- src.pactown.builders.desktop.DesktopBuilder._move_to_dev_deps
+- src.pactown.builders.desktop.DesktopBuilder._patch_electron_no_sandbox
+- src.pactown.builders.desktop.DesktopBuilder._scaffold_electron
+- src.pactown.builders.desktop.DesktopBuilder._scaffold_python_desktop
+- src.pactown.builders.desktop.DesktopBuilder._scaffold_tauri
+- src.pactown.builders.desktop.DesktopBuilder.build
+- src.pactown.builders.desktop.DesktopBuilder.build_parallel
+- src.pactown.builders.desktop.DesktopBuilder.scaffold
+- src.pactown.builders.mobile.MobileBuilder._collect_artifacts
+- src.pactown.builders.mobile.MobileBuilder._default_build_cmd
+- src.pactown.builders.mobile.MobileBuilder._ensure_cap_platforms
+- src.pactown.builders.mobile.MobileBuilder._resolve_cap_web_dir
+- src.pactown.builders.mobile.MobileBuilder._scaffold_capacitor
+- src.pactown.builders.mobile.MobileBuilder._scaffold_kivy
+- src.pactown.builders.mobile.MobileBuilder._scaffold_react_native
+- src.pactown.builders.mobile.MobileBuilder.build
+- src.pactown.builders.mobile.MobileBuilder.scaffold
+- src.pactown.builders.web.WebBuilder.build
+- src.pactown.builders.web.WebBuilder.scaffold
+- src.pactown.cli.build
+- src.pactown.cli.deploy
+- src.pactown.cli.down
+- src.pactown.cli.generate
+- src.pactown.cli.graph
+- src.pactown.cli.init
+- src.pactown.cli.llm
+- src.pactown.cli.llm_doctor
+- src.pactown.cli.llm_priority
+- src.pactown.cli.llm_reset
+- src.pactown.cli.llm_status
+- src.pactown.cli.llm_test
+- src.pactown.cli.main
+- src.pactown.cli.publish
+- src.pactown.cli.pull
+- src.pactown.cli.quadlet
+- src.pactown.cli.quadlet_api
+- src.pactown.cli.quadlet_deploy
+- src.pactown.cli.quadlet_generate
+- src.pactown.cli.quadlet_init
+- src.pactown.cli.quadlet_list
+- src.pactown.cli.quadlet_logs
+- src.pactown.cli.quadlet_shell
+- src.pactown.cli.scan
+- src.pactown.cli.status
+- src.pactown.cli.targets
+- src.pactown.cli.up
+- src.pactown.cli.validate
+- src.pactown.config.CacheConfig._to_mapping
+- src.pactown.config.CacheConfig.from_env
+- src.pactown.config.CacheConfig.to_docker_build_args
+- src.pactown.config.CacheConfig.to_env
+- src.pactown.config.DependencyConfig.from_dict
+- src.pactown.config.EcosystemConfig.from_dict
+- src.pactown.config.EcosystemConfig.from_yaml
+- src.pactown.config.EcosystemConfig.to_dict
+- src.pactown.config.EcosystemConfig.to_yaml
+- src.pactown.config.ServiceConfig.from_dict
+- src.pactown.deploy.ansible.AnsibleBackend.__init__
+- src.pactown.deploy.ansible.AnsibleBackend._run_playbook
+- src.pactown.deploy.ansible.AnsibleBackend._write_inventory
+- src.pactown.deploy.ansible.AnsibleBackend._write_playbook
+- src.pactown.deploy.ansible.AnsibleBackend.build_image
+- src.pactown.deploy.ansible.AnsibleBackend.deploy
+- src.pactown.deploy.ansible.AnsibleBackend.is_available
+- src.pactown.deploy.ansible.AnsibleBackend.logs
+- src.pactown.deploy.ansible.AnsibleBackend.push_image
+- src.pactown.deploy.ansible.AnsibleBackend.status
+- src.pactown.deploy.ansible.AnsibleBackend.stop
+- src.pactown.deploy.ansible.AnsibleBackend.write_all
+- src.pactown.deploy.ansible.AnsibleConfig.for_local
+- src.pactown.deploy.ansible.AnsibleConfig.for_remote
+- src.pactown.deploy.base.DeploymentBackend.__init__
+- src.pactown.deploy.base.DeploymentBackend._create_dockerfile
+- src.pactown.deploy.base.DeploymentBackend._create_node_dockerfile
+- src.pactown.deploy.base.DeploymentBackend.build_image
+- src.pactown.deploy.base.DeploymentBackend.deploy
+- src.pactown.deploy.base.DeploymentBackend.generate_dockerfile
+- src.pactown.deploy.base.DeploymentBackend.is_available
+- src.pactown.deploy.base.DeploymentBackend.logs
+- src.pactown.deploy.base.DeploymentBackend.push_image
+- src.pactown.deploy.base.DeploymentBackend.status
+- src.pactown.deploy.base.DeploymentBackend.stop
+- src.pactown.deploy.base.DeploymentConfig.for_development
+- src.pactown.deploy.base.DeploymentConfig.for_production
+- src.pactown.deploy.compose.ComposeGenerator.__init__
+- src.pactown.deploy.compose.ComposeGenerator._create_registry_service
+- src.pactown.deploy.compose.ComposeGenerator._create_service
+- src.pactown.deploy.compose.ComposeGenerator.generate
+- src.pactown.deploy.compose.ComposeGenerator.generate_override
+- src.pactown.deploy.compose.ComposeGenerator.generate_production
+- src.pactown.deploy.docker.DockerBackend.build_image
+- src.pactown.deploy.docker.DockerBackend.deploy
+- src.pactown.deploy.docker.DockerBackend.is_available
+- src.pactown.deploy.docker.DockerBackend.logs
+- src.pactown.deploy.docker.DockerBackend.push_image
+- src.pactown.deploy.docker.DockerBackend.status
+- src.pactown.deploy.docker.DockerBackend.stop
+- src.pactown.deploy.kubernetes.KubernetesBackend.__init__
+- src.pactown.deploy.kubernetes.KubernetesBackend._kubectl
+- src.pactown.deploy.kubernetes.KubernetesBackend.build_image
+- src.pactown.deploy.kubernetes.KubernetesBackend.deploy
+- src.pactown.deploy.kubernetes.KubernetesBackend.generate_hpa
+- src.pactown.deploy.kubernetes.KubernetesBackend.generate_manifests
+- src.pactown.deploy.kubernetes.KubernetesBackend.is_available
+- src.pactown.deploy.kubernetes.KubernetesBackend.logs
+- src.pactown.deploy.kubernetes.KubernetesBackend.push_image
+- src.pactown.deploy.kubernetes.KubernetesBackend.save_manifests
+- src.pactown.deploy.kubernetes.KubernetesBackend.status
+- src.pactown.deploy.kubernetes.KubernetesBackend.stop
+- src.pactown.deploy.podman.PodmanBackend.build_image
+- src.pactown.deploy.podman.PodmanBackend.create_pod
+- src.pactown.deploy.podman.PodmanBackend.deploy
+- src.pactown.deploy.podman.PodmanBackend.generate_systemd_unit
+- src.pactown.deploy.podman.PodmanBackend.is_available
+- src.pactown.deploy.podman.PodmanBackend.logs
+- src.pactown.deploy.podman.PodmanBackend.push_image
+- src.pactown.deploy.podman.PodmanBackend.status
+- src.pactown.deploy.podman.PodmanBackend.stop
+- src.pactown.deploy.quadlet.QuadletBackend.__init__
+- src.pactown.deploy.quadlet.QuadletBackend._systemctl
+- src.pactown.deploy.quadlet.QuadletBackend.build_image
+- src.pactown.deploy.quadlet.QuadletBackend.deploy
+- src.pactown.deploy.quadlet.QuadletBackend.generate_quadlet_files
+- src.pactown.deploy.quadlet.QuadletBackend.get_quadlet_version
+- src.pactown.deploy.quadlet.QuadletBackend.is_available
+- src.pactown.deploy.quadlet.QuadletBackend.list_services
+- src.pactown.deploy.quadlet.QuadletBackend.logs
+- src.pactown.deploy.quadlet.QuadletBackend.push_image
+- src.pactown.deploy.quadlet.QuadletBackend.status
+- src.pactown.deploy.quadlet.QuadletBackend.stop
+- src.pactown.deploy.quadlet.QuadletTemplates.container
+- src.pactown.deploy.quadlet.QuadletTemplates.network
+- src.pactown.deploy.quadlet.QuadletTemplates.pod
+- src.pactown.deploy.quadlet.QuadletTemplates.volume
+- src.pactown.deploy.quadlet.QuadletUnit.save
+- src.pactown.deploy.quadlet.check_dangerous_content
+- src.pactown.deploy.quadlet_shell.QuadletShell.__init__
+- src.pactown.deploy.quadlet_shell.QuadletShell.default
+- src.pactown.deploy.quadlet_shell.QuadletShell.do_EOF
+- src.pactown.deploy.quadlet_shell.QuadletShell.do_config
+- src.pactown.deploy.quadlet_shell.QuadletShell.do_deploy
+- src.pactown.deploy.quadlet_shell.QuadletShell.do_exit
+- src.pactown.deploy.quadlet_shell.QuadletShell.do_export
+- src.pactown.deploy.quadlet_shell.QuadletShell.do_generate
+- src.pactown.deploy.quadlet_shell.QuadletShell.do_generate_container
+- src.pactown.deploy.quadlet_shell.QuadletShell.do_generate_traefik
+- src.pactown.deploy.quadlet_shell.QuadletShell.do_help
+- src.pactown.deploy.quadlet_shell.QuadletShell.do_init
+- src.pactown.deploy.quadlet_shell.QuadletShell.do_list
+- src.pactown.deploy.quadlet_shell.QuadletShell.do_logs
+- src.pactown.deploy.quadlet_shell.QuadletShell.do_quit
+- src.pactown.deploy.quadlet_shell.QuadletShell.do_reload
+- src.pactown.deploy.quadlet_shell.QuadletShell.do_restart
+- src.pactown.deploy.quadlet_shell.QuadletShell.do_start
+- src.pactown.deploy.quadlet_shell.QuadletShell.do_status
+- src.pactown.deploy.quadlet_shell.QuadletShell.do_stop
+- src.pactown.deploy.quadlet_shell.QuadletShell.do_undeploy
+- src.pactown.deploy.quadlet_shell.QuadletShell.emptyline
+- src.pactown.events.Aggregate.__init__
+- src.pactown.events.Aggregate.apply_event
+- src.pactown.events.Aggregate.clear_pending_events
+- src.pactown.events.Aggregate.get_pending_events
+- src.pactown.events.Aggregate.load
+- src.pactown.events.Aggregate.load_from_history
+- src.pactown.events.Aggregate.raise_event
+- src.pactown.events.Event.from_dict
+- src.pactown.events.Event.to_dict
+- src.pactown.events.EventStore.__init__
+- src.pactown.events.EventStore._load_from_file
+- src.pactown.events.EventStore._notify_subscribers
+- src.pactown.events.EventStore._save_to_file
+- src.pactown.events.EventStore.append
+- src.pactown.events.EventStore.clear
+- src.pactown.events.EventStore.count
+- src.pactown.events.EventStore.get_aggregate_history
+- src.pactown.events.EventStore.get_current_sequence
+- src.pactown.events.EventStore.get_events
+- src.pactown.events.EventStore.subscribe
+- src.pactown.events.EventStore.subscribe_all
+- src.pactown.events.ProjectCommands.__init__
+- src.pactown.events.ProjectCommands.create_project
+- src.pactown.events.ProjectCommands.delete_project
+- src.pactown.events.ProjectCommands.update_project
+- src.pactown.events.ProjectQueries.__init__
+- src.pactown.events.ProjectQueries.get_project_history
+- src.pactown.events.ProjectQueries.get_recent_projects
+- src.pactown.events.ProjectQueries.get_stats
+- src.pactown.events.Projection.__init__
+- src.pactown.events.Projection.apply
+- src.pactown.events.Projection.catch_up
+- src.pactown.events.Projection.rebuild
+- src.pactown.events.SecurityCommands.__init__
+- src.pactown.events.SecurityCommands.record_anomaly
+- src.pactown.events.SecurityCommands.record_rate_limit
+- src.pactown.events.SecurityCommands.record_security_check
+- src.pactown.events.SecurityQueries.__init__
+- src.pactown.events.SecurityQueries.get_anomalies
+- src.pactown.events.SecurityQueries.get_rate_limit_hits
+- src.pactown.events.SecurityQueries.get_recent_security_failures
+- src.pactown.events.SecurityQueries.get_stats
+- src.pactown.events.SecurityQueries.get_user_security_history
+- src.pactown.events.ServiceAggregate.__init__
+- src.pactown.events.ServiceAggregate.apply_event
+- src.pactown.events.ServiceAggregate.to_dict
+- src.pactown.events.ServiceCommands.__init__
+- src.pactown.events.ServiceCommands.create_service
+- src.pactown.events.ServiceCommands.delete_service
+- src.pactown.events.ServiceCommands.record_error
+- src.pactown.events.ServiceCommands.record_health_check
+- src.pactown.events.ServiceCommands.start_service
+- src.pactown.events.ServiceCommands.stop_service
+- src.pactown.events.ServiceQueries.__init__
+- src.pactown.events.ServiceQueries.get_recent_errors
+- src.pactown.events.ServiceQueries.get_recent_health_checks
+- src.pactown.events.ServiceQueries.get_recent_starts
+- src.pactown.events.ServiceQueries.get_service_history
+- src.pactown.events.ServiceQueries.get_service_state
+- src.pactown.events.ServiceQueries.get_stats
+- src.pactown.events.ServiceQueries.get_user_services
+- src.pactown.events.ServiceStatusProjection.__init__
+- src.pactown.events.ServiceStatusProjection.apply
+- src.pactown.events.ServiceStatusProjection.get
+- src.pactown.events.ServiceStatusProjection.get_all
+- src.pactown.events.ServiceStatusProjection.get_by_user
+- src.pactown.events.ServiceStatusProjection.get_running
+- src.pactown.events.get_project_commands
+- src.pactown.events.get_project_queries
+- src.pactown.events.get_security_commands
+- src.pactown.events.get_security_queries
+- src.pactown.events.get_service_commands
+- src.pactown.events.get_service_queries
+- src.pactown.events.set_event_store
+- src.pactown.fast_start.CachedVenv.is_valid
+- src.pactown.fast_start.DependencyCache.__init__
+- src.pactown.fast_start.DependencyCache._cleanup_old
+- src.pactown.fast_start.DependencyCache._hash_deps
+- src.pactown.fast_start.DependencyCache._load_existing
+- src.pactown.fast_start.DependencyCache.create_and_cache
+- src.pactown.fast_start.DependencyCache.get_cached_venv
+- src.pactown.fast_start.DependencyCache.get_stats
+- src.pactown.fast_start.DependencyCache.invalidate
+- src.pactown.fast_start.DependencyCache.save_existing_venv
+- src.pactown.fast_start.FastServiceStarter.__init__
+- src.pactown.fast_start.FastServiceStarter._install_deps_direct
+- src.pactown.fast_start.FastServiceStarter._write_files_parallel
+- src.pactown.fast_start.FastServiceStarter.fast_create_sandbox
+- src.pactown.fast_start.FastServiceStarter.get_cache_stats
+- src.pactown.fast_start.ParallelServiceRunner.__init__
+- src.pactown.fast_start.ParallelServiceRunner.run_parallel
+- src.pactown.fast_start.SandboxPool.__init__
+- src.pactown.fast_start.SandboxPool._hash_deps
+- src.pactown.fast_start.SandboxPool.get_prewarmed
+- src.pactown.fast_start.SandboxPool.release
+- src.pactown.fast_start.SandboxPool.warm_pool
+- src.pactown.fast_start._beat_every_s
+- src.pactown.fast_start._heartbeat
+- src.pactown.fast_start.get_fast_starter
+- src.pactown.iac.SandboxIacOptions.from_env
+- src.pactown.llm.PactownLLM.__init__
+- src.pactown.llm.PactownLLM.generate
+- src.pactown.llm.PactownLLM.generate_with_fallback
+- src.pactown.llm.PactownLLM.generate_with_rotation
+- src.pactown.llm.PactownLLM.get_instance
+- src.pactown.llm.PactownLLM.get_provider_health
+- src.pactown.llm.PactownLLM.get_rotation_queue
+- src.pactown.llm.PactownLLM.get_status
+- src.pactown.llm.PactownLLM.initialize
+- src.pactown.llm.PactownLLM.on_provider_unavailable
+- src.pactown.llm.PactownLLM.on_rate_limit
+- src.pactown.llm.PactownLLM.on_rotation
+- src.pactown.llm.PactownLLM.reset_provider
+- src.pactown.llm.PactownLLM.set_instance
+- src.pactown.llm.PactownLLM.set_provider_priority
+- src.pactown.llm.generate
+- src.pactown.llm.get_llm_status
+- src.pactown.llm.get_lolm_info
+- src.pactown.llm.is_lolm_available
+- src.pactown.llm.reset_provider
+- src.pactown.llm.set_provider_priority
+- src.pactown.network.PortAllocator.__init__
+- src.pactown.network.PortAllocator.allocate
+- src.pactown.network.PortAllocator.is_port_free
+- src.pactown.network.PortAllocator.release
+- src.pactown.network.PortAllocator.release_all
+- src.pactown.network.ServiceRegistry.__init__
+- src.pactown.network.ServiceRegistry._load
+- src.pactown.network.ServiceRegistry._save
+- src.pactown.network.ServiceRegistry.clear
+- src.pactown.network.ServiceRegistry.get
+- src.pactown.network.ServiceRegistry.get_environment
+- src.pactown.network.ServiceRegistry.get_url
+- src.pactown.network.ServiceRegistry.list_services
+- src.pactown.network.ServiceRegistry.register
+- src.pactown.network.ServiceRegistry.unregister
+- src.pactown.network.check_port
+- src.pactown.network.find_free_port
+- src.pactown.nfo_config.get_logger
+- src.pactown.nfo_config.setup_logging
+- src.pactown.node_cache.CachedNodeModules.is_valid
+- src.pactown.node_cache.NodeModulesCache.__init__
+- src.pactown.node_cache.NodeModulesCache._evict
+- src.pactown.node_cache.NodeModulesCache._hash_pkg
+- src.pactown.node_cache.NodeModulesCache._load_existing
+- src.pactown.node_cache.NodeModulesCache.get
+- src.pactown.node_cache.NodeModulesCache.get_stats
+- src.pactown.node_cache.NodeModulesCache.invalidate
+- src.pactown.node_cache.NodeModulesCache.restore
+- src.pactown.node_cache.NodeModulesCache.save
+- src.pactown.orchestrator.Orchestrator.__init__
+- src.pactown.orchestrator.Orchestrator._get_readme_path
+- src.pactown.orchestrator.Orchestrator._start_all_parallel
+- src.pactown.orchestrator.Orchestrator._start_all_sequential
+- src.pactown.orchestrator.Orchestrator._start_service_with_health
+- src.pactown.orchestrator.Orchestrator._wait_for_health
+- src.pactown.orchestrator.Orchestrator.check_health
+- src.pactown.orchestrator.Orchestrator.from_file
+- src.pactown.orchestrator.Orchestrator.get_logs
+- src.pactown.orchestrator.Orchestrator.print_graph
+- src.pactown.orchestrator.Orchestrator.print_status
+- src.pactown.orchestrator.Orchestrator.restart_service
+- src.pactown.orchestrator.Orchestrator.start_all
+- src.pactown.orchestrator.Orchestrator.start_service
+- src.pactown.orchestrator.Orchestrator.stop_all
+- src.pactown.orchestrator.Orchestrator.stop_service
+- src.pactown.orchestrator.Orchestrator.validate
+- src.pactown.orchestrator.run_ecosystem
+- src.pactown.parallel.ParallelSandboxBuilder.__init__
+- src.pactown.parallel.ParallelSandboxBuilder.build_sandboxes
+- src.pactown.parallel.format_parallel_results
+- src.pactown.parallel.run_in_dependency_waves
+- src.pactown.parallel.run_parallel_async
+- src.pactown.platform.DomainConfig._normalize_domain
+- src.pactown.platform.DomainConfig._normalize_separator
+- src.pactown.platform.api_base_url
+- src.pactown.platform.build_project_host
+- src.pactown.platform.build_service_subdomain
+- src.pactown.platform.parse_project_host
+- src.pactown.platform.web_base_url
+- src.pactown.registry.client.AsyncRegistryClient.__aenter__
+- src.pactown.registry.client.AsyncRegistryClient.__aexit__
+- src.pactown.registry.client.AsyncRegistryClient.__init__
+- src.pactown.registry.client.AsyncRegistryClient.close
+- src.pactown.registry.client.AsyncRegistryClient.get_readme
+- src.pactown.registry.client.AsyncRegistryClient.health
+- src.pactown.registry.client.AsyncRegistryClient.list_artifacts
+- src.pactown.registry.client.AsyncRegistryClient.publish
+- src.pactown.registry.client.RegistryClient.__enter__
+- src.pactown.registry.client.RegistryClient.__exit__
+- src.pactown.registry.client.RegistryClient.__init__
+- src.pactown.registry.client.RegistryClient.close
+- src.pactown.registry.client.RegistryClient.delete
+- src.pactown.registry.client.RegistryClient.get_artifact
+- src.pactown.registry.client.RegistryClient.get_readme
+- src.pactown.registry.client.RegistryClient.get_version
+- src.pactown.registry.client.RegistryClient.health
+- src.pactown.registry.client.RegistryClient.list_artifacts
+- src.pactown.registry.client.RegistryClient.list_namespaces
+- src.pactown.registry.client.RegistryClient.publish
+- src.pactown.registry.client.RegistryClient.pull
+- src.pactown.registry.models.Artifact.add_version
+- src.pactown.registry.models.Artifact.from_dict
+- src.pactown.registry.models.Artifact.get_version
+- src.pactown.registry.models.Artifact.to_dict
+- src.pactown.registry.models.ArtifactVersion.from_dict
+- src.pactown.registry.models.ArtifactVersion.to_dict
+- src.pactown.registry.models.RegistryStorage.__init__
+- src.pactown.registry.models.RegistryStorage._load
+- src.pactown.registry.models.RegistryStorage._save
+- src.pactown.registry.models.RegistryStorage.delete
+- src.pactown.registry.models.RegistryStorage.get
+- src.pactown.registry.models.RegistryStorage.save_artifact
+- src.pactown.registry.models.RegistryStorage.search
+- src.pactown.registry.server.main
+- src.pactown.resolver.DependencyResolver.__init__
+- src.pactown.resolver.DependencyResolver._build_graph
+- src.pactown.resolver.DependencyResolver.get_environment
+- src.pactown.resolver.DependencyResolver.get_shutdown_order
+- src.pactown.resolver.DependencyResolver.get_startup_order
+- src.pactown.resolver.DependencyResolver.print_graph
+- src.pactown.resolver.DependencyResolver.resolve_service_deps
+- src.pactown.resolver.DependencyResolver.validate
+- src.pactown.runner_api.RunnerApiSettings.__init__
+- src.pactown.runner_api.RunnerService.__init__
+- src.pactown.runner_api.RunnerService._resolve_service_id
+- src.pactown.runner_api.RunnerService._sandbox_path_for
+- src.pactown.runner_api.RunnerService.delete_sandbox_file
+- src.pactown.runner_api.RunnerService.list_sandbox_files
+- src.pactown.runner_api.RunnerService.prepare_sandbox
+- src.pactown.runner_api.RunnerService.read_sandbox_file
+- src.pactown.runner_api.RunnerService.run
+- src.pactown.runner_api.RunnerService.validate
+- src.pactown.runner_api.RunnerService.write_sandbox_file
+- src.pactown.runner_api.main
+- src.pactown.runner_types.DiagnosticInfo.collect
+- src.pactown.runner_types.RunResult.to_dict
+- src.pactown.sandbox_helpers._heartbeat
+- src.pactown.sandbox_manager.SandboxManager.__init__
+- src.pactown.sandbox_manager.SandboxManager._ensure_package_json
+- src.pactown.sandbox_manager.SandboxManager._infer_node_project
+- src.pactown.sandbox_manager.SandboxManager._install_node_deps
+- src.pactown.sandbox_manager.SandboxManager._is_node_lang
+- src.pactown.sandbox_manager.SandboxManager.build_service
+- src.pactown.sandbox_manager.SandboxManager.clean_all
+- src.pactown.sandbox_manager.SandboxManager.clean_sandbox
+- src.pactown.sandbox_manager.SandboxManager.create_sandbox
+- src.pactown.sandbox_manager.SandboxManager.create_sandboxes_parallel
+- src.pactown.sandbox_manager.SandboxManager.get_all_status
+- src.pactown.sandbox_manager.SandboxManager.get_sandbox_path
+- src.pactown.sandbox_manager.SandboxManager.get_status
+- src.pactown.sandbox_manager.SandboxManager.start_service
+- src.pactown.sandbox_manager.SandboxManager.start_services_parallel
+- src.pactown.sandbox_manager.SandboxManager.stop_all
+- src.pactown.sandbox_manager.SandboxManager.stop_service
+- src.pactown.security.AnomalyEvent.to_dict
+- src.pactown.security.AnomalyEvent.to_log_line
+- src.pactown.security.AnomalyLogger.__init__
+- src.pactown.security.AnomalyLogger.get_by_type
+- src.pactown.security.AnomalyLogger.get_by_user
+- src.pactown.security.AnomalyLogger.get_recent
+- src.pactown.security.RateLimiter.__init__
+- src.pactown.security.RateLimiter._get_bucket
+- src.pactown.security.RateLimiter.check
+- src.pactown.security.RateLimiter.consume
+- src.pactown.security.RateLimiter.get_wait_time
+- src.pactown.security.ResourceMonitor.__init__
+- src.pactown.security.ResourceMonitor._get_cpu_percent
+- src.pactown.security.ResourceMonitor._get_memory_percent
+- src.pactown.security.ResourceMonitor.check_overload
+- src.pactown.security.ResourceMonitor.get_throttle_delay
+- src.pactown.security.SecurityCheckResult.to_dict
+- src.pactown.security.SecurityPolicy.__init__
+- src.pactown.security.SecurityPolicy.check_can_start_service
+- src.pactown.security.SecurityPolicy.get_anomaly_summary
+- src.pactown.security.SecurityPolicy.get_services_started_last_hour
+- src.pactown.security.SecurityPolicy.get_user_profile
+- src.pactown.security.SecurityPolicy.get_user_service_count
+- src.pactown.security.SecurityPolicy.register_service
+- src.pactown.security.SecurityPolicy.set_user_profile
+- src.pactown.security.SecurityPolicy.unregister_service
+- src.pactown.security.UserProfile.from_dict
+- src.pactown.security.UserProfile.from_tier
+- src.pactown.security.UserProfile.to_dict
+- src.pactown.security.set_security_policy
+- src.pactown.service_runner.ServiceRunner.__init__
+- src.pactown.service_runner.ServiceRunner._extract_required_env_vars
+- src.pactown.service_runner.ServiceRunner._generate_suggestions
+- src.pactown.service_runner.ServiceRunner._missing_required_env_vars
+- src.pactown.service_runner.ServiceRunner._prune_stale_user_services
+- src.pactown.service_runner.ServiceRunner._quick_health_check
+- src.pactown.service_runner.ServiceRunner._wait_for_health
+- src.pactown.service_runner.ServiceRunner.fast_run
+- src.pactown.service_runner.ServiceRunner.get_cache_stats
+- src.pactown.service_runner.ServiceRunner.get_status
+- src.pactown.service_runner.ServiceRunner.list_services
+- src.pactown.service_runner.ServiceRunner.run_from_content
+- src.pactown.service_runner.ServiceRunner.stop
+- src.pactown.service_runner.ServiceRunner.stop_all
+- src.pactown.service_runner.ServiceRunner.test_endpoints
+- src.pactown.service_runner.ServiceRunner.validate_content
+- src.pactown.targets.TargetConfig.effective_build_targets
+- src.pactown.targets.TargetConfig.from_dict
+- src.pactown.targets.TargetConfig.from_yaml_body
+- src.pactown.targets.infer_target_from_deps
+- src.pactown.user_isolation.IsolatedUser.to_dict
+- src.pactown.user_isolation.UserIsolationManager.__init__
+- src.pactown.user_isolation.UserIsolationManager._generate_username
+- src.pactown.user_isolation.UserIsolationManager._load_existing_users
+- src.pactown.user_isolation.UserIsolationManager.can_isolate
+- src.pactown.user_isolation.UserIsolationManager.delete_user
+- src.pactown.user_isolation.UserIsolationManager.export_user_data
+- src.pactown.user_isolation.UserIsolationManager.get_or_create_user
+- src.pactown.user_isolation.UserIsolationManager.get_sandbox_path
+- src.pactown.user_isolation.UserIsolationManager.get_user
+- src.pactown.user_isolation.UserIsolationManager.get_user_stats
+- src.pactown.user_isolation.UserIsolationManager.import_user_data
+- src.pactown.user_isolation.UserIsolationManager.list_users
+- src.pactown.user_isolation.UserIsolationManager.run_as_user
+- tools.sync_pactown_com_dependency.main
+- tools.validate_artifacts_docker.ValidationReport.print_summary
+- tools.validate_artifacts_docker._py_script
+- tools.validate_artifacts_docker._py_yaml_script
+- tools.validate_artifacts_docker._reg
+- tools.validate_artifacts_docker.main

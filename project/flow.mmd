@@ -1,0 +1,31 @@
+flowchart TD
+%% generated in 0.01s
+
+    %% Entry points (blue)
+    classDef entry fill:#4dabf7,stroke:#1971c2,color:#fff
+
+    subgraph Core
+        src__pactown__sandbox_helpers___sanitize_inherited_env{{_sanitize_inherited_env CC=16}}
+        src__pactown__sandbox_helpers___heartbeat["_heartbeat"]
+        src__pactown__nfo_config__get_logger["get_logger"]
+        src__pactown__nfo_config__setup_logging["setup_logging"]
+        src__pactown__markpact_blocks__extract_run_command{{extract_run_command CC=17}}
+        src__pactown__error_context___truncate_text["_truncate_text"]
+        src__pactown__error_context__build_error_context{{build_error_context CC=41}}
+        src__pactown__error_context__render_error_report_md{{render_error_report_md CC=43}}
+        src__pactown__iac__SandboxIacOptions__from_env["from_env"]
+        src__pactown__iac__build_sandbox_spec{{build_sandbox_spec CC=17}}
+        src__pactown__user_isolation__IsolatedUser__to_dict["to_dict"]
+        src__pactown__user_isolation__UserIsolationManager__can_isolate["can_isolate"]
+        src__pactown__user_isolation__UserIsolationManager___load_existing_users["_load_existing_users"]
+        src__pactown__user_isolation__UserIsolationManager___generate_username["_generate_username"]
+        src__pactown__user_isolation__UserIsolationManager__get_or_create_user["get_or_create_user"]
+        ...["+453 more"]
+    end
+
+    subgraph Exporters
+        src__pactown__user_isolation__UserIsolationManager__export_user_data["export_user_data"]
+        src__pactown__deploy__quadlet_shell__QuadletShell__do_export["do_export"]
+    end
+
+    class src__pactown__sandbox_helpers___heartbeat,src__pactown__nfo_config__get_logger,src__pactown__nfo_config__setup_logging,src__pactown__iac__SandboxIacOptions__from_env,src__pactown__user_isolation__IsolatedUser__to_dict,src__pactown__user_isolation__UserIsolationManager__can_isolate,src__pactown__user_isolation__UserIsolationManager___load_existing_users,src__pactown__user_isolation__UserIsolationManager___generate_username,src__pactown__user_isolation__UserIsolationManager__get_or_create_user,src__pactown__user_isolation__UserIsolationManager__get_user entry

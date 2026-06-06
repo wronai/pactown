@@ -1,0 +1,214 @@
+# code2llm | 62f 21094L | python:50,yaml:5,shell:2,txt:1,cfg:1,toml:1,ini:1 | 2026-06-06
+# generated in 0.03s
+# CC̅=4.5 | critical:33/603 | dups:0 | cycles:0
+
+HEALTH[20]:
+  🔴 GOD   src/pactown/fast_start.py = 754L, 7 classes, 26m, max CC=20
+  🔴 GOD   src/pactown/deploy/quadlet.py = 1044L, 4 classes, 28m, max CC=18
+  🔴 GOD   src/pactown/security.py = 690L, 9 classes, 32m, max CC=14
+  🔴 GOD   src/pactown/events.py = 1075L, 13 classes, 75m, max CC=19
+  🔴 GOD   src/pactown/runner_api.py = 635L, 8 classes, 19m, max CC=14
+  🔴 GOD   src/pactown/deploy/quadlet_api.py = 539L, 7 classes, 2m, max CC=1
+  🟡 CC    _sanitize_inherited_env CC=16 (limit:15)
+  🟡 CC    extract_run_command CC=17 (limit:15)
+  🟡 CC    build_error_context CC=41 (limit:15)
+  🟡 CC    render_error_report_md CC=43 (limit:15)
+  🟡 CC    build_sandbox_spec CC=17 (limit:15)
+  🟡 CC    get_or_create_user CC=15 (limit:15)
+  🟡 CC    validate_content CC=25 (limit:15)
+  🟡 CC    _extract_required_env_vars CC=19 (limit:15)
+  🟡 CC    run_from_content CC=37 (limit:15)
+  🟡 CC    _generate_suggestions CC=18 (limit:15)
+  🟡 CC    _wait_for_health CC=30 (limit:15)
+  🟡 CC    fast_run CC=36 (limit:15)
+  🟡 CC    _scaffold_capacitor CC=24 (limit:15)
+  🟡 CC    kill_process_on_port CC=25 (limit:15)
+
+REFACTOR[7]:
+  1. split src/pactown/fast_start.py  (god module)
+  2. split src/pactown/deploy/quadlet.py  (god module)
+  3. split src/pactown/security.py  (god module)
+  4. split src/pactown/events.py  (god module)
+  5. split src/pactown/runner_api.py  (god module)
+  6. split src/pactown/deploy/quadlet_api.py  (god module)
+  7. split 14 high-CC methods  (CC>15)
+
+PIPELINES[451]:
+  [1] Src [main]: main
+      PURITY: 100% pure
+  [2] Src [_heartbeat]: _heartbeat → _should_emit_to_ui → _ui_log_level
+      PURITY: 100% pure
+  [3] Src [main]: main
+      PURITY: 100% pure
+  [4] Src [get_logger]: get_logger
+      PURITY: 100% pure
+  [5] Src [setup_logging]: setup_logging
+      PURITY: 100% pure
+  [6] Src [main]: main
+      PURITY: 100% pure
+  [7] Src [from_env]: from_env
+      PURITY: 100% pure
+  [8] Src [to_dict]: to_dict
+      PURITY: 100% pure
+  [9] Src [__init__]: __init__
+      PURITY: 100% pure
+  [10] Src [can_isolate]: can_isolate
+      PURITY: 100% pure
+  [11] Src [_load_existing_users]: _load_existing_users
+      PURITY: 100% pure
+  [12] Src [_generate_username]: _generate_username
+      PURITY: 100% pure
+  [13] Src [get_or_create_user]: get_or_create_user → _sanitize_gecos
+      PURITY: 100% pure
+  [14] Src [get_user]: get_user
+      PURITY: 100% pure
+  [15] Src [get_sandbox_path]: get_sandbox_path
+      PURITY: 100% pure
+  [16] Src [run_as_user]: run_as_user
+      PURITY: 100% pure
+  [17] Src [list_users]: list_users → list
+      PURITY: 100% pure
+  [18] Src [get_user_stats]: get_user_stats → list
+      PURITY: 100% pure
+  [19] Src [export_user_data]: export_user_data
+      PURITY: 100% pure
+  [20] Src [import_user_data]: import_user_data
+      PURITY: 100% pure
+  [21] Src [delete_user]: delete_user
+      PURITY: 100% pure
+  [22] Src [__init__]: __init__ → get_security_policy
+      PURITY: 100% pure
+  [23] Src [validate_content]: validate_content → extract_run_command → extract_target_config
+      PURITY: 100% pure
+  [24] Src [_extract_required_env_vars]: _extract_required_env_vars
+      PURITY: 100% pure
+  [25] Src [_missing_required_env_vars]: _missing_required_env_vars
+      PURITY: 100% pure
+  [26] Src [_prune_stale_user_services]: _prune_stale_user_services → list
+      PURITY: 100% pure
+  [27] Src [run_from_content]: run_from_content → kill_process_on_port
+      PURITY: 100% pure
+  [28] Src [_generate_suggestions]: _generate_suggestions
+      PURITY: 100% pure
+  [29] Src [_wait_for_health]: _wait_for_health
+      PURITY: 100% pure
+  [30] Src [stop]: stop
+      PURITY: 100% pure
+  [31] Src [get_status]: get_status
+      PURITY: 100% pure
+  [32] Src [list_services]: list_services
+      PURITY: 100% pure
+  [33] Src [test_endpoints]: test_endpoints
+      PURITY: 100% pure
+  [34] Src [stop_all]: stop_all → list
+      PURITY: 100% pure
+  [35] Src [fast_run]: fast_run → kill_process_on_port
+      PURITY: 100% pure
+  [36] Src [_quick_health_check]: _quick_health_check
+      PURITY: 100% pure
+  [37] Src [get_cache_stats]: get_cache_stats
+      PURITY: 100% pure
+  [38] Src [from_dict]: from_dict
+      PURITY: 100% pure
+  [39] Src [from_dict]: from_dict
+      PURITY: 100% pure
+  [40] Src [from_env]: from_env
+      PURITY: 100% pure
+  [41] Src [_to_mapping]: _to_mapping
+      PURITY: 100% pure
+  [42] Src [to_env]: to_env
+      PURITY: 100% pure
+  [43] Src [to_docker_build_args]: to_docker_build_args
+      PURITY: 100% pure
+  [44] Src [from_yaml]: from_yaml
+      PURITY: 100% pure
+  [45] Src [from_dict]: from_dict
+      PURITY: 100% pure
+  [46] Src [to_dict]: to_dict
+      PURITY: 100% pure
+  [47] Src [to_yaml]: to_yaml
+      PURITY: 100% pure
+  [48] Src [from_yaml_body]: from_yaml_body
+      PURITY: 100% pure
+  [49] Src [from_dict]: from_dict → _to_int
+      PURITY: 100% pure
+  [50] Src [infer_target_from_deps]: infer_target_from_deps
+      PURITY: 100% pure
+
+LAYERS:
+  tools/                          CC̄=5.4    ←in:0  →out:0
+  │ !! validate_artifacts_docker   546L  2C   11m  CC=17     ←0
+  │ sync_pactown_com_dependency    89L  0C    3m  CC=8      ←0
+  │
+  examples/                       CC̄=5.3    ←in:0  →out:0
+  │ demo                       120L  0C    1m  CC=4      ←0
+  │ demo                       110L  0C    1m  CC=5      ←0
+  │ demo                       105L  0C    1m  CC=7      ←0
+  │ saas.pactown.yaml           72L  0C    0m  CC=0.0    ←0
+  │ saas.pactown.yaml           48L  0C    0m  CC=0.0    ←0
+  │
+  src/                            CC̄=4.5    ←in:0  →out:0
+  │ !! sandbox_manager           1839L  2C   24m  CC=67     ←0
+  │ !! service_runner            1234L  1C   16m  CC=37     ←0
+  │ !! events                    1075L  13C   75m  CC=19     ←0
+  │ !! quadlet                   1044L  4C   28m  CC=18     ←3
+  │ !! cli                        990L  0C   34m  CC=18     ←0
+  │ !! fast_start                 754L  7C   26m  CC=20     ←0
+  │ !! security                   690L  9C   32m  CC=14     ←3
+  │ !! desktop                    665L  1C   15m  CC=19     ←0
+  │ !! runner_api                 635L  8C   19m  CC=14     ←0
+  │ !! ansible                    586L  2C   18m  CC=10     ←0
+  │ !! quadlet_shell              564L  1C   23m  CC=9      ←1
+  │ !! quadlet_api                539L  7C    2m  CC=1      ←1
+  │ kubernetes                 473L  1C   12m  CC=9      ←0
+  │ !! mobile                     471L  1C   10m  CC=24     ←0
+  │ !! user_isolation             463L  2C   16m  CC=15     ←1
+  │ !! orchestrator               455L  2C   18m  CC=19     ←0
+  │ llm                        453L  3C   22m  CC=8      ←0
+  │ !! compose                    439L  2C    7m  CC=18     ←1
+  │ !! podman                     421L  1C    9m  CC=17     ←0
+  │ !! error_context              381L  1C    9m  CC=43     ←2
+  │ targets                    351L  6C    7m  CC=10     ←3
+  │ !! docker                     321L  1C    7m  CC=16     ←0
+  │ base                       312L  5C   13m  CC=5      ←0
+  │ parallel                   271L  2C    6m  CC=12     ←0
+  │ network                    270L  3C   17m  CC=6      ←0
+  │ client                     260L  2C   21m  CC=6      ←0
+  │ !! iac                        258L  1C    8m  CC=17     ←1
+  │ node_cache                 258L  2C   12m  CC=7      ←0
+  │ !! runner_types               254L  6C    3m  CC=25     ←1
+  │ config                     252L  5C   11m  CC=12     ←3
+  │ __init__                   240L  0C    0m  CC=0.0    ←0
+  │ !! sandbox_helpers            234L  0C   10m  CC=16     ←3
+  │ server                     217L  4C    2m  CC=1      ←0
+  │ generator                  213L  0C    4m  CC=12     ←1
+  │ nfo_config                 210L  0C    2m  CC=11     ←0
+  │ resolver                   162L  2C    8m  CC=9      ←0
+  │ models                     157L  3C   14m  CC=6      ←14
+  │ base                       155L  3C    4m  CC=13     ←3
+  │ platform                   146L  2C   15m  CC=5      ←1
+  │ web                         93L  1C    2m  CC=4      ←0
+  │ !! markpact_blocks             69L  0C    3m  CC=17     ←3
+  │ __init__                    34L  0C    0m  CC=0.0    ←0
+  │ registry                    32L  0C    2m  CC=2      ←1
+  │ __init__                    18L  0C    0m  CC=0.0    ←0
+  │ __init__                    12L  0C    0m  CC=0.0    ←0
+  │
+  ./                              CC̄=0.0    ←in:0  →out:0
+  │ goal.yaml                  431L  0C    0m  CC=0.0    ←0
+  │ Makefile                   328L  0C    0m  CC=0.0    ←0
+  │ pyproject.toml             112L  0C    0m  CC=0.0    ←0
+  │ project.sh                  59L  0C    0m  CC=0.0    ←0
+  │ pyqual.yaml                 55L  0C    0m  CC=0.0    ←0
+  │ saas.pactown.yaml           22L  0C    0m  CC=0.0    ←0
+  │ .bumpversion.cfg            20L  0C    0m  CC=0.0    ←0
+  │ requirements-dev.txt         3L  0C    0m  CC=0.0    ←0
+  │ pytest.ini                   3L  0C    0m  CC=0.0    ←0
+  │ tree.sh                      1L  0C    0m  CC=0.0    ←0
+  │
+
+COUPLING: no cross-package imports detected
+
+EXTERNAL:
+  validation: run `vallm batch .` → validation.toon
+  duplication: run `redup scan .` → duplication.toon
