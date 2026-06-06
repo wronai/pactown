@@ -334,6 +334,7 @@ async def test_run_failure_includes_error_report_md(tmp_path, monkeypatch):
         user_profile,
         fast_mode: bool,
         skip_health_check: bool,
+        run_once: bool = False,
         on_log=None,
     ) -> RunResult:
         return RunResult(
@@ -404,6 +405,7 @@ async def test_run_stream_failure_includes_error_report_md(tmp_path, monkeypatch
         user_profile,
         fast_mode: bool,
         skip_health_check: bool,
+        run_once: bool = False,
         on_log=None,
     ) -> RunResult:
         return RunResult(

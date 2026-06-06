@@ -111,6 +111,80 @@ def up(config_path: str, dry_run: bool, no_health: bool, quiet: bool, sequential
         sys.exit(1)
 
 
+@cli.command("run")
+@click.argument("readme_path", type=click.Path(exists=True))
+@click.option("--port", "-p", default=0, type=int, help="Port (0 = auto)")
+@click.option("--once", is_flag=True, help="One-shot job – wait for exit code, no health check")
+@click.option("--timeout", default=300, type=int, help="Job timeout seconds (with --once)")
+@click.option("--sandbox-root", default=None, help="Sandbox root directory")
+def run_readme(readme_path: str, port: int, once: bool, timeout: int, sandbox_root: str | None):
+    """Run a single markpact README as a service or one-shot job.
+
+    Examples:
+        pactown run ./api/README.md -p 8001
+        pactown run ./jobs/migrate.md --once
+    """
+    import asyncio
+    import tempfile
+
+    from .service_runner import ServiceRunner
+
+    root = Path(sandbox_root) if sandbox_root else Path(tempfile.gettempdir()) / "pactown-sandboxes"
+    content = Path(readme_path).read_text()
+    runner = ServiceRunner(str(root))
+
+    async def _do_run() -> None:
+        if once:
+            result = await runner.run_job_from_content(
+                service_id=Path(readme_path).stem,
+                content=content,
+                port=port,
+                job_timeout=timeout,
+            )
+        else:
+            effective_port = port or 8000
+            result = await runner.run_from_content(
+                service_id=Path(readme_path).stem,
+                content=content,
+                port=effective_port,
+            )
+        for line in result.logs:
+            console.print(line)
+        if result.exit_code is not None:
+            console.print(f"[dim]exit_code={result.exit_code}[/dim]")
+        if result.success:
+            if result.pid:
+                console.print(f"[green]✓ Running PID {result.pid} on port {result.port}[/green]")
+            else:
+                console.print("[green]✓ Job completed successfully[/green]")
+        else:
+            console.print(f"[red]✗ {result.message}[/red]")
+            sys.exit(1 if (result.exit_code or 1) != 0 else 0)
+
+    try:
+        asyncio.run(_do_run())
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Interrupted[/yellow]")
+        sys.exit(130)
+
+
+@cli.command("exec")
+@click.argument("readme_path", type=click.Path(exists=True))
+@click.option("--timeout", default=300, type=int, help="Job timeout seconds")
+@click.option("--sandbox-root", default=None, help="Sandbox root directory")
+def exec_readme(readme_path: str, timeout: int, sandbox_root: str | None):
+    """Run a markpact README as a one-shot job (alias for run --once)."""
+    ctx = click.get_current_context()
+    ctx.invoke(
+        run_readme,
+        readme_path=readme_path,
+        port=0,
+        once=True,
+        timeout=timeout,
+        sandbox_root=sandbox_root,
+    )
+
+
 @cli.command()
 @click.argument("config_path", type=click.Path(exists=True))
 def down(config_path: str):

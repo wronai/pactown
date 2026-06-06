@@ -202,7 +202,10 @@ class RunResult:
     stderr_output: str = ""  # Captured stderr for debugging
     error_context: Optional[Dict[str, Any]] = None
     error_report_md: Optional[str] = None
-    
+    failure_phase: Optional[str] = None
+    phase_summary: Optional[Dict[str, Any]] = None
+    exit_code: Optional[int] = None
+
     def to_dict(self) -> dict:
         """Convert to dictionary for JSON serialization."""
         return {
@@ -229,6 +232,9 @@ class RunResult:
             "stderr_output": self.stderr_output,
             "error_context": self.error_context,
             "error_report_md": self.error_report_md,
+            "failure_phase": self.failure_phase,
+            "phase_summary": self.phase_summary,
+            "exit_code": self.exit_code,
         }
 
 

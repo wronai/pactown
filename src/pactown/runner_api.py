@@ -88,6 +88,7 @@ class RunRequest(BaseModel):
     user_profile: Optional[UserProfileRequest] = None
     fast_mode: bool = False
     skip_health_check: bool = False
+    run_once: bool = False
 
 
 class StopRequest(BaseModel):
@@ -262,6 +263,7 @@ class RunnerService:
         user_profile: Optional[Dict[str, Any]],
         fast_mode: bool,
         skip_health_check: bool,
+        run_once: bool = False,
         on_log: Optional[Callable[[str], None]] = None,
     ) -> RunResult:
         effective_port = int(port)
@@ -274,7 +276,17 @@ class RunnerService:
             profile = UserProfile.from_dict({**user_profile, "user_id": user_id})
             self.runner.security_policy.set_user_profile(profile)
 
-        if fast_mode:
+        if run_once:
+            result = await self.runner.run_job_from_content(
+                service_id=service_id,
+                content=content,
+                port=effective_port,
+                env=env or {},
+                user_id=user_id,
+                user_profile=user_profile,
+                on_log=on_log,
+            )
+        elif fast_mode:
             result = await self.runner.fast_run(
                 service_id=service_id,
                 content=content,
@@ -388,6 +400,7 @@ def create_runner_api(*, runner_service: RunnerService, settings: RunnerApiSetti
             user_profile=user_profile_dict,
             fast_mode=req.fast_mode,
             skip_health_check=req.skip_health_check,
+            run_once=req.run_once,
         )
 
         sandbox_path = runner_service._sandbox_path_for(service_id)
@@ -466,6 +479,7 @@ def create_runner_api(*, runner_service: RunnerService, settings: RunnerApiSetti
                             user_profile=user_profile_dict,
                             fast_mode=req.fast_mode,
                             skip_health_check=req.skip_health_check,
+                            run_once=req.run_once,
                             on_log=on_log,
                         )
                     )

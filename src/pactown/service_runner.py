@@ -39,7 +39,9 @@ if __name__ == "__main__":
 
 from .config import CacheConfig, ServiceConfig
 from .error_context import build_error_context, render_error_report_md
-from .markpact_blocks import extract_run_command, parse_blocks
+from .iac.phases import PhaseTracker
+from .markpact_blocks import extract_run_command, extract_workload_config, parse_blocks
+from .iac.workload import WorkloadKind
 from .runner_types import (
     AutoFixSuggestion,
     DiagnosticInfo,
@@ -297,11 +299,36 @@ class ServiceRunner:
         logs: List[str] = []
         service_name = f"service_{service_id}"
         effective_user_id = user_id or "anonymous"
-        
+
+        try:
+            blocks = parse_blocks(content)
+            workload_cfg = extract_workload_config(blocks)
+            if workload_cfg and workload_cfg.kind in (
+                WorkloadKind.JOB,
+                WorkloadKind.BUILD,
+                WorkloadKind.SCRIPT,
+            ):
+                return await self.run_job_from_content(
+                    service_id=service_id,
+                    content=content,
+                    port=port,
+                    env=env,
+                    on_log=on_log,
+                    user_id=user_id,
+                    user_profile=user_profile,
+                    job_timeout=health_timeout or self.health_timeout,
+                )
+        except Exception:
+            pass
+
+        phase_tracker = PhaseTracker(on_log=None)
+
         def log(msg: str):
             logs.append(msg)
             if on_log:
                 on_log(msg)
+
+        phase_tracker.on_log = log
         
         # Set user profile if provided
         if user_profile and user_id:
@@ -362,7 +389,7 @@ class ServiceRunner:
             log(f"Killed orphan process on port {port}")
             await asyncio.sleep(0.3)  # Wait for port to be released
         
-        # Validate content
+        phase_tracker.enter("manifest")
         validation = self.validate_content(content)
         log(f"Found {validation.file_count} files, {validation.deps_count} dependencies")
 
@@ -379,12 +406,16 @@ class ServiceRunner:
         if not validation.valid:
             for err in validation.errors:
                 log(f"❌ {err}")
+            phase_tracker.fail("manifest", validation.errors[0] if validation.errors else "Validation failed")
             return RunResult(
                 success=False,
                 port=port,
                 message=validation.errors[0] if validation.errors else "Validation failed",
                 logs=logs,
+                failure_phase="manifest",
+                phase_summary=phase_tracker.summary(),
             )
+        phase_tracker.complete("manifest")
         
         # Create temporary README file
         readme_path = self.sandbox_root / f"{service_name}_README.md"
@@ -404,12 +435,15 @@ class ServiceRunner:
         if missing_env:
             missing_str = ", ".join(missing_env)
             log(f"❌ Missing required environment variables: {missing_str}")
+            phase_tracker.fail("run", missing_str)
             return RunResult(
                 success=False,
                 port=port,
                 message=f"Missing required environment variables: {missing_str}",
                 logs=logs,
                 error_category=ErrorCategory.ENVIRONMENT,
+                failure_phase="run",
+                phase_summary=phase_tracker.summary(),
             )
         
         service_config = ServiceConfig(
@@ -422,8 +456,8 @@ class ServiceRunner:
         
         try:
             log(f"Creating sandbox for {service_name}")
-            
-            # Start service with detailed logging and user isolation
+            phase_tracker.enter("scaffold")
+
             process = self.sandbox_manager.start_service(
                 service=service_config,
                 readme_path=readme_path,
@@ -433,7 +467,20 @@ class ServiceRunner:
                 on_log=log,  # Pass log callback for detailed logging
                 user_id=effective_user_id if effective_user_id != "anonymous" else None,
             )
-            
+
+            if process.sandbox_path and (process.sandbox_path / "pactown.sandbox.yaml").exists():
+                phase_tracker = PhaseTracker.from_sandbox(process.sandbox_path, on_log=log)
+                for done in ("manifest", "scaffold"):
+                    if done in phase_tracker.phases:
+                        phase_tracker.complete(done)
+            else:
+                phase_tracker.complete("scaffold")
+
+            phase_tracker.enter("deps")
+            phase_tracker.complete("deps")
+            phase_tracker.enter("run")
+            phase_tracker.complete("run")
+
             # Check if process died immediately after startup
             if process.process and process.process.poll() is not None:
                 exit_code = process.process.returncode
@@ -451,7 +498,8 @@ class ServiceRunner:
             if wait_for_health:
                 timeout = health_timeout or self.health_timeout
                 log("Waiting for server to start...")
-                
+                phase_tracker.enter("health")
+
                 health_result = await self._wait_for_health(
                     process=process,
                     port=port,
@@ -496,10 +544,16 @@ class ServiceRunner:
                         error_context = None
                         error_report_md = None
 
-                    # Cleanup
+                    failure_phase = (
+                        (error_context or {}).get("failure_phase")
+                        if error_context
+                        else None
+                    ) or "health"
+                    phase_tracker.fail(failure_phase, stderr_out[:200] if stderr_out else "")
+
                     self.sandbox_manager.stop_service(service_name)
                     self.sandbox_manager.clean_sandbox(service_name)
-                    
+
                     log("❌ Server failed to start - check dependencies and code")
                     return RunResult(
                         success=False,
@@ -514,7 +568,11 @@ class ServiceRunner:
                         sandbox_path=process.sandbox_path,
                         error_context=error_context,
                         error_report_md=error_report_md,
+                        failure_phase=failure_phase,
+                        phase_summary=phase_tracker.summary(),
                     )
+
+                phase_tracker.complete("health")
             
             # Track mapping
             self._services[service_id] = service_name
@@ -534,6 +592,7 @@ class ServiceRunner:
                 logs=logs,
                 service_name=service_name,
                 sandbox_path=process.sandbox_path,
+                phase_summary=phase_tracker.summary(),
             )
             
         except Exception as e:
@@ -544,7 +603,119 @@ class ServiceRunner:
                 message=f"Failed to start: {e}",
                 logs=logs,
             )
-    
+
+    async def run_job_from_content(
+        self,
+        service_id: str,
+        content: str,
+        port: int = 0,
+        env: Optional[Dict[str, str]] = None,
+        on_log: Optional[Callable[[str], None]] = None,
+        user_id: Optional[str] = None,
+        user_profile: Optional[Dict[str, Any]] = None,
+        job_timeout: int = 300,
+    ) -> RunResult:
+        """Run a one-shot job from markpact content and return exit code."""
+        logs: List[str] = []
+        service_name = f"service_{service_id}"
+
+        def log(msg: str) -> None:
+            logs.append(msg)
+            if on_log:
+                on_log(msg)
+
+        if user_profile and user_id:
+            from .security import UserProfile
+            profile = UserProfile.from_dict({**user_profile, "user_id": user_id})
+            self.security_policy.set_user_profile(profile)
+
+        validation = self.validate_content(content)
+        if not validation.valid:
+            return RunResult(
+                success=False,
+                port=port,
+                message=validation.errors[0] if validation.errors else "Validation failed",
+                logs=logs,
+                failure_phase="manifest",
+            )
+
+        phase_tracker = PhaseTracker(on_log=log)
+        phase_tracker.enter("manifest")
+        phase_tracker.complete("manifest")
+
+        readme_path = self.sandbox_root / f"{service_name}_README.md"
+        readme_path.write_text(content)
+
+        service_env: Dict[str, str] = dict(env or {})
+        if port:
+            service_env["PORT"] = str(port)
+            service_env["MARKPACT_PORT"] = str(port)
+
+        service_config = ServiceConfig(
+            name=service_name,
+            readme=str(readme_path),
+            port=port or None,
+            env=service_env,
+            health_check=self.default_health_check,
+        )
+
+        phase_tracker.enter("scaffold")
+        try:
+            result = await asyncio.get_event_loop().run_in_executor(
+                None,
+                lambda: self.sandbox_manager.run_job_sync(
+                    service_config,
+                    readme_path,
+                    env=service_env,
+                    timeout=job_timeout,
+                    on_log=log,
+                ),
+            )
+        except Exception as e:
+            phase_tracker.fail("run", str(e))
+            return RunResult(
+                success=False,
+                port=port,
+                message=f"Job failed: {e}",
+                logs=logs,
+                failure_phase="run",
+                phase_summary=phase_tracker.summary(),
+            )
+
+        phase_tracker.complete("scaffold")
+        phase_tracker.enter("deps")
+        phase_tracker.complete("deps")
+        phase_tracker.enter("run")
+        phase_tracker.complete("run")
+
+        exit_code = int(result.get("exit_code", 1))
+        stdout = str(result.get("stdout") or "")
+        stderr = str(result.get("stderr") or "")
+        if stdout:
+            log(stdout.rstrip())
+        if stderr:
+            log(stderr.rstrip())
+
+        sandbox_path = result.get("sandbox_path")
+        timed_out = bool(result.get("timed_out"))
+        success = exit_code == 0 and not timed_out
+
+        if not success:
+            phase_tracker.fail("run", stderr[:200] if stderr else f"exit {exit_code}")
+
+        return RunResult(
+            success=success,
+            port=port,
+            message="Job completed" if success else (f"Job timed out after {job_timeout}s" if timed_out else f"Job exited with code {exit_code}"),
+            logs=logs,
+            service_name=service_name,
+            sandbox_path=sandbox_path,
+            stderr_output=stderr,
+            exit_code=exit_code,
+            failure_phase=None if success else "run",
+            phase_summary=phase_tracker.summary(),
+        )
+
     def _generate_suggestions(
         self, 
         error_cat: ErrorCategory, 

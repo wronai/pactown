@@ -23,7 +23,13 @@ from typing import Callable, Optional, Any
 from markpact import Sandbox, ensure_venv
 
 from .config import ServiceConfig
-from .markpact_blocks import extract_run_command, parse_blocks
+from .markpact_blocks import (
+    extract_build_cmd,
+    extract_run_command,
+    extract_target_config,
+    extract_workload_config,
+    parse_blocks,
+)  # extract_run_command used by run_job_sync
 from .fast_start import DependencyCache
 from .sandbox_helpers import (  # noqa: F401 – re-exported for backward compat
     _beat_every_s,
@@ -532,6 +538,87 @@ class SandboxManager:
         return l in {"node", "js", "javascript", "npm"}
 
     @staticmethod
+    def _is_go_lang(lang: str) -> bool:
+        l = (lang or "").strip().lower()
+        return l in {"go", "golang", "gomod"}
+
+    @staticmethod
+    def _infer_go_project(*, blocks: list, deps: list[str], run_cmd: str) -> bool:
+        for b in blocks:
+            if getattr(b, "kind", "") == "deps" and SandboxManager._is_go_lang(getattr(b, "lang", "")):
+                return True
+            if getattr(b, "kind", "") == "file":
+                try:
+                    p = str(b.get_path() or "").strip().lower()
+                except Exception:
+                    p = ""
+                if p in {"go.mod", "main.go"} or p.endswith(".go"):
+                    return True
+        rc = (run_cmd or "").strip().lower()
+        if rc.startswith(("go run", "go build", "go test", "go install")):
+            return True
+        return bool(deps)
+
+    @staticmethod
+    def _ensure_go_mod(*, sandbox_path: Path, service_name: str) -> None:
+        mod_path = sandbox_path / "go.mod"
+        if mod_path.exists():
+            return
+        safe_name = re.sub(r"[^a-zA-Z0-9._/-]", "-", str(service_name).lower()) or "app"
+        mod_path.write_text(
+            "\n".join(
+                [
+                    f"module pactown/{safe_name}",
+                    "",
+                    "go 1.22",
+                    "",
+                ]
+            ),
+            encoding="utf-8",
+        )
+
+    def _install_go_deps(
+        self,
+        *,
+        sandbox: Sandbox,
+        deps: list[str],
+        on_log: Optional[Callable[[str], None]] = None,
+        env: Optional[dict[str, str]] = None,
+    ) -> None:
+        if shutil.which("go") is None:
+            raise RuntimeError("go compiler not found on PATH")
+
+        def dbg(msg: str) -> None:
+            if on_log:
+                on_log(msg)
+
+        install_env = _sanitize_inherited_env(os.environ.copy(), env)
+        for dep in deps:
+            dep = dep.strip()
+            if not dep:
+                continue
+            dbg(f"go get {dep}")
+            subprocess.run(
+                ["go", "get", dep],
+                cwd=str(sandbox.path),
+                env=install_env,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+        if (sandbox.path / "go.mod").exists():
+            dbg("go mod tidy")
+            subprocess.run(
+                ["go", "mod", "tidy"],
+                cwd=str(sandbox.path),
+                env=install_env,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+    @staticmethod
     def _infer_node_project(*, blocks: list, deps: list[str], run_cmd: str) -> bool:
         for b in blocks:
             if getattr(b, "kind", "") == "deps" and SandboxManager._is_node_lang(getattr(b, "lang", "")):
@@ -765,7 +852,15 @@ class SandboxManager:
             if on_log and _should_emit_to_ui(level):
                 _call_on_log(on_log, msg, level)
 
-        def _write_iac(*, is_node: bool, python_deps: list[str], node_deps: list[str], run_cmd: str) -> None:
+        def _write_iac(
+            *,
+            is_node: bool,
+            is_go: bool,
+            python_deps: list[str],
+            node_deps: list[str],
+            go_deps: list[str],
+            run_cmd: str,
+        ) -> None:
             try:
                 from .iac import write_sandbox_iac
 
@@ -776,11 +871,16 @@ class SandboxManager:
                     port=service.port,
                     run_cmd=run_cmd,
                     is_node=is_node,
+                    is_go=is_go,
                     python_deps=python_deps,
                     node_deps=node_deps,
+                    go_deps=go_deps,
                     health_path=service.health_check or "/",
                     env_keys=list((env or {}).keys()),
                     env=None,
+                    target=target_cfg,
+                    build_cmd=build_cmd,
+                    workload=workload_cfg,
                 )
             except Exception as e:
                 dbg(f"Failed to write IaC artifacts: {e}", "WARNING")
@@ -860,14 +960,22 @@ class SandboxManager:
             kind_counts[b.kind] = kind_counts.get(b.kind, 0) + 1
         dbg(f"Parsed markpact blocks: total={len(blocks)} kinds={kind_counts}", "DEBUG")
 
+        target_cfg = extract_target_config(blocks)
+        build_cmd = extract_build_cmd(blocks)
+        workload_cfg = extract_workload_config(blocks)
+
         deps: list[str] = []
         deps_node: list[str] = []
+        deps_go: list[str] = []
         run_cmd: str = ""
 
         for block in blocks:
             if block.kind == "deps":
-                if self._is_node_lang(getattr(block, "lang", "")):
+                lang = getattr(block, "lang", "")
+                if self._is_node_lang(lang):
                     deps_node.extend(block.body.strip().split("\n"))
+                elif self._is_go_lang(lang):
+                    deps_go.extend(block.body.strip().split("\n"))
                 else:
                     deps.extend(block.body.strip().split("\n"))
             elif block.kind == "file":
@@ -879,6 +987,7 @@ class SandboxManager:
 
         deps_clean = [d.strip() for d in deps if d.strip()]
         deps_node_clean = [d.strip() for d in deps_node if d.strip()]
+        deps_go_clean = [d.strip() for d in deps_go if d.strip()]
 
         def _dep_name(raw: str) -> str:
             s = (raw or "").strip()
@@ -888,8 +997,28 @@ class SandboxManager:
             s = s.split("[")[0].strip()  # extras
             s = re.split(r"[<>=!~]", s, maxsplit=1)[0].strip()
             return s.lower()
-        is_node = self._infer_node_project(blocks=blocks, deps=(deps_node_clean or deps_clean), run_cmd=run_cmd)
+        is_go = self._infer_go_project(blocks=blocks, deps=deps_go_clean, run_cmd=run_cmd)
+        is_node = False if is_go else self._infer_node_project(
+            blocks=blocks, deps=(deps_node_clean or deps_clean), run_cmd=run_cmd
+        )
         effective_node_deps = deps_node_clean if deps_node_clean else (deps_clean if is_node else [])
+
+        if is_go:
+            self._ensure_go_mod(sandbox_path=sandbox.path, service_name=service.name)
+            if install_dependencies:
+                try:
+                    self._install_go_deps(sandbox=sandbox, deps=deps_go_clean, on_log=on_log, env=env)
+                except Exception as e:
+                    dbg(f"go deps install failed: {e}", "WARNING")
+            _write_iac(
+                is_node=False,
+                is_go=True,
+                python_deps=[],
+                node_deps=[],
+                go_deps=deps_go_clean,
+                run_cmd=run_cmd,
+            )
+            return sandbox
 
         if is_node:
             if effective_node_deps:
@@ -900,7 +1029,14 @@ class SandboxManager:
             if install_dependencies and effective_node_deps:
                 self._install_node_deps(sandbox=sandbox, deps=effective_node_deps, on_log=on_log, env=env)
 
-            _write_iac(is_node=True, python_deps=[], node_deps=effective_node_deps, run_cmd=run_cmd)
+            _write_iac(
+                is_node=True,
+                is_go=False,
+                python_deps=[],
+                node_deps=effective_node_deps,
+                go_deps=[],
+                run_cmd=run_cmd,
+            )
             return sandbox
 
         if deps_clean:
@@ -963,7 +1099,14 @@ class SandboxManager:
                         stop.set()
                         dbg(f"Venv restored: {_path_debug(venv_dst)}", "DEBUG")
                         if _verify_restored_venv(venv_path=venv_dst, deps=deps_clean, run_cmd=run_cmd):
-                            _write_iac(is_node=False, python_deps=deps_clean, node_deps=[], run_cmd=run_cmd)
+                            _write_iac(
+                                is_node=False,
+                                is_go=False,
+                                python_deps=deps_clean,
+                                node_deps=[],
+                                go_deps=[],
+                                run_cmd=run_cmd,
+                            )
                             return sandbox
                         dbg("Cached venv appears corrupted - rebuilding", "WARNING")
                         try:
@@ -1093,8 +1236,86 @@ class SandboxManager:
         else:
             dbg("No dependencies block found", "DEBUG")
 
-        _write_iac(is_node=False, python_deps=deps_clean, node_deps=[], run_cmd=run_cmd)
+        _write_iac(
+            is_node=False,
+            is_go=False,
+            python_deps=deps_clean,
+            node_deps=[],
+            go_deps=[],
+            run_cmd=run_cmd,
+        )
         return sandbox
+
+    def run_job_sync(
+        self,
+        service: ServiceConfig,
+        readme_path: Path,
+        *,
+        env: Optional[dict[str, str]] = None,
+        timeout: int = 300,
+        on_log: Optional[Callable[[str], None]] = None,
+    ) -> dict[str, Any]:
+        """Run a one-shot job in a sandbox and wait for exit code."""
+
+        def log(msg: str, level: str = "INFO") -> None:
+            logger.log(getattr(logging, level), f"[{service.name}] {msg}")
+            if on_log and _should_emit_to_ui(level):
+                _call_on_log(on_log, msg, level)
+
+        sandbox = self.create_sandbox(service, readme_path, install_dependencies=True, on_log=on_log, env=env)
+        blocks = parse_blocks(readme_path.read_text())
+        run_command = extract_run_command(blocks)
+        if not run_command:
+            raise RuntimeError("No run command found in README")
+
+        runtime_env = _filter_runtime_env(env or {})
+        full_env = _sanitize_inherited_env(os.environ.copy(), runtime_env)
+        full_env.update(runtime_env or {})
+        if service.port:
+            full_env["PORT"] = str(service.port)
+            full_env["MARKPACT_PORT"] = str(service.port)
+
+        expanded_cmd = run_command
+        if service.port:
+            expanded_cmd = expanded_cmd.replace("$PORT", str(service.port))
+            expanded_cmd = expanded_cmd.replace("${PORT}", str(service.port))
+            expanded_cmd = expanded_cmd.replace("${MARKPACT_PORT}", str(service.port))
+            expanded_cmd = expanded_cmd.replace("$MARKPACT_PORT", str(service.port))
+
+        if sandbox.has_venv():
+            venv_bin = str(sandbox.venv_bin)
+            full_env["PATH"] = f"{venv_bin}:{full_env.get('PATH', '')}"
+            full_env["VIRTUAL_ENV"] = str(sandbox.path / ".venv")
+
+        log(f"Running job: {expanded_cmd}", "INFO")
+        try:
+            proc = subprocess.run(
+                expanded_cmd,
+                shell=True,  # nosec B602
+                cwd=str(sandbox.path),
+                env=full_env,
+                capture_output=True,
+                text=True,
+                timeout=timeout,
+            )
+        except subprocess.TimeoutExpired as e:
+            stdout = (e.stdout or "") if isinstance(e.stdout, str) else (e.stdout or b"").decode(errors="replace")
+            stderr = (e.stderr or "") if isinstance(e.stderr, str) else (e.stderr or b"").decode(errors="replace")
+            return {
+                "exit_code": -1,
+                "stdout": stdout,
+                "stderr": stderr,
+                "sandbox_path": sandbox.path,
+                "timed_out": True,
+            }
+
+        return {
+            "exit_code": proc.returncode,
+            "stdout": proc.stdout or "",
+            "stderr": proc.stderr or "",
+            "sandbox_path": sandbox.path,
+            "timed_out": False,
+        }
 
     def build_service(
         self,

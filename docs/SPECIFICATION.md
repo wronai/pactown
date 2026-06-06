@@ -109,10 +109,36 @@ Ensures correct startup order:
 ### 4. Sandbox Manager
 
 Isolates each service:
-- Creates virtual environments
-- Manages processes
+- Creates virtual environments (Python, Node, Go)
+- Manages processes and one-shot jobs
+- Writes declarative IaC per sandbox (`pactown.sandbox.yaml`, Dockerfile, compose)
 - Handles port allocation
 - Cleans up on shutdown
+
+#### Sandbox IaC manifest (`pactown.sandbox.yaml`)
+
+Each sandbox can emit a versioned manifest (`apiVersion: pactown.dev/v1alpha1`, `kind: Sandbox`) describing:
+
+| Section | Purpose |
+|---------|---------|
+| `workload` | Kind: `service`, `job`, `cli`, `daemon`, `build`, `plugin`, `script` |
+| `runtime` | `python`, `node`, `go`, `shell`, `oci-image` |
+| `target` | Desktop/mobile/web from `markpact:target` |
+| `techstack` | Language, package managers, dependencies |
+| `validation.phases` | Ordered phases for error localization |
+| `cicd` | Build/deploy backends (docker, quadlet) |
+
+Plugin workloads additionally emit `pactown.plugin.yaml` with entrypoint, host app, and permissions.
+
+#### CLI and API runners
+
+```bash
+pactown run ./api/README.md -p 8001      # long-running service
+pactown run ./jobs/migrate.md --once     # one-shot job (exit code)
+pactown exec ./jobs/migrate.md           # alias for run --once
+```
+
+HTTP API `POST /run` accepts `run_once: true` for job mode (returns `exit_code`).
 
 ### 5. Registry
 
@@ -187,16 +213,29 @@ Quick experimentation:
 | Documentation gets stale | Docs = code |
 | Per-language tooling | Unified orchestration |
 
+## Supported Runtimes
+
+| Runtime | Status | Notes |
+|---------|--------|-------|
+| Python | Production | venv + pip |
+| Node.js | Production | npm/yarn |
+| Go | Beta | `go.mod` detection, `go run` |
+| Shell | Production | `bash`/`sh` scripts |
+| OCI image | Production | Pre-built container images |
+| Rust/Java/PHP | Planned | Via `oci-image` or future native runtimes |
+
 ## Limitations
 
 - Services must be compatible with markpact format
-- Local development focus (production deployment is separate)
+- Not yet a universal “run anything anywhere” runner — plugin API and some runtimes are in progress
+- Local development focus (production deployment via quadlet/docker is separate)
 - Single-machine orchestration (not distributed)
 
 ## Future Directions
 
-1. **Docker Integration** – Generate docker-compose from ecosystem
-2. **Kubernetes Support** – Export to K8s manifests
+1. **Plugin host API** – Load and run `pactown.plugin.yaml` extensions in IDE hosts
+2. **Kubernetes Support** – Export sandbox manifests to K8s
 3. **Remote Registry** – Cloud-hosted artifact registry
 4. **Service Mesh** – Automatic service discovery
 5. **Hot Reload** – Watch mode for development
+6. **Native Rust/Java/PHP** – First-class sandbox runtimes beyond OCI images

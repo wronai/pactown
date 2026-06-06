@@ -20,6 +20,15 @@ def extract_target_config(blocks: list[Block]) -> Optional["TargetConfig"]:
     return None
 
 
+def extract_workload_config(blocks: list[Block]) -> Optional["WorkloadConfig"]:
+    """Extract WorkloadConfig from markpact:workload block if present."""
+    for b in blocks:
+        if b.kind == "workload":
+            from .iac.workload import WorkloadConfig
+            return WorkloadConfig.from_yaml_body(b.body)
+    return None
+
+
 def extract_build_cmd(blocks: list[Block]) -> Optional[str]:
     """Extract build command from markpact:build block if present."""
     for b in blocks:
@@ -65,5 +74,7 @@ def extract_run_command(blocks: list[Block]) -> Optional[str]:
         return "node server.js"
     if "main.js" in file_names:
         return "node main.js"
+    if "main.go" in file_names:
+        return "go run ."
 
     return None
